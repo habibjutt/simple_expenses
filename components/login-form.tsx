@@ -1,40 +1,40 @@
-"use client"
+"use client";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { signIn } from "@/lib/auth-client"
-import { useState } from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { signIn } from "@/lib/auth-client";
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
-  const router = useRouter()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleEmailPasswordLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setLoading(true)
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
     try {
       await signIn.email(
@@ -44,34 +44,34 @@ export function LoginForm({
         },
         {
           onSuccess: () => {
-            router.push("/")
+            router.push("/");
           },
           onError: (ctx) => {
-            setError(ctx.error.message || "Login failed")
+            setError(ctx.error.message || "Login failed");
           },
-        }
-      )
+        },
+      );
     } catch (err) {
-      setError("An unexpected error occurred")
+      setError("An unexpected error occurred");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleGitHubLogin = async () => {
-    setError("")
-    setLoading(true)
+    setError("");
+    setLoading(true);
 
     try {
       await signIn.social({
         provider: "github",
         callbackURL: "/",
-      })
+      });
     } catch (err) {
-      setError("GitHub login failed")
-      setLoading(false)
+      setError("GitHub login failed");
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -134,7 +134,9 @@ export function LoginForm({
               <div className="w-full border-t border-gray-300" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="bg-white px-2 text-gray-500">Or continue with</span>
+              <span className="bg-white px-2 text-gray-500">
+                Or continue with
+              </span>
             </div>
           </div>
 
@@ -161,12 +163,15 @@ export function LoginForm({
 
           <FieldDescription className="text-center mt-4">
             Don&apos;t have an account?{" "}
-            <Link href="/signup" className="underline underline-offset-4 hover:no-underline">
+            <Link
+              href="/signup"
+              className="underline underline-offset-4 hover:no-underline"
+            >
               Sign up
             </Link>
           </FieldDescription>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

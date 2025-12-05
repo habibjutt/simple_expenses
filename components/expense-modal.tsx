@@ -1,11 +1,24 @@
 import React, { useState } from "react";
 import { createExpenseAccount } from "@/app/api/expense-account-action";
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "./ui/dialog";
 import { Field } from "./ui/field";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 
-export default function ExpenseModal({ open, setOpen }: { open: boolean; setOpen: (v: boolean) => void }) {
+export default function ExpenseModal({
+  open,
+  setOpen,
+}: {
+  open: boolean;
+  setOpen: (v: boolean) => void;
+}) {
   const [accountName, setAccountName] = useState("");
   const [initialBalance, setInitialBalance] = useState("");
   const [loading, setLoading] = useState(false);
@@ -40,7 +53,7 @@ export default function ExpenseModal({ open, setOpen }: { open: boolean; setOpen
           <Field label="Account Name" required>
             <Input
               value={accountName}
-              onChange={e => setAccountName(e.target.value)}
+              onChange={(e) => setAccountName(e.target.value)}
               placeholder="Enter account name"
               required
             />
@@ -49,7 +62,7 @@ export default function ExpenseModal({ open, setOpen }: { open: boolean; setOpen
             <Input
               type="number"
               value={initialBalance}
-              onChange={e => setInitialBalance(e.target.value)}
+              onChange={(e) => setInitialBalance(e.target.value)}
               placeholder="Enter initial balance"
               required
               min={0}
@@ -57,8 +70,16 @@ export default function ExpenseModal({ open, setOpen }: { open: boolean; setOpen
           </Field>
           {error && <div className="text-red-500 text-sm">{error}</div>}
           <DialogFooter>
-            <Button type="submit" variant="primary" disabled={loading}>{loading ? "Creating..." : "Create"}</Button>
-            <Button type="button" variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button type="submit" variant="primary" disabled={loading}>
+              {loading ? "Creating..." : "Create"}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setOpen(false)}
+            >
+              Cancel
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

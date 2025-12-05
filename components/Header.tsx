@@ -1,31 +1,31 @@
-'use client'
+"use client";
 
-import React, { useEffect, useState } from 'react'
-import Link from 'next/link'
-import { useSession, signOut } from '@/lib/auth-client'
-import { Button } from '@/components/ui/button'
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { useSession, signOut } from "@/lib/auth-client";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 
-import ExpenseModal from './expense-modal'
+import ExpenseModal from "./expense-modal";
 
 const Header = () => {
   const [showExpenseModal, setShowExpenseModal] = useState(false);
-  const { data: session, isPending } = useSession()
-  const [mounted, setMounted] = useState(false)
+  const { data: session, isPending } = useSession();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   const handleLogout = async () => {
-    await signOut()
-  }
+    await signOut();
+  };
 
   // Don't render until mounted to prevent hydration mismatch
   if (!mounted) {
@@ -35,7 +35,7 @@ const Header = () => {
           <div className="font-bold text-lg">Simple Expenses</div>
         </div>
       </header>
-    )
+    );
   }
 
   return (
@@ -60,31 +60,38 @@ const Header = () => {
             <div className="text-sm text-gray-500">Loading...</div>
           ) : session ? (
             <>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="gap-2">
-                  {session.user.name || session.user.email}
-                  <span className="text-xs">▼</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <button type="button" onClick={() => setShowExpenseModal(true)} className="w-full text-left bg-transparent border-none p-0 m-0 cursor-pointer">
-                    Create Expense Account
-                  </button>
-                </DropdownMenuItem>
-                <DropdownMenuItem disabled>
-                  <span className="text-sm text-gray-600">
-                    {session.user.email}
-                  </span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <ExpenseModal open={showExpenseModal} setOpen={setShowExpenseModal} />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="gap-2">
+                    {session.user.name || session.user.email}
+                    <span className="text-xs">▼</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <button
+                      type="button"
+                      onClick={() => setShowExpenseModal(true)}
+                      className="w-full text-left bg-transparent border-none p-0 m-0 cursor-pointer"
+                    >
+                      Create Expense Account
+                    </button>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem disabled>
+                    <span className="text-sm text-gray-600">
+                      {session.user.email}
+                    </span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout}>
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <ExpenseModal
+                open={showExpenseModal}
+                setOpen={setShowExpenseModal}
+              />
             </>
           ) : (
             <div className="flex gap-3">
@@ -99,7 +106,7 @@ const Header = () => {
         </div>
       </div>
     </header>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;
