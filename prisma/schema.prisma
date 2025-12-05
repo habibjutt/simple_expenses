@@ -78,7 +78,7 @@ model verification {
 }
 
 // App Models
-model Expense {
+model expense_account {
   id        String   @id @default(cuid())
   name      String
   balance   Float    @default(0)
