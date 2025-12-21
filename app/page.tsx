@@ -10,11 +10,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getCreditCards, deleteCreditCard } from "@/app/api/credit-card-action";
 import { getBankAccounts, deleteBankAccount } from "@/app/api/bank-account-action";
-import { getTransactions, deleteTransaction } from "@/app/api/transaction-action";
+import { getTransactions } from "@/app/api/transaction-action";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CreditCard, Wallet, TrendingDown, TrendingUp, Calendar, DollarSign, Trash2, Pencil } from "lucide-react";
+import { CreditCard, Wallet, TrendingDown, TrendingUp, Calendar, DollarSign, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -73,8 +73,6 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [deleteCardId, setDeleteCardId] = useState<string | null>(null);
   const [deleteAccountId, setDeleteAccountId] = useState<string | null>(null);
-  const [deleteTransactionId, setDeleteTransactionId] = useState<string | null>(null);
-  const [editTransaction, setEditTransaction] = useState<Transaction | null>(null);
 
   const fetchCreditCards = async () => {
     try {
@@ -150,23 +148,6 @@ export default function Home() {
     } catch (error) {
       console.error("Failed to delete bank account:", error);
     }
-  };
-
-  const handleDeleteTransaction = async (transactionId: string) => {
-    try {
-      await deleteTransaction(transactionId);
-      await fetchTransactions();
-      await fetchCreditCards();
-      await fetchBankAccounts();
-      setDeleteTransactionId(null);
-    } catch (error) {
-      console.error("Failed to delete transaction:", error);
-    }
-  };
-
-  const handleEditTransaction = (transaction: Transaction) => {
-    setEditTransaction(transaction);
-    setIsTransactionModalOpen(true);
   };
 
   return (
@@ -406,9 +387,6 @@ export default function Home() {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Installments
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -431,30 +409,6 @@ export default function Home() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {txn.installments}x
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <div className="flex justify-end gap-2">
-                            {txn.category !== "Transfer" && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleEditTransaction(txn)}
-                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                                aria-label={`Edit ${txn.name}`}
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                            )}
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setDeleteTransactionId(txn.id)}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                              aria-label={`Delete ${txn.name}`}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
                         </td>
                       </tr>
                     ))}
@@ -486,21 +440,14 @@ export default function Home() {
 
       <TransactionModal
         open={isTransactionModalOpen}
-        setOpen={(open) => {
-          setIsTransactionModalOpen(open);
-          if (!open) {
-            setEditTransaction(null);
-          }
-        }}
+        setOpen={setIsTransactionModalOpen}
         creditCards={creditCards}
         bankAccounts={bankAccounts}
         onSuccess={() => {
           fetchCreditCards();
           fetchBankAccounts();
           fetchTransactions();
-          setEditTransaction(null);
         }}
-        editTransaction={editTransaction}
       />
 
       <AlertDialog
@@ -547,33 +494,6 @@ export default function Home() {
             >
               Delete
             </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <AlertDialog
-        open={deleteTransactionId !== null}
-        onOpenChange={(open) => !open && setDeleteTransactionId(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Transaction</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this transaction? This will refund the amount back to the account or card. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <Button
-              onClick={() => {
-                if (deleteTransactionId) {
-                  handleDeleteTransaction(deleteTransactionId);
-                }
-              }}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Delete
-            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
