@@ -1,5 +1,15 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Simple Expenses - Expense Tracking Application
+
+A comprehensive expense tracking application built with Next.js, featuring credit card management, bank account tracking, and transaction monitoring.
+
+### Currency Configuration
+
+This application uses **AED (UAE Dirham)** as the base currency. All monetary values are formatted using a centralized utility function. 
+
+For detailed information about currency configuration and formatting, see [CURRENCY.md](./CURRENCY.md).
+
 ## Getting Started
 
 First, run the development server:

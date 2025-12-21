@@ -81,8 +81,32 @@ const fieldVariants = cva(
 function Field({
   className,
   orientation = "vertical",
+  label,
+  required,
+  children,
   ...props
-}: React.ComponentProps<"div"> & VariantProps<typeof fieldVariants>) {
+}: React.ComponentProps<"div"> & VariantProps<typeof fieldVariants> & {
+  label?: string;
+  required?: boolean;
+}) {
+  if (label) {
+    return (
+      <div
+        role="group"
+        data-slot="field"
+        data-orientation={orientation}
+        className={cn(fieldVariants({ orientation }), className)}
+        {...props}
+      >
+        <Label className="text-sm font-medium">
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </Label>
+        {children}
+      </div>
+    );
+  }
+  
   return (
     <div
       role="group"
@@ -90,7 +114,9 @@ function Field({
       data-orientation={orientation}
       className={cn(fieldVariants({ orientation }), className)}
       {...props}
-    />
+    >
+      {children}
+    </div>
   );
 }
 

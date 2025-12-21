@@ -26,6 +26,8 @@ model user {
   accounts account[]
   sessions session[]
   verifications verification[]
+  creditCards credit_card[]
+  bankAccounts bank_account[]
 }
 
 model session {
@@ -84,4 +86,79 @@ model expense_account {
   balance   Float    @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model credit_card {
+  id                  String   @id @default(cuid())
+  name                String
+  billGenerationDate  Int      // Day of month (1-31)
+  paymentDate         Int      // Day of month (1-31)
+  cardLimit           Float
+  availableBalance    Float    @default(0) // Tracks remaining available balance
+  userId              String
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user         user          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions transaction[]
+  invoices     invoice[]
+
+  @@index([userId])
+}
+
+model bank_account {
+  id              String   @id @default(cuid())
+  name            String
+  initialBalance  Float
+  currentBalance  Float
+  userId          String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user         user          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions transaction[]
+  invoicePayments invoice[]
+
+  @@index([userId])
+}
+
+model invoice {
+  id                    String    @id @default(cuid())
+  creditCardId          String
+  billStartDate         DateTime
+  billEndDate           DateTime
+  paymentDueDate        DateTime
+  totalAmount           Float
+  isPaid                Boolean   @default(false)
+  paidAt                DateTime?
+  paidFromBankAccountId String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  creditCard          credit_card   @relation(fields: [creditCardId], references: [id], onDelete: Cascade)
+  paidFromBankAccount bank_account? @relation(fields: [paidFromBankAccountId], references: [id], onDelete: SetNull)
+
+  @@unique([creditCardId, billStartDate, billEndDate])
+  @@index([creditCardId])
+  @@index([isPaid])
+}
+
+model transaction {
+  id             String   @id @default(cuid())
+  name           String
+  amount         Float
+  date           DateTime
+  category       String
+  installments   Int      @default(1) // Number of installments (1 for one-time payment)
+  creditCardId   String?
+  bankAccountId  String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  creditCard  credit_card?  @relation(fields: [creditCardId], references: [id], onDelete: Cascade)
+  bankAccount bank_account? @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+
+  @@index([creditCardId])
+  @@index([bankAccountId])
+  @@index([date])
 }
