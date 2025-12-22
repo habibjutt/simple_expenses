@@ -11,10 +11,11 @@ import { useEffect, useState } from "react";
 import { getCreditCards, deleteCreditCard } from "@/app/api/credit-card-action";
 import { getBankAccounts, deleteBankAccount } from "@/app/api/bank-account-action";
 import { getTransactions } from "@/app/api/transaction-action";
+import { getCurrentMonthInvoices, getNextBillAmounts } from "@/app/api/invoice-action";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CreditCard, Wallet, TrendingDown, TrendingUp, Calendar, DollarSign, Trash2 } from "lucide-react";
+import { CreditCard, Wallet, Eye, EyeOff, Info, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -53,12 +54,33 @@ type Transaction = {
   date: Date;
   category: string;
   installments: number;
-  creditCardId: string;
-  creditCard: { name: string };
-  bankAccountId: string;
-  bankAccount: { name: string };
+  creditCardId: string | null;
+  creditCard: { name: string } | null;
+  bankAccountId: string | null;
+  bankAccount: { name: string } | null;
   createdAt: Date;
   updatedAt: Date;
+};
+
+type Invoice = {
+  cardId: string;
+  cardName: string;
+  billStartDate: Date;
+  billEndDate: Date;
+  paymentDueDate: Date;
+  totalAmount: number;
+  invoice: {
+    id: string;
+    isPaid: boolean;
+  } | null;
+};
+
+type NextBill = {
+  cardId: string;
+  nextBillStartDate: Date;
+  nextBillEndDate: Date;
+  nextPaymentDueDate: Date;
+  totalAmount: number;
 };
 
 export default function Home() {
@@ -70,9 +92,13 @@ export default function Home() {
   const [creditCards, setCreditCards] = useState<CreditCard[]>([]);
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [nextBills, setNextBills] = useState<NextBill[]>([]);
   const [loading, setLoading] = useState(false);
   const [deleteCardId, setDeleteCardId] = useState<string | null>(null);
   const [deleteAccountId, setDeleteAccountId] = useState<string | null>(null);
+  const [showBalance, setShowBalance] = useState(true);
+  const [showBills, setShowBills] = useState(true);
 
   const fetchCreditCards = async () => {
     try {
@@ -104,6 +130,24 @@ export default function Home() {
     }
   };
 
+  const fetchInvoices = async () => {
+    try {
+      const invs = await getCurrentMonthInvoices();
+      setInvoices(invs);
+    } catch (error) {
+      console.error("Failed to fetch invoices:", error);
+    }
+  };
+
+  const fetchNextBills = async () => {
+    try {
+      const bills = await getNextBillAmounts();
+      setNextBills(bills);
+    } catch (error) {
+      console.error("Failed to fetch next bills:", error);
+    }
+  };
+
   useEffect(() => {
     if (!isPending && !session) {
       router.push("/login");
@@ -115,6 +159,8 @@ export default function Home() {
       fetchCreditCards();
       fetchBankAccounts();
       fetchTransactions();
+      fetchInvoices();
+      fetchNextBills();
     }
   }, [session]);
 
@@ -134,6 +180,8 @@ export default function Home() {
     try {
       await deleteCreditCard(cardId);
       await fetchCreditCards();
+      await fetchInvoices();
+      await fetchNextBills();
       setDeleteCardId(null);
     } catch (error) {
       console.error("Failed to delete credit card:", error);
@@ -150,286 +198,236 @@ export default function Home() {
     }
   };
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 18) return "Good afternoon";
+    return "Good evening";
+  };
+
+  const getTotalBalance = () => {
+    return bankAccounts.reduce((sum, acc) => sum + acc.currentBalance, 0);
+  };
+
+  const getTotalBills = () => {
+    return invoices.reduce((sum, inv) => sum + inv.totalAmount, 0);
+  };
+
+  const getAccountIconColor = (index: number) => {
+    const colors = ["bg-green-500", "bg-red-500", "bg-yellow-500", "bg-blue-500"];
+    return colors[index % colors.length];
+  };
+
+  const getCardIconColor = (index: number) => {
+    const colors = ["bg-orange-500", "bg-blue-600", "bg-pink-500", "bg-amber-700"];
+    return colors[index % colors.length];
+  };
+
+  const formatDate = (date: Date) => {
+    return new Date(date).toLocaleDateString("en-US", { month: "numeric", day: "numeric" });
+  };
+
+  const totalBalance = getTotalBalance();
+  const totalBills = getTotalBills();
+  const currentMonth = new Date().toLocaleString("en-US", { month: "long" });
+
   return (
     <div className="max-w-7xl mx-auto">
       <Header />
       <main className="p-4 md:p-6 pb-48 md:pb-52">
-        <div className="mb-8">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-            <h1 className="text-xl md:text-2xl font-bold">
-              Welcome, {session.user?.name || session.user?.email}!
-            </h1>
-            <div className="hidden md:flex gap-3">
-              <Button
-                onClick={() => setIsModalOpen(true)}
-                variant="default"
-                aria-label="Add credit card"
+        {/* Greeting Section */}
+        <div className="mb-6">
+          <p className="text-sm text-gray-500 mb-1">{getGreeting()},</p>
+          <h1 className="text-2xl md:text-3xl font-bold">
+            {session.user?.name || session.user?.email?.split("@")[0]}
+          </h1>
+        </div>
+
+        {/* General Balance Section */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-gray-500">General Balance</span>
+            <button
+              onClick={() => setShowBalance(!showBalance)}
+              className="text-gray-500 hover:text-gray-700"
+              aria-label="Toggle balance visibility"
+            >
+              {showBalance ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
+          <div className="text-3xl md:text-4xl font-bold">
+            {showBalance ? formatCurrency(totalBalance) : "••••••"}
+          </div>
+        </div>
+
+        {/* My Accounts Section */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold">My Accounts</h2>
+            <Button
+              onClick={() => setIsBankAccountModalOpen(true)}
+              size="sm"
+              className="text-xs bg-green-600 hover:bg-green-700 text-white"
+            >
+              Manage Accounts
+            </Button>
+          </div>
+          {loading ? (
+            <div className="text-center py-4 text-gray-500 text-sm">Loading accounts...</div>
+          ) : bankAccounts.length === 0 ? (
+            <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+              <p className="text-gray-500 mb-2 text-sm">No bank accounts added yet</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {bankAccounts.map((account, index) => (
+                <div
+                  key={account.id}
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={(e) => {
+                    if (!(e.target as HTMLElement).closest('button')) {
+                      router.push(`/bank-account/${account.id}`);
+                    }
+                  }}
+                >
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className={`${getAccountIconColor(index)} w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0`}>
+                      <Wallet className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-sm truncate">{account.name}</div>
+                      <div className="text-xs text-gray-500">Manual Account</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`font-semibold text-sm ${
+                      account.currentBalance >= 0 ? "text-green-600" : "text-red-600"
+                    }`}>
+                      {formatCurrency(account.currentBalance)}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDeleteAccountId(account.id);
+                      }}
+                      className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      aria-label={`Delete ${account.name}`}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Monthly Bills Section */}
+        {invoices.length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-semibold">{currentMonth} Bills</h2>
+                <Info className="h-4 w-4 text-gray-400" />
+              </div>
+              <button
+                onClick={() => setShowBills(!showBills)}
+                className="text-gray-500 hover:text-gray-700"
+                aria-label="Toggle bills visibility"
               >
-                + Add Credit Card
-              </Button>
-              <Button
-                onClick={() => setIsBankAccountModalOpen(true)}
-                variant="default"
-                aria-label="Add bank account"
-              >
-                + Add Bank Account
-              </Button>
-              <Button
-                onClick={() => setIsTransactionModalOpen(true)}
-                variant="default"
-                aria-label="Add transaction"
-                disabled={creditCards.length === 0 && bankAccounts.length === 0}
-              >
-                + Add Transaction
-              </Button>
+                {showBills ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+            <div className="text-xl font-semibold text-red-600">
+              {showBills ? formatCurrency(-totalBills) : "••••••"}
             </div>
           </div>
-          <p className="text-gray-600 mb-6 text-sm md:text-base">You are successfully logged in.</p>
+        )}
 
-          <div className="mt-8">
-            <h2 className="text-lg md:text-xl font-semibold mb-4 flex items-center gap-2">
-              <CreditCard className="h-5 w-5" />
-              Your Credit Cards
-            </h2>
-            {loading ? (
-              <div className="text-center py-8 text-gray-500">
-                Loading credit cards...
-              </div>
-            ) : creditCards.length === 0 ? (
-              <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                <p className="text-gray-500 mb-2">No credit cards added yet</p>
-                <p className="text-sm text-gray-400">
-                  Click &quot;Add Credit Card&quot; to get started
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {creditCards.map((card) => (
-                  <Card 
-                    key={card.id} 
-                    className="hover:shadow-lg transition-shadow cursor-pointer"
+        {/* My Cards Section */}
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold mb-3">My Cards</h2>
+          {loading ? (
+            <div className="text-center py-4 text-gray-500 text-sm">Loading cards...</div>
+          ) : creditCards.length === 0 ? (
+            <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+              <p className="text-gray-500 mb-2 text-sm">No credit cards added yet</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {creditCards.map((card, index) => {
+                const invoice = invoices.find((inv) => inv.cardId === card.id);
+                const nextBill = nextBills.find((bill) => bill.cardId === card.id);
+                return (
+                  <div
+                    key={card.id}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
                     onClick={(e) => {
-                      // Don't navigate if clicking delete button
                       if (!(e.target as HTMLElement).closest('button')) {
                         router.push(`/credit-card/${card.id}`);
                       }
                     }}
                   >
-                    <CardHeader>
-                      <CardTitle className="flex items-center justify-between">
-                        <span className="text-base md:text-lg">{card.name}</span>
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setDeleteCardId(card.id);
-                          }}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                          aria-label={`Delete ${card.name}`}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Card Limit:</span>
-                          <span className="font-semibold">
-                            {formatCurrency(card.cardLimit)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Available:</span>
-                          <span className="font-semibold text-green-600">
-                            {formatCurrency(card.availableBalance)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Used:</span>
-                          <span className="font-semibold text-red-600">
-                            {formatCurrency(card.cardLimit - card.availableBalance)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Bill Date:</span>
-                          <span className="font-semibold">
-                            {card.billGenerationDate}
-                            {card.billGenerationDate === 1
-                              ? "st"
-                              : card.billGenerationDate === 2
-                              ? "nd"
-                              : card.billGenerationDate === 3
-                              ? "rd"
-                              : "th"}{" "}
-                            of month
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Payment Due:</span>
-                          <span className="font-semibold">
-                            {card.paymentDate}
-                            {card.paymentDate === 1
-                              ? "st"
-                              : card.paymentDate === 2
-                              ? "nd"
-                              : card.paymentDate === 3
-                              ? "rd"
-                              : "th"}{" "}
-                            of month
-                          </span>
-                        </div>
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className={`${getCardIconColor(index)} w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0`}>
+                        <CreditCard className="h-5 w-5 text-white" />
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Bank Accounts Section */}
-          <div className="mt-8">
-            <h2 className="text-lg md:text-xl font-semibold mb-4 flex items-center gap-2">
-              <Wallet className="h-5 w-5" />
-              Your Bank Accounts
-            </h2>
-            {loading ? (
-              <div className="text-center py-8 text-gray-500">
-                Loading bank accounts...
-              </div>
-            ) : bankAccounts.length === 0 ? (
-              <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                <p className="text-gray-500 mb-2">No bank accounts added yet</p>
-                <p className="text-sm text-gray-400">
-                  Click &quot;Add Bank Account&quot; to get started
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {bankAccounts.map((account) => (
-                  <Card 
-                    key={account.id} 
-                    className="hover:shadow-lg transition-shadow cursor-pointer"
-                    onClick={(e) => {
-                      // Don't navigate if clicking delete button
-                      if (!(e.target as HTMLElement).closest('button')) {
-                        router.push(`/bank-account/${account.id}`);
-                      }
-                    }}
-                  >
-                    <CardHeader>
-                      <CardTitle className="flex items-center justify-between">
-                        <span className="text-base md:text-lg">{account.name}</span>
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setDeleteAccountId(account.id);
-                          }}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                          aria-label={`Delete ${account.name}`}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Current Balance:</span>
-                          <span className="font-semibold text-green-600">
-                            {formatCurrency(account.currentBalance)}
-                          </span>
-                        </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-sm truncate">{card.name}</div>
+                        <div className="text-xs text-gray-500">Manual Card</div>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Transactions Section */}
-          <div className="mt-12" id="transactions-section">
-            <h2 className="text-lg md:text-xl font-semibold mb-4 flex items-center gap-2">
-              <DollarSign className="h-5 w-5" />
-              Recent Transactions
-            </h2>
-            {transactions.length === 0 ? (
-              <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                <p className="text-gray-500 mb-2">No transactions yet</p>
-                <p className="text-sm text-gray-400">
-                  Add a transaction to start tracking your expenses
-                </p>
-              </div>
-            ) : (
-              <div className="bg-white rounded-lg border overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Name
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Amount
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Date
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Category
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Payment Method
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Installments
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {transactions.map((txn) => (
-                      <tr key={txn.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {txn.name}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {formatCurrency(txn.amount)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(txn.date).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {txn.category}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {txn.creditCard?.name || txn.bankAccount?.name || "N/A"}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {txn.installments}x
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="flex flex-col items-end gap-1">
+                        <div className="text-sm font-semibold text-green-600">
+                          Available: {formatCurrency(card.availableBalance)}
+                        </div>
+                        {invoice && (
+                          <div className="text-xs text-red-600">
+                            Current Bill (Due {formatDate(invoice.paymentDueDate)}): {formatCurrency(-invoice.totalAmount)}
+                          </div>
+                        )}
+                        {nextBill && (
+                          <div className={`text-xs ${nextBill.totalAmount > 0 ? 'text-gray-600' : 'text-gray-400'}`}>
+                            Next Bill (Due {formatDate(nextBill.nextPaymentDueDate)}): {formatCurrency(nextBill.totalAmount)}
+                          </div>
+                        )}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteCardId(card.id);
+                        }}
+                        className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
+                        aria-label={`Delete ${card.name}`}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </main>
       <Footer
         onAddTransaction={() => setIsTransactionModalOpen(true)}
-        onAddCreditCard={() => setIsModalOpen(true)}
-        onAddBankAccount={() => setIsBankAccountModalOpen(true)}
         isTransactionDisabled={creditCards.length === 0 && bankAccounts.length === 0}
       />
 
       <CreditCardModal
         open={isModalOpen}
         setOpen={setIsModalOpen}
-        onSuccess={fetchCreditCards}
+        onSuccess={async () => {
+          await fetchCreditCards();
+          await fetchInvoices();
+          await fetchNextBills();
+        }}
       />
 
       <BankAccountModal
@@ -443,10 +441,12 @@ export default function Home() {
         setOpen={setIsTransactionModalOpen}
         creditCards={creditCards}
         bankAccounts={bankAccounts}
-        onSuccess={() => {
-          fetchCreditCards();
-          fetchBankAccounts();
-          fetchTransactions();
+        onSuccess={async () => {
+          await fetchCreditCards();
+          await fetchBankAccounts();
+          await fetchTransactions();
+          await fetchInvoices();
+          await fetchNextBills();
         }}
       />
 

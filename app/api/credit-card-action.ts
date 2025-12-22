@@ -183,13 +183,22 @@ export async function getUpcomingInvoice(cardId: string, month?: number, year?: 
     paymentDueDate = new Date(targetYear, targetMonth + 1, card.paymentDate);
   }
 
-  // Fetch transactions within the billing period
+  // For credit cards, transactions appear on the NEXT billing cycle
+  // So if the invoice period is Dec 10 - Jan 10, we fetch transactions from Nov 10 - Dec 10
+  // Calculate the previous billing period start date (one month before billStartDate)
+  const transactionStartDate = new Date(billStartDate);
+  transactionStartDate.setMonth(transactionStartDate.getMonth() - 1);
+  
+  // The transaction end date is the billStartDate (transactions up to but not including billStartDate)
+  const transactionEndDate = billStartDate;
+
+  // Fetch transactions from the previous billing period (these will appear on this invoice)
   const transactions = await db.transaction.findMany({
     where: {
       creditCardId: cardId,
       date: {
-        gte: billStartDate,
-        lt: billEndDate,
+        gte: transactionStartDate,
+        lt: transactionEndDate,
       },
     },
     orderBy: {

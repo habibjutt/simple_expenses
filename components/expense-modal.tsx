@@ -70,7 +70,7 @@ export default function ExpenseModal({
           </Field>
           {error && <div className="text-red-500 text-sm">{error}</div>}
           <DialogFooter>
-            <Button type="submit" variant="primary" disabled={loading}>
+            <Button type="submit" variant="default" disabled={loading}>
               {loading ? "Creating..." : "Create"}
             </Button>
             <Button

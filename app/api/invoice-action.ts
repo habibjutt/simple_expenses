@@ -288,3 +288,171 @@ export async function unpayInvoice(invoiceId: string) {
   revalidatePath("/");
   revalidatePath(`/credit-card/${invoice.creditCardId}`);
 }
+
+export async function getCurrentMonthInvoices() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const today = new Date();
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
+
+  // Get all credit cards for the user
+  const creditCards = await db.credit_card.findMany({
+    where: {
+      userId: session.user.id,
+    },
+  });
+
+  // For each card, calculate the current billing period and get invoice
+  const invoices = await Promise.all(
+    creditCards.map(async (card) => {
+      const currentDay = today.getDate();
+      let billStartDate: Date;
+      let billEndDate: Date;
+      let paymentDueDate: Date;
+
+      if (currentDay >= card.billGenerationDate) {
+        billStartDate = new Date(currentYear, currentMonth, card.billGenerationDate);
+        billEndDate = new Date(currentYear, currentMonth + 1, card.billGenerationDate);
+        paymentDueDate = new Date(currentYear, currentMonth + 1, card.paymentDate);
+      } else {
+        billStartDate = new Date(currentYear, currentMonth - 1, card.billGenerationDate);
+        billEndDate = new Date(currentYear, currentMonth, card.billGenerationDate);
+        paymentDueDate = new Date(currentYear, currentMonth, card.paymentDate);
+      }
+
+      // Get invoice for this period
+      const invoice = await db.invoice.findUnique({
+        where: {
+          creditCardId_billStartDate_billEndDate: {
+            creditCardId: card.id,
+            billStartDate,
+            billEndDate,
+          },
+        },
+      });
+
+      // If no invoice exists, calculate total from transactions
+      let totalAmount = 0;
+      if (!invoice) {
+        const transactions = await db.transaction.findMany({
+          where: {
+            creditCardId: card.id,
+            date: {
+              gte: billStartDate,
+              lt: billEndDate,
+            },
+          },
+        });
+        totalAmount = transactions.reduce((sum, txn) => sum + txn.amount, 0);
+      } else {
+        totalAmount = invoice.totalAmount;
+      }
+
+      return {
+        cardId: card.id,
+        cardName: card.name,
+        billStartDate,
+        billEndDate,
+        paymentDueDate,
+        totalAmount,
+        invoice: invoice || null,
+      };
+    })
+  );
+
+  // Filter to only unpaid invoices with amount > 0
+  return invoices.filter(
+    (inv) => !inv.invoice?.isPaid && inv.totalAmount > 0
+  );
+}
+
+export async function getNextBillAmounts() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const today = new Date();
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
+  const currentDay = today.getDate();
+
+  // Get all credit cards for the user
+  const creditCards = await db.credit_card.findMany({
+    where: {
+      userId: session.user.id,
+    },
+  });
+
+  // For each card, calculate the next billing period using the same logic as getUpcomingInvoice
+  const nextBills = await Promise.all(
+    creditCards.map(async (card) => {
+      // First, determine what the current/upcoming bill period is
+      let billStartDate: Date;
+      let billEndDate: Date;
+      let paymentDueDate: Date;
+
+      if (currentDay >= card.billGenerationDate) {
+        // We're in the current billing period
+        billStartDate = new Date(currentYear, currentMonth, card.billGenerationDate);
+        billEndDate = new Date(currentYear, currentMonth + 1, card.billGenerationDate);
+        paymentDueDate = new Date(currentYear, currentMonth + 1, card.paymentDate);
+      } else {
+        // We're still in the previous billing period
+        billStartDate = new Date(currentYear, currentMonth - 1, card.billGenerationDate);
+        billEndDate = new Date(currentYear, currentMonth, card.billGenerationDate);
+        paymentDueDate = new Date(currentYear, currentMonth, card.paymentDate);
+      }
+
+      // The "next bill" is the one that comes after the current/upcoming bill
+      // So if current bill is Dec 10 - Jan 10, next bill is Jan 10 - Feb 10
+      const nextBillStartDate = billEndDate;
+      const nextBillEndDate = new Date(nextBillStartDate);
+      nextBillEndDate.setMonth(nextBillEndDate.getMonth() + 1);
+      const nextPaymentDueDate = new Date(nextBillEndDate);
+      nextPaymentDueDate.setDate(card.paymentDate);
+
+      // For credit cards, transactions appear on the NEXT billing cycle
+      // So if the next bill period is Jan 10 - Feb 10, we fetch transactions from Dec 10 - Jan 10
+      // Calculate the transaction period (one month before nextBillStartDate)
+      const transactionStartDate = new Date(nextBillStartDate);
+      transactionStartDate.setMonth(transactionStartDate.getMonth() - 1);
+      
+      // The transaction end date is the nextBillStartDate (transactions up to but not including nextBillStartDate)
+      const transactionEndDate = nextBillStartDate;
+
+      // Fetch transactions from the period that will appear on the next invoice
+      const transactions = await db.transaction.findMany({
+        where: {
+          creditCardId: card.id,
+          date: {
+            gte: transactionStartDate,
+            lt: transactionEndDate,
+          },
+        },
+      });
+
+      const totalAmount = transactions.reduce((sum, txn) => sum + txn.amount, 0);
+
+      return {
+        cardId: card.id,
+        nextBillStartDate,
+        nextBillEndDate,
+        nextPaymentDueDate,
+        totalAmount,
+      };
+    })
+  );
+
+  return nextBills;
+}
