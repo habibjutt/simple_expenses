@@ -159,8 +159,22 @@ export default function CreditCardDetailsPage() {
     const date = new Date(selectedYear, selectedMonth);
     return date.toLocaleDateString("en-US", {
       year: "numeric",
-      month: "long",
+      month: "short",
     });
+  };
+  
+  const getPreviousMonthLabel = () => {
+    const prevMonth = selectedMonth === 0 ? 11 : selectedMonth - 1;
+    const prevYear = selectedMonth === 0 ? selectedYear - 1 : selectedYear;
+    const date = new Date(prevYear, prevMonth);
+    return date.toLocaleDateString("en-US", { month: "short" }) + ". " + date.getDate();
+  };
+  
+  const getNextMonthLabel = () => {
+    const nextMonth = selectedMonth === 11 ? 0 : selectedMonth + 1;
+    const nextYear = selectedMonth === 11 ? selectedYear + 1 : selectedYear;
+    const date = new Date(nextYear, nextMonth);
+    return date.toLocaleDateString("en-US", { month: "short" }) + ". " + date.getDate();
   };
   
   const isCurrentMonth = () => {
@@ -432,300 +446,236 @@ export default function CreditCardDetailsPage() {
     return groups;
   }, {});
 
+  const previousBalance = invoiceData.invoice?.paidAmount || 0;
+  const monthSpending = totalAmount - previousBalance;
+
   return (
-    <div className="max-w-7xl mx-auto min-h-screen flex flex-col">
+    <div className="max-w-7xl mx-auto min-h-screen flex flex-col bg-white">
       <Header />
       <main className="flex-1 p-4 md:p-6 pb-32 md:pb-36">
-        <Button
-          onClick={() => router.push("/")}
-          variant="outline"
-          className="mb-6"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Home
-        </Button>
-
-        {/* Card Header - More Compact */}
-        <div className="mb-6">
-          <h1 className="text-xl md:text-2xl font-bold mb-4 flex items-center gap-2">
-            <CreditCard className="h-6 w-6" />
-            {card.name}
-          </h1>
-
-          <div className="grid grid-cols-3 gap-3">
-            <Card className="shadow-sm">
-              <CardContent className="p-3">
-                <div className="text-xs text-gray-500 mb-1">Limit</div>
-                <div className="text-base font-bold">{formatCurrency(card.cardLimit)}</div>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-sm">
-              <CardContent className="p-3">
-                <div className="text-xs text-gray-500 mb-1">Available</div>
-                <div className="text-base font-bold text-green-600">
-                  {formatCurrency(card.availableBalance)}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-sm">
-              <CardContent className="p-3">
-                <div className="text-xs text-gray-500 mb-1">Used</div>
-                <div className="text-base font-bold text-red-600">
-                  {formatCurrency(usedAmount)}
-                </div>
-                <div className="text-xs text-gray-500">
-                  {usagePercentage.toFixed(0)}%
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+        {/* Header with Back Button */}
+        <div className="flex items-center justify-between mb-6">
+          <Button
+            onClick={() => router.push("/")}
+            variant="ghost"
+            size="sm"
+            className="h-9 px-2"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-lg font-bold">Invoice Details</h1>
+          <div className="w-9"></div> {/* Spacer for centering */}
         </div>
 
-        {/* Month Navigation - More Compact */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between bg-white rounded-lg p-3 border shadow-sm">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handlePreviousMonth}
-              className="h-8 px-2"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            
-            <div className="flex flex-col items-center">
-              <h2 className="text-base font-semibold">{getMonthYearLabel()}</h2>
-              {!isCurrentMonth() && (
-                <Button
-                  variant="link"
-                  size="sm"
-                  onClick={handleCurrentMonth}
-                  className="text-xs h-auto p-0 mt-1"
-                >
-                  Current
-                </Button>
-              )}
-            </div>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleNextMonth}
-              className="h-8 px-2"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+        {/* Month Navigation */}
+        <div className="mb-6 flex items-center justify-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handlePreviousMonth}
+            className="h-10 px-3"
+          >
+            <ChevronLeft className="h-5 w-5" />
+            <span className="ml-1">{getPreviousMonthLabel()}</span>
+          </Button>
+          
+          <div className="px-6 py-2 bg-gray-900 text-white rounded-full">
+            <span className="font-semibold">{getMonthYearLabel()}</span>
           </div>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleNextMonth}
+            className="h-10 px-3"
+          >
+            <span className="mr-1">{getNextMonthLabel()}</span>
+            <ChevronRight className="h-5 w-5" />
+          </Button>
         </div>
 
-        {/* Invoice Info - Compact */}
-        <Card className="mb-4 shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-gray-500" />
-                <span className="text-sm font-semibold">{isCurrentMonth() ? "Upcoming Invoice" : "Invoice"}</span>
+        {/* Main Invoice Card */}
+        <div className="grid md:grid-cols-2 gap-4 mb-6">
+          {/* Left Card - Invoice Status */}
+          <Card className="shadow-md">
+            <CardContent className="p-5">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                  <CreditCard className="h-6 w-6 text-gray-600" />
+                </div>
+                <div>
+                  <div className={`text-sm font-semibold ${invoiceData.invoice?.isPaid ? 'text-green-600' : 'text-orange-600'}`}>
+                    {invoiceData.invoice?.isPaid ? 'Paid' : 'Open'}
+                  </div>
+                  <div className="text-base font-bold mt-0.5">{card.name}</div>
+                </div>
               </div>
-              <div className="text-right">
-                <div className="text-xs text-gray-500">Total</div>
-                <div className="text-lg font-bold text-red-600">
+              
+              <div className="space-y-2 text-sm">
+                <div>
+                  <div className="text-gray-500">Closes on</div>
+                  <div className="font-bold">
+                    {new Date(billEndDate).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit" })}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-gray-500">Due on</div>
+                  <div className="font-bold">
+                    {new Date(paymentDueDate).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit" })}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Right Card - Financial Summary */}
+          <Card className="shadow-md bg-gray-800 text-white">
+            <CardContent className="p-5 space-y-3">
+              <div>
+                <div className="text-gray-400 text-xs">Previous Balance</div>
+                <div className="text-lg font-bold text-green-400">
+                  {formatCurrency(previousBalance)}
+                </div>
+              </div>
+              
+              <div>
+                <div className="text-gray-400 text-xs">Month Spending</div>
+                <div className="text-lg font-bold text-red-400">
+                  {formatCurrency(monthSpending)}
+                </div>
+              </div>
+              
+              <div className="pt-2 border-t border-gray-600">
+                <div className="text-gray-400 text-xs">Invoice Amount</div>
+                <div className="text-xl font-bold text-red-400">
                   {formatCurrency(totalAmount)}
                 </div>
               </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div>
-                <div className="text-gray-500 mb-1">Billing Period</div>
-                <div className="font-medium">
-                  {new Date(billStartDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })} - {new Date(billEndDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                </div>
-              </div>
-              <div>
-                <div className="text-gray-500 mb-1">Due Date</div>
-                <div className="font-medium flex items-center gap-1">
-                  <Clock className="h-3 w-3 text-orange-500" />
-                  {new Date(paymentDueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                </div>
-              </div>
-            </div>
-            
-            
-            {/* Payment Status */}
-            {invoiceData.invoice?.isPaid ? (
-              <div className="mt-3">
-                <div className="p-3 bg-green-50 border border-green-200 rounded-lg mb-2">
-                  <div className="flex items-center gap-2 text-green-700 font-semibold text-sm">
-                    <CheckCircle className="h-4 w-4" />
-                    Fully Paid on {invoiceData.invoice.paidAt ? new Date(invoiceData.invoice.paidAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "N/A"}
-                    {invoiceData.invoice.paidFromBankAccount && (
-                      <> • {invoiceData.invoice.paidFromBankAccount.name}</>
-                    )}
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    onClick={handleOpenEditModal}
-                    variant="outline"
-                    size="sm"
-                    className="text-xs h-8"
-                  >
-                    <Pencil className="h-3 w-3 mr-1" />
-                    Edit
-                  </Button>
-                  <Button
-                    onClick={() => setIsDeleteConfirmOpen(true)}
-                    variant="outline"
-                    size="sm"
-                    className="text-xs h-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-                  >
-                    <Trash2 className="h-3 w-3 mr-1" />
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            ) : invoiceData.invoice && invoiceData.invoice.paidAmount > 0 ? (
-              <div className="mt-3">
-                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg mb-2">
-                  <div className="text-sm text-blue-800 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold">Partially Paid:</span>
-                      <span className="font-bold text-green-700">{formatCurrency(invoiceData.invoice.paidAmount)}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold">Remaining:</span>
-                      <span className="font-bold text-red-700">{formatCurrency(totalAmount - invoiceData.invoice.paidAmount)}</span>
-                    </div>
-                    {invoiceData.invoice.paidFromBankAccount && (
-                      <div className="text-xs text-blue-600 pt-1 border-t border-blue-200">
-                        Last paid from: {invoiceData.invoice.paidFromBankAccount.name}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    onClick={handleOpenPaymentModal}
-                    size="sm"
-                    className="h-8 text-xs"
-                  >
-                    <Wallet className="h-4 w-4 mr-1" />
-                    Pay Remaining
-                  </Button>
-                  <Button
-                    onClick={handleOpenEditModal}
-                    variant="outline"
-                    size="sm"
-                    className="text-xs h-8"
-                  >
-                    <Pencil className="h-3 w-3 mr-1" />
-                    Edit
-                  </Button>
-                  <Button
-                    onClick={() => setIsDeleteConfirmOpen(true)}
-                    variant="outline"
-                    size="sm"
-                    className="text-xs h-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-                  >
-                    <Trash2 className="h-4 w-4 mr-1" />
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            ) : totalAmount > 0 ? (
-              <div className="mt-3 flex gap-2">
-                <Button
-                  onClick={handleOpenPaymentModal}
-                  size="sm"
-                  className="h-8 text-xs"
-                >
-                  <Wallet className="h-4 w-4 mr-1" />
-                  Pay Invoice
-                </Button>
-                {invoiceData.invoice && (
-                  <Button
-                    onClick={() => setIsDeleteConfirmOpen(true)}
-                    variant="outline"
-                    size="sm"
-                    className="h-8 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
-                  >
-                    <Trash2 className="h-4 w-4 mr-1" />
-                    Delete
-                  </Button>
-                )}
-              </div>
-            ) : null}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
 
-        {/* Transactions List - Compact Style */}
+        {/* Pay Invoice Button */}
+        {!invoiceData.invoice?.isPaid && totalAmount > 0 && (
+          <Button
+            onClick={handleOpenPaymentModal}
+            className="w-full h-14 text-base font-semibold bg-green-600 hover:bg-green-700 mb-6"
+          >
+            <Wallet className="h-5 w-5 mr-2" />
+            Pay Invoice
+          </Button>
+        )}
+
+        {/* Payment Status Banner */}
+        {invoiceData.invoice?.isPaid && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-green-700 font-semibold">
+                <CheckCircle className="h-5 w-5" />
+                <span>Fully Paid{invoiceData.invoice.paidAt && ` on ${new Date(invoiceData.invoice.paidAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}`}</span>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleOpenEditModal}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs h-8"
+                >
+                  <Pencil className="h-3 w-3 mr-1" />
+                  Edit
+                </Button>
+                <Button
+                  onClick={() => setIsDeleteConfirmOpen(true)}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs h-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                  <Trash2 className="h-3 w-3 mr-1" />
+                  Delete
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {invoiceData.invoice && invoiceData.invoice.paidAmount > 0 && !invoiceData.invoice.isPaid && (
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="text-sm text-blue-800 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold">Partially Paid:</span>
+                <span className="font-bold text-green-700">{formatCurrency(invoiceData.invoice.paidAmount)}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-semibold">Remaining:</span>
+                <span className="font-bold text-red-700">{formatCurrency(totalAmount - invoiceData.invoice.paidAmount)}</span>
+              </div>
+              <div className="flex gap-2 pt-2">
+                <Button
+                  onClick={handleOpenEditModal}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                >
+                  <Pencil className="h-3 w-3 mr-1" />
+                  Edit
+                </Button>
+                <Button
+                  onClick={() => setIsDeleteConfirmOpen(true)}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                  <Trash2 className="h-3 w-3 mr-1" />
+                  Delete
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Transactions List - Simplified */}
         <div className="mb-20">
           {transactions.length === 0 ? (
-            <Card>
-              <CardContent className="py-8 text-center">
-                <p className="text-gray-500 text-sm">No transactions in this billing period</p>
-              </CardContent>
-            </Card>
+            <div className="py-12 text-center">
+              <p className="text-gray-500 text-sm">No transactions in this billing period</p>
+            </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-4">
               {Object.entries(groupedTransactions).map(([dateKey, dayTransactions]) => (
                 <div key={dateKey}>
-                  <div className="text-xs font-semibold text-gray-500 mb-2 px-1">
+                  <div className="text-sm font-medium text-gray-600 mb-2">
                     {dateKey}
                   </div>
-                  <div className="bg-white rounded-lg border shadow-sm divide-y">
+                  <div className="space-y-2">
                     {dayTransactions.map((transaction) => (
                       <div 
                         key={transaction.id} 
-                        className="flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors"
+                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                       >
-                        {/* Category Icon */}
-                        <div className={`${getCategoryColor(transaction.category)} text-white rounded-full p-2 flex-shrink-0`}>
-                          {getCategoryIcon(transaction.category)}
-                        </div>
-                        
-                        {/* Transaction Info */}
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm truncate">
-                            {transaction.name}
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          {/* Category Icon */}
+                          <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <div className="text-red-600 text-xs font-bold">
+                              {transaction.category.substring(0, 2).toUpperCase()}
+                            </div>
                           </div>
-                          <div className="text-xs text-gray-500 flex items-center gap-2">
-                            <span>{transaction.category}</span>
+                          
+                          {/* Transaction Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm truncate">
+                              {transaction.name}
+                            </div>
                             {transaction.installments > 1 && (
-                              <span className="text-blue-600">• {transaction.installments}x</span>
+                              <div className="text-xs text-gray-500">
+                                {transaction.installments} installments
+                              </div>
                             )}
                           </div>
                         </div>
                         
                         {/* Amount */}
-                        <div className="flex-shrink-0 text-right">
-                          <div className="text-base font-semibold text-red-600">
-                            {formatCurrency(transaction.amount)}
-                          </div>
-                        </div>
-                        
-                        {/* Action Buttons */}
-                        <div className="flex-shrink-0 flex gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEditTransaction(transaction)}
-                            className="h-8 w-8 p-0"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setDeletingTransactionId(transaction.id);
-                              setIsDeleteTransactionConfirmOpen(true);
-                            }}
-                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                        <div className="text-base font-semibold text-red-600 ml-2">
+                          {formatCurrency(transaction.amount)}
                         </div>
                       </div>
                     ))}
@@ -737,48 +687,16 @@ export default function CreditCardDetailsPage() {
         </div>
       </main>
       
-      {/* Fixed Bottom Summary */}
-      {transactions.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 bg-gray-900 text-white border-t border-gray-700 z-10">
-          <div className="max-w-7xl mx-auto px-4 py-4">
-            <div className="flex items-center justify-around text-center">
-              <div className="flex-1">
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  <TrendingDown className="h-4 w-4 text-red-400" />
-                  <span className="text-xs text-gray-400">total</span>
-                </div>
-                <div className="text-base font-semibold text-red-400">
-                  {formatCurrency(totalAmount)}
-                </div>
-              </div>
-              
-              <div className="w-px h-12 bg-gray-700"></div>
-              
-              <div className="flex-1">
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  <CreditCard className="h-4 w-4 text-green-400" />
-                  <span className="text-xs text-gray-400">available</span>
-                </div>
-                <div className="text-base font-semibold text-green-400">
-                  {formatCurrency(card.availableBalance)}
-                </div>
-              </div>
-              
-              <div className="w-px h-12 bg-gray-700"></div>
-              
-              <div className="flex-1">
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  <Wallet className="h-4 w-4 text-orange-400" />
-                  <span className="text-xs text-gray-400">used</span>
-                </div>
-                <div className="text-base font-semibold text-orange-400">
-                  {formatCurrency(usedAmount)}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Floating Action Button */}
+      <button
+        onClick={() => setIsTransactionModalOpen(true)}
+        className="fixed bottom-24 right-6 w-14 h-14 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg flex items-center justify-center transition-colors z-20"
+        aria-label="Add transaction"
+      >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+        </svg>
+      </button>
       
       <Footer />
       
