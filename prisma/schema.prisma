@@ -144,21 +144,26 @@ model invoice {
 }
 
 model transaction {
-  id             String   @id @default(cuid())
-  name           String
-  amount         Float
-  date           DateTime
-  category       String
-  installments   Int      @default(1) // Number of installments (1 for one-time payment)
-  creditCardId   String?
-  bankAccountId  String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                  String   @id @default(cuid())
+  name                String
+  amount              Float
+  date                DateTime
+  category            String
+  installments        Int      @default(1) // Number of installments (1 for one-time payment)
+  parentTransactionId String?  // Reference to the parent transaction if this is part of an installment
+  installmentNumber   Int?     // Which installment number this is (1, 2, 3, etc.)
+  creditCardId        String?
+  bankAccountId       String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
-  creditCard  credit_card?  @relation(fields: [creditCardId], references: [id], onDelete: Cascade)
-  bankAccount bank_account? @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+  creditCard       credit_card?  @relation(fields: [creditCardId], references: [id], onDelete: Cascade)
+  bankAccount      bank_account? @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+  parentTransaction transaction? @relation("InstallmentRelation", fields: [parentTransactionId], references: [id], onDelete: Cascade)
+  childTransactions transaction[] @relation("InstallmentRelation")
 
   @@index([creditCardId])
   @@index([bankAccountId])
   @@index([date])
+  @@index([parentTransactionId])
 }

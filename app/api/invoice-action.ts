@@ -394,10 +394,10 @@ export async function getNextBillAmounts() {
     },
   });
 
-  // For each card, calculate the next billing period using the same logic as getUpcomingInvoice
+  // For each card, calculate the upcoming/next billing period
   const nextBills = await Promise.all(
     creditCards.map(async (card) => {
-      // First, determine what the current/upcoming bill period is
+      // Determine what the current/upcoming bill period is
       let billStartDate: Date;
       let billEndDate: Date;
       let paymentDueDate: Date;
@@ -414,24 +414,14 @@ export async function getNextBillAmounts() {
         paymentDueDate = new Date(currentYear, currentMonth, card.paymentDate);
       }
 
-      // The "next bill" is the one that comes after the current/upcoming bill
-      // So if current bill is Dec 10 - Jan 10, next bill is Jan 10 - Feb 10
-      const nextBillStartDate = billEndDate;
-      const nextBillEndDate = new Date(nextBillStartDate);
-      nextBillEndDate.setMonth(nextBillEndDate.getMonth() + 1);
-      const nextPaymentDueDate = new Date(nextBillEndDate);
-      nextPaymentDueDate.setDate(card.paymentDate);
-
       // For credit cards, transactions appear on the NEXT billing cycle
-      // So if the next bill period is Jan 10 - Feb 10, we fetch transactions from Dec 10 - Jan 10
-      // Calculate the transaction period (one month before nextBillStartDate)
-      const transactionStartDate = new Date(nextBillStartDate);
+      // So for the upcoming invoice (billStartDate to billEndDate with payment due on paymentDueDate),
+      // we need to fetch transactions from the PREVIOUS billing period
+      const transactionStartDate = new Date(billStartDate);
       transactionStartDate.setMonth(transactionStartDate.getMonth() - 1);
-      
-      // The transaction end date is the nextBillStartDate (transactions up to but not including nextBillStartDate)
-      const transactionEndDate = nextBillStartDate;
+      const transactionEndDate = billStartDate;
 
-      // Fetch transactions from the period that will appear on the next invoice
+      // Fetch transactions from the previous billing period that will appear on the upcoming invoice
       const transactions = await db.transaction.findMany({
         where: {
           creditCardId: card.id,
@@ -446,9 +436,9 @@ export async function getNextBillAmounts() {
 
       return {
         cardId: card.id,
-        nextBillStartDate,
-        nextBillEndDate,
-        nextPaymentDueDate,
+        nextBillStartDate: billStartDate,
+        nextBillEndDate: billEndDate,
+        nextPaymentDueDate: paymentDueDate,
         totalAmount,
       };
     })

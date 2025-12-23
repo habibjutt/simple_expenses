@@ -227,6 +227,10 @@ export default function Home() {
     return new Date(date).toLocaleDateString("en-US", { month: "numeric", day: "numeric" });
   };
 
+  const formatFullDate = (date: Date) => {
+    return new Date(date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  };
+
   const totalBalance = getTotalBalance();
   const totalBills = getTotalBills();
   const currentMonth = new Date().toLocaleString("en-US", { month: "long" });
@@ -391,7 +395,7 @@ export default function Home() {
                         )}
                         {nextBill && (
                           <div className={`text-xs ${nextBill.totalAmount > 0 ? 'text-gray-600' : 'text-gray-400'}`}>
-                            Next Bill (Due {formatDate(nextBill.nextPaymentDueDate)}): {formatCurrency(nextBill.totalAmount)}
+                            Next Bill (Due {formatFullDate(nextBill.nextPaymentDueDate)}): {formatCurrency(nextBill.totalAmount)}
                           </div>
                         )}
                       </div>

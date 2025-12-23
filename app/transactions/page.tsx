@@ -3,14 +3,25 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
-import { getTransactions } from "@/app/api/transaction-action";
+import { getTransactions, deleteTransaction } from "@/app/api/transaction-action";
 import { formatCurrency } from "@/lib/utils";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import TransactionModal from "@/components/transaction-modal";
 import { getCreditCards } from "@/app/api/credit-card-action";
 import { getBankAccounts } from "@/app/api/bank-account-action";
-import { CreditCard, Wallet, Calendar } from "lucide-react";
+import { CreditCard, Wallet, Calendar, ChevronLeft, ChevronRight, Edit2, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 
 type Transaction = {
   id: string;
@@ -19,6 +30,8 @@ type Transaction = {
   date: Date;
   category: string;
   installments: number;
+  parentTransactionId: string | null;
+  installmentNumber: number | null;
   creditCardId: string | null;
   creditCard: { name: string } | null;
   bankAccountId: string | null;
@@ -55,6 +68,14 @@ export default function TransactionsPage() {
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [deletingTransaction, setDeletingTransaction] = useState<Transaction | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  
+  // Month navigation state
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const currentMonth = currentDate.getMonth();
+  const currentYear = currentDate.getFullYear();
 
   useEffect(() => {
     if (!isPending && !session) {
@@ -65,10 +86,13 @@ export default function TransactionsPage() {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
+      console.log("Fetching transactions...");
       const txns = await getTransactions();
+      console.log("Transactions fetched:", txns);
       setTransactions(txns);
     } catch (error) {
       console.error("Failed to fetch transactions:", error);
+      alert("Error fetching transactions: " + (error as Error).message);
     } finally {
       setLoading(false);
     }
@@ -125,6 +149,80 @@ export default function TransactionsPage() {
     return <Wallet className="h-4 w-4" />;
   };
 
+  // Debug logging
+  console.log("=== DEBUG INFO ===");
+  console.log("Total transactions:", transactions.length);
+  console.log("Current Date:", currentDate);
+  console.log("Current Month:", currentMonth, "Current Year:", currentYear);
+  
+  if (transactions.length > 0) {
+    console.log("Sample transaction:", transactions[0]);
+    console.log("Sample transaction date:", transactions[0].date);
+    console.log("Sample transaction parsed:", new Date(transactions[0].date));
+  }
+
+  // Filter transactions by selected month
+  const filteredTransactions = transactions.filter((transaction) => {
+    const txDate = new Date(transaction.date);
+    const matches = txDate.getMonth() === currentMonth && txDate.getFullYear() === currentYear;
+    console.log(
+      `Transaction: ${transaction.name}, Date: ${transaction.date}, Parsed: ${txDate}, Month: ${txDate.getMonth()}, Year: ${txDate.getFullYear()}, Matches: ${matches}`
+    );
+    return matches;
+  });
+
+  console.log("Filtered transactions:", filteredTransactions.length);
+
+  // Month navigation handlers
+  const goToPreviousMonth = () => {
+    setCurrentDate(new Date(currentYear, currentMonth - 1, 1));
+  };
+
+  const goToNextMonth = () => {
+    setCurrentDate(new Date(currentYear, currentMonth + 1, 1));
+  };
+
+  const isCurrentMonth = () => {
+    const now = new Date();
+    return currentMonth === now.getMonth() && currentYear === now.getFullYear();
+  };
+
+  // Format month and year for display
+  const getMonthYearDisplay = () => {
+    return currentDate.toLocaleDateString("en-US", {
+      month: "long",
+      year: "numeric",
+    });
+  };
+
+  // Handle edit transaction
+  const handleEditTransaction = (transaction: Transaction) => {
+    setEditingTransaction(transaction);
+    setIsTransactionModalOpen(true);
+  };
+
+  // Handle delete transaction
+  const handleDeleteClick = (transaction: Transaction) => {
+    setDeletingTransaction(transaction);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingTransaction) return;
+    
+    try {
+      await deleteTransaction(deletingTransaction.id);
+      await fetchTransactions();
+      await fetchCreditCards();
+      await fetchBankAccounts();
+      setDeleteDialogOpen(false);
+      setDeletingTransaction(null);
+    } catch (error) {
+      console.error("Failed to delete transaction:", error);
+      alert((error as Error).message || "Failed to delete transaction");
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto">
       <Header />
@@ -136,23 +234,60 @@ export default function TransactionsPage() {
           </p>
         </div>
 
+        {/* Month Navigation */}
+        <div className="mb-6 flex items-center justify-between bg-white rounded-lg shadow-sm p-4 border">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={goToPreviousMonth}
+            className="flex items-center gap-1"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Previous
+          </Button>
+          
+          <div className="text-center">
+            <h2 className="text-lg font-semibold">{getMonthYearDisplay()}</h2>
+            {!isCurrentMonth() && (
+              <button
+                onClick={() => setCurrentDate(new Date())}
+                className="text-xs text-blue-600 hover:underline mt-1"
+              >
+                Back to current month
+              </button>
+            )}
+          </div>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={goToNextMonth}
+            className="flex items-center gap-1"
+          >
+            Next
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+
         {loading ? (
           <div className="text-center py-8 text-gray-500 text-sm">
             Loading transactions...
           </div>
-        ) : transactions.length === 0 ? (
+        ) : filteredTransactions.length === 0 ? (
           <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-            <p className="text-gray-500 mb-2 text-sm">No transactions found</p>
+            <p className="text-gray-500 mb-2 text-sm">
+              No transactions found for {getMonthYearDisplay()}
+            </p>
             <p className="text-gray-400 text-xs">
               Add your first transaction to get started
             </p>
           </div>
         ) : (
           <div className="space-y-2">
-            {transactions.map((transaction) => (
+            {filteredTransactions.map((transaction) => (
               <div
                 key={transaction.id}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group"
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <div className="bg-blue-500 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0">
@@ -201,6 +336,25 @@ export default function TransactionsPage() {
                       ? formatCurrency(Math.abs(transaction.amount))
                       : formatCurrency(transaction.amount)}
                   </span>
+                  
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => handleEditTransaction(transaction)}
+                      className="p-2 hover:bg-blue-100 rounded-full transition-colors"
+                      title="Edit transaction"
+                      disabled={transaction.category === "Transfer"}
+                    >
+                      <Edit2 className="h-4 w-4 text-blue-600" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteClick(transaction)}
+                      className="p-2 hover:bg-red-100 rounded-full transition-colors"
+                      title="Delete transaction"
+                    >
+                      <Trash2 className="h-4 w-4 text-red-600" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -208,7 +362,10 @@ export default function TransactionsPage() {
         )}
       </main>
       <Footer
-        onAddTransaction={() => setIsTransactionModalOpen(true)}
+        onAddTransaction={() => {
+          setEditingTransaction(null);
+          setIsTransactionModalOpen(true);
+        }}
         isTransactionDisabled={
           creditCards.length === 0 && bankAccounts.length === 0
         }
@@ -216,15 +373,50 @@ export default function TransactionsPage() {
 
       <TransactionModal
         open={isTransactionModalOpen}
-        setOpen={setIsTransactionModalOpen}
+        setOpen={(open) => {
+          setIsTransactionModalOpen(open);
+          if (!open) {
+            setEditingTransaction(null);
+          }
+        }}
         creditCards={creditCards}
         bankAccounts={bankAccounts}
+        editTransaction={editingTransaction}
         onSuccess={async () => {
           await fetchTransactions();
           await fetchCreditCards();
           await fetchBankAccounts();
         }}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Transaction</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{deletingTransaction?.name}"? 
+              {deletingTransaction?.category === "Transfer" && (
+                <span className="block mt-2 text-yellow-600 font-medium">
+                  Warning: This is a transfer transaction. Deleting it will affect both accounts.
+                </span>
+              )}
+              <span className="block mt-2">
+                This action cannot be undone and will restore the affected account balance.
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -13,9 +13,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import ExpenseModal from "./expense-modal";
+import ChangePasswordModal from "./change-password-modal";
 
 const Header = () => {
   const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
   const { data: session, isPending } = useSession();
   const [mounted, setMounted] = useState(false);
 
@@ -83,6 +85,15 @@ const Header = () => {
                     </span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <button
+                      type="button"
+                      onClick={() => setShowChangePasswordModal(true)}
+                      className="w-full text-left bg-transparent border-none p-0 m-0 cursor-pointer"
+                    >
+                      Change Password
+                    </button>
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout}>
                     Logout
                   </DropdownMenuItem>
@@ -91,6 +102,10 @@ const Header = () => {
               <ExpenseModal
                 open={showExpenseModal}
                 setOpen={setShowExpenseModal}
+              />
+              <ChangePasswordModal
+                open={showChangePasswordModal}
+                setOpen={setShowChangePasswordModal}
               />
             </>
           ) : (

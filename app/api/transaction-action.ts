@@ -70,25 +70,90 @@ export async function createTransaction(formData: FormData) {
       );
     }
 
-    // Create transaction and update credit card balance in a transaction
-    await db.$transaction([
-      db.transaction.create({
+    // If installments > 1, create multiple transactions spread across billing cycles
+    if (installments > 1) {
+      const installmentAmount = amount / installments;
+      const transactionDate = new Date(date);
+      
+      // Calculate billing cycle start based on billGenerationDate
+      const currentDay = transactionDate.getDate();
+      const billGenerationDate = creditCard.billGenerationDate;
+      
+      // Determine the first billing cycle this transaction belongs to
+      let firstBillingMonth = new Date(transactionDate);
+      if (currentDay >= billGenerationDate) {
+        // Transaction is in current billing cycle, first installment next month
+        firstBillingMonth.setMonth(firstBillingMonth.getMonth() + 1);
+      }
+      // Set to billing generation date
+      firstBillingMonth.setDate(billGenerationDate);
+
+      // Create parent transaction (the original full amount transaction)
+      const parentTransaction = await db.transaction.create({
         data: {
-          name,
+          name: `${name} (${installments} installments)`,
           amount,
-          date: new Date(date),
+          date: transactionDate,
           category,
           installments,
           creditCardId,
+          installmentNumber: 0, // 0 indicates this is the parent
         },
-      }),
-      db.credit_card.update({
-        where: { id: creditCardId },
-        data: {
-          availableBalance: newAvailableBalance,
-        },
-      }),
-    ]);
+      });
+
+      // Create installment transactions
+      const installmentTransactions = [];
+      for (let i = 1; i <= installments; i++) {
+        const installmentDate = new Date(firstBillingMonth);
+        installmentDate.setMonth(installmentDate.getMonth() + (i - 1));
+        
+        installmentTransactions.push(
+          db.transaction.create({
+            data: {
+              name: `${name} (${i}/${installments})`,
+              amount: installmentAmount,
+              date: installmentDate,
+              category,
+              installments,
+              parentTransactionId: parentTransaction.id,
+              installmentNumber: i,
+              creditCardId,
+            },
+          })
+        );
+      }
+
+      // Execute all installment creations and update credit card balance
+      await db.$transaction([
+        ...installmentTransactions,
+        db.credit_card.update({
+          where: { id: creditCardId },
+          data: {
+            availableBalance: newAvailableBalance,
+          },
+        }),
+      ]);
+    } else {
+      // Single payment transaction
+      await db.$transaction([
+        db.transaction.create({
+          data: {
+            name,
+            amount,
+            date: new Date(date),
+            category,
+            installments,
+            creditCardId,
+          },
+        }),
+        db.credit_card.update({
+          where: { id: creditCardId },
+          data: {
+            availableBalance: newAvailableBalance,
+          },
+        }),
+      ]);
+    }
   } else if (bankAccountId) {
     // Verify the bank account belongs to the user
     const bankAccount = await db.bank_account.findFirst({
@@ -256,6 +321,10 @@ export async function getTransactions(creditCardId?: string, bankAccountId?: str
           creditCard: {
             userId: session.user.id,
           },
+          OR: [
+            { installmentNumber: null },
+            { installmentNumber: { gt: 0 } },
+          ],
         }
       : bankAccountId
       ? {
@@ -263,18 +332,32 @@ export async function getTransactions(creditCardId?: string, bankAccountId?: str
           bankAccount: {
             userId: session.user.id,
           },
+          OR: [
+            { installmentNumber: null },
+            { installmentNumber: { gt: 0 } },
+          ],
         }
       : {
-          OR: [
+          AND: [
             {
-              creditCard: {
-                userId: session.user.id,
-              },
+              OR: [
+                {
+                  creditCard: {
+                    userId: session.user.id,
+                  },
+                },
+                {
+                  bankAccount: {
+                    userId: session.user.id,
+                  },
+                },
+              ],
             },
             {
-              bankAccount: {
-                userId: session.user.id,
-              },
+              OR: [
+                { installmentNumber: null },
+                { installmentNumber: { gt: 0 } },
+              ],
             },
           ],
         },
@@ -327,6 +410,7 @@ export async function deleteTransaction(transactionId: string) {
     include: {
       creditCard: true,
       bankAccount: true,
+      parentTransaction: true,
     },
   });
 
@@ -334,28 +418,50 @@ export async function deleteTransaction(transactionId: string) {
     throw new Error("Transaction not found or unauthorized");
   }
 
-  // Refund the amount when deleting
-  if (transaction.creditCardId && transaction.creditCard) {
-    // For credit card: add the amount back to available balance
+  // If this is an installment transaction, get the parent to delete all related installments
+  const parentId = transaction.parentTransactionId || transaction.id;
+  
+  // Get the parent transaction to calculate total refund amount
+  const parentTransaction = await db.transaction.findUnique({
+    where: { id: parentId },
+    include: {
+      creditCard: true,
+      bankAccount: true,
+    },
+  });
+
+  if (!parentTransaction) {
+    throw new Error("Parent transaction not found");
+  }
+
+  // Refund the full original amount when deleting installment plan
+  if (parentTransaction.creditCardId && parentTransaction.creditCard) {
+    // For credit card: add the full amount back to available balance
     await db.$transaction([
       db.credit_card.update({
-        where: { id: transaction.creditCardId },
+        where: { id: parentTransaction.creditCardId },
         data: {
-          availableBalance: transaction.creditCard.availableBalance + transaction.amount,
+          availableBalance: parentTransaction.creditCard.availableBalance + parentTransaction.amount,
         },
       }),
-      db.transaction.delete({
-        where: { id: transactionId },
+      // Delete all child installments and the parent
+      db.transaction.deleteMany({
+        where: {
+          OR: [
+            { id: parentId },
+            { parentTransactionId: parentId },
+          ],
+        },
       }),
     ]);
-  } else if (transaction.bankAccountId && transaction.bankAccount) {
-    // For bank account: subtract the amount to reverse the original operation
-    // (if it was an expense, balance increases; if it was income, balance decreases)
+  } else if (parentTransaction.bankAccountId && parentTransaction.bankAccount) {
+    // For bank account: use the amount from the specific transaction being deleted
+    // (not installments, just single transaction)
     await db.$transaction([
       db.bank_account.update({
-        where: { id: transaction.bankAccountId },
+        where: { id: parentTransaction.bankAccountId },
         data: {
-          currentBalance: transaction.bankAccount.currentBalance - transaction.amount,
+          currentBalance: parentTransaction.bankAccount.currentBalance - parentTransaction.amount,
         },
       }),
       db.transaction.delete({
