@@ -168,18 +168,18 @@ export default function TransactionModal({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{editTransaction ? "Edit Transaction" : "Add Transaction"}</DialogTitle>
+          <DialogTitle className="text-lg">{editTransaction ? "Edit Transaction" : "Add Transaction"}</DialogTitle>
         </DialogHeader>
 
         {/* Transaction Type Tabs - Disabled when editing */}
-        <div className="flex border-b border-gray-200">
+        <div className="flex border-b border-gray-200 -mx-6 px-6">
           <button
             type="button"
             onClick={() => setTransactionType("expense")}
             disabled={!!editTransaction}
-            className={`flex-1 py-3 px-4 text-center font-medium transition-colors ${
+            className={`flex-1 py-2.5 px-3 text-center text-sm font-medium transition-colors ${
               transactionType === "expense"
                 ? "text-red-600 border-b-2 border-red-600"
                 : "text-gray-500 hover:text-gray-700"
@@ -191,7 +191,7 @@ export default function TransactionModal({
             type="button"
             onClick={() => setTransactionType("income")}
             disabled={!!editTransaction}
-            className={`flex-1 py-3 px-4 text-center font-medium transition-colors ${
+            className={`flex-1 py-2.5 px-3 text-center text-sm font-medium transition-colors ${
               transactionType === "income"
                 ? "text-green-600 border-b-2 border-green-600"
                 : "text-gray-500 hover:text-gray-700"
@@ -203,7 +203,7 @@ export default function TransactionModal({
             type="button"
             onClick={() => setTransactionType("transfer")}
             disabled={!!editTransaction}
-            className={`flex-1 py-3 px-4 text-center font-medium transition-colors ${
+            className={`flex-1 py-2.5 px-3 text-center text-sm font-medium transition-colors ${
               transactionType === "transfer"
                 ? "text-blue-600 border-b-2 border-blue-600"
                 : "text-gray-500 hover:text-gray-700"
@@ -213,7 +213,7 @@ export default function TransactionModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+        <form onSubmit={handleSubmit} className="space-y-3 mt-3">
           {/* Amount Field - Prominent at top */}
           <Field label="Amount" required>
             <Input
@@ -224,7 +224,7 @@ export default function TransactionModal({
               required
               min={0}
               step="0.01"
-              className="text-2xl font-bold text-center"
+              className="text-xl font-bold text-center h-12"
               aria-label="Transaction amount"
             />
           </Field>
@@ -395,13 +395,13 @@ export default function TransactionModal({
           {/* Repeat Transaction - Only for non-transfer */}
           {transactionType !== "transfer" && (
             <div className="space-y-2">
-              <label className="text-sm font-medium">Repeat Transaction</label>
+              <label className="text-xs font-medium">Repeat Transaction</label>
               <div className="flex gap-2">
                 <Button
                   type="button"
                   variant={!isRecurring ? "default" : "outline"}
                   onClick={() => setIsRecurring(false)}
-                  className="flex-1"
+                  className="flex-1 h-9 text-sm"
                 >
                   One-time
                 </Button>
@@ -409,7 +409,7 @@ export default function TransactionModal({
                   type="button"
                   variant={isRecurring ? "default" : "outline"}
                   onClick={() => setIsRecurring(true)}
-                  className="flex-1"
+                  className="flex-1 h-9 text-sm"
                 >
                   Installments
                 </Button>

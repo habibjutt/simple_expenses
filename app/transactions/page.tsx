@@ -229,33 +229,34 @@ export default function TransactionsPage() {
     <div className="max-w-7xl mx-auto">
       <Header />
       <main className="p-4 md:p-6 pb-48 md:pb-52">
-        <div className="mb-6">
+        <div className="mb-4">
           <h1 className="text-2xl md:text-3xl font-bold">All Transactions</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-xs text-gray-500 mt-0.5">
             View and manage all your transactions
           </p>
         </div>
 
         {/* Month Navigation */}
-        <div className="mb-6 flex items-center justify-between bg-white rounded-lg shadow-sm p-4 border">
+        <div className="mb-4 flex items-center justify-between bg-white rounded-lg shadow-sm p-3 border">
           <Button
             variant="outline"
             size="sm"
             onClick={goToPreviousMonth}
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 h-8 text-xs px-2"
           >
-            <ChevronLeft className="h-4 w-4" />
-            Previous
+            <ChevronLeft className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Previous</span>
+            <span className="sm:hidden">Prev</span>
           </Button>
           
           <div className="text-center">
-            <h2 className="text-lg font-semibold">{getMonthYearDisplay()}</h2>
+            <h2 className="text-base font-semibold">{getMonthYearDisplay()}</h2>
             {!isCurrentMonth() && (
               <button
                 onClick={() => setCurrentDate(new Date())}
-                className="text-xs text-blue-600 hover:underline mt-1"
+                className="text-[10px] text-blue-600 hover:underline"
               >
-                Back to current month
+                Back to current
               </button>
             )}
           </div>
@@ -264,10 +265,11 @@ export default function TransactionsPage() {
             variant="outline"
             size="sm"
             onClick={goToNextMonth}
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 h-8 text-xs px-2"
           >
-            Next
-            <ChevronRight className="h-4 w-4" />
+            <span className="hidden sm:inline">Next</span>
+            <span className="sm:hidden">Next</span>
+            <ChevronRight className="h-3.5 w-3.5" />
           </Button>
         </div>
 
@@ -285,50 +287,50 @@ export default function TransactionsPage() {
             </p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             {filteredTransactions.map((transaction) => (
               <div
                 key={transaction.id}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group"
+                className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group"
               >
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="bg-blue-500 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                  <div className="bg-blue-500 w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0">
                     {transaction.creditCardId ? (
-                      <CreditCard className="h-5 w-5 text-white" />
+                      <CreditCard className="h-4 w-4 text-white" />
                     ) : (
-                      <Wallet className="h-5 w-5 text-white" />
+                      <Wallet className="h-4 w-4 text-white" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-sm truncate">
                       {transaction.name}
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <Calendar className="h-3 w-3" />
-                      <span>{formatDate(transaction.date)}</span>
+                    <div className="flex items-center gap-1.5 text-[10px] text-gray-500 leading-tight mt-0.5">
+                      <Calendar className="h-2.5 w-2.5 flex-shrink-0" />
+                      <span className="whitespace-nowrap">{formatDate(transaction.date)}</span>
                       <span>•</span>
-                      <span>{transaction.category}</span>
+                      <span className="truncate">{transaction.category}</span>
                       {transaction.installments > 1 && (
                         <>
                           <span>•</span>
-                          <span>
-                            {transaction.installments} installments
+                          <span className="whitespace-nowrap">
+                            {transaction.installments}x
                           </span>
                         </>
                       )}
                     </div>
-                    <div className="text-xs text-gray-400 mt-1">
+                    <div className="text-[10px] text-gray-400 mt-0.5 truncate leading-tight">
                       {transaction.creditCard
-                        ? `Credit Card: ${transaction.creditCard.name}`
+                        ? `${transaction.creditCard.name}`
                         : transaction.bankAccount
-                        ? `Bank Account: ${transaction.bankAccount.name}`
+                        ? `${transaction.bankAccount.name}`
                         : ""}
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 flex-shrink-0">
                   <span
-                    className={`font-semibold text-sm ${
+                    className={`font-semibold text-xs whitespace-nowrap ${
                       transaction.amount < 0
                         ? "text-green-600"
                         : "text-red-600"
@@ -340,21 +342,21 @@ export default function TransactionsPage() {
                   </span>
                   
                   {/* Action Buttons */}
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-0.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => handleEditTransaction(transaction)}
-                      className="p-2 hover:bg-blue-100 rounded-full transition-colors"
+                      className="p-1.5 hover:bg-blue-100 rounded-full transition-colors"
                       title="Edit transaction"
                       disabled={transaction.category === "Transfer"}
                     >
-                      <Edit2 className="h-4 w-4 text-blue-600" />
+                      <Edit2 className="h-3.5 w-3.5 text-blue-600" />
                     </button>
                     <button
                       onClick={() => handleDeleteClick(transaction)}
-                      className="p-2 hover:bg-red-100 rounded-full transition-colors"
+                      className="p-1.5 hover:bg-red-100 rounded-full transition-colors"
                       title="Delete transaction"
                     >
-                      <Trash2 className="h-4 w-4 text-red-600" />
+                      <Trash2 className="h-3.5 w-3.5 text-red-600" />
                     </button>
                   </div>
                 </div>
