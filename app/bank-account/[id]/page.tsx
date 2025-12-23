@@ -2,11 +2,22 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { getBankAccountTransactions } from "@/app/api/bank-account-action";
+import { getBankAccountTransactions, getBankAccounts } from "@/app/api/bank-account-action";
+import { deleteTransaction } from "@/app/api/transaction-action";
+import { getCreditCards } from "@/app/api/credit-card-action";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Calendar, DollarSign, Wallet, ChevronLeft, ChevronRight, Utensils, ShoppingCart, Home, Car, Coffee, Gift, Heart, TrendingUp, TrendingDown } from "lucide-react";
+import { ArrowLeft, Calendar, DollarSign, Wallet, ChevronLeft, ChevronRight, Utensils, ShoppingCart, Home, Car, Coffee, Gift, Heart, TrendingUp, TrendingDown, Pencil, Trash2 } from "lucide-react";
+import TransactionModal from "@/components/transaction-modal";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -44,6 +55,25 @@ export default function BankAccountDetailsPage() {
   const today = new Date();
   const [selectedMonth, setSelectedMonth] = useState(today.getMonth());
   const [selectedYear, setSelectedYear] = useState(today.getFullYear());
+  
+  // Transaction edit/delete state
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState<{
+    id: string;
+    name: string;
+    amount: number;
+    date: Date;
+    category: string;
+    installments: number;
+    creditCardId: string | null;
+    bankAccountId: string | null;
+  } | null>(null);
+  const [isDeleteTransactionConfirmOpen, setIsDeleteTransactionConfirmOpen] = useState(false);
+  const [deletingTransactionId, setDeletingTransactionId] = useState<string | null>(null);
+  const [transactionDeleteLoading, setTransactionDeleteLoading] = useState(false);
+  const [transactionDeleteError, setTransactionDeleteError] = useState<string | null>(null);
+  const [creditCards, setCreditCards] = useState<Array<{ id: string; name: string; availableBalance: number }>>([]);
+  const [bankAccounts, setBankAccounts] = useState<Array<{ id: string; name: string; currentBalance: number }>>([]);
 
   useEffect(() => {
     const fetchAccountData = async () => {
@@ -51,6 +81,14 @@ export default function BankAccountDetailsPage() {
         setLoading(true);
         const data = await getBankAccountTransactions(accountId, selectedMonth, selectedYear);
         setAccountData(data);
+        
+        // Load credit cards and bank accounts for the modal
+        const [cards, accounts] = await Promise.all([
+          getCreditCards(),
+          getBankAccounts(),
+        ]);
+        setCreditCards(cards);
+        setBankAccounts(accounts);
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : "Failed to load bank account data");
       } finally {
@@ -98,6 +136,48 @@ export default function BankAccountDetailsPage() {
   const isCurrentMonth = () => {
     const now = new Date();
     return selectedMonth === now.getMonth() && selectedYear === now.getFullYear();
+  };
+  
+  const handleEditTransaction = (transaction: Transaction) => {
+    setEditingTransaction({
+      id: transaction.id,
+      name: transaction.name,
+      amount: transaction.amount,
+      date: transaction.date,
+      category: transaction.category,
+      installments: transaction.installments,
+      creditCardId: null,
+      bankAccountId: accountId,
+    });
+    setIsTransactionModalOpen(true);
+  };
+  
+  const handleDeleteTransaction = async () => {
+    if (!deletingTransactionId) return;
+    
+    try {
+      setTransactionDeleteLoading(true);
+      setTransactionDeleteError(null);
+      
+      await deleteTransaction(deletingTransactionId);
+      
+      // Refresh account data
+      const data = await getBankAccountTransactions(accountId, selectedMonth, selectedYear);
+      setAccountData(data);
+      
+      setIsDeleteTransactionConfirmOpen(false);
+      setDeletingTransactionId(null);
+    } catch (err: any) {
+      setTransactionDeleteError(err.message || "Failed to delete transaction");
+    } finally {
+      setTransactionDeleteLoading(false);
+    }
+  };
+  
+  const handleTransactionSuccess = async () => {
+    // Refresh account data after edit
+    const data = await getBankAccountTransactions(accountId, selectedMonth, selectedYear);
+    setAccountData(data);
   };
 
   const formatDate = (date: Date) => {
@@ -338,6 +418,29 @@ export default function BankAccountDetailsPage() {
                             {transaction.amount < 0 ? 'income' : 'expense'}
                           </div>
                         </div>
+                        
+                        {/* Action Buttons */}
+                        <div className="flex-shrink-0 flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditTransaction(transaction)}
+                            className="h-8 w-8 p-0"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setDeletingTransactionId(transaction.id);
+                              setIsDeleteTransactionConfirmOpen(true);
+                            }}
+                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -392,6 +495,55 @@ export default function BankAccountDetailsPage() {
       )}
       
       <Footer />
+      
+      {/* Transaction Edit Modal */}
+      <TransactionModal
+        open={isTransactionModalOpen}
+        setOpen={setIsTransactionModalOpen}
+        creditCards={creditCards}
+        bankAccounts={bankAccounts}
+        onSuccess={handleTransactionSuccess}
+        editTransaction={editingTransaction}
+      />
+      
+      {/* Delete Transaction Confirmation Modal */}
+      <Dialog open={isDeleteTransactionConfirmOpen} onOpenChange={setIsDeleteTransactionConfirmOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Transaction</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this transaction? This action cannot be undone and will update your bank account balance.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {transactionDeleteError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+              {transactionDeleteError}
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsDeleteTransactionConfirmOpen(false);
+                setDeletingTransactionId(null);
+                setTransactionDeleteError(null);
+              }}
+              disabled={transactionDeleteLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDeleteTransaction}
+              disabled={transactionDeleteLoading}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {transactionDeleteLoading ? "Deleting..." : "Delete Transaction"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

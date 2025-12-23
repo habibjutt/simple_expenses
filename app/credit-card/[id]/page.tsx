@@ -5,10 +5,12 @@ import { useParams, useRouter } from "next/navigation";
 import { getUpcomingInvoice, payInvoice } from "@/app/api/credit-card-action";
 import { getBankAccounts } from "@/app/api/bank-account-action";
 import { deleteInvoice, unpayInvoice } from "@/app/api/invoice-action";
+import { deleteTransaction } from "@/app/api/transaction-action";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Calendar, DollarSign, CreditCard, Clock, ChevronLeft, ChevronRight, CheckCircle, Wallet, Pencil, Trash2, XCircle, Utensils, ShoppingCart, Home, Car, Coffee, Gift, Heart, TrendingUp, TrendingDown } from "lucide-react";
+import TransactionModal from "@/components/transaction-modal";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import {
@@ -90,6 +92,23 @@ export default function CreditCardDetailsPage() {
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  
+  // Transaction edit/delete state
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState<{
+    id: string;
+    name: string;
+    amount: number;
+    date: Date;
+    category: string;
+    installments: number;
+    creditCardId: string | null;
+    bankAccountId: string | null;
+  } | null>(null);
+  const [isDeleteTransactionConfirmOpen, setIsDeleteTransactionConfirmOpen] = useState(false);
+  const [deletingTransactionId, setDeletingTransactionId] = useState<string | null>(null);
+  const [transactionDeleteLoading, setTransactionDeleteLoading] = useState(false);
+  const [transactionDeleteError, setTransactionDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchInvoiceData = async () => {
@@ -244,6 +263,48 @@ export default function CreditCardDetailsPage() {
     } finally {
       setDeleteLoading(false);
     }
+  };
+  
+  const handleEditTransaction = (transaction: Transaction) => {
+    setEditingTransaction({
+      id: transaction.id,
+      name: transaction.name,
+      amount: transaction.amount,
+      date: transaction.date,
+      category: transaction.category,
+      installments: transaction.installments,
+      creditCardId: cardId,
+      bankAccountId: null,
+    });
+    setIsTransactionModalOpen(true);
+  };
+  
+  const handleDeleteTransaction = async () => {
+    if (!deletingTransactionId) return;
+    
+    try {
+      setTransactionDeleteLoading(true);
+      setTransactionDeleteError(null);
+      
+      await deleteTransaction(deletingTransactionId);
+      
+      // Refresh invoice data
+      const data = await getUpcomingInvoice(cardId, selectedMonth, selectedYear);
+      setInvoiceData(data);
+      
+      setIsDeleteTransactionConfirmOpen(false);
+      setDeletingTransactionId(null);
+    } catch (err: any) {
+      setTransactionDeleteError(err.message || "Failed to delete transaction");
+    } finally {
+      setTransactionDeleteLoading(false);
+    }
+  };
+  
+  const handleTransactionSuccess = async () => {
+    // Refresh invoice data after edit
+    const data = await getUpcomingInvoice(cardId, selectedMonth, selectedYear);
+    setInvoiceData(data);
   };
 
   const formatDate = (date: Date) => {
@@ -573,6 +634,29 @@ export default function CreditCardDetailsPage() {
                             {formatCurrency(transaction.amount)}
                           </div>
                         </div>
+                        
+                        {/* Action Buttons */}
+                        <div className="flex-shrink-0 flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditTransaction(transaction)}
+                            className="h-8 w-8 p-0"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setDeletingTransactionId(transaction.id);
+                              setIsDeleteTransactionConfirmOpen(true);
+                            }}
+                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -824,6 +908,55 @@ export default function CreditCardDetailsPage() {
               className="bg-red-600 hover:bg-red-700 text-white"
             >
               {deleteLoading ? "Deleting..." : "Delete Invoice"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Transaction Edit Modal */}
+      <TransactionModal
+        open={isTransactionModalOpen}
+        setOpen={setIsTransactionModalOpen}
+        creditCards={[{ id: card.id, name: card.name, availableBalance: card.availableBalance }]}
+        bankAccounts={bankAccounts}
+        onSuccess={handleTransactionSuccess}
+        editTransaction={editingTransaction}
+      />
+      
+      {/* Delete Transaction Confirmation Modal */}
+      <Dialog open={isDeleteTransactionConfirmOpen} onOpenChange={setIsDeleteTransactionConfirmOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Transaction</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this transaction? This action cannot be undone and will update your credit card balance.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {transactionDeleteError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+              {transactionDeleteError}
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsDeleteTransactionConfirmOpen(false);
+                setDeletingTransactionId(null);
+                setTransactionDeleteError(null);
+              }}
+              disabled={transactionDeleteLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDeleteTransaction}
+              disabled={transactionDeleteLoading}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {transactionDeleteLoading ? "Deleting..." : "Delete Transaction"}
             </Button>
           </DialogFooter>
         </DialogContent>

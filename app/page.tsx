@@ -98,6 +98,7 @@ export default function Home() {
   const [deleteCardId, setDeleteCardId] = useState<string | null>(null);
   const [deleteAccountId, setDeleteAccountId] = useState<string | null>(null);
   const [editCard, setEditCard] = useState<CreditCard | null>(null);
+  const [editAccount, setEditAccount] = useState<BankAccount | null>(null);
   const [showBalance, setShowBalance] = useState(true);
   const [showBills, setShowBills] = useState(true);
   const [dataLoaded, setDataLoaded] = useState(false);
@@ -317,6 +318,19 @@ export default function Home() {
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
+                        setEditAccount(account);
+                        setIsBankAccountModalOpen(true);
+                      }}
+                      className="h-6 w-6 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                      aria-label={`Edit ${account.name}`}
+                    >
+                      <Pencil className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setDeleteAccountId(account.id);
                       }}
                       className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -470,8 +484,17 @@ export default function Home() {
 
       <BankAccountModal
         open={isBankAccountModalOpen}
-        setOpen={setIsBankAccountModalOpen}
-        onSuccess={fetchBankAccounts}
+        setOpen={(open) => {
+          setIsBankAccountModalOpen(open);
+          if (!open) {
+            setEditAccount(null);
+          }
+        }}
+        editAccount={editAccount}
+        onSuccess={() => {
+          fetchBankAccounts();
+          setEditAccount(null);
+        }}
       />
 
       <TransactionModal

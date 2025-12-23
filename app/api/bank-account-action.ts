@@ -37,6 +37,54 @@ export async function createBankAccount(formData: FormData) {
   revalidatePath("/");
 }
 
+export async function updateBankAccount(accountId: string, formData: FormData) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const account = await db.bank_account.findUnique({
+    where: { id: accountId },
+  });
+
+  if (!account) {
+    throw new Error("Bank account not found");
+  }
+
+  if (account.userId !== session.user.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const name = formData.get("name") as string;
+  const initialBalance = parseFloat(formData.get("initialBalance") as string);
+
+  if (!name || isNaN(initialBalance)) {
+    throw new Error("Invalid input");
+  }
+
+  if (initialBalance < 0) {
+    throw new Error("Initial balance cannot be negative");
+  }
+
+  // Calculate the difference in initial balance to adjust current balance
+  const balanceDifference = initialBalance - account.initialBalance;
+  const newCurrentBalance = account.currentBalance + balanceDifference;
+
+  await db.bank_account.update({
+    where: { id: accountId },
+    data: {
+      name,
+      initialBalance,
+      currentBalance: newCurrentBalance,
+    },
+  });
+
+  revalidatePath("/");
+}
+
 export async function getBankAccounts() {
   const session = await auth.api.getSession({
     headers: await headers(),

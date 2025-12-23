@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { createBankAccount } from "@/app/api/bank-account-action";
+import React, { useState, useEffect } from "react";
+import { createBankAccount, updateBankAccount } from "@/app/api/bank-account-action";
 import {
   Dialog,
   DialogContent,
@@ -13,19 +13,39 @@ import { Field } from "./ui/field";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 
+type BankAccount = {
+  id: string;
+  name: string;
+  initialBalance: number;
+  currentBalance: number;
+};
+
 export default function BankAccountModal({
   open,
   setOpen,
   onSuccess,
+  editAccount,
 }: {
   open: boolean;
   setOpen: (v: boolean) => void;
   onSuccess?: () => void;
+  editAccount?: BankAccount | null;
 }) {
   const [name, setName] = useState("");
   const [initialBalance, setInitialBalance] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (editAccount) {
+      setName(editAccount.name);
+      setInitialBalance(editAccount.initialBalance.toString());
+    } else {
+      setName("");
+      setInitialBalance("");
+    }
+    setError(null);
+  }, [editAccount, open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +55,13 @@ export default function BankAccountModal({
       const formData = new FormData();
       formData.append("name", name);
       formData.append("initialBalance", initialBalance);
-      await createBankAccount(formData);
+      
+      if (editAccount) {
+        await updateBankAccount(editAccount.id, formData);
+      } else {
+        await createBankAccount(formData);
+      }
+      
       setOpen(false);
       setName("");
       setInitialBalance("");
@@ -43,7 +69,7 @@ export default function BankAccountModal({
         onSuccess();
       }
     } catch (err: any) {
-      setError(err.message || "Failed to create bank account");
+      setError(err.message || `Failed to ${editAccount ? "update" : "create"} bank account`);
     } finally {
       setLoading(false);
     }
@@ -53,7 +79,7 @@ export default function BankAccountModal({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Add Bank Account</DialogTitle>
+          <DialogTitle>{editAccount ? "Edit Bank Account" : "Add Bank Account"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Field label="Account Name" required>
@@ -84,7 +110,7 @@ export default function BankAccountModal({
           )}
           <DialogFooter>
             <Button type="submit" variant="default" disabled={loading}>
-              {loading ? "Adding..." : "Add Account"}
+              {loading ? (editAccount ? "Updating..." : "Adding...") : (editAccount ? "Update Account" : "Add Account")}
             </Button>
             <Button
               type="button"
