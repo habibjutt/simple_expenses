@@ -217,6 +217,10 @@ export default function Home() {
     return invoices.reduce((sum, inv) => sum + inv.totalAmount, 0);
   };
 
+  const getTotalNextBills = () => {
+    return nextBills.reduce((sum, bill) => sum + bill.totalAmount, 0);
+  };
+
   const getAccountIconColor = (index: number) => {
     const colors = ["bg-green-500", "bg-red-500", "bg-yellow-500", "bg-blue-500"];
     return colors[index % colors.length];
@@ -237,6 +241,7 @@ export default function Home() {
 
   const totalBalance = getTotalBalance();
   const totalBills = getTotalBills();
+  const totalNextBills = getTotalNextBills();
   const currentMonth = new Date().toLocaleString("en-US", { month: "long" });
 
   return (
@@ -370,7 +375,14 @@ export default function Home() {
         {/* My Cards Section */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold">My Cards</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-lg font-semibold">My Cards</h2>
+              {totalNextBills > 0 && (
+                <span className="text-sm font-semibold text-red-600">
+                  Total Bills: {formatCurrency(totalNextBills)}
+                </span>
+              )}
+            </div>
             <Button
               onClick={() => setIsModalOpen(true)}
               size="sm"
@@ -390,67 +402,78 @@ export default function Home() {
               {creditCards.map((card, index) => {
                 const invoice = invoices.find((inv) => inv.cardId === card.id);
                 const nextBill = nextBills.find((bill) => bill.cardId === card.id);
+                const availablePercentage = card.cardLimit > 0 ? (card.availableBalance / card.cardLimit) * 100 : 0;
                 return (
-                  <div
-                    key={card.id}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
-                    onClick={(e) => {
-                      if (!(e.target as HTMLElement).closest('button')) {
-                        router.push(`/credit-card/${card.id}`);
-                      }
-                    }}
-                  >
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className={`${getCardIconColor(index)} w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0`}>
-                        <CreditCard className="h-5 w-5 text-white" />
+                  <div key={card.id} className="bg-gray-50 rounded-lg">
+                    <div
+                      className="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={(e) => {
+                        if (!(e.target as HTMLElement).closest('button')) {
+                          router.push(`/credit-card/${card.id}`);
+                        }
+                      }}
+                    >
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className={`${getCardIconColor(index)} w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0`}>
+                          <CreditCard className="h-5 w-5 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-sm truncate">{card.name}</div>
+                          <div className="text-xs text-gray-500">Manual Card</div>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium text-sm truncate">{card.name}</div>
-                        <div className="text-xs text-gray-500">Manual Card</div>
+                      <div className="flex items-center gap-3">
+                        <div className="flex flex-col items-end gap-1">
+                          <div className="text-sm font-semibold text-green-600">
+                            Available: {formatCurrency(card.availableBalance)}
+                          </div>
+                          {invoice && (
+                            <div className="text-xs text-red-600">
+                              Current Bill (Due {formatDate(invoice.paymentDueDate)}): {formatCurrency(-invoice.totalAmount)}
+                            </div>
+                          )}
+                          {nextBill && (
+                            <div className={`text-xs ${nextBill.totalAmount > 0 ? 'text-red-600 font-semibold' : 'text-gray-400'}`}>
+                              Next Bill (Due {formatFullDate(nextBill.nextPaymentDueDate)}): {formatCurrency(nextBill.totalAmount)}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditCard(card);
+                              setIsModalOpen(true);
+                            }}
+                            className="h-6 w-6 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50 flex-shrink-0"
+                            aria-label={`Edit ${card.name}`}
+                          >
+                            <Pencil className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteCardId(card.id);
+                            }}
+                            className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
+                            aria-label={`Delete ${card.name}`}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <div className="flex flex-col items-end gap-1">
-                        <div className="text-sm font-semibold text-green-600">
-                          Available: {formatCurrency(card.availableBalance)}
-                        </div>
-                        {invoice && (
-                          <div className="text-xs text-red-600">
-                            Current Bill (Due {formatDate(invoice.paymentDueDate)}): {formatCurrency(-invoice.totalAmount)}
-                          </div>
-                        )}
-                        {nextBill && (
-                          <div className={`text-xs ${nextBill.totalAmount > 0 ? 'text-gray-600' : 'text-gray-400'}`}>
-                            Next Bill (Due {formatFullDate(nextBill.nextPaymentDueDate)}): {formatCurrency(nextBill.totalAmount)}
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEditCard(card);
-                            setIsModalOpen(true);
-                          }}
-                          className="h-6 w-6 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50 flex-shrink-0"
-                          aria-label={`Edit ${card.name}`}
-                        >
-                          <Pencil className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setDeleteCardId(card.id);
-                          }}
-                          className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
-                          aria-label={`Delete ${card.name}`}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
+                    {/* Available Limit Progress Bar */}
+                    <div className="px-3 pb-3">
+                      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                        <div
+                          className="h-full bg-green-500 transition-all duration-300 rounded-full"
+                          style={{ width: `${Math.min(availablePercentage, 100)}%` }}
+                        />
                       </div>
                     </div>
                   </div>

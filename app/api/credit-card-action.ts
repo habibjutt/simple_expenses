@@ -255,6 +255,7 @@ export async function getUpcomingInvoice(cardId: string, month?: number, year?: 
   const transactionEndDate = billStartDate;
 
   // Fetch transactions from the previous billing period (these will appear on this invoice)
+  // Exclude parent transactions (installmentNumber: 0) - only show actual installments
   const transactions = await db.transaction.findMany({
     where: {
       creditCardId: cardId,
@@ -262,6 +263,10 @@ export async function getUpcomingInvoice(cardId: string, month?: number, year?: 
         gte: transactionStartDate,
         lt: transactionEndDate,
       },
+      OR: [
+        { installmentNumber: null },
+        { installmentNumber: { gt: 0 } },
+      ],
     },
     orderBy: {
       date: "desc",

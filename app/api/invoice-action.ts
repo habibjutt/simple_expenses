@@ -348,6 +348,10 @@ export async function getCurrentMonthInvoices() {
               gte: billStartDate,
               lt: billEndDate,
             },
+            OR: [
+              { installmentNumber: null },
+              { installmentNumber: { gt: 0 } },
+            ],
           },
         });
         totalAmount = transactions.reduce((sum, txn) => sum + txn.amount, 0);
@@ -367,9 +371,9 @@ export async function getCurrentMonthInvoices() {
     })
   );
 
-  // Filter to only unpaid invoices with amount > 0
+  // Filter to only unpaid invoices with amount > 0 AND where the bill end date is in the current month
   return invoices.filter(
-    (inv) => !inv.invoice?.isPaid && inv.totalAmount > 0
+    (inv) => !inv.invoice?.isPaid && inv.totalAmount > 0 && inv.billEndDate.getMonth() === currentMonth
   );
 }
 
@@ -422,6 +426,7 @@ export async function getNextBillAmounts() {
       const transactionEndDate = billStartDate;
 
       // Fetch transactions from the previous billing period that will appear on the upcoming invoice
+      // Exclude parent transactions (installmentNumber: 0) - only show actual installments
       const transactions = await db.transaction.findMany({
         where: {
           creditCardId: card.id,
@@ -429,6 +434,10 @@ export async function getNextBillAmounts() {
             gte: transactionStartDate,
             lt: transactionEndDate,
           },
+          OR: [
+            { installmentNumber: null },
+            { installmentNumber: { gt: 0 } },
+          ],
         },
       });
 
