@@ -72,6 +72,7 @@ type Invoice = {
   invoice: {
     id: string;
     isPaid: boolean;
+    paidAmount: number;
   } | null;
 };
 
@@ -427,9 +428,17 @@ export default function Home() {
                           <div className="text-sm font-semibold text-green-600">
                             Available: {formatCurrency(card.availableBalance)}
                           </div>
-                          {invoice && (
+                          {invoice && invoice.totalAmount > 0 && (
                             <div className="text-xs text-red-600">
-                              Current Bill (Due {formatDate(invoice.paymentDueDate)}): {formatCurrency(-invoice.totalAmount)}
+                              {invoice.invoice?.paidAmount && invoice.invoice.paidAmount > 0 && !invoice.invoice.isPaid ? (
+                                <>
+                                  Paid: {formatCurrency(invoice.invoice.paidAmount)} / Remaining: {formatCurrency(invoice.totalAmount - invoice.invoice.paidAmount)}
+                                </>
+                              ) : (
+                                <>
+                                  Current Bill (Due {formatDate(invoice.paymentDueDate)}): {formatCurrency(-invoice.totalAmount)}
+                                </>
+                              )}
                             </div>
                           )}
                           {nextBill && (

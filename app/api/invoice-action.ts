@@ -35,23 +35,23 @@ export async function deleteInvoice(invoiceId: string) {
   // If the invoice was paid, we need to reverse the transaction
   if (invoice.isPaid && invoice.paidFromBankAccountId) {
     await db.$transaction(async (tx) => {
-      // Return the money to the bank account
+      // Return the paid amount to the bank account
       await tx.bank_account.update({
         where: { id: invoice.paidFromBankAccountId! },
         data: {
           currentBalance: {
-            increment: invoice.totalAmount,
+            increment: invoice.paidAmount || invoice.totalAmount,
           },
         },
       });
 
-      // Deduct the amount from the credit card available balance
+      // Deduct the paid amount from the credit card available balance
       // (reversing the payment that restored the balance)
       await tx.credit_card.update({
         where: { id: invoice.creditCardId },
         data: {
           availableBalance: {
-            decrement: invoice.totalAmount,
+            decrement: invoice.paidAmount || invoice.totalAmount,
           },
         },
       });
@@ -254,12 +254,12 @@ export async function unpayInvoice(invoiceId: string) {
 
   // Reverse the payment transaction
   await db.$transaction(async (tx) => {
-    // Return the money to the bank account
+    // Return the paid amount to the bank account
     await tx.bank_account.update({
       where: { id: invoice.paidFromBankAccountId! },
       data: {
         currentBalance: {
-          increment: invoice.totalAmount,
+          increment: invoice.paidAmount || invoice.totalAmount,
         },
       },
     });
@@ -269,16 +269,17 @@ export async function unpayInvoice(invoiceId: string) {
       where: { id: invoice.creditCardId },
       data: {
         availableBalance: {
-          decrement: invoice.totalAmount,
+          decrement: invoice.paidAmount || invoice.totalAmount,
         },
       },
     });
 
-    // Update invoice to unpaid
+    // Update invoice to unpaid and reset paid amount
     await tx.invoice.update({
       where: { id: invoiceId },
       data: {
         isPaid: false,
+        paidAmount: 0,
         paidAt: null,
         paidFromBankAccountId: null,
       },

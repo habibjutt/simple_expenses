@@ -129,6 +129,7 @@ model invoice {
   billEndDate           DateTime
   paymentDueDate        DateTime
   totalAmount           Float
+  paidAmount            Float     @default(0) // Track how much has been paid
   isPaid                Boolean   @default(false)
   paidAt                DateTime?
   paidFromBankAccountId String?

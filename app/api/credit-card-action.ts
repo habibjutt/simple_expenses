@@ -352,8 +352,19 @@ export async function payInvoice(
   });
 
   if (existingInvoice?.isPaid) {
-    throw new Error("Invoice is already paid");
+    throw new Error("Invoice is already fully paid");
   }
+
+  // Check if this would be a partial or full payment
+  const currentPaidAmount = existingInvoice?.paidAmount || 0;
+  const remainingAmount = (existingInvoice?.totalAmount || totalAmount) - currentPaidAmount;
+  
+  if (totalAmount > remainingAmount) {
+    throw new Error(`Payment amount exceeds remaining balance. Remaining: ${remainingAmount}`);
+  }
+  
+  const newPaidAmount = currentPaidAmount + totalAmount;
+  const isFullyPaid = newPaidAmount >= (existingInvoice?.totalAmount || totalAmount);
 
   // Perform the payment in a transaction
   await db.$transaction(async (tx) => {
@@ -382,10 +393,11 @@ export async function payInvoice(
       await tx.invoice.update({
         where: { id: existingInvoice.id },
         data: {
-          isPaid: true,
-          paidAt: new Date(),
+          paidAmount: newPaidAmount,
+          isPaid: isFullyPaid,
+          paidAt: isFullyPaid ? new Date() : existingInvoice.paidAt,
           paidFromBankAccountId: bankAccountId,
-          totalAmount,
+          totalAmount: existingInvoice.totalAmount, // Keep the original total
         },
       });
     } else {
@@ -396,6 +408,7 @@ export async function payInvoice(
           billEndDate,
           paymentDueDate,
           totalAmount,
+          paidAmount: totalAmount,
           isPaid: true,
           paidAt: new Date(),
           paidFromBankAccountId: bankAccountId,

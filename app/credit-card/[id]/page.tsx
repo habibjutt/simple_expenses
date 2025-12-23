@@ -41,6 +41,8 @@ type BankAccount = {
 type Invoice = {
   id: string;
   isPaid: boolean;
+  paidAmount: number;
+  totalAmount: number;
   paidAt: Date | null;
   paidFromBankAccount: BankAccount | null;
 };
@@ -79,6 +81,7 @@ export default function CreditCardDetailsPage() {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
   const [selectedBankAccountId, setSelectedBankAccountId] = useState<string>("");
+  const [paymentAmount, setPaymentAmount] = useState<string>("");
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   
@@ -172,6 +175,10 @@ export default function CreditCardDetailsPage() {
       setIsPaymentModalOpen(true);
       setPaymentError(null);
       setSelectedBankAccountId("");
+      // Set default payment amount to the remaining balance
+      const paidSoFar = invoiceData?.invoice?.paidAmount || 0;
+      const remaining = (invoiceData?.totalAmount || 0) - paidSoFar;
+      setPaymentAmount(remaining.toString());
     } catch (err: any) {
       setPaymentError(err.message || "Failed to load bank accounts");
     }
@@ -180,6 +187,20 @@ export default function CreditCardDetailsPage() {
   const handlePayInvoice = async () => {
     if (!selectedBankAccountId || !invoiceData) {
       setPaymentError("Please select a bank account");
+      return;
+    }
+    
+    const amount = parseFloat(paymentAmount);
+    if (isNaN(amount) || amount <= 0) {
+      setPaymentError("Please enter a valid payment amount");
+      return;
+    }
+    
+    const paidSoFar = invoiceData.invoice?.paidAmount || 0;
+    const remaining = invoiceData.totalAmount - paidSoFar;
+    
+    if (amount > remaining) {
+      setPaymentError(`Payment amount cannot exceed the remaining balance of ${formatCurrency(remaining)}`);
       return;
     }
     
@@ -193,7 +214,7 @@ export default function CreditCardDetailsPage() {
         invoiceData.billStartDate,
         invoiceData.billEndDate,
         invoiceData.paymentDueDate,
-        invoiceData.totalAmount
+        amount
       );
       
       // Refresh invoice data
@@ -202,6 +223,7 @@ export default function CreditCardDetailsPage() {
       
       setIsPaymentModalOpen(false);
       setSelectedBankAccountId("");
+      setPaymentAmount("");
     } catch (err: any) {
       setPaymentError(err.message || "Failed to pay invoice");
     } finally {
@@ -536,7 +558,7 @@ export default function CreditCardDetailsPage() {
                 <div className="p-3 bg-green-50 border border-green-200 rounded-lg mb-2">
                   <div className="flex items-center gap-2 text-green-700 font-semibold text-sm">
                     <CheckCircle className="h-4 w-4" />
-                    Paid on {invoiceData.invoice.paidAt ? new Date(invoiceData.invoice.paidAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "N/A"}
+                    Fully Paid on {invoiceData.invoice.paidAt ? new Date(invoiceData.invoice.paidAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "N/A"}
                     {invoiceData.invoice.paidFromBankAccount && (
                       <> • {invoiceData.invoice.paidFromBankAccount.name}</>
                     )}
@@ -559,6 +581,54 @@ export default function CreditCardDetailsPage() {
                     className="text-xs h-8 text-red-600 hover:text-red-700 hover:bg-red-50"
                   >
                     <Trash2 className="h-3 w-3 mr-1" />
+                    Delete
+                  </Button>
+                </div>
+              </div>
+            ) : invoiceData.invoice && invoiceData.invoice.paidAmount > 0 ? (
+              <div className="mt-3">
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg mb-2">
+                  <div className="text-sm text-blue-800 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold">Partially Paid:</span>
+                      <span className="font-bold text-green-700">{formatCurrency(invoiceData.invoice.paidAmount)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold">Remaining:</span>
+                      <span className="font-bold text-red-700">{formatCurrency(totalAmount - invoiceData.invoice.paidAmount)}</span>
+                    </div>
+                    {invoiceData.invoice.paidFromBankAccount && (
+                      <div className="text-xs text-blue-600 pt-1 border-t border-blue-200">
+                        Last paid from: {invoiceData.invoice.paidFromBankAccount.name}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleOpenPaymentModal}
+                    size="sm"
+                    className="h-8 text-xs"
+                  >
+                    <Wallet className="h-4 w-4 mr-1" />
+                    Pay Remaining
+                  </Button>
+                  <Button
+                    onClick={handleOpenEditModal}
+                    variant="outline"
+                    size="sm"
+                    className="text-xs h-8"
+                  >
+                    <Pencil className="h-3 w-3 mr-1" />
+                    Edit
+                  </Button>
+                  <Button
+                    onClick={() => setIsDeleteConfirmOpen(true)}
+                    variant="outline"
+                    size="sm"
+                    className="text-xs h-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
                     Delete
                   </Button>
                 </div>
@@ -718,7 +788,7 @@ export default function CreditCardDetailsPage() {
           <DialogHeader>
             <DialogTitle>Pay Invoice</DialogTitle>
             <DialogDescription>
-              Select a bank account to pay this invoice. The amount will be deducted from the selected account.
+              Select a bank account and enter the amount you want to pay.
             </DialogDescription>
           </DialogHeader>
           
@@ -726,13 +796,70 @@ export default function CreditCardDetailsPage() {
             <div className="space-y-4">
               <div className="p-4 bg-gray-50 rounded-lg">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm text-gray-600">Invoice Amount:</span>
+                  <span className="text-sm text-gray-600">Total Invoice Amount:</span>
                   <span className="text-xl font-bold text-red-600">
                     {formatCurrency(invoiceData.totalAmount)}
                   </span>
                 </div>
                 <div className="text-xs text-gray-500">
                   Billing Period: {formatDate(invoiceData.billStartDate)} - {formatDate(invoiceData.billEndDate)}
+                </div>
+                {invoiceData.invoice && invoiceData.invoice.paidAmount > 0 && (
+                  <div className="mt-3 pt-3 border-t border-gray-200">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-gray-600">Already Paid:</span>
+                      <span className="font-semibold text-green-600">
+                        {formatCurrency(invoiceData.invoice.paidAmount)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm mt-1">
+                      <span className="text-gray-600">Remaining:</span>
+                      <span className="font-bold text-red-600">
+                        {formatCurrency(invoiceData.totalAmount - invoiceData.invoice.paidAmount)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="payment-amount">Payment Amount <span className="text-red-500">*</span></Label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                  <input
+                    id="payment-amount"
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    max={invoiceData.totalAmount - (invoiceData.invoice?.paidAmount || 0)}
+                    value={paymentAmount}
+                    onChange={(e) => setPaymentAmount(e.target.value)}
+                    className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="0.00"
+                    disabled={paymentLoading}
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPaymentAmount((invoiceData.totalAmount - (invoiceData.invoice?.paidAmount || 0)).toString())}
+                    disabled={paymentLoading}
+                    className="text-xs"
+                  >
+                    Full Amount
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPaymentAmount(((invoiceData.totalAmount - (invoiceData.invoice?.paidAmount || 0)) / 2).toFixed(2))}
+                    disabled={paymentLoading}
+                    className="text-xs"
+                  >
+                    50%
+                  </Button>
                 </div>
               </div>
               
@@ -746,18 +873,31 @@ export default function CreditCardDetailsPage() {
                   disabled={paymentLoading}
                 >
                   <option value="">-- Select an account --</option>
-                  {bankAccounts.map((account) => (
-                    <option 
-                      key={account.id} 
-                      value={account.id}
-                      disabled={account.currentBalance < invoiceData.totalAmount}
-                    >
-                      {account.name} - {formatCurrency(account.currentBalance)}
-                      {account.currentBalance < invoiceData.totalAmount && " (Insufficient balance)"}
-                    </option>
-                  ))}
+                  {bankAccounts.map((account) => {
+                    const payAmount = parseFloat(paymentAmount) || 0;
+                    const hasBalance = account.currentBalance >= payAmount;
+                    return (
+                      <option 
+                        key={account.id} 
+                        value={account.id}
+                        disabled={!hasBalance && payAmount > 0}
+                      >
+                        {account.name} - {formatCurrency(account.currentBalance)}
+                        {!hasBalance && payAmount > 0 && " (Insufficient balance)"}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
+              
+              {parseFloat(paymentAmount) > 0 && parseFloat(paymentAmount) < (invoiceData.totalAmount - (invoiceData.invoice?.paidAmount || 0)) && (
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm text-blue-800">
+                    <strong>Partial Payment:</strong> After paying {formatCurrency(parseFloat(paymentAmount))}, 
+                    you will still owe {formatCurrency((invoiceData.totalAmount - (invoiceData.invoice?.paidAmount || 0)) - parseFloat(paymentAmount))} on this invoice.
+                  </p>
+                </div>
+              )}
               
               {paymentError && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
@@ -777,7 +917,7 @@ export default function CreditCardDetailsPage() {
             </Button>
             <Button
               onClick={handlePayInvoice}
-              disabled={paymentLoading || !selectedBankAccountId}
+              disabled={paymentLoading || !selectedBankAccountId || !paymentAmount}
             >
               {paymentLoading ? "Processing..." : "Pay Invoice"}
             </Button>
