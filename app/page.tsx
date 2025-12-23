@@ -15,7 +15,7 @@ import { getCurrentMonthInvoices, getNextBillAmounts } from "@/app/api/invoice-a
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CreditCard, Wallet, Eye, EyeOff, Info, Trash2 } from "lucide-react";
+import { CreditCard, Wallet, Eye, EyeOff, Info, Trash2, Pencil } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -97,8 +97,10 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [deleteCardId, setDeleteCardId] = useState<string | null>(null);
   const [deleteAccountId, setDeleteAccountId] = useState<string | null>(null);
+  const [editCard, setEditCard] = useState<CreditCard | null>(null);
   const [showBalance, setShowBalance] = useState(true);
   const [showBills, setShowBills] = useState(true);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   const fetchCreditCards = async () => {
     try {
@@ -155,14 +157,15 @@ export default function Home() {
   }, [session, isPending, router]);
 
   useEffect(() => {
-    if (session) {
+    if (session && !dataLoaded) {
       fetchCreditCards();
       fetchBankAccounts();
       fetchTransactions();
       fetchInvoices();
       fetchNextBills();
+      setDataLoaded(true);
     }
-  }, [session]);
+  }, [session, dataLoaded]);
 
   if (isPending) {
     return (
@@ -352,7 +355,16 @@ export default function Home() {
 
         {/* My Cards Section */}
         <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-3">My Cards</h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold">My Cards</h2>
+            <Button
+              onClick={() => setIsModalOpen(true)}
+              size="sm"
+              className="text-xs bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              Manage Cards
+            </Button>
+          </div>
           {loading ? (
             <div className="text-center py-4 text-gray-500 text-sm">Loading cards...</div>
           ) : creditCards.length === 0 ? (
@@ -399,18 +411,33 @@ export default function Home() {
                           </div>
                         )}
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setDeleteCardId(card.id);
-                        }}
-                        className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
-                        aria-label={`Delete ${card.name}`}
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditCard(card);
+                            setIsModalOpen(true);
+                          }}
+                          className="h-6 w-6 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50 flex-shrink-0"
+                          aria-label={`Edit ${card.name}`}
+                        >
+                          <Pencil className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeleteCardId(card.id);
+                          }}
+                          className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
+                          aria-label={`Delete ${card.name}`}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -426,11 +453,18 @@ export default function Home() {
 
       <CreditCardModal
         open={isModalOpen}
-        setOpen={setIsModalOpen}
+        setOpen={(open) => {
+          setIsModalOpen(open);
+          if (!open) {
+            setEditCard(null);
+          }
+        }}
+        editCard={editCard}
         onSuccess={async () => {
           await fetchCreditCards();
           await fetchInvoices();
           await fetchNextBills();
+          setEditCard(null);
         }}
       />
 

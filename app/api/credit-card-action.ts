@@ -51,6 +51,68 @@ export async function createCreditCard(formData: FormData) {
   revalidatePath("/");
 }
 
+export async function updateCreditCard(cardId: string, formData: FormData) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const card = await db.credit_card.findUnique({
+    where: { id: cardId },
+  });
+
+  if (!card) {
+    throw new Error("Credit card not found");
+  }
+
+  if (card.userId !== session.user.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const name = formData.get("name") as string;
+  const billGenerationDate = parseInt(
+    formData.get("billGenerationDate") as string
+  );
+  const paymentDate = parseInt(formData.get("paymentDate") as string);
+  const cardLimit = parseFloat(formData.get("cardLimit") as string);
+
+  if (!name || isNaN(billGenerationDate) || isNaN(paymentDate) || isNaN(cardLimit)) {
+    throw new Error("Invalid input");
+  }
+
+  if (billGenerationDate < 1 || billGenerationDate > 31) {
+    throw new Error("Bill generation date must be between 1 and 31");
+  }
+
+  if (paymentDate < 1 || paymentDate > 31) {
+    throw new Error("Payment date must be between 1 and 31");
+  }
+
+  if (cardLimit <= 0) {
+    throw new Error("Card limit must be greater than 0");
+  }
+
+  // Calculate the difference in card limit to adjust available balance
+  const limitDifference = cardLimit - card.cardLimit;
+  const newAvailableBalance = card.availableBalance + limitDifference;
+
+  await db.credit_card.update({
+    where: { id: cardId },
+    data: {
+      name,
+      billGenerationDate,
+      paymentDate,
+      cardLimit,
+      availableBalance: newAvailableBalance,
+    },
+  });
+
+  revalidatePath("/");
+}
+
 export async function getCreditCards() {
   const session = await auth.api.getSession({
     headers: await headers(),

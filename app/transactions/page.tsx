@@ -71,6 +71,7 @@ export default function TransactionsPage() {
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [deletingTransaction, setDeletingTransaction] = useState<Transaction | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
   
   // Month navigation state
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -117,12 +118,13 @@ export default function TransactionsPage() {
   };
 
   useEffect(() => {
-    if (session) {
+    if (session && !dataLoaded) {
       fetchTransactions();
       fetchCreditCards();
       fetchBankAccounts();
+      setDataLoaded(true);
     }
-  }, [session]);
+  }, [session, dataLoaded]);
 
   if (isPending) {
     return (

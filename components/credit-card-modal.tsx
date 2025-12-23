@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { createCreditCard } from "@/app/api/credit-card-action";
+import React, { useState, useEffect } from "react";
+import { createCreditCard, updateCreditCard } from "@/app/api/credit-card-action";
 import {
   Dialog,
   DialogContent,
@@ -13,14 +13,25 @@ import { Field } from "./ui/field";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 
+type CreditCard = {
+  id: string;
+  name: string;
+  billGenerationDate: number;
+  paymentDate: number;
+  cardLimit: number;
+  availableBalance: number;
+};
+
 export default function CreditCardModal({
   open,
   setOpen,
   onSuccess,
+  editCard,
 }: {
   open: boolean;
   setOpen: (v: boolean) => void;
   onSuccess?: () => void;
+  editCard?: CreditCard | null;
 }) {
   const [name, setName] = useState("");
   const [billGenerationDate, setBillGenerationDate] = useState("");
@@ -28,6 +39,21 @@ export default function CreditCardModal({
   const [cardLimit, setCardLimit] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (editCard) {
+      setName(editCard.name);
+      setBillGenerationDate(editCard.billGenerationDate.toString());
+      setPaymentDate(editCard.paymentDate.toString());
+      setCardLimit(editCard.cardLimit.toString());
+    } else {
+      setName("");
+      setBillGenerationDate("");
+      setPaymentDate("");
+      setCardLimit("");
+    }
+    setError(null);
+  }, [editCard, open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +65,13 @@ export default function CreditCardModal({
       formData.append("billGenerationDate", billGenerationDate);
       formData.append("paymentDate", paymentDate);
       formData.append("cardLimit", cardLimit);
-      await createCreditCard(formData);
+      
+      if (editCard) {
+        await updateCreditCard(editCard.id, formData);
+      } else {
+        await createCreditCard(formData);
+      }
+      
       setOpen(false);
       setName("");
       setBillGenerationDate("");
@@ -49,7 +81,7 @@ export default function CreditCardModal({
         onSuccess();
       }
     } catch (err: any) {
-      setError(err.message || "Failed to create credit card");
+      setError(err.message || `Failed to ${editCard ? "update" : "create"} credit card`);
     } finally {
       setLoading(false);
     }
@@ -59,7 +91,7 @@ export default function CreditCardModal({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Add Credit Card</DialogTitle>
+          <DialogTitle>{editCard ? "Edit Credit Card" : "Add Credit Card"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Field label="Card Name" required>
@@ -114,7 +146,7 @@ export default function CreditCardModal({
           )}
           <DialogFooter>
             <Button type="submit" variant="default" disabled={loading}>
-              {loading ? "Adding..." : "Add Card"}
+              {loading ? (editCard ? "Updating..." : "Adding...") : (editCard ? "Update Card" : "Add Card")}
             </Button>
             <Button
               type="button"
@@ -129,4 +161,3 @@ export default function CreditCardModal({
     </Dialog>
   );
 }
-
