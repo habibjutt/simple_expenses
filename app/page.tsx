@@ -381,7 +381,7 @@ export default function Home() {
             </div>
           </div>
           {totalNextBills > 0 && (
-            <div className="text-sm font-semibold text-red-600 whitespace-nowrap pb-2">
+            <div className="text-2xl md:text-3xl font-bold whitespace-nowrap pb-2">
               Bills: {formatCurrency(totalNextBills)}
             </div>
           )}
@@ -400,7 +400,7 @@ export default function Home() {
                 return (
                   <div key={card.id} className="bg-gray-50 rounded-lg">
                     <div
-                      className="flex items-center justify-between p-2 cursor-pointer hover:bg-gray-100 transition-colors"
+                      className="flex items-center justify-between px-2 cursor-pointer hover:bg-gray-100 transition-colors"
                       onClick={(e) => {
                         if (!(e.target as HTMLElement).closest('button')) {
                           router.push(`/credit-card/${card.id}`);
