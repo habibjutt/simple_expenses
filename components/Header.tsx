@@ -48,10 +48,22 @@ const Header = () => {
           {session ? (
             <nav className="flex gap-6">
               <Link
-                href="/expenses"
+                href="/transactions"
                 className="text-gray-700 hover:text-black transition-colors"
               >
-                Expenses
+                Transactions
+              </Link>
+              <Link
+                href="/manage-cards"
+                className="text-gray-700 hover:text-black transition-colors"
+              >
+                Cards
+              </Link>
+              <Link
+                href="/manage-accounts"
+                className="text-gray-700 hover:text-black transition-colors"
+              >
+                Accounts
               </Link>
             </nav>
           ) : null}

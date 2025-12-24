@@ -343,7 +343,7 @@ export default function Home() {
 
           )}
           <Button
-            onClick={() => setIsBankAccountModalOpen(true)}
+            onClick={() => router.push('/manage-accounts')}
             size="lg"
             className="my-4 text-base w-full bg-green-600 hover:bg-green-700 text-white"
           >
@@ -485,7 +485,7 @@ export default function Home() {
           )}
         </div>
         <Button
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => router.push('/manage-cards')}
           size="lg"
           className="my-4 text-base w-full bg-blue-600 hover:bg-blue-700 text-white"
         >
