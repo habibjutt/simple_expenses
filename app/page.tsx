@@ -247,8 +247,8 @@ export default function Home() {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <Header />
-      <main className="p-4 md:p-6 pb-48 md:pb-52">
+      {/* <Header /> */}
+      <main className="p-4 md:p-6 pb-24">
         {/* Greeting Section */}
         <div className="mb-4">
           <p className="text-xs text-gray-500 mb-0.5">{getGreeting()},</p>
@@ -278,13 +278,6 @@ export default function Home() {
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-base font-semibold">My Accounts</h2>
-            <Button
-              onClick={() => setIsBankAccountModalOpen(true)}
-              size="sm"
-              className="text-xs bg-green-600 hover:bg-green-700 text-white"
-            >
-              Manage Accounts
-            </Button>
           </div>
           {loading ? (
             <div className="text-center py-4 text-gray-500 text-sm">Loading accounts...</div>
@@ -310,16 +303,15 @@ export default function Home() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="font-medium text-sm truncate">{account.name}</div>
-                      <div className="text-xs text-gray-500">Manual Account</div>
+                      {/* <div className="text-xs text-gray-500">Manual Account</div> */}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className={`font-semibold text-xs ${
-                      account.currentBalance >= 0 ? "text-green-600" : "text-red-600"
-                    }`}>
+                    <span className={`font-semibold text-sm ${account.currentBalance >= 0 ? "text-black" : "text-red-600"
+                      }`}>
                       {formatCurrency(account.currentBalance)}
                     </span>
-                    <Button
+                    {/* <Button
                       variant="ghost"
                       size="sm"
                       onClick={(e) => {
@@ -331,8 +323,8 @@ export default function Home() {
                       aria-label={`Edit ${account.name}`}
                     >
                       <Pencil className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button
+                    </Button> */}
+                    {/* <Button
                       variant="ghost"
                       size="sm"
                       onClick={(e) => {
@@ -343,12 +335,20 @@ export default function Home() {
                       aria-label={`Delete ${account.name}`}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
+                    </Button> */}
                   </div>
                 </div>
               ))}
             </div>
+
           )}
+          <Button
+            onClick={() => setIsBankAccountModalOpen(true)}
+            size="lg"
+            className="my-4 text-base w-full bg-green-600 hover:bg-green-700 text-white"
+          >
+            Manage Accounts
+          </Button>
         </div>
 
         {/* Monthly Bills Section */}
@@ -378,20 +378,13 @@ export default function Home() {
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <h2 className="text-base font-semibold">My Cards</h2>
-              {totalNextBills > 0 && (
-                <span className="text-[10px] font-semibold text-red-600 whitespace-nowrap">
-                  Bills: {formatCurrency(totalNextBills)}
-                </span>
-              )}
             </div>
-            <Button
-              onClick={() => setIsModalOpen(true)}
-              size="sm"
-              className="text-xs bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              Manage Cards
-            </Button>
           </div>
+          {totalNextBills > 0 && (
+            <span className="text-base font-semibold text-red-600 whitespace-nowrap">
+              Bills: {formatCurrency(totalNextBills)}
+            </span>
+          )}
           {loading ? (
             <div className="text-center py-4 text-gray-500 text-sm">Loading cards...</div>
           ) : creditCards.length === 0 ? (
@@ -407,20 +400,20 @@ export default function Home() {
                 return (
                   <div key={card.id} className="bg-gray-50 rounded-lg">
                     <div
-                    className="flex items-center justify-between p-2.5 cursor-pointer hover:bg-gray-100 transition-colors"
-                    onClick={(e) => {
-                      if (!(e.target as HTMLElement).closest('button')) {
-                        router.push(`/credit-card/${card.id}`);
-                      }
-                    }}
-                  >
-                    <div className="flex items-center gap-2.5 flex-1 min-w-0">
-                      <div className={`${getCardIconColor(index)} w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0`}>
-                        <CreditCard className="h-4 w-4 text-white" />
+                      className="flex items-center justify-between p-2.5 cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={(e) => {
+                        if (!(e.target as HTMLElement).closest('button')) {
+                          router.push(`/credit-card/${card.id}`);
+                        }
+                      }}
+                    >
+                      <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                        <div className={`${getCardIconColor(index)} w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0`}>
+                          <CreditCard className="h-4 w-4 text-white" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="font-medium text-sm truncate">{card.name}</div>
-                          <div className="text-xs text-gray-500">Manual Card</div>
+                          {/* <div className="text-xs text-gray-500">Manual Card</div> */}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -448,7 +441,7 @@ export default function Home() {
                           )}
                         </div>
                         <div className="flex flex-col gap-1">
-                          <Button
+                          {/* <Button
                             variant="ghost"
                             size="sm"
                             onClick={(e) => {
@@ -472,13 +465,13 @@ export default function Home() {
                             aria-label={`Delete ${card.name}`}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
+                          </Button> */}
                         </div>
                       </div>
                     </div>
                     {/* Available Limit Progress Bar */}
-                  <div className="px-2.5 pb-2">
-                    <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                    <div className="px-2.5 pb-2">
+                      <div className="w-full bg-gray-200 rounded-full h-1 overflow-hidden">
                         <div
                           className="h-full bg-green-500 transition-all duration-300 rounded-full"
                           style={{ width: `${Math.min(availablePercentage, 100)}%` }}
@@ -491,6 +484,13 @@ export default function Home() {
             </div>
           )}
         </div>
+        <Button
+          onClick={() => setIsModalOpen(true)}
+          size="lg"
+          className="my-4 text-base w-full bg-blue-600 hover:bg-blue-700 text-white"
+        >
+          Manage Cards
+        </Button>
       </main>
       <Footer
         onAddTransaction={() => setIsTransactionModalOpen(true)}

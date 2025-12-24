@@ -397,7 +397,7 @@ export default function CreditCardDetailsPage() {
     return (
       <div className="max-w-7xl mx-auto">
         <Header />
-        <main className="p-4 md:p-6 pb-48 md:pb-52">
+        <main className="p-4 md:p-6 pb-24">
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-gray-500">Loading invoice details...</div>
           </div>
@@ -411,7 +411,7 @@ export default function CreditCardDetailsPage() {
     return (
       <div className="max-w-7xl mx-auto">
         <Header />
-        <main className="p-4 md:p-6 pb-48 md:pb-52">
+        <main className="p-4 md:p-6 pb-24">
           <Button
             onClick={() => router.push("/")}
             variant="outline"
