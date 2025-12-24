@@ -277,7 +277,7 @@ export default function Home() {
         {/* My Accounts Section */}
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-base font-semibold">My Accounts</h2>
+            <h2 className="text-sm font-semibold">My Accounts</h2>
           </div>
           {loading ? (
             <div className="text-center py-4 text-gray-500 text-sm">Loading accounts...</div>
@@ -286,18 +286,18 @@ export default function Home() {
               <p className="text-gray-500 mb-2 text-sm">No bank accounts added yet</p>
             </div>
           ) : (
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               {bankAccounts.map((account, index) => (
                 <div
                   key={account.id}
-                  className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                  className="flex items-center justify-between p-2 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
                   onClick={(e) => {
                     if (!(e.target as HTMLElement).closest('button')) {
                       router.push(`/bank-account/${account.id}`);
                     }
                   }}
                 >
-                  <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
                     <div className={`${getAccountIconColor(index)} w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0`}>
                       <Wallet className="h-4 w-4 text-white" />
                     </div>
@@ -345,7 +345,7 @@ export default function Home() {
           <Button
             onClick={() => router.push('/manage-accounts')}
             size="lg"
-            className="my-4 text-base w-full bg-green-600 hover:bg-green-700 text-white"
+            className="my-4 text-sm w-full bg-green-600 hover:bg-green-700 text-white"
           >
             Manage Accounts
           </Button>
@@ -356,7 +356,7 @@ export default function Home() {
           <div className="mb-4">
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-semibold">{currentMonth} Bills</h2>
+                <h2 className="text-sm font-semibold">{currentMonth} Bills</h2>
                 <Info className="h-4 w-4 text-gray-400" />
               </div>
               <button
@@ -377,13 +377,13 @@ export default function Home() {
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2 flex-1 min-w-0">
-              <h2 className="text-base font-semibold">My Cards</h2>
+              <h2 className="text-sm font-semibold">My Cards</h2>
             </div>
           </div>
           {totalNextBills > 0 && (
-            <span className="text-base font-semibold text-red-600 whitespace-nowrap">
+            <div className="text-sm font-semibold text-red-600 whitespace-nowrap pb-2">
               Bills: {formatCurrency(totalNextBills)}
-            </span>
+            </div>
           )}
           {loading ? (
             <div className="text-center py-4 text-gray-500 text-sm">Loading cards...</div>
@@ -392,7 +392,7 @@ export default function Home() {
               <p className="text-gray-500 mb-2 text-sm">No credit cards added yet</p>
             </div>
           ) : (
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               {creditCards.map((card, index) => {
                 const invoice = invoices.find((inv) => inv.cardId === card.id);
                 const nextBill = nextBills.find((bill) => bill.cardId === card.id);
@@ -400,46 +400,21 @@ export default function Home() {
                 return (
                   <div key={card.id} className="bg-gray-50 rounded-lg">
                     <div
-                      className="flex items-center justify-between p-2.5 cursor-pointer hover:bg-gray-100 transition-colors"
+                      className="flex items-center justify-between p-2 cursor-pointer hover:bg-gray-100 transition-colors"
                       onClick={(e) => {
                         if (!(e.target as HTMLElement).closest('button')) {
                           router.push(`/credit-card/${card.id}`);
                         }
                       }}
                     >
-                      <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
                         <div className={`${getCardIconColor(index)} w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0`}>
-                          <CreditCard className="h-4 w-4 text-white" />
+                          <CreditCard className="h-3 w-3 text-white" />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm truncate">{card.name}</div>
-                          {/* <div className="text-xs text-gray-500">Manual Card</div> */}
-                        </div>
+                        <div className="font-medium text-sm truncate">{card.name}</div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="flex flex-col items-end gap-0.5">
-                          <div className="text-xs font-semibold text-green-600 whitespace-nowrap">
-                            {formatCurrency(card.availableBalance)}
-                          </div>
-                          {invoice && invoice.totalAmount > 0 && (
-                            <div className="text-[10px] text-red-600 text-right leading-tight">
-                              {invoice.invoice?.paidAmount && invoice.invoice.paidAmount > 0 && !invoice.invoice.isPaid ? (
-                                <>
-                                  Paid: {formatCurrency(invoice.invoice.paidAmount)}
-                                </>
-                              ) : (
-                                <>
-                                  Due {formatDate(invoice.paymentDueDate)}: {formatCurrency(-invoice.totalAmount)}
-                                </>
-                              )}
-                            </div>
-                          )}
-                          {nextBill && nextBill.totalAmount > 0 && (
-                            <div className={`text-[10px] text-red-600 font-medium text-right leading-tight`}>
-                              Next: {formatCurrency(nextBill.totalAmount)}
-                            </div>
-                          )}
-                        </div>
+
                         <div className="flex flex-col gap-1">
                           {/* <Button
                             variant="ghost"
@@ -469,8 +444,31 @@ export default function Home() {
                         </div>
                       </div>
                     </div>
+                    <div className="p-2 flex justify-between gap-0.5">
+                      <div className="text-sm font-semibold text-green-600 whitespace-nowrap">
+                        {formatCurrency(card.availableBalance)}
+                      </div>
+                      {invoice && invoice.totalAmount > 0 && (
+                        <div className="text-sm text-red-600 text-right leading-tight">
+                          {invoice.invoice?.paidAmount && invoice.invoice.paidAmount > 0 && !invoice.invoice.isPaid ? (
+                            <>
+                              Paid: {formatCurrency(invoice.invoice.paidAmount)}
+                            </>
+                          ) : (
+                            <>
+                              Due {formatDate(invoice.paymentDueDate)}: {formatCurrency(-invoice.totalAmount)}
+                            </>
+                          )}
+                        </div>
+                      )}
+                      {nextBill && nextBill.totalAmount > 0 && (
+                        <div className={`text-sm text-red-600 font-medium text-right leading-tight`}>
+                          Next: {formatCurrency(nextBill.totalAmount)}
+                        </div>
+                      )}
+                    </div>
                     {/* Available Limit Progress Bar */}
-                    <div className="px-2.5 pb-2">
+                    <div className="px-2 pb-2">
                       <div className="w-full bg-gray-200 rounded-full h-1 overflow-hidden">
                         <div
                           className="h-full bg-green-500 transition-all duration-300 rounded-full"
@@ -487,7 +485,7 @@ export default function Home() {
         <Button
           onClick={() => router.push('/manage-cards')}
           size="lg"
-          className="my-4 text-base w-full bg-blue-600 hover:bg-blue-700 text-white"
+          className="my-4 text-sm w-full bg-blue-600 hover:bg-blue-700 text-white"
         >
           Manage Cards
         </Button>
