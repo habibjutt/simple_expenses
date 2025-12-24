@@ -647,38 +647,41 @@ export default function CreditCardDetailsPage() {
                     {dateKey}
                   </div>
                   <div className="space-y-2">
-                    {dayTransactions.map((transaction) => (
-                      <div 
-                        key={transaction.id} 
-                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                      >
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          {/* Category Icon */}
-                          <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <div className="text-red-600 text-xs font-bold">
-                              {transaction.category.substring(0, 2).toUpperCase()}
+                    {dayTransactions.map((transaction) => {
+                      const isIncome = transaction.amount < 0;
+                      return (
+                        <div 
+                          key={transaction.id} 
+                          className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                        >
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            {/* Category Icon */}
+                            <div className={`w-10 h-10 ${isIncome ? 'bg-green-100' : 'bg-red-100'} rounded-full flex items-center justify-center flex-shrink-0`}>
+                              <div className={`${isIncome ? 'text-green-600' : 'text-red-600'} text-xs font-bold`}>
+                                {transaction.category.substring(0, 2).toUpperCase()}
+                              </div>
+                            </div>
+                            
+                            {/* Transaction Info */}
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-sm truncate">
+                                {transaction.name}
+                              </div>
+                              {transaction.installments > 1 && (
+                                <div className="text-xs text-gray-500">
+                                  {transaction.installments} installments
+                                </div>
+                              )}
                             </div>
                           </div>
                           
-                          {/* Transaction Info */}
-                          <div className="flex-1 min-w-0">
-                            <div className="font-medium text-sm truncate">
-                              {transaction.name}
-                            </div>
-                            {transaction.installments > 1 && (
-                              <div className="text-xs text-gray-500">
-                                {transaction.installments} installments
-                              </div>
-                            )}
+                          {/* Amount */}
+                          <div className={`text-base font-semibold ${isIncome ? 'text-green-600' : 'text-red-600'} ml-2`}>
+                            {isIncome ? '+' : ''}{formatCurrency(Math.abs(transaction.amount))}
                           </div>
                         </div>
-                        
-                        {/* Amount */}
-                        <div className="text-base font-semibold text-red-600 ml-2">
-                          {formatCurrency(transaction.amount)}
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               ))}

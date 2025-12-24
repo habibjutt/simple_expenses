@@ -69,7 +69,13 @@ export default function TransactionModal({
       // Determine transaction type and payment method
       if (editTransaction.amount < 0) {
         setTransactionType("income");
-        setBankAccountId(editTransaction.bankAccountId || "");
+        if (editTransaction.creditCardId) {
+          setPaymentType("creditCard");
+          setCreditCardId(editTransaction.creditCardId);
+        } else {
+          setPaymentType("bankAccount");
+          setBankAccountId(editTransaction.bankAccountId || "");
+        }
       } else if (editTransaction.category === "Transfer") {
         setTransactionType("transfer");
       } else {
@@ -131,7 +137,7 @@ export default function TransactionModal({
           formData.append("amount", transactionType === "income" ? `-${amount}` : amount);
           formData.append("date", date);
           formData.append("category", category);
-          if (paymentType === "creditCard" && transactionType === "expense") {
+          if (paymentType === "creditCard") {
             formData.append("creditCardId", creditCardId);
           } else {
             formData.append("bankAccountId", bankAccountId);
@@ -359,24 +365,61 @@ export default function TransactionModal({
                 </>
               )}
 
-              {/* For income, only show bank account */}
+              {/* For income, allow selection between bank account and credit card */}
               {transactionType === "income" && (
-                <Field label="Bank Account" required>
-                  <select
-                    value={bankAccountId}
-                    onChange={(e) => setBankAccountId(e.target.value)}
-                    required
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    aria-label="Select bank account"
-                  >
-                    <option value="">Select a bank account</option>
-                    {bankAccounts.map((account) => (
-                      <option key={account.id} value={account.id}>
-                        {account.name} (Balance: ${account.currentBalance.toFixed(2)})
-                      </option>
-                    ))}
-                  </select>
-                </Field>
+                <>
+                  <Field label="Receive Income To" required>
+                    <select
+                      value={paymentType}
+                      onChange={(e) => {
+                        setPaymentType(e.target.value as "creditCard" | "bankAccount");
+                        setCreditCardId("");
+                        setBankAccountId("");
+                      }}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      aria-label="Select income destination"
+                    >
+                      <option value="bankAccount">Bank Account</option>
+                      <option value="creditCard">Credit Card (Cashback)</option>
+                    </select>
+                  </Field>
+
+                  {paymentType === "creditCard" ? (
+                    <Field label="Credit Card" required>
+                      <select
+                        value={creditCardId}
+                        onChange={(e) => setCreditCardId(e.target.value)}
+                        required
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        aria-label="Select credit card"
+                      >
+                        <option value="">Select a credit card</option>
+                        {creditCards.map((card) => (
+                          <option key={card.id} value={card.id}>
+                            {card.name} (Available: ${card.availableBalance.toFixed(2)})
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+                  ) : (
+                    <Field label="Bank Account" required>
+                      <select
+                        value={bankAccountId}
+                        onChange={(e) => setBankAccountId(e.target.value)}
+                        required
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        aria-label="Select bank account"
+                      >
+                        <option value="">Select a bank account</option>
+                        {bankAccounts.map((account) => (
+                          <option key={account.id} value={account.id}>
+                            {account.name} (Balance: ${account.currentBalance.toFixed(2)})
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+                  )}
+                </>
               )}
             </>
           )}

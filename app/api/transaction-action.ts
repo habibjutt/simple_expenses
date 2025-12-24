@@ -57,16 +57,20 @@ export async function createTransaction(formData: FormData) {
     }
 
     // For expenses (positive amounts), reduce available balance
-    // Credit cards don't receive income, so negative amounts are not allowed
-    if (amount < 0) {
-      throw new Error("Credit cards cannot receive income");
-    }
-
-    // Check if there's enough available balance
+    // For income (negative amounts like cashback), increase available balance
     const newAvailableBalance = creditCard.availableBalance - amount;
-    if (newAvailableBalance < 0) {
+    
+    // Only check credit limit for expenses (positive amounts)
+    if (amount > 0 && newAvailableBalance < 0) {
       throw new Error(
         `Insufficient credit limit. Available: ${creditCard.availableBalance}, Requested: ${amount}`
+      );
+    }
+    
+    // Ensure available balance doesn't exceed card limit when receiving income
+    if (amount < 0 && newAvailableBalance > creditCard.cardLimit) {
+      throw new Error(
+        `Cashback would exceed card limit. Current available: ${creditCard.availableBalance}, Card limit: ${creditCard.cardLimit}`
       );
     }
 
