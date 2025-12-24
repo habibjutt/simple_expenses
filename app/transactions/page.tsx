@@ -227,7 +227,7 @@ export default function TransactionsPage() {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <Header />
+      {/* <Header /> */}
       <main className="p-4 md:p-6 pb-24">
         <div className="mb-4">
           <h1 className="text-2xl md:text-3xl font-bold">All Transactions</h1>

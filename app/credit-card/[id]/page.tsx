@@ -396,7 +396,7 @@ export default function CreditCardDetailsPage() {
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto">
-        <Header />
+        {/* <Header /> */}
         <main className="p-4 md:p-6 pb-24">
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-gray-500">Loading invoice details...</div>
@@ -410,12 +410,12 @@ export default function CreditCardDetailsPage() {
   if (error || !invoiceData) {
     return (
       <div className="max-w-7xl mx-auto">
-        <Header />
+        {/* <Header /> */}
         <main className="p-4 md:p-6 pb-24">
           <Button
             onClick={() => router.push("/")}
             variant="outline"
-            className="mb-6"
+            className="mb-2"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
@@ -451,10 +451,10 @@ export default function CreditCardDetailsPage() {
 
   return (
     <div className="max-w-7xl mx-auto min-h-screen flex flex-col bg-white">
-      <Header />
+      {/* <Header /> */}
       <main className="flex-1 p-4 md:p-6 pb-32 md:pb-36">
         {/* Header with Back Button */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-2">
           <Button
             onClick={() => router.push("/")}
             variant="ghost"
@@ -463,12 +463,12 @@ export default function CreditCardDetailsPage() {
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-lg font-bold">Invoice Details</h1>
+          <h1 className="text-sm font-bold">Invoice Details</h1>
           <div className="w-9"></div> {/* Spacer for centering */}
         </div>
 
         {/* Month Navigation */}
-        <div className="mb-6 flex items-center justify-center gap-4">
+        <div className="mb-2 flex items-center justify-between gap-2">
           <Button
             variant="ghost"
             size="sm"
@@ -495,10 +495,10 @@ export default function CreditCardDetailsPage() {
         </div>
 
         {/* Main Invoice Card */}
-        <div className="grid md:grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-2 gap-4 mb-2">
           {/* Left Card - Invoice Status */}
-          <Card className="shadow-md">
-            <CardContent className="p-5">
+          <Card className="shadow-md py-2">
+            <CardContent className="p-2">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
                   <CreditCard className="h-6 w-6 text-gray-600" />
@@ -507,7 +507,7 @@ export default function CreditCardDetailsPage() {
                   <div className={`text-sm font-semibold ${invoiceData.invoice?.isPaid ? 'text-green-600' : 'text-orange-600'}`}>
                     {invoiceData.invoice?.isPaid ? 'Paid' : 'Open'}
                   </div>
-                  <div className="text-base font-bold mt-0.5">{card.name}</div>
+                  <div className="text-sm font-bold mt-0.5">{card.name}</div>
                 </div>
               </div>
               
@@ -515,13 +515,15 @@ export default function CreditCardDetailsPage() {
                 <div>
                   <div className="text-gray-500">Closes on</div>
                   <div className="font-bold">
-                    {new Date(billEndDate).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit" })}
+                    {/*format as Jan 6th */}
+                    {new Date(billEndDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                   </div>
                 </div>
                 <div>
                   <div className="text-gray-500">Due on</div>
                   <div className="font-bold">
-                    {new Date(paymentDueDate).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit" })}
+                    {/*format as Jan 6th */}
+                    {new Date(paymentDueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                   </div>
                 </div>
               </div>
@@ -529,25 +531,25 @@ export default function CreditCardDetailsPage() {
           </Card>
 
           {/* Right Card - Financial Summary */}
-          <Card className="shadow-md bg-gray-800 text-white">
-            <CardContent className="p-5 space-y-3">
+          <Card className="shadow-md bg-gray-800 text-white py-2">
+            <CardContent className="p-2 space-y-3">
               <div>
                 <div className="text-gray-400 text-xs">Previous Balance</div>
-                <div className="text-lg font-bold text-green-400">
+                <div className="text-sm font-bold text-green-400">
                   {formatCurrency(previousBalance)}
                 </div>
               </div>
               
               <div>
                 <div className="text-gray-400 text-xs">Month Spending</div>
-                <div className="text-lg font-bold text-red-400">
+                <div className="text-sm font-bold text-red-400">
                   {formatCurrency(monthSpending)}
                 </div>
               </div>
               
               <div className="pt-2 border-t border-gray-600">
                 <div className="text-gray-400 text-xs">Invoice Amount</div>
-                <div className="text-xl font-bold text-red-400">
+                <div className="text-sm font-bold text-red-400">
                   {formatCurrency(totalAmount)}
                 </div>
               </div>
@@ -559,7 +561,7 @@ export default function CreditCardDetailsPage() {
         {!invoiceData.invoice?.isPaid && totalAmount > 0 && (
           <Button
             onClick={handleOpenPaymentModal}
-            className="w-full h-14 text-base font-semibold bg-green-600 hover:bg-green-700 mb-6"
+            className="w-full h-14 text-sm font-semibold bg-green-600 hover:bg-green-700 mb-2"
           >
             <Wallet className="h-5 w-5 mr-2" />
             Pay Invoice
@@ -568,7 +570,7 @@ export default function CreditCardDetailsPage() {
 
         {/* Payment Status Banner */}
         {invoiceData.invoice?.isPaid && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="mb-2 p-4 bg-green-50 border border-green-200 rounded-lg">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-green-700 font-semibold">
                 <CheckCircle className="h-5 w-5" />
@@ -599,7 +601,7 @@ export default function CreditCardDetailsPage() {
         )}
 
         {invoiceData.invoice && invoiceData.invoice.paidAmount > 0 && !invoiceData.invoice.isPaid && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="mb-2 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <div className="text-sm text-blue-800 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="font-semibold">Partially Paid:</span>
@@ -676,7 +678,7 @@ export default function CreditCardDetailsPage() {
                           </div>
                           
                           {/* Amount */}
-                          <div className={`text-base font-semibold ${isIncome ? 'text-green-600' : 'text-red-600'} ml-2`}>
+                          <div className={`text-sm font-semibold ${isIncome ? 'text-green-600' : 'text-red-600'} ml-2`}>
                             {isIncome ? '+' : ''}{formatCurrency(Math.abs(transaction.amount))}
                           </div>
                         </div>
@@ -718,7 +720,7 @@ export default function CreditCardDetailsPage() {
               <div className="p-4 bg-gray-50 rounded-lg">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm text-gray-600">Total Invoice Amount:</span>
-                  <span className="text-xl font-bold text-red-600">
+                  <span className="text-sm font-bold text-red-600">
                     {formatCurrency(invoiceData.totalAmount)}
                   </span>
                 </div>
@@ -861,7 +863,7 @@ export default function CreditCardDetailsPage() {
               <div className="p-4 bg-gray-50 rounded-lg">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm text-gray-600">Invoice Amount:</span>
-                  <span className="text-xl font-bold text-red-600">
+                  <span className="text-sm font-bold text-red-600">
                     {formatCurrency(invoiceData.totalAmount)}
                   </span>
                 </div>
@@ -926,7 +928,7 @@ export default function CreditCardDetailsPage() {
               <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm text-red-700 font-semibold">Invoice Amount:</span>
-                  <span className="text-xl font-bold text-red-600">
+                  <span className="text-sm font-bold text-red-600">
                     {formatCurrency(invoiceData.totalAmount)}
                   </span>
                 </div>
