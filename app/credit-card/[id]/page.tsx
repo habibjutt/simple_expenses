@@ -9,7 +9,8 @@ import { deleteTransaction } from "@/app/api/transaction-action";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Calendar, DollarSign, CreditCard, Clock, ChevronLeft, ChevronRight, CheckCircle, Wallet, Pencil, Trash2, XCircle, Utensils, ShoppingCart, Home, Car, Coffee, Gift, Heart, TrendingUp, TrendingDown } from "lucide-react";
+import { ArrowLeft, Calendar, DollarSign, CreditCard, Clock, ChevronLeft, ChevronRight, CheckCircle, Wallet, Pencil, Trash2, XCircle, Utensils, ShoppingCart, Home, Car, Coffee, Gift, Heart, TrendingUp, TrendingDown, Filter, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import TransactionModal from "@/components/transaction-modal";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -30,6 +31,7 @@ type Transaction = {
   date: Date;
   category: string;
   installments: number;
+  createdAt: Date;
 };
 
 type BankAccount = {
@@ -112,6 +114,11 @@ export default function CreditCardDetailsPage() {
   const [deletingTransactionId, setDeletingTransactionId] = useState<string | null>(null);
   const [transactionDeleteLoading, setTransactionDeleteLoading] = useState(false);
   const [transactionDeleteError, setTransactionDeleteError] = useState<string | null>(null);
+  
+  // Filter state
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+  const [filterCategory, setFilterCategory] = useState("");
+  const [filterName, setFilterName] = useState("");
 
   useEffect(() => {
     const fetchInvoiceData = async () => {
@@ -433,8 +440,40 @@ export default function CreditCardDetailsPage() {
   const usedAmount = card.cardLimit - card.availableBalance;
   const usagePercentage = (usedAmount / card.cardLimit) * 100;
   
-  // Group transactions by date
-  const groupedTransactions = transactions.reduce((groups: Record<string, Transaction[]>, transaction) => {
+  // Sort transactions by createdAt (most recently added first), then group by date
+  const sortedTransactions = [...transactions].sort((a, b) => {
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+  
+  // Apply filters
+  const filteredTransactions = sortedTransactions.filter((transaction) => {
+    // Apply category filter
+    if (filterCategory && transaction.category.toLowerCase() !== filterCategory.toLowerCase()) {
+      return false;
+    }
+    // Apply name filter (case-insensitive)
+    if (filterName && !transaction.name.toLowerCase().includes(filterName.toLowerCase())) {
+      return false;
+    }
+    return true;
+  });
+  
+  // Calculate total of filtered transactions
+  const filteredTotal = filteredTransactions.reduce((sum, transaction) => sum + transaction.amount, 0);
+  
+  // Get unique categories for filter suggestions
+  const uniqueCategories = Array.from(new Set(transactions.map(t => t.category))).sort();
+  
+  // Check if any filters are active
+  const hasActiveFilters = filterCategory !== "" || filterName !== "";
+  
+  // Clear all filters
+  const clearFilters = () => {
+    setFilterCategory("");
+    setFilterName("");
+  };
+  
+  const groupedTransactions = filteredTransactions.reduce((groups: Record<string, Transaction[]>, transaction) => {
     const dateKey = new Date(transaction.date).toLocaleDateString("en-US", {
       day: "numeric",
       month: "long",
@@ -635,6 +674,77 @@ export default function CreditCardDetailsPage() {
           </div>
         )}
 
+        {/* Filter Section */}
+        <div className="mb-4 flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setFilterDialogOpen(true)}
+            className="flex items-center gap-2 h-9"
+          >
+            <Filter className="h-4 w-4" />
+            Filters
+            {hasActiveFilters && (
+              <span className="ml-1 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {(filterCategory ? 1 : 0) + (filterName ? 1 : 0)}
+              </span>
+            )}
+          </Button>
+          
+          {hasActiveFilters && (
+            <>
+              <div className="flex items-center gap-2 flex-wrap">
+                {filterCategory && (
+                  <div className="flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+                    <span>Category: {filterCategory}</span>
+                    <button
+                      onClick={() => setFilterCategory("")}
+                      className="hover:bg-blue-200 rounded-full p-0.5"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                )}
+                {filterName && (
+                  <div className="flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+                    <span>Name: {filterName}</span>
+                    <button
+                      onClick={() => setFilterName("")}
+                      className="hover:bg-blue-200 rounded-full p-0.5"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                )}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearFilters}
+                className="h-9 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                Clear all
+              </Button>
+            </>
+          )}
+        </div>
+
+        {/* Filter Summary */}
+        {hasActiveFilters && filteredTransactions.length > 0 && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-blue-900">
+                <span className="font-medium">{filteredTransactions.length}</span> transaction{filteredTransactions.length !== 1 ? 's' : ''} found
+              </div>
+              <div className="text-sm font-semibold">
+                Total: <span className={filteredTotal < 0 ? "text-green-600" : "text-red-600"}>
+                  {formatCurrency(Math.abs(filteredTotal))}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Transactions List - Simplified */}
         <div className="mb-20">
           {transactions.length === 0 ? (
@@ -654,7 +764,7 @@ export default function CreditCardDetailsPage() {
                       return (
                         <div 
                           key={transaction.id} 
-                          className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                          className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                         >
                           <div className="flex items-center gap-3 flex-1 min-w-0">
                             {/* Category Icon */}
@@ -669,17 +779,41 @@ export default function CreditCardDetailsPage() {
                               <div className="font-medium text-sm truncate">
                                 {transaction.name}
                               </div>
-                              {transaction.installments > 1 && (
-                                <div className="text-xs text-gray-500">
-                                  {transaction.installments} installments
+                              <div className="flex items-center gap-2">
+                                {transaction.installments > 1 && (
+                                  <div className="text-xs text-gray-500">
+                                    {transaction.installments} installments
+                                  </div>
+                                )}
+                                {/* Amount - shown below name on mobile */}
+                                <div className={`text-xs font-semibold ${isIncome ? 'text-green-600' : 'text-red-600'}`}>
+                                  {isIncome ? '+' : ''}{formatCurrency(Math.abs(transaction.amount))}
                                 </div>
-                              )}
+                              </div>
                             </div>
                           </div>
                           
-                          {/* Amount */}
-                          <div className={`text-sm font-semibold ${isIncome ? 'text-green-600' : 'text-red-600'} ml-2`}>
-                            {isIncome ? '+' : ''}{formatCurrency(Math.abs(transaction.amount))}
+                          {/* Action Buttons */}
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            <Button
+                              onClick={() => handleEditTransaction(transaction)}
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                            >
+                              <Pencil className="h-4 w-4 text-blue-600" />
+                            </Button>
+                            <Button
+                              onClick={() => {
+                                setDeletingTransactionId(transaction.id);
+                                setIsDeleteTransactionConfirmOpen(true);
+                              }}
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                            >
+                              <Trash2 className="h-4 w-4 text-red-600" />
+                            </Button>
                           </div>
                         </div>
                       );
@@ -1022,6 +1156,69 @@ export default function CreditCardDetailsPage() {
               {transactionDeleteLoading ? "Deleting..." : "Delete Transaction"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Filter Dialog */}
+      <Dialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Filter Transactions</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {/* Category Filter */}
+            <div className="space-y-2">
+              <Label htmlFor="filter-category">Category</Label>
+              <Input
+                id="filter-category"
+                placeholder="Enter category name"
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
+                list="categories"
+              />
+              <datalist id="categories">
+                {uniqueCategories.map((category) => (
+                  <option key={category} value={category} />
+                ))}
+              </datalist>
+              {uniqueCategories.length > 0 && (
+                <div className="text-xs text-gray-500 mt-1">
+                  Available categories: {uniqueCategories.join(", ")}
+                </div>
+              )}
+            </div>
+
+            {/* Name Filter */}
+            <div className="space-y-2">
+              <Label htmlFor="filter-name">Transaction Name</Label>
+              <Input
+                id="filter-name"
+                placeholder="Search by name (case-insensitive)"
+                value={filterName}
+                onChange={(e) => setFilterName(e.target.value)}
+              />
+              <p className="text-xs text-gray-500">
+                Search will match any part of the transaction name
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-between gap-2 pt-2">
+              <Button
+                variant="outline"
+                onClick={clearFilters}
+                className="flex-1"
+              >
+                Clear Filters
+              </Button>
+              <Button
+                onClick={() => setFilterDialogOpen(false)}
+                className="flex-1"
+              >
+                Apply Filters
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

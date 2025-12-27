@@ -10,7 +10,7 @@ import Footer from "@/components/Footer";
 import TransactionModal from "@/components/transaction-modal";
 import { getCreditCards } from "@/app/api/credit-card-action";
 import { getBankAccounts } from "@/app/api/bank-account-action";
-import { CreditCard, Wallet, Calendar, ChevronLeft, ChevronRight, Edit2, Trash2 } from "lucide-react";
+import { CreditCard, Wallet, Calendar, ChevronLeft, ChevronRight, Edit2, Trash2, Filter, X } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,6 +22,14 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 type Transaction = {
   id: string;
@@ -77,6 +85,11 @@ export default function TransactionsPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const currentMonth = currentDate.getMonth();
   const currentYear = currentDate.getFullYear();
+  
+  // Filter state
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+  const [filterCategory, setFilterCategory] = useState("");
+  const [filterName, setFilterName] = useState("");
 
   useEffect(() => {
     if (!isPending && !session) {
@@ -163,17 +176,48 @@ export default function TransactionsPage() {
     console.log("Sample transaction parsed:", new Date(transactions[0].date));
   }
 
-  // Filter transactions by selected month
-  const filteredTransactions = transactions.filter((transaction) => {
-    const txDate = new Date(transaction.date);
-    const matches = txDate.getMonth() === currentMonth && txDate.getFullYear() === currentYear;
-    console.log(
-      `Transaction: ${transaction.name}, Date: ${transaction.date}, Parsed: ${txDate}, Month: ${txDate.getMonth()}, Year: ${txDate.getFullYear()}, Matches: ${matches}`
-    );
-    return matches;
-  });
+  // Filter transactions by selected month and filters
+  const filteredTransactions = transactions
+    .filter((transaction) => {
+      const txDate = new Date(transaction.date);
+      const matches = txDate.getMonth() === currentMonth && txDate.getFullYear() === currentYear;
+      console.log(
+        `Transaction: ${transaction.name}, Date: ${transaction.date}, Parsed: ${txDate}, Month: ${txDate.getMonth()}, Year: ${txDate.getFullYear()}, Matches: ${matches}`
+      );
+      return matches;
+    })
+    .filter((transaction) => {
+      // Apply category filter
+      if (filterCategory && transaction.category.toLowerCase() !== filterCategory.toLowerCase()) {
+        return false;
+      }
+      // Apply name filter (case-insensitive)
+      if (filterName && !transaction.name.toLowerCase().includes(filterName.toLowerCase())) {
+        return false;
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      // Sort by createdAt descending (most recently added first)
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
 
   console.log("Filtered transactions:", filteredTransactions.length);
+  
+  // Calculate total of filtered transactions
+  const filteredTotal = filteredTransactions.reduce((sum, transaction) => sum + transaction.amount, 0);
+  
+  // Get unique categories for filter suggestions
+  const uniqueCategories = Array.from(new Set(transactions.map(t => t.category))).sort();
+  
+  // Check if any filters are active
+  const hasActiveFilters = filterCategory !== "" || filterName !== "";
+  
+  // Clear all filters
+  const clearFilters = () => {
+    setFilterCategory("");
+    setFilterName("");
+  };
 
   // Month navigation handlers
   const goToPreviousMonth = () => {
@@ -272,6 +316,77 @@ export default function TransactionsPage() {
             <ChevronRight className="h-3.5 w-3.5" />
           </Button>
         </div>
+
+        {/* Filter Section */}
+        <div className="mb-4 flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setFilterDialogOpen(true)}
+            className="flex items-center gap-2 h-9"
+          >
+            <Filter className="h-4 w-4" />
+            Filters
+            {hasActiveFilters && (
+              <span className="ml-1 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {(filterCategory ? 1 : 0) + (filterName ? 1 : 0)}
+              </span>
+            )}
+          </Button>
+          
+          {hasActiveFilters && (
+            <>
+              <div className="flex items-center gap-2 flex-wrap">
+                {filterCategory && (
+                  <div className="flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+                    <span>Category: {filterCategory}</span>
+                    <button
+                      onClick={() => setFilterCategory("")}
+                      className="hover:bg-blue-200 rounded-full p-0.5"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                )}
+                {filterName && (
+                  <div className="flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+                    <span>Name: {filterName}</span>
+                    <button
+                      onClick={() => setFilterName("")}
+                      className="hover:bg-blue-200 rounded-full p-0.5"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                )}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearFilters}
+                className="h-9 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                Clear all
+              </Button>
+            </>
+          )}
+        </div>
+
+        {/* Filter Summary */}
+        {hasActiveFilters && filteredTransactions.length > 0 && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-blue-900">
+                <span className="font-medium">{filteredTransactions.length}</span> transaction{filteredTransactions.length !== 1 ? 's' : ''} found
+              </div>
+              <div className="text-sm font-semibold">
+                Total: <span className={filteredTotal < 0 ? "text-green-600" : "text-red-600"}>
+                  {formatCurrency(Math.abs(filteredTotal))}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {loading ? (
           <div className="text-center py-8 text-gray-500 text-sm">
@@ -421,7 +536,71 @@ export default function TransactionsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Filter Dialog */}
+      <Dialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Filter Transactions</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {/* Category Filter */}
+            <div className="space-y-2">
+              <Label htmlFor="filter-category">Category</Label>
+              <Input
+                id="filter-category"
+                placeholder="Enter category name"
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
+                list="categories"
+              />
+              <datalist id="categories">
+                {uniqueCategories.map((category) => (
+                  <option key={category} value={category} />
+                ))}
+              </datalist>
+              {uniqueCategories.length > 0 && (
+                <div className="text-xs text-gray-500 mt-1">
+                  Available categories: {uniqueCategories.join(", ")}
+                </div>
+              )}
+            </div>
+
+            {/* Name Filter */}
+            <div className="space-y-2">
+              <Label htmlFor="filter-name">Transaction Name</Label>
+              <Input
+                id="filter-name"
+                placeholder="Search by name (case-insensitive)"
+                value={filterName}
+                onChange={(e) => setFilterName(e.target.value)}
+              />
+              <p className="text-xs text-gray-500">
+                Search will match any part of the transaction name
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-between gap-2 pt-2">
+              <Button
+                variant="outline"
+                onClick={clearFilters}
+                className="flex-1"
+              >
+                Clear Filters
+              </Button>
+              <Button
+                onClick={() => setFilterDialogOpen(false)}
+                className="flex-1"
+              >
+                Apply Filters
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+
 

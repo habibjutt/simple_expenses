@@ -248,7 +248,7 @@ export default function Home() {
   return (
     <div className="max-w-7xl mx-auto">
       {/* <Header /> */}
-      <main className="p-4 md:p-6 pb-24">
+      <main className="p-4 md:p-6 pb-32">
         {/* Greeting Section */}
         <div className="mb-4">
           <p className="text-xs text-gray-500 mb-0.5">{getGreeting()},</p>
@@ -400,7 +400,7 @@ export default function Home() {
                 return (
                   <div key={card.id} className="bg-gray-50 rounded-lg">
                     <div
-                      className="flex items-center justify-between px-2 cursor-pointer hover:bg-gray-100 transition-colors"
+                      className="flex items-center justify-between p-2 cursor-pointer hover:bg-gray-100 transition-colors"
                       onClick={(e) => {
                         if (!(e.target as HTMLElement).closest('button')) {
                           router.push(`/credit-card/${card.id}`);
