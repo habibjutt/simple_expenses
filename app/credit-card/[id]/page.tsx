@@ -45,6 +45,7 @@ type Invoice = {
   isPaid: boolean;
   paidAmount: number;
   totalAmount: number;
+  creditFromPreviousMonth: number;
   paidAt: Date | null;
   paidFromBankAccount: BankAccount | null;
 };
@@ -206,9 +207,12 @@ export default function CreditCardDetailsPage() {
       setIsPaymentModalOpen(true);
       setPaymentError(null);
       setSelectedBankAccountId("");
-      // Set default payment amount to the remaining balance
+      // Set default payment amount to the invoice amount (after applying credit from previous month)
+      const creditFromPrevious = invoiceData?.invoice?.creditFromPreviousMonth || 0;
       const paidSoFar = invoiceData?.invoice?.paidAmount || 0;
-      const remaining = (invoiceData?.totalAmount || 0) - paidSoFar;
+      const invoiceTotal = invoiceData?.totalAmount || 0;
+      const amountOwed = invoiceTotal - creditFromPrevious;
+      const remaining = Math.max(0, amountOwed - paidSoFar);
       setPaymentAmount(remaining.toString());
     } catch (err: any) {
       setPaymentError(err.message || "Failed to load bank accounts");
@@ -487,8 +491,9 @@ export default function CreditCardDetailsPage() {
     return groups;
   }, {});
 
-  const previousBalance = invoiceData.invoice?.paidAmount || 0;
-  const monthSpending = totalAmount - previousBalance;
+  const previousBalance = -(invoiceData.invoice?.creditFromPreviousMonth || 0); // Negative because it's a credit
+  const monthSpending = totalAmount;
+  const invoiceAmount = totalAmount - (invoiceData.invoice?.creditFromPreviousMonth || 0);
 
   return (
     <div className="max-w-7xl mx-auto min-h-screen flex flex-col bg-white">
@@ -576,7 +581,7 @@ export default function CreditCardDetailsPage() {
             <CardContent className="p-2 space-y-3">
               <div>
                 <div className="text-gray-400 text-xs">Previous Balance</div>
-                <div className="text-sm font-bold text-green-400">
+                <div className={`text-sm font-bold ${previousBalance < 0 ? 'text-green-400' : 'text-red-400'}`}>
                   {formatCurrency(previousBalance)}
                 </div>
               </div>
@@ -590,8 +595,8 @@ export default function CreditCardDetailsPage() {
               
               <div className="pt-2 border-t border-gray-600">
                 <div className="text-gray-400 text-xs">Invoice Amount</div>
-                <div className="text-sm font-bold text-red-400">
-                  {formatCurrency(totalAmount)}
+                <div className={`text-sm font-bold ${invoiceAmount < 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  {formatCurrency(invoiceAmount)}
                 </div>
               </div>
             </CardContent>
@@ -599,7 +604,7 @@ export default function CreditCardDetailsPage() {
         </div>
 
         {/* Pay Invoice Button */}
-        {!invoiceData.invoice?.isPaid && totalAmount > 0 && (
+        {!invoiceData.invoice?.isPaid && invoiceAmount > 0 && (
           <Button
             onClick={handleOpenPaymentModal}
             className="w-full h-14 text-sm font-semibold bg-green-600 hover:bg-green-700 mb-2"
@@ -607,6 +612,19 @@ export default function CreditCardDetailsPage() {
             <Wallet className="h-5 w-5 mr-2" />
             Pay Invoice
           </Button>
+        )}
+
+        {/* Credit Balance Banner - shown when invoice amount is negative (excess payment) */}
+        {invoiceAmount < 0 && !invoiceData.invoice?.isPaid && (
+          <div className="mb-2 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-center gap-2 text-green-700">
+              <CheckCircle className="h-5 w-5" />
+              <div className="flex-1">
+                <div className="font-semibold">Credit Balance Available</div>
+                <div className="text-sm">You have a credit of {formatCurrency(Math.abs(invoiceAmount))} that will be applied to future invoices.</div>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Payment Status Banner */}
@@ -650,7 +668,7 @@ export default function CreditCardDetailsPage() {
               </div>
               <div className="flex items-center justify-between">
                 <span className="font-semibold">Remaining:</span>
-                <span className="font-bold text-red-700">{formatCurrency(totalAmount - invoiceData.invoice.paidAmount)}</span>
+                <span className="font-bold text-red-700">{formatCurrency(Math.max(0, invoiceAmount - invoiceData.invoice.paidAmount))}</span>
               </div>
               <div className="flex gap-2 pt-2">
                 <Button

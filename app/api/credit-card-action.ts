@@ -371,11 +371,18 @@ export async function payInvoice(
 
   // Check if this would be a partial or full payment, or an overpayment
   const currentPaidAmount = existingInvoice?.paidAmount || 0;
+  const creditFromPreviousMonth = existingInvoice?.creditFromPreviousMonth || 0;
   const invoiceTotal = existingInvoice?.totalAmount || totalAmount;
-  const remainingAmount = invoiceTotal - currentPaidAmount;
+  
+  // Actual amount owed is invoice total minus any credit from previous month
+  const amountOwed = invoiceTotal - creditFromPreviousMonth;
+  const totalPaidSoFar = currentPaidAmount;
+  const remainingAmount = amountOwed - totalPaidSoFar;
   const newPaidAmount = currentPaidAmount + totalAmount;
-  const isFullyPaid = newPaidAmount >= invoiceTotal;
-  const overpaymentAmount = Math.max(0, newPaidAmount - invoiceTotal);
+  
+  // Invoice is fully paid if total paid (including new payment) >= amount owed
+  const isFullyPaid = newPaidAmount >= amountOwed;
+  const overpaymentAmount = Math.max(0, newPaidAmount - amountOwed);
 
   // Perform the payment in a transaction
   await db.$transaction(async (tx) => {
@@ -450,32 +457,50 @@ export async function payInvoice(
 
       if (nextInvoice) {
         // Update existing next invoice with the overpayment credit
-        const nextInvoiceNewPaid = nextInvoice.paidAmount + overpaymentAmount;
-        const nextInvoiceIsFullyPaid = nextInvoiceNewPaid >= nextInvoice.totalAmount;
+        const nextInvoiceCreditFromPrevious = nextInvoice.creditFromPreviousMonth + overpaymentAmount;
+        const nextInvoiceAmountOwed = nextInvoice.totalAmount - nextInvoiceCreditFromPrevious;
+        const nextInvoiceIsFullyPaid = nextInvoice.paidAmount >= nextInvoiceAmountOwed;
         
         await tx.invoice.update({
           where: { id: nextInvoice.id },
           data: {
-            paidAmount: nextInvoiceNewPaid,
+            creditFromPreviousMonth: nextInvoiceCreditFromPrevious,
             isPaid: nextInvoiceIsFullyPaid,
             paidAt: nextInvoiceIsFullyPaid ? new Date() : nextInvoice.paidAt,
-            paidFromBankAccountId: nextInvoiceIsFullyPaid ? bankAccountId : nextInvoice.paidFromBankAccountId,
           },
         });
       } else {
         // Create a new invoice for the next period with the overpayment as credit
-        // We'll calculate the total from future transactions when they're added
-        // For now, just record the prepayment
+        // Calculate total amount from transactions in next period
+        const nextPeriodTransactions = await tx.transaction.findMany({
+          where: {
+            creditCardId: cardId,
+            date: {
+              gte: nextBillStartDate,
+              lt: nextBillEndDate,
+            },
+            OR: [
+              { installmentNumber: null },
+              { installmentNumber: { gt: 0 } },
+            ],
+          },
+        });
+        
+        const nextPeriodTotal = nextPeriodTransactions.reduce((sum, txn) => sum + txn.amount, 0);
+        const nextInvoiceAmountOwed = nextPeriodTotal - overpaymentAmount;
+        const nextInvoiceIsFullyPaid = overpaymentAmount >= nextPeriodTotal;
+        
         await tx.invoice.create({
           data: {
             creditCardId: cardId,
             billStartDate: nextBillStartDate,
             billEndDate: nextBillEndDate,
             paymentDueDate: nextPaymentDueDate,
-            totalAmount: 0, // Will be updated when transactions are added
-            paidAmount: overpaymentAmount,
-            isPaid: false, // Not paid until we know the total
-            paidFromBankAccountId: bankAccountId,
+            totalAmount: nextPeriodTotal,
+            creditFromPreviousMonth: overpaymentAmount,
+            paidAmount: 0, // The credit is separate from paid amount
+            isPaid: nextInvoiceIsFullyPaid,
+            paidAt: nextInvoiceIsFullyPaid ? new Date() : null,
           },
         });
       }

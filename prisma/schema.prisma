@@ -123,18 +123,19 @@ model bank_account {
 }
 
 model invoice {
-  id                    String    @id @default(cuid())
-  creditCardId          String
-  billStartDate         DateTime
-  billEndDate           DateTime
-  paymentDueDate        DateTime
-  totalAmount           Float
-  paidAmount            Float     @default(0) // Track how much has been paid
-  isPaid                Boolean   @default(false)
-  paidAt                DateTime?
-  paidFromBankAccountId String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+  id                       String    @id @default(cuid())
+  creditCardId             String
+  billStartDate            DateTime
+  billEndDate              DateTime
+  paymentDueDate           DateTime
+  totalAmount              Float
+  paidAmount               Float     @default(0) // Track how much has been paid
+  creditFromPreviousMonth  Float     @default(0) // Credit balance carried forward from previous invoice overpayment
+  isPaid                   Boolean   @default(false)
+  paidAt                   DateTime?
+  paidFromBankAccountId    String?
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
 
   creditCard          credit_card   @relation(fields: [creditCardId], references: [id], onDelete: Cascade)
   paidFromBankAccount bank_account? @relation(fields: [paidFromBankAccountId], references: [id], onDelete: SetNull)

@@ -35,6 +35,10 @@ export async function deleteInvoice(invoiceId: string) {
   // If the invoice was paid, we need to reverse the transaction
   if (invoice.isPaid && invoice.paidFromBankAccountId) {
     await db.$transaction(async (tx) => {
+      // Calculate if there was an overpayment
+      const amountOwed = invoice.totalAmount - invoice.creditFromPreviousMonth;
+      const overpaymentAmount = Math.max(0, invoice.paidAmount - amountOwed);
+
       // Return the paid amount to the bank account
       await tx.bank_account.update({
         where: { id: invoice.paidFromBankAccountId! },
@@ -55,6 +59,39 @@ export async function deleteInvoice(invoiceId: string) {
           },
         },
       });
+
+      // If there was an overpayment, we need to reverse it from the next invoice
+      if (overpaymentAmount > 0) {
+        // Calculate next billing period
+        const nextBillStartDate = new Date(invoice.billEndDate);
+        const nextBillEndDate = new Date(invoice.billEndDate);
+        nextBillEndDate.setMonth(nextBillEndDate.getMonth() + 1);
+
+        // Find and update the next invoice
+        const nextInvoice = await tx.invoice.findUnique({
+          where: {
+            creditCardId_billStartDate_billEndDate: {
+              creditCardId: invoice.creditCardId,
+              billStartDate: nextBillStartDate,
+              billEndDate: nextBillEndDate,
+            },
+          },
+        });
+
+        if (nextInvoice) {
+          const newCreditFromPrevious = Math.max(0, nextInvoice.creditFromPreviousMonth - overpaymentAmount);
+          const newAmountOwed = nextInvoice.totalAmount - newCreditFromPrevious;
+          const newIsPaid = nextInvoice.paidAmount >= newAmountOwed && newAmountOwed > 0;
+
+          await tx.invoice.update({
+            where: { id: nextInvoice.id },
+            data: {
+              creditFromPreviousMonth: newCreditFromPrevious,
+              isPaid: newIsPaid,
+            },
+          });
+        }
+      }
 
       // Delete the invoice
       await tx.invoice.delete({
@@ -254,6 +291,10 @@ export async function unpayInvoice(invoiceId: string) {
 
   // Reverse the payment transaction
   await db.$transaction(async (tx) => {
+    // Calculate if there was an overpayment
+    const amountOwed = invoice.totalAmount - invoice.creditFromPreviousMonth;
+    const overpaymentAmount = Math.max(0, invoice.paidAmount - amountOwed);
+
     // Return the paid amount to the bank account
     await tx.bank_account.update({
       where: { id: invoice.paidFromBankAccountId! },
@@ -273,6 +314,39 @@ export async function unpayInvoice(invoiceId: string) {
         },
       },
     });
+
+    // If there was an overpayment, we need to reverse it from the next invoice
+    if (overpaymentAmount > 0) {
+      // Calculate next billing period
+      const nextBillStartDate = new Date(invoice.billEndDate);
+      const nextBillEndDate = new Date(invoice.billEndDate);
+      nextBillEndDate.setMonth(nextBillEndDate.getMonth() + 1);
+
+      // Find and update the next invoice
+      const nextInvoice = await tx.invoice.findUnique({
+        where: {
+          creditCardId_billStartDate_billEndDate: {
+            creditCardId: invoice.creditCardId,
+            billStartDate: nextBillStartDate,
+            billEndDate: nextBillEndDate,
+          },
+        },
+      });
+
+      if (nextInvoice) {
+        const newCreditFromPrevious = Math.max(0, nextInvoice.creditFromPreviousMonth - overpaymentAmount);
+        const newAmountOwed = nextInvoice.totalAmount - newCreditFromPrevious;
+        const newIsPaid = nextInvoice.paidAmount >= newAmountOwed && newAmountOwed > 0;
+
+        await tx.invoice.update({
+          where: { id: nextInvoice.id },
+          data: {
+            creditFromPreviousMonth: newCreditFromPrevious,
+            isPaid: newIsPaid,
+          },
+        });
+      }
+    }
 
     // Update invoice to unpaid and reset paid amount
     await tx.invoice.update({
@@ -402,21 +476,38 @@ export async function getNextBillAmounts() {
   // For each card, calculate the upcoming/next billing period
   const nextBills = await Promise.all(
     creditCards.map(async (card) => {
-      // Determine what the current/upcoming bill period is
+      // Determine what the current/upcoming bill period is (use UTC to match invoice storage)
       let billStartDate: Date;
       let billEndDate: Date;
       let paymentDueDate: Date;
 
       if (currentDay >= card.billGenerationDate) {
         // We're in the current billing period
-        billStartDate = new Date(currentYear, currentMonth, card.billGenerationDate);
-        billEndDate = new Date(currentYear, currentMonth + 1, card.billGenerationDate);
-        paymentDueDate = new Date(currentYear, currentMonth + 1, card.paymentDate);
+        billStartDate = new Date(Date.UTC(currentYear, currentMonth, card.billGenerationDate));
+        billEndDate = new Date(Date.UTC(currentYear, currentMonth + 1, card.billGenerationDate));
+        paymentDueDate = new Date(Date.UTC(currentYear, currentMonth + 1, card.paymentDate));
       } else {
         // We're still in the previous billing period
-        billStartDate = new Date(currentYear, currentMonth - 1, card.billGenerationDate);
-        billEndDate = new Date(currentYear, currentMonth, card.billGenerationDate);
-        paymentDueDate = new Date(currentYear, currentMonth, card.paymentDate);
+        billStartDate = new Date(Date.UTC(currentYear, currentMonth - 1, card.billGenerationDate));
+        billEndDate = new Date(Date.UTC(currentYear, currentMonth, card.billGenerationDate));
+        paymentDueDate = new Date(Date.UTC(currentYear, currentMonth, card.paymentDate));
+      }
+
+      // Check if an invoice exists for this period
+      const existingInvoice = await db.invoice.findFirst({
+        where: {
+          creditCardId: card.id,
+          billStartDate: billStartDate,
+          billEndDate: billEndDate,
+        },
+      });
+
+      // If the invoice exists and is fully paid, calculate the NEXT billing period
+      if (existingInvoice && existingInvoice.isPaid) {
+        // Move to the next billing period
+        billStartDate = new Date(Date.UTC(billEndDate.getUTCFullYear(), billEndDate.getUTCMonth(), card.billGenerationDate));
+        billEndDate = new Date(Date.UTC(billStartDate.getUTCFullYear(), billStartDate.getUTCMonth() + 1, card.billGenerationDate));
+        paymentDueDate = new Date(Date.UTC(billEndDate.getUTCFullYear(), billEndDate.getUTCMonth(), card.paymentDate));
       }
 
       // For credit cards, transactions appear on the NEXT billing cycle
