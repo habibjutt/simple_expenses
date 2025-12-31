@@ -223,26 +223,26 @@ export async function getUpcomingInvoice(cardId: string, month?: number, year?: 
   // For navigation, we need to determine if we're viewing current month or historical
   const isCurrentMonth = targetMonth === today.getMonth() && targetYear === today.getFullYear();
 
-  // Determine the billing period start and end dates
+  // Determine the billing period start and end dates (always use UTC to avoid timezone issues)
   let billStartDate: Date;
   let billEndDate: Date;
   let paymentDueDate: Date;
 
   if (isCurrentMonth && currentDay >= card.billGenerationDate) {
     // We're in the current billing period
-    billStartDate = new Date(targetYear, targetMonth, card.billGenerationDate);
-    billEndDate = new Date(targetYear, targetMonth + 1, card.billGenerationDate);
-    paymentDueDate = new Date(targetYear, targetMonth + 1, card.paymentDate);
+    billStartDate = new Date(Date.UTC(targetYear, targetMonth, card.billGenerationDate));
+    billEndDate = new Date(Date.UTC(targetYear, targetMonth + 1, card.billGenerationDate));
+    paymentDueDate = new Date(Date.UTC(targetYear, targetMonth + 1, card.paymentDate));
   } else if (isCurrentMonth && currentDay < card.billGenerationDate) {
     // We're still in the previous billing period
-    billStartDate = new Date(targetYear, targetMonth - 1, card.billGenerationDate);
-    billEndDate = new Date(targetYear, targetMonth, card.billGenerationDate);
-    paymentDueDate = new Date(targetYear, targetMonth, card.paymentDate);
+    billStartDate = new Date(Date.UTC(targetYear, targetMonth - 1, card.billGenerationDate));
+    billEndDate = new Date(Date.UTC(targetYear, targetMonth, card.billGenerationDate));
+    paymentDueDate = new Date(Date.UTC(targetYear, targetMonth, card.paymentDate));
   } else {
     // Historical or future month - use the target month
-    billStartDate = new Date(targetYear, targetMonth, card.billGenerationDate);
-    billEndDate = new Date(targetYear, targetMonth + 1, card.billGenerationDate);
-    paymentDueDate = new Date(targetYear, targetMonth + 1, card.paymentDate);
+    billStartDate = new Date(Date.UTC(targetYear, targetMonth, card.billGenerationDate));
+    billEndDate = new Date(Date.UTC(targetYear, targetMonth + 1, card.billGenerationDate));
+    paymentDueDate = new Date(Date.UTC(targetYear, targetMonth + 1, card.paymentDate));
   }
 
   // For credit cards, transactions appear on the NEXT billing cycle
@@ -277,6 +277,13 @@ export async function getUpcomingInvoice(cardId: string, month?: number, year?: 
   const totalAmount = transactions.reduce((sum, txn) => sum + txn.amount, 0);
 
   // Check if there's an existing invoice record for this period
+  console.log('=== QUERYING DATABASE ===');
+  console.log('cardId:', cardId);
+  console.log('billStartDate:', billStartDate);
+  console.log('billEndDate:', billEndDate);
+  console.log('billStartDate ISO:', billStartDate.toISOString());
+  console.log('billEndDate ISO:', billEndDate.toISOString());
+  
   const existingInvoice = await db.invoice.findUnique({
     where: {
       creditCardId_billStartDate_billEndDate: {
@@ -289,6 +296,13 @@ export async function getUpcomingInvoice(cardId: string, month?: number, year?: 
       paidFromBankAccount: true,
     },
   });
+
+  console.log('=== SERVER: Invoice from DB ===');
+  console.log('Invoice:', existingInvoice);
+  console.log('isPaid:', existingInvoice?.isPaid);
+  console.log('paidAt:', existingInvoice?.paidAt);
+  console.log('paidAmount:', existingInvoice?.paidAmount);
+  console.log('totalAmount:', existingInvoice?.totalAmount);
 
   return {
     billStartDate,
@@ -355,16 +369,13 @@ export async function payInvoice(
     throw new Error("Invoice is already fully paid");
   }
 
-  // Check if this would be a partial or full payment
+  // Check if this would be a partial or full payment, or an overpayment
   const currentPaidAmount = existingInvoice?.paidAmount || 0;
-  const remainingAmount = (existingInvoice?.totalAmount || totalAmount) - currentPaidAmount;
-  
-  if (totalAmount > remainingAmount) {
-    throw new Error(`Payment amount exceeds remaining balance. Remaining: ${remainingAmount}`);
-  }
-  
+  const invoiceTotal = existingInvoice?.totalAmount || totalAmount;
+  const remainingAmount = invoiceTotal - currentPaidAmount;
   const newPaidAmount = currentPaidAmount + totalAmount;
-  const isFullyPaid = newPaidAmount >= (existingInvoice?.totalAmount || totalAmount);
+  const isFullyPaid = newPaidAmount >= invoiceTotal;
+  const overpaymentAmount = Math.max(0, newPaidAmount - invoiceTotal);
 
   // Perform the payment in a transaction
   await db.$transaction(async (tx) => {
@@ -378,7 +389,7 @@ export async function payInvoice(
       },
     });
 
-    // Restore credit card available balance
+    // Restore credit card available balance for the full payment (including overpayment)
     await tx.credit_card.update({
       where: { id: cardId },
       data: {
@@ -415,9 +426,89 @@ export async function payInvoice(
         },
       });
     }
+
+    // If there's an overpayment, apply it to the next invoice
+    if (overpaymentAmount > 0) {
+      // Calculate next billing period
+      const nextBillStartDate = new Date(billEndDate);
+      const nextBillEndDate = new Date(billEndDate);
+      nextBillEndDate.setMonth(nextBillEndDate.getMonth() + 1);
+      
+      const nextPaymentDueDate = new Date(paymentDueDate);
+      nextPaymentDueDate.setMonth(nextPaymentDueDate.getMonth() + 1);
+
+      // Check if next invoice already exists
+      const nextInvoice = await tx.invoice.findUnique({
+        where: {
+          creditCardId_billStartDate_billEndDate: {
+            creditCardId: cardId,
+            billStartDate: nextBillStartDate,
+            billEndDate: nextBillEndDate,
+          },
+        },
+      });
+
+      if (nextInvoice) {
+        // Update existing next invoice with the overpayment credit
+        const nextInvoiceNewPaid = nextInvoice.paidAmount + overpaymentAmount;
+        const nextInvoiceIsFullyPaid = nextInvoiceNewPaid >= nextInvoice.totalAmount;
+        
+        await tx.invoice.update({
+          where: { id: nextInvoice.id },
+          data: {
+            paidAmount: nextInvoiceNewPaid,
+            isPaid: nextInvoiceIsFullyPaid,
+            paidAt: nextInvoiceIsFullyPaid ? new Date() : nextInvoice.paidAt,
+            paidFromBankAccountId: nextInvoiceIsFullyPaid ? bankAccountId : nextInvoice.paidFromBankAccountId,
+          },
+        });
+      } else {
+        // Create a new invoice for the next period with the overpayment as credit
+        // We'll calculate the total from future transactions when they're added
+        // For now, just record the prepayment
+        await tx.invoice.create({
+          data: {
+            creditCardId: cardId,
+            billStartDate: nextBillStartDate,
+            billEndDate: nextBillEndDate,
+            paymentDueDate: nextPaymentDueDate,
+            totalAmount: 0, // Will be updated when transactions are added
+            paidAmount: overpaymentAmount,
+            isPaid: false, // Not paid until we know the total
+            paidFromBankAccountId: bankAccountId,
+          },
+        });
+      }
+    }
   });
 
   revalidatePath("/");
   revalidatePath(`/credit-card/${cardId}`);
 }
 
+export async function debugListInvoices(cardId: string) {
+  const invoices = await db.invoice.findMany({
+    where: { creditCardId: cardId },
+    orderBy: { billStartDate: 'desc' },
+  });
+  
+  console.log(`\n=== ALL INVOICES FOR CARD ${cardId} ===`);
+  invoices.forEach((inv, idx) => {
+    console.log(`\nInvoice ${idx + 1}:`);
+    console.log(`  billStartDate: ${inv.billStartDate.toISOString()}`);
+    console.log(`  billEndDate: ${inv.billEndDate.toISOString()}`);
+    console.log(`  isPaid: ${inv.isPaid}`);
+    console.log(`  paidAt: ${inv.paidAt?.toISOString()}`);
+    console.log(`  totalAmount: ${inv.totalAmount}`);
+    console.log(`  paidAmount: ${inv.paidAmount}`);
+  });
+  
+  return invoices.map(inv => ({
+    billStartDate: inv.billStartDate.toISOString(),
+    billEndDate: inv.billEndDate.toISOString(),
+    isPaid: inv.isPaid,
+    paidAt: inv.paidAt?.toISOString(),
+    totalAmount: inv.totalAmount,
+    paidAmount: inv.paidAmount,
+  }));
+}

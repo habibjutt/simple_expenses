@@ -125,6 +125,16 @@ export default function CreditCardDetailsPage() {
       try {
         setLoading(true);
         const data = await getUpcomingInvoice(cardId, selectedMonth, selectedYear);
+        console.log('Invoice data received:', data);
+        console.log('Invoice object:', data.invoice);
+        console.log('isPaid:', data.invoice?.isPaid);
+        console.log('paidAt:', data.invoice?.paidAt);
+        
+        // DEBUG: Check all invoices for this card
+        const { debugListInvoices } = await import('@/app/api/credit-card-action');
+        const allInvoices = await debugListInvoices(cardId);
+        console.log('ALL INVOICES:', allInvoices);
+        
         setInvoiceData(data);
       } catch (err: any) {
         setError(err.message || "Failed to load invoice data");
@@ -214,14 +224,6 @@ export default function CreditCardDetailsPage() {
     const amount = parseFloat(paymentAmount);
     if (isNaN(amount) || amount <= 0) {
       setPaymentError("Please enter a valid payment amount");
-      return;
-    }
-    
-    const paidSoFar = invoiceData.invoice?.paidAmount || 0;
-    const remaining = invoiceData.totalAmount - paidSoFar;
-    
-    if (amount > remaining) {
-      setPaymentError(`Payment amount cannot exceed the remaining balance of ${formatCurrency(remaining)}`);
       return;
     }
     
