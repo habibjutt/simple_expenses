@@ -220,6 +220,9 @@ export async function getUpcomingInvoice(cardId: string, month?: number, year?: 
   const targetYear = year !== undefined ? year : today.getFullYear();
   const currentDay = today.getDate();
   
+  // Check if user is explicitly navigating to a specific month
+  const isExplicitNavigation = month !== undefined && year !== undefined;
+  
   // For navigation, we need to determine if we're viewing current month or historical
   const isCurrentMonth = targetMonth === today.getMonth() && targetYear === today.getFullYear();
 
@@ -228,18 +231,20 @@ export async function getUpcomingInvoice(cardId: string, month?: number, year?: 
   let billEndDate: Date;
   let paymentDueDate: Date;
 
-  if (isCurrentMonth && currentDay >= card.billGenerationDate) {
-    // We're in the current billing period
+  // When explicitly navigating, always show the billing period for that month
+  // When auto-detecting (month/year undefined), use current day logic
+  if (!isExplicitNavigation && isCurrentMonth && currentDay >= card.billGenerationDate) {
+    // We're in the current billing period (auto-detect mode only)
     billStartDate = new Date(Date.UTC(targetYear, targetMonth, card.billGenerationDate));
     billEndDate = new Date(Date.UTC(targetYear, targetMonth + 1, card.billGenerationDate));
     paymentDueDate = new Date(Date.UTC(targetYear, targetMonth + 1, card.paymentDate));
-  } else if (isCurrentMonth && currentDay < card.billGenerationDate) {
-    // We're still in the previous billing period
+  } else if (!isExplicitNavigation && isCurrentMonth && currentDay < card.billGenerationDate) {
+    // We're still in the previous billing period (auto-detect mode only)
     billStartDate = new Date(Date.UTC(targetYear, targetMonth - 1, card.billGenerationDate));
     billEndDate = new Date(Date.UTC(targetYear, targetMonth, card.billGenerationDate));
     paymentDueDate = new Date(Date.UTC(targetYear, targetMonth, card.paymentDate));
   } else {
-    // Historical or future month - use the target month
+    // Explicit navigation or historical/future month - use the target month
     billStartDate = new Date(Date.UTC(targetYear, targetMonth, card.billGenerationDate));
     billEndDate = new Date(Date.UTC(targetYear, targetMonth + 1, card.billGenerationDate));
     paymentDueDate = new Date(Date.UTC(targetYear, targetMonth + 1, card.paymentDate));

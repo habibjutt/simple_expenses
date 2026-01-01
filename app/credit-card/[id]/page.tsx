@@ -75,10 +75,9 @@ export default function CreditCardDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Month navigation state
-  const today = new Date();
-  const [selectedMonth, setSelectedMonth] = useState(today.getMonth());
-  const [selectedYear, setSelectedYear] = useState(today.getFullYear());
+  // Month navigation state - default to null to let backend determine the correct period
+  const [selectedMonth, setSelectedMonth] = useState<number | undefined>(undefined);
+  const [selectedYear, setSelectedYear] = useState<number | undefined>(undefined);
   
   // Payment modal state
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -150,7 +149,15 @@ export default function CreditCardDetailsPage() {
   }, [cardId, selectedMonth, selectedYear]);
   
   const handlePreviousMonth = () => {
-    if (selectedMonth === 0) {
+    // Initialize from invoice data if not set
+    if (selectedMonth === undefined || selectedYear === undefined) {
+      if (!invoiceData) return;
+      const billDate = new Date(invoiceData.billStartDate);
+      const prevMonth = billDate.getMonth() === 0 ? 11 : billDate.getMonth() - 1;
+      const prevYear = billDate.getMonth() === 0 ? billDate.getFullYear() - 1 : billDate.getFullYear();
+      setSelectedMonth(prevMonth);
+      setSelectedYear(prevYear);
+    } else if (selectedMonth === 0) {
       setSelectedMonth(11);
       setSelectedYear(selectedYear - 1);
     } else {
@@ -159,7 +166,15 @@ export default function CreditCardDetailsPage() {
   };
   
   const handleNextMonth = () => {
-    if (selectedMonth === 11) {
+    // Initialize from invoice data if not set
+    if (selectedMonth === undefined || selectedYear === undefined) {
+      if (!invoiceData) return;
+      const billDate = new Date(invoiceData.billStartDate);
+      const nextMonth = billDate.getMonth() === 11 ? 0 : billDate.getMonth() + 1;
+      const nextYear = billDate.getMonth() === 11 ? billDate.getFullYear() + 1 : billDate.getFullYear();
+      setSelectedMonth(nextMonth);
+      setSelectedYear(nextYear);
+    } else if (selectedMonth === 11) {
       setSelectedMonth(0);
       setSelectedYear(selectedYear + 1);
     } else {
@@ -168,13 +183,13 @@ export default function CreditCardDetailsPage() {
   };
   
   const handleCurrentMonth = () => {
-    const now = new Date();
-    setSelectedMonth(now.getMonth());
-    setSelectedYear(now.getFullYear());
+    setSelectedMonth(undefined);
+    setSelectedYear(undefined);
   };
   
   const getMonthYearLabel = () => {
-    const date = new Date(selectedYear, selectedMonth);
+    if (!invoiceData) return "...";
+    const date = new Date(invoiceData.billStartDate);
     return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
@@ -182,22 +197,25 @@ export default function CreditCardDetailsPage() {
   };
   
   const getPreviousMonthLabel = () => {
-    const prevMonth = selectedMonth === 0 ? 11 : selectedMonth - 1;
-    const prevYear = selectedMonth === 0 ? selectedYear - 1 : selectedYear;
-    const date = new Date(prevYear, prevMonth);
-    return date.toLocaleDateString("en-US", { month: "short" }) + ". " + date.getDate();
+    if (!invoiceData) return "...";
+    const billDate = new Date(invoiceData.billStartDate);
+    const prevMonth = billDate.getMonth() === 0 ? 11 : billDate.getMonth() - 1;
+    const prevYear = billDate.getMonth() === 0 ? billDate.getFullYear() - 1 : billDate.getFullYear();
+    const date = new Date(prevYear, prevMonth, 1);
+    return date.toLocaleDateString("en-US", { month: "short" });
   };
   
   const getNextMonthLabel = () => {
-    const nextMonth = selectedMonth === 11 ? 0 : selectedMonth + 1;
-    const nextYear = selectedMonth === 11 ? selectedYear + 1 : selectedYear;
-    const date = new Date(nextYear, nextMonth);
-    return date.toLocaleDateString("en-US", { month: "short" }) + ". " + date.getDate();
+    if (!invoiceData) return "...";
+    const billDate = new Date(invoiceData.billStartDate);
+    const nextMonth = billDate.getMonth() === 11 ? 0 : billDate.getMonth() + 1;
+    const nextYear = billDate.getMonth() === 11 ? billDate.getFullYear() + 1 : billDate.getFullYear();
+    const date = new Date(nextYear, nextMonth, 1);
+    return date.toLocaleDateString("en-US", { month: "short" });
   };
   
   const isCurrentMonth = () => {
-    const now = new Date();
-    return selectedMonth === now.getMonth() && selectedYear === now.getFullYear();
+    return selectedMonth === undefined && selectedYear === undefined;
   };
   
   const handleOpenPaymentModal = async () => {
