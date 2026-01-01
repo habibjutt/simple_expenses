@@ -235,14 +235,56 @@ export async function getUpcomingInvoice(cardId: string, month?: number, year?: 
   // When auto-detecting (month/year undefined), use current day logic
   if (!isExplicitNavigation && isCurrentMonth && currentDay >= card.billGenerationDate) {
     // We're in the current billing period (auto-detect mode only)
-    billStartDate = new Date(Date.UTC(targetYear, targetMonth, card.billGenerationDate));
-    billEndDate = new Date(Date.UTC(targetYear, targetMonth + 1, card.billGenerationDate));
-    paymentDueDate = new Date(Date.UTC(targetYear, targetMonth + 1, card.paymentDate));
+    // But check if this period's invoice is already paid - if so, show next period
+    const currentPeriodStart = new Date(Date.UTC(targetYear, targetMonth, card.billGenerationDate));
+    const currentPeriodEnd = new Date(Date.UTC(targetYear, targetMonth + 1, card.billGenerationDate));
+    
+    const currentPeriodInvoice = await db.invoice.findUnique({
+      where: {
+        creditCardId_billStartDate_billEndDate: {
+          creditCardId: cardId,
+          billStartDate: currentPeriodStart,
+          billEndDate: currentPeriodEnd,
+        },
+      },
+    });
+    
+    // If current period invoice is paid, show next period
+    if (currentPeriodInvoice?.isPaid) {
+      billStartDate = new Date(Date.UTC(targetYear, targetMonth + 1, card.billGenerationDate));
+      billEndDate = new Date(Date.UTC(targetYear, targetMonth + 2, card.billGenerationDate));
+      paymentDueDate = new Date(Date.UTC(targetYear, targetMonth + 2, card.paymentDate));
+    } else {
+      billStartDate = currentPeriodStart;
+      billEndDate = currentPeriodEnd;
+      paymentDueDate = new Date(Date.UTC(targetYear, targetMonth + 1, card.paymentDate));
+    }
   } else if (!isExplicitNavigation && isCurrentMonth && currentDay < card.billGenerationDate) {
     // We're still in the previous billing period (auto-detect mode only)
-    billStartDate = new Date(Date.UTC(targetYear, targetMonth - 1, card.billGenerationDate));
-    billEndDate = new Date(Date.UTC(targetYear, targetMonth, card.billGenerationDate));
-    paymentDueDate = new Date(Date.UTC(targetYear, targetMonth, card.paymentDate));
+    // But check if this period's invoice is already paid - if so, show current/next period
+    const previousPeriodStart = new Date(Date.UTC(targetYear, targetMonth - 1, card.billGenerationDate));
+    const previousPeriodEnd = new Date(Date.UTC(targetYear, targetMonth, card.billGenerationDate));
+    
+    const previousPeriodInvoice = await db.invoice.findUnique({
+      where: {
+        creditCardId_billStartDate_billEndDate: {
+          creditCardId: cardId,
+          billStartDate: previousPeriodStart,
+          billEndDate: previousPeriodEnd,
+        },
+      },
+    });
+    
+    // If previous period invoice is paid, show current period instead
+    if (previousPeriodInvoice?.isPaid) {
+      billStartDate = new Date(Date.UTC(targetYear, targetMonth, card.billGenerationDate));
+      billEndDate = new Date(Date.UTC(targetYear, targetMonth + 1, card.billGenerationDate));
+      paymentDueDate = new Date(Date.UTC(targetYear, targetMonth + 1, card.paymentDate));
+    } else {
+      billStartDate = previousPeriodStart;
+      billEndDate = previousPeriodEnd;
+      paymentDueDate = new Date(Date.UTC(targetYear, targetMonth, card.paymentDate));
+    }
   } else {
     // Explicit navigation or historical/future month - use the target month
     billStartDate = new Date(Date.UTC(targetYear, targetMonth, card.billGenerationDate));
