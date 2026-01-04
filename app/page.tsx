@@ -448,19 +448,6 @@ export default function Home() {
                       <div className="text-sm font-semibold text-green-600 whitespace-nowrap">
                         {formatCurrency(card.availableBalance)}
                       </div>
-                      {invoice && invoice.totalAmount > 0 && (
-                        <div className="text-sm text-red-600 text-right leading-tight">
-                          {invoice.invoice?.paidAmount && invoice.invoice.paidAmount > 0 && !invoice.invoice.isPaid ? (
-                            <>
-                              Paid: {formatCurrency(invoice.invoice.paidAmount)}
-                            </>
-                          ) : (
-                            <>
-                              Due {formatDate(invoice.paymentDueDate)}: {formatCurrency(-invoice.totalAmount)}
-                            </>
-                          )}
-                        </div>
-                      )}
                       {nextBill && nextBill.totalAmount > 0 && (
                         <div className={`text-sm text-red-600 font-medium text-right leading-tight`}>
                           Next: {formatCurrency(nextBill.totalAmount)}

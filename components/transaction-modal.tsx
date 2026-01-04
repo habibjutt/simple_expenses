@@ -172,6 +172,10 @@ export default function TransactionModal({
     setIsRecurring(false);
   };
 
+  // Sort credit cards and bank accounts by name
+  const sortedCreditCards = [...creditCards].sort((a, b) => a.name.localeCompare(b.name));
+  const sortedBankAccounts = [...bankAccounts].sort((a, b) => a.name.localeCompare(b.name));
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
@@ -257,7 +261,7 @@ export default function TransactionModal({
                   aria-label="Select source account"
                 >
                   <option value="">Select source account</option>
-                  {bankAccounts.map((account) => (
+                  {sortedBankAccounts.map((account) => (
                     <option key={account.id} value={account.id}>
                       {account.name} (${account.currentBalance.toFixed(2)})
                     </option>
@@ -275,7 +279,7 @@ export default function TransactionModal({
                   aria-label="Select destination account"
                 >
                   <option value="">Select destination account</option>
-                  {bankAccounts.map((account) => (
+                  {sortedBankAccounts.map((account) => (
                     <option key={account.id} value={account.id} disabled={account.id === fromAccountId}>
                       {account.name} (${account.currentBalance.toFixed(2)})
                     </option>
@@ -337,7 +341,7 @@ export default function TransactionModal({
                         aria-label="Select credit card"
                       >
                         <option value="">Select a credit card</option>
-                        {creditCards.map((card) => (
+                        {sortedCreditCards.map((card) => (
                           <option key={card.id} value={card.id}>
                             {card.name} (Available: ${card.availableBalance.toFixed(2)})
                           </option>
@@ -354,7 +358,7 @@ export default function TransactionModal({
                         aria-label="Select bank account"
                       >
                         <option value="">Select a bank account</option>
-                        {bankAccounts.map((account) => (
+                        {sortedBankAccounts.map((account) => (
                           <option key={account.id} value={account.id}>
                             {account.name} (Balance: ${account.currentBalance.toFixed(2)})
                           </option>
@@ -394,7 +398,7 @@ export default function TransactionModal({
                         aria-label="Select credit card"
                       >
                         <option value="">Select a credit card</option>
-                        {creditCards.map((card) => (
+                        {sortedCreditCards.map((card) => (
                           <option key={card.id} value={card.id}>
                             {card.name} (Available: ${card.availableBalance.toFixed(2)})
                           </option>
@@ -411,7 +415,7 @@ export default function TransactionModal({
                         aria-label="Select bank account"
                       >
                         <option value="">Select a bank account</option>
-                        {bankAccounts.map((account) => (
+                        {sortedBankAccounts.map((account) => (
                           <option key={account.id} value={account.id}>
                             {account.name} (Balance: ${account.currentBalance.toFixed(2)})
                           </option>
