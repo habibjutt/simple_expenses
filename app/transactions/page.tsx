@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { getTransactions, deleteTransaction } from "@/app/api/transaction-action";
 import { formatCurrency } from "@/lib/utils";
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import TransactionModal from "@/components/transaction-modal";
 import { getCreditCards } from "@/app/api/credit-card-action";
@@ -270,9 +269,8 @@ export default function TransactionsPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto">
-      {/* <Header /> */}
-      <main className="p-4 md:p-6 pb-24">
+    <div className="max-w-7xl mx-auto min-h-screen flex flex-col bg-white">
+      <main className="flex-1 p-4 md:p-6 pb-24">
         <div className="mb-4">
           <h1 className="text-2xl md:text-3xl font-bold">All Transactions</h1>
           <p className="text-xs text-gray-500 mt-0.5">
@@ -602,5 +600,6 @@ export default function TransactionsPage() {
     </div>
   );
 }
+
 
 

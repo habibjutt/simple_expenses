@@ -12,7 +12,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Calendar, DollarSign, CreditCard, Clock, ChevronLeft, ChevronRight, CheckCircle, Wallet, Pencil, Trash2, XCircle, Utensils, ShoppingCart, Home, Car, Coffee, Gift, Heart, TrendingUp, TrendingDown, Filter, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import TransactionModal from "@/components/transaction-modal";
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import {
   Dialog,
@@ -515,8 +514,7 @@ export default function CreditCardDetailsPage() {
 
   return (
     <div className="max-w-7xl mx-auto min-h-screen flex flex-col bg-white">
-      {/* <Header /> */}
-      <main className="flex-1 p-4 md:p-6 pb-32 md:pb-36">
+      <main className="flex-1 p-4 md:p-6 pb-24">
         {/* Header with Back Button */}
         <div className="flex items-center justify-between mb-2">
           <Button
@@ -532,61 +530,67 @@ export default function CreditCardDetailsPage() {
         </div>
 
         {/* Month Navigation */}
-        <div className="mb-2 flex items-center justify-between gap-2">
+        <div className="mb-4 flex items-center justify-between gap-2">
           <Button
             variant="ghost"
             size="sm"
             onClick={handlePreviousMonth}
-            className="h-10 px-3"
+            className="h-10 px-3 hover:bg-gray-100 text-gray-700"
+            aria-label="Previous month"
           >
             <ChevronLeft className="h-5 w-5" />
-            <span className="ml-1">{getPreviousMonthLabel()}</span>
+            <span className="ml-1 font-medium">{getPreviousMonthLabel()}</span>
           </Button>
           
-          <div className="px-6 py-2 bg-gray-900 text-white rounded-full">
-            <span className="font-semibold">{getMonthYearLabel()}</span>
+          <div className="px-6 py-2.5 bg-slate-900 text-white rounded-full shadow-md">
+            <span className="font-semibold text-base">{getMonthYearLabel()}</span>
           </div>
           
           <Button
             variant="ghost"
             size="sm"
             onClick={handleNextMonth}
-            className="h-10 px-3"
+            className="h-10 px-3 hover:bg-gray-100 text-gray-700"
+            aria-label="Next month"
           >
-            <span className="mr-1">{getNextMonthLabel()}</span>
+            <span className="mr-1 font-medium">{getNextMonthLabel()}</span>
             <ChevronRight className="h-5 w-5" />
           </Button>
         </div>
 
         {/* Main Invoice Card */}
-        <div className="grid grid-cols-2 md:grid-cols-2 gap-4 mb-2">
+        <div className="grid grid-cols-2 md:grid-cols-2 gap-4 mb-4">
           {/* Left Card - Invoice Status */}
-          <Card className="shadow-md py-2">
-            <CardContent className="p-2">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-                  <CreditCard className="h-6 w-6 text-gray-600" />
+          <Card className="shadow-lg border-2 border-gray-100 hover:border-gray-200 transition-colors">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3 mb-5">
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center ${
+                  invoiceData.invoice?.isPaid ? 'bg-green-100' : 'bg-orange-100'
+                }`}>
+                  <CreditCard className={`h-7 w-7 ${
+                    invoiceData.invoice?.isPaid ? 'text-green-700' : 'text-orange-700'
+                  }`} />
                 </div>
                 <div>
-                  <div className={`text-sm font-semibold ${invoiceData.invoice?.isPaid ? 'text-green-600' : 'text-orange-600'}`}>
+                  <div className={`text-base font-bold ${
+                    invoiceData.invoice?.isPaid ? 'text-green-700' : 'text-orange-700'
+                  }`}>
                     {invoiceData.invoice?.isPaid ? 'Paid' : 'Open'}
                   </div>
-                  <div className="text-sm font-bold mt-0.5">{card.name}</div>
+                  <div className="text-sm font-semibold text-gray-900 mt-0.5">{card.name}</div>
                 </div>
               </div>
               
-              <div className="space-y-2 text-sm">
-                <div>
-                  <div className="text-gray-500">Closes on</div>
-                  <div className="font-bold">
-                    {/*format as Jan 6th */}
+              <div className="space-y-3 text-sm">
+                <div className="pb-2 border-b border-gray-100">
+                  <div className="text-gray-600 font-medium mb-1">Closes on</div>
+                  <div className="font-bold text-gray-900 text-base">
                     {new Date(billEndDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                   </div>
                 </div>
                 <div>
-                  <div className="text-gray-500">Due on</div>
-                  <div className="font-bold">
-                    {/*format as Jan 6th */}
+                  <div className="text-gray-600 font-medium mb-1">Due on</div>
+                  <div className="font-bold text-gray-900 text-base">
                     {new Date(paymentDueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                   </div>
                 </div>
@@ -595,25 +599,29 @@ export default function CreditCardDetailsPage() {
           </Card>
 
           {/* Right Card - Financial Summary */}
-          <Card className="shadow-md bg-gray-800 text-white py-2">
-            <CardContent className="p-2 space-y-3">
+          <Card className="shadow-lg bg-gradient-to-br from-slate-800 to-slate-900 text-white border-2 border-slate-700">
+            <CardContent className="p-4 space-y-4">
               <div>
-                <div className="text-gray-400 text-xs">Previous Balance</div>
-                <div className={`text-sm font-bold ${previousBalance < 0 ? 'text-green-400' : 'text-red-400'}`}>
+                <div className="text-slate-300 text-xs font-medium mb-1.5">Previous Balance</div>
+                <div className={`text-base font-bold ${
+                  previousBalance < 0 ? 'text-green-300' : 'text-red-300'
+                }`}>
                   {formatCurrency(previousBalance)}
                 </div>
               </div>
               
               <div>
-                <div className="text-gray-400 text-xs">Month Spending</div>
-                <div className="text-sm font-bold text-red-400">
+                <div className="text-slate-300 text-xs font-medium mb-1.5">Month Spending</div>
+                <div className="text-base font-bold text-red-300">
                   {formatCurrency(monthSpending)}
                 </div>
               </div>
               
-              <div className="pt-2 border-t border-gray-600">
-                <div className="text-gray-400 text-xs">Invoice Amount</div>
-                <div className={`text-sm font-bold ${invoiceAmount < 0 ? 'text-green-400' : 'text-red-400'}`}>
+              <div className="pt-3 border-t border-slate-600">
+                <div className="text-slate-300 text-xs font-medium mb-1.5">Invoice Amount</div>
+                <div className={`text-lg font-bold ${
+                  invoiceAmount < 0 ? 'text-green-300' : 'text-red-300'
+                }`}>
                   {formatCurrency(invoiceAmount)}
                 </div>
               </div>
@@ -625,7 +633,8 @@ export default function CreditCardDetailsPage() {
         {!invoiceData.invoice?.isPaid && invoiceAmount > 0 && (
           <Button
             onClick={handleOpenPaymentModal}
-            className="w-full h-14 text-sm font-semibold bg-green-600 hover:bg-green-700 mb-2"
+            className="w-full h-14 text-base font-bold bg-green-600 hover:bg-green-700 text-white shadow-lg hover:shadow-xl transition-all mb-4"
+            aria-label="Pay invoice"
           >
             <Wallet className="h-5 w-5 mr-2" />
             Pay Invoice
@@ -634,12 +643,12 @@ export default function CreditCardDetailsPage() {
 
         {/* Credit Balance Banner - shown when invoice amount is negative (excess payment) */}
         {invoiceAmount < 0 && !invoiceData.invoice?.isPaid && (
-          <div className="mb-2 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <div className="flex items-center gap-2 text-green-700">
-              <CheckCircle className="h-5 w-5" />
+          <div className="mb-4 p-4 bg-green-50 border-2 border-green-300 rounded-lg shadow-sm">
+              <div className="flex items-center gap-3 text-green-800">
+              <CheckCircle className="h-6 w-6 text-green-600 shrink-0" />
               <div className="flex-1">
-                <div className="font-semibold">Credit Balance Available</div>
-                <div className="text-sm">You have a credit of {formatCurrency(Math.abs(invoiceAmount))} that will be applied to future invoices.</div>
+                <div className="font-bold text-base mb-1">Credit Balance Available</div>
+                <div className="text-sm text-green-700">You have a credit of <span className="font-semibold">{formatCurrency(Math.abs(invoiceAmount))}</span> that will be applied to future invoices.</div>
               </div>
             </div>
           </div>
@@ -647,10 +656,10 @@ export default function CreditCardDetailsPage() {
 
         {/* Payment Status Banner */}
         {invoiceData.invoice?.isPaid && (
-          <div className="mb-2 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-green-700 font-semibold">
-                <CheckCircle className="h-5 w-5" />
+          <div className="mb-4 p-4 bg-green-50 border-2 border-green-300 rounded-lg shadow-sm">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div className="flex items-center gap-2 text-green-800 font-bold text-base">
+                <CheckCircle className="h-6 w-6 text-green-600 shrink-0" />
                 <span>Fully Paid{invoiceData.invoice.paidAt && ` on ${new Date(invoiceData.invoice.paidAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}`}</span>
               </div>
               <div className="flex gap-2">
@@ -658,18 +667,20 @@ export default function CreditCardDetailsPage() {
                   onClick={handleOpenEditModal}
                   variant="outline"
                   size="sm"
-                  className="text-xs h-8"
+                  className="text-xs h-9 border-gray-300 hover:bg-gray-50 text-gray-700 font-medium"
+                  aria-label="Edit invoice"
                 >
-                  <Pencil className="h-3 w-3 mr-1" />
+                  <Pencil className="h-3.5 w-3.5 mr-1.5" />
                   Edit
                 </Button>
                 <Button
                   onClick={() => setIsDeleteConfirmOpen(true)}
                   variant="outline"
                   size="sm"
-                  className="text-xs h-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                  className="text-xs h-9 text-red-700 border-red-300 hover:bg-red-50 hover:border-red-400 font-medium"
+                  aria-label="Delete invoice"
                 >
-                  <Trash2 className="h-3 w-3 mr-1" />
+                  <Trash2 className="h-3.5 w-3.5 mr-1.5" />
                   Delete
                 </Button>
               </div>
@@ -678,33 +689,35 @@ export default function CreditCardDetailsPage() {
         )}
 
         {invoiceData.invoice && invoiceData.invoice.paidAmount > 0 && !invoiceData.invoice.isPaid && (
-          <div className="mb-2 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="text-sm text-blue-800 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="font-semibold">Partially Paid:</span>
-                <span className="font-bold text-green-700">{formatCurrency(invoiceData.invoice.paidAmount)}</span>
+          <div className="mb-4 p-4 bg-blue-50 border-2 border-blue-300 rounded-lg shadow-sm">
+            <div className="text-sm text-blue-900 space-y-3">
+              <div className="flex items-center justify-between pb-2 border-b border-blue-200">
+                <span className="font-bold text-base">Partially Paid:</span>
+                <span className="font-bold text-green-700 text-base">{formatCurrency(invoiceData.invoice.paidAmount)}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="font-semibold">Remaining:</span>
-                <span className="font-bold text-red-700">{formatCurrency(Math.max(0, invoiceAmount - invoiceData.invoice.paidAmount))}</span>
+                <span className="font-bold text-base">Remaining:</span>
+                <span className="font-bold text-red-700 text-base">{formatCurrency(Math.max(0, invoiceAmount - invoiceData.invoice.paidAmount))}</span>
               </div>
-              <div className="flex gap-2 pt-2">
+              <div className="flex gap-2 pt-3">
                 <Button
                   onClick={handleOpenEditModal}
                   variant="outline"
                   size="sm"
-                  className="text-xs"
+                  className="text-xs h-9 border-gray-300 hover:bg-gray-50 text-gray-700 font-medium"
+                  aria-label="Edit invoice"
                 >
-                  <Pencil className="h-3 w-3 mr-1" />
+                  <Pencil className="h-3.5 w-3.5 mr-1.5" />
                   Edit
                 </Button>
                 <Button
                   onClick={() => setIsDeleteConfirmOpen(true)}
                   variant="outline"
                   size="sm"
-                  className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+                  className="text-xs h-9 text-red-700 border-red-300 hover:bg-red-50 hover:border-red-400 font-medium"
+                  aria-label="Delete invoice"
                 >
-                  <Trash2 className="h-3 w-3 mr-1" />
+                  <Trash2 className="h-3.5 w-3.5 mr-1.5" />
                   Delete
                 </Button>
               </div>
@@ -713,17 +726,18 @@ export default function CreditCardDetailsPage() {
         )}
 
         {/* Filter Section */}
-        <div className="mb-4 flex items-center gap-2">
+        <div className="mb-4 flex items-center gap-2 flex-wrap">
           <Button
             variant="outline"
             size="sm"
             onClick={() => setFilterDialogOpen(true)}
-            className="flex items-center gap-2 h-9"
+            className="flex items-center gap-2 h-10 border-gray-300 hover:bg-gray-50 text-gray-700 font-medium"
+            aria-label="Open filters"
           >
             <Filter className="h-4 w-4" />
             Filters
             {hasActiveFilters && (
-              <span className="ml-1 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              <span className="ml-1 bg-blue-600 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
                 {(filterCategory ? 1 : 0) + (filterName ? 1 : 0)}
               </span>
             )}
@@ -733,24 +747,26 @@ export default function CreditCardDetailsPage() {
             <>
               <div className="flex items-center gap-2 flex-wrap">
                 {filterCategory && (
-                  <div className="flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+                  <div className="flex items-center gap-1.5 bg-blue-100 text-blue-900 px-3 py-1.5 rounded-md text-sm font-medium border border-blue-200">
                     <span>Category: {filterCategory}</span>
                     <button
                       onClick={() => setFilterCategory("")}
-                      className="hover:bg-blue-200 rounded-full p-0.5"
+                      className="hover:bg-blue-200 rounded-full p-0.5 transition-colors"
+                      aria-label="Remove category filter"
                     >
-                      <X className="h-3 w-3" />
+                      <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 )}
                 {filterName && (
-                  <div className="flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+                  <div className="flex items-center gap-1.5 bg-blue-100 text-blue-900 px-3 py-1.5 rounded-md text-sm font-medium border border-blue-200">
                     <span>Name: {filterName}</span>
                     <button
                       onClick={() => setFilterName("")}
-                      className="hover:bg-blue-200 rounded-full p-0.5"
+                      className="hover:bg-blue-200 rounded-full p-0.5 transition-colors"
+                      aria-label="Remove name filter"
                     >
-                      <X className="h-3 w-3" />
+                      <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 )}
@@ -759,7 +775,8 @@ export default function CreditCardDetailsPage() {
                 variant="ghost"
                 size="sm"
                 onClick={clearFilters}
-                className="h-9 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+                className="h-10 text-sm text-red-700 hover:text-red-800 hover:bg-red-50 font-medium"
+                aria-label="Clear all filters"
               >
                 Clear all
               </Button>
@@ -769,13 +786,13 @@ export default function CreditCardDetailsPage() {
 
         {/* Filter Summary */}
         {hasActiveFilters && filteredTransactions.length > 0 && (
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-blue-900">
-                <span className="font-medium">{filteredTransactions.length}</span> transaction{filteredTransactions.length !== 1 ? 's' : ''} found
+          <div className="mb-4 p-4 bg-blue-50 border-2 border-blue-300 rounded-lg shadow-sm">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="text-sm text-blue-900 font-medium">
+                <span className="font-bold text-base">{filteredTransactions.length}</span> transaction{filteredTransactions.length !== 1 ? 's' : ''} found
               </div>
-              <div className="text-sm font-semibold">
-                Total: <span className={filteredTotal < 0 ? "text-green-600" : "text-red-600"}>
+              <div className="text-sm font-bold">
+                Total: <span className={`text-base ${filteredTotal < 0 ? "text-green-700" : "text-red-700"}`}>
                   {formatCurrency(Math.abs(filteredTotal))}
                 </span>
               </div>
@@ -786,14 +803,14 @@ export default function CreditCardDetailsPage() {
         {/* Transactions List - Simplified */}
         <div className="mb-20">
           {transactions.length === 0 ? (
-            <div className="py-12 text-center">
-              <p className="text-gray-500 text-sm">No transactions in this billing period</p>
+            <div className="py-16 text-center">
+              <p className="text-gray-600 text-base font-medium">No transactions in this billing period</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-5">
               {Object.entries(groupedTransactions).map(([dateKey, dayTransactions]) => (
                 <div key={dateKey}>
-                  <div className="text-sm font-medium text-gray-600 mb-2">
+                  <div className="text-sm font-bold text-gray-700 mb-3 px-1">
                     {dateKey}
                   </div>
                   <div className="space-y-2">
@@ -802,29 +819,29 @@ export default function CreditCardDetailsPage() {
                       return (
                         <div 
                           key={transaction.id} 
-                          className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                          className="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 hover:shadow-md transition-all"
                         >
                           <div className="flex items-center gap-3 flex-1 min-w-0">
                             {/* Category Icon */}
-                            <div className={`w-10 h-10 ${isIncome ? 'bg-green-100' : 'bg-red-100'} rounded-full flex items-center justify-center flex-shrink-0`}>
-                              <div className={`${isIncome ? 'text-green-600' : 'text-red-600'} text-xs font-bold`}>
+                            <div className={`w-12 h-12 ${isIncome ? 'bg-green-100 border-2 border-green-200' : 'bg-red-100 border-2 border-red-200'} rounded-full flex items-center justify-center shrink-0 shadow-sm`}>
+                              <div className={`${isIncome ? 'text-green-700' : 'text-red-700'} text-xs font-bold`}>
                                 {transaction.category.substring(0, 2).toUpperCase()}
                               </div>
                             </div>
                             
                             {/* Transaction Info */}
                             <div className="flex-1 min-w-0">
-                              <div className="font-medium text-sm truncate">
+                              <div className="font-semibold text-base text-gray-900 truncate mb-1">
                                 {transaction.name}
                               </div>
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 flex-wrap">
                                 {transaction.installments > 1 && (
-                                  <div className="text-xs text-gray-500">
+                                  <div className="text-xs text-gray-600 font-medium bg-gray-100 px-2 py-0.5 rounded">
                                     {transaction.installments} installments
                                   </div>
                                 )}
                                 {/* Amount - shown below name on mobile */}
-                                <div className={`text-xs font-semibold ${isIncome ? 'text-green-600' : 'text-red-600'}`}>
+                                <div className={`text-sm font-bold ${isIncome ? 'text-green-700' : 'text-red-700'}`}>
                                   {isIncome ? '+' : ''}{formatCurrency(Math.abs(transaction.amount))}
                                 </div>
                               </div>
@@ -832,14 +849,15 @@ export default function CreditCardDetailsPage() {
                           </div>
                           
                           {/* Action Buttons */}
-                          <div className="flex items-center gap-1 flex-shrink-0">
+                          <div className="flex items-center gap-1 shrink-0">
                             <Button
                               onClick={() => handleEditTransaction(transaction)}
                               variant="ghost"
                               size="sm"
-                              className="h-8 w-8 p-0"
+                              className="h-9 w-9 p-0 hover:bg-blue-50"
+                              aria-label="Edit transaction"
                             >
-                              <Pencil className="h-4 w-4 text-blue-600" />
+                              <Pencil className="h-4 w-4 text-blue-700" />
                             </Button>
                             <Button
                               onClick={() => {
@@ -848,9 +866,10 @@ export default function CreditCardDetailsPage() {
                               }}
                               variant="ghost"
                               size="sm"
-                              className="h-8 w-8 p-0"
+                              className="h-9 w-9 p-0 hover:bg-red-50"
+                              aria-label="Delete transaction"
                             >
-                              <Trash2 className="h-4 w-4 text-red-600" />
+                              <Trash2 className="h-4 w-4 text-red-700" />
                             </Button>
                           </div>
                         </div>
@@ -867,11 +886,11 @@ export default function CreditCardDetailsPage() {
       {/* Floating Action Button */}
       <button
         onClick={() => setIsTransactionModalOpen(true)}
-        className="fixed bottom-24 right-6 w-14 h-14 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg flex items-center justify-center transition-colors z-20"
+        className="fixed bottom-28 right-6 w-16 h-16 bg-red-600 hover:bg-red-700 text-white rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center transition-all z-20 border-2 border-red-700"
         aria-label="Add transaction"
       >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
         </svg>
       </button>
       
@@ -889,27 +908,27 @@ export default function CreditCardDetailsPage() {
           
           {invoiceData && (
             <div className="space-y-4">
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm text-gray-600">Total Invoice Amount:</span>
-                  <span className="text-sm font-bold text-red-600">
+              <div className="p-5 bg-gray-50 border-2 border-gray-200 rounded-lg">
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-sm font-semibold text-gray-700">Total Invoice Amount:</span>
+                  <span className="text-lg font-bold text-red-700">
                     {formatCurrency(invoiceData.totalAmount)}
                   </span>
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className="text-sm text-gray-600 font-medium">
                   Billing Period: {formatDate(invoiceData.billStartDate)} - {formatDate(invoiceData.billEndDate)}
                 </div>
                 {invoiceData.invoice && invoiceData.invoice.paidAmount > 0 && (
-                  <div className="mt-3 pt-3 border-t border-gray-200">
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-600">Already Paid:</span>
-                      <span className="font-semibold text-green-600">
+                  <div className="mt-4 pt-4 border-t-2 border-gray-300">
+                    <div className="flex justify-between items-center text-sm mb-2">
+                      <span className="text-gray-700 font-semibold">Already Paid:</span>
+                      <span className="font-bold text-green-700 text-base">
                         {formatCurrency(invoiceData.invoice.paidAmount)}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center text-sm mt-1">
-                      <span className="text-gray-600">Remaining:</span>
-                      <span className="font-bold text-red-600">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-gray-700 font-semibold">Remaining:</span>
+                      <span className="font-bold text-red-700 text-base">
                         {formatCurrency(invoiceData.totalAmount - invoiceData.invoice.paidAmount)}
                       </span>
                     </div>
@@ -918,9 +937,9 @@ export default function CreditCardDetailsPage() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="payment-amount">Payment Amount <span className="text-red-500">*</span></Label>
+                <Label htmlFor="payment-amount" className="text-base font-semibold text-gray-900">Payment Amount <span className="text-red-600">*</span></Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-700 font-semibold text-lg">$</span>
                   <input
                     id="payment-amount"
                     type="number"
@@ -929,9 +948,10 @@ export default function CreditCardDetailsPage() {
                     max={invoiceData.totalAmount - (invoiceData.invoice?.paidAmount || 0)}
                     value={paymentAmount}
                     onChange={(e) => setPaymentAmount(e.target.value)}
-                    className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full pl-9 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base font-medium"
                     placeholder="0.00"
                     disabled={paymentLoading}
+                    aria-label="Payment amount"
                   />
                 </div>
                 <div className="flex gap-2">
@@ -941,7 +961,7 @@ export default function CreditCardDetailsPage() {
                     size="sm"
                     onClick={() => setPaymentAmount((invoiceData.totalAmount - (invoiceData.invoice?.paidAmount || 0)).toString())}
                     disabled={paymentLoading}
-                    className="text-xs"
+                    className="text-sm font-medium border-gray-300 hover:bg-gray-50"
                   >
                     Full Amount
                   </Button>
@@ -951,7 +971,7 @@ export default function CreditCardDetailsPage() {
                     size="sm"
                     onClick={() => setPaymentAmount(((invoiceData.totalAmount - (invoiceData.invoice?.paidAmount || 0)) / 2).toFixed(2))}
                     disabled={paymentLoading}
-                    className="text-xs"
+                    className="text-sm font-medium border-gray-300 hover:bg-gray-50"
                   >
                     50%
                   </Button>
@@ -959,13 +979,14 @@ export default function CreditCardDetailsPage() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="bank-account">Select Bank Account <span className="text-red-500">*</span></Label>
+                <Label htmlFor="bank-account" className="text-base font-semibold text-gray-900">Select Bank Account <span className="text-red-600">*</span></Label>
                 <select
                   id="bank-account"
                   value={selectedBankAccountId}
                   onChange={(e) => setSelectedBankAccountId(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base font-medium bg-white"
                   disabled={paymentLoading}
+                  aria-label="Select bank account"
                 >
                   <option value="">-- Select an account --</option>
                   {bankAccounts.map((account) => {
@@ -986,33 +1007,35 @@ export default function CreditCardDetailsPage() {
               </div>
               
               {parseFloat(paymentAmount) > 0 && parseFloat(paymentAmount) < (invoiceData.totalAmount - (invoiceData.invoice?.paidAmount || 0)) && (
-                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <p className="text-sm text-blue-800">
-                    <strong>Partial Payment:</strong> After paying {formatCurrency(parseFloat(paymentAmount))}, 
-                    you will still owe {formatCurrency((invoiceData.totalAmount - (invoiceData.invoice?.paidAmount || 0)) - parseFloat(paymentAmount))} on this invoice.
+                <div className="p-4 bg-blue-50 border-2 border-blue-300 rounded-lg">
+                  <p className="text-sm text-blue-900 font-medium">
+                    <strong className="font-bold">Partial Payment:</strong> After paying {formatCurrency(parseFloat(paymentAmount))}, 
+                    you will still owe <strong className="font-bold text-red-700">{formatCurrency((invoiceData.totalAmount - (invoiceData.invoice?.paidAmount || 0)) - parseFloat(paymentAmount))}</strong> on this invoice.
                   </p>
                 </div>
               )}
               
               {paymentError && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
-                  {paymentError}
+                <div className="p-4 bg-red-50 border-2 border-red-300 rounded-lg">
+                  <p className="text-sm text-red-800 font-semibold">{paymentError}</p>
                 </div>
               )}
             </div>
           )}
           
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <Button
               variant="outline"
               onClick={() => setIsPaymentModalOpen(false)}
               disabled={paymentLoading}
+              className="font-medium border-gray-300 hover:bg-gray-50"
             >
               Cancel
             </Button>
             <Button
               onClick={handlePayInvoice}
               disabled={paymentLoading || !selectedBankAccountId || !paymentAmount}
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold shadow-md"
             >
               {paymentLoading ? "Processing..." : "Pay Invoice"}
             </Button>
@@ -1032,19 +1055,19 @@ export default function CreditCardDetailsPage() {
           
           {invoiceData && (
             <div className="space-y-4">
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm text-gray-600">Invoice Amount:</span>
-                  <span className="text-sm font-bold text-red-600">
+              <div className="p-5 bg-gray-50 border-2 border-gray-200 rounded-lg">
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-sm font-semibold text-gray-700">Invoice Amount:</span>
+                  <span className="text-lg font-bold text-red-700">
                     {formatCurrency(invoiceData.totalAmount)}
                   </span>
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className="text-sm text-gray-600 font-medium">
                   Billing Period: {formatDate(invoiceData.billStartDate)} - {formatDate(invoiceData.billEndDate)}
                 </div>
                 {invoiceData.invoice?.paidFromBankAccount && (
-                  <div className="text-xs text-gray-500 mt-2">
-                    Currently paid from: {invoiceData.invoice.paidFromBankAccount.name}
+                  <div className="text-sm text-gray-700 font-medium mt-3 pt-3 border-t-2 border-gray-300">
+                    Currently paid from: <span className="font-bold">{invoiceData.invoice.paidFromBankAccount.name}</span>
                   </div>
                 )}
               </div>
@@ -1053,21 +1076,21 @@ export default function CreditCardDetailsPage() {
                 <Button
                   onClick={handleUnpayInvoice}
                   variant="outline"
-                  className="w-full justify-start"
+                  className="w-full justify-start h-12 text-base font-medium border-gray-300 hover:bg-gray-50"
                   disabled={editLoading}
                 >
-                  <XCircle className="h-4 w-4 mr-2" />
+                  <XCircle className="h-5 w-5 mr-2" />
                   Mark as Unpaid (Reverse Payment)
                 </Button>
                 
-                <div className="text-sm text-gray-500 text-center">or</div>
+                <div className="text-sm text-gray-600 text-center font-medium">or</div>
                 
-                <p className="text-sm text-gray-600">Change payment source (coming soon)</p>
+                <p className="text-sm text-gray-700 font-medium text-center">Change payment source (coming soon)</p>
               </div>
               
               {editError && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
-                  {editError}
+                <div className="p-4 bg-red-50 border-2 border-red-300 rounded-lg">
+                  <p className="text-sm text-red-800 font-semibold">{editError}</p>
                 </div>
               )}
             </div>
@@ -1078,6 +1101,7 @@ export default function CreditCardDetailsPage() {
               variant="outline"
               onClick={() => setIsEditModalOpen(false)}
               disabled={editLoading}
+              className="font-medium border-gray-300 hover:bg-gray-50"
             >
               Cancel
             </Button>
@@ -1097,24 +1121,24 @@ export default function CreditCardDetailsPage() {
           
           {invoiceData && (
             <div className="space-y-4">
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm text-red-700 font-semibold">Invoice Amount:</span>
-                  <span className="text-sm font-bold text-red-600">
+              <div className="p-5 bg-red-50 border-2 border-red-300 rounded-lg">
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-sm text-red-800 font-bold">Invoice Amount:</span>
+                  <span className="text-lg font-bold text-red-700">
                     {formatCurrency(invoiceData.totalAmount)}
                   </span>
                 </div>
-                <div className="text-xs text-red-600">
+                <div className="text-sm text-red-700 font-medium">
                   Billing Period: {formatDate(invoiceData.billStartDate)} - {formatDate(invoiceData.billEndDate)}
                 </div>
               </div>
               
               {invoiceData.invoice?.isPaid && (
-                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-sm text-yellow-800">
-                    <strong>Note:</strong> This invoice has been paid. Deleting it will reverse the payment transaction:
+                <div className="p-4 bg-yellow-50 border-2 border-yellow-300 rounded-lg">
+                  <p className="text-sm text-yellow-900 font-semibold mb-2">
+                    <strong className="font-bold">Note:</strong> This invoice has been paid. Deleting it will reverse the payment transaction:
                   </p>
-                  <ul className="text-xs text-yellow-700 mt-2 ml-4 list-disc space-y-1">
+                  <ul className="text-sm text-yellow-800 mt-2 ml-4 list-disc space-y-1 font-medium">
                     <li>Money will be returned to the bank account</li>
                     <li>Credit card available balance will be reduced</li>
                   </ul>
@@ -1122,25 +1146,26 @@ export default function CreditCardDetailsPage() {
               )}
               
               {deleteError && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
-                  {deleteError}
+                <div className="p-4 bg-red-50 border-2 border-red-300 rounded-lg">
+                  <p className="text-sm text-red-800 font-semibold">{deleteError}</p>
                 </div>
               )}
             </div>
           )}
           
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <Button
               variant="outline"
               onClick={() => setIsDeleteConfirmOpen(false)}
               disabled={deleteLoading}
+              className="font-medium border-gray-300 hover:bg-gray-50"
             >
               Cancel
             </Button>
             <Button
               onClick={handleDeleteInvoice}
               disabled={deleteLoading}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-red-600 hover:bg-red-700 text-white font-semibold shadow-md"
             >
               {deleteLoading ? "Deleting..." : "Delete Invoice"}
             </Button>
@@ -1169,12 +1194,12 @@ export default function CreditCardDetailsPage() {
           </DialogHeader>
           
           {transactionDeleteError && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
-              {transactionDeleteError}
+            <div className="p-4 bg-red-50 border-2 border-red-300 rounded-lg">
+              <p className="text-sm text-red-800 font-semibold">{transactionDeleteError}</p>
             </div>
           )}
           
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <Button
               variant="outline"
               onClick={() => {
@@ -1183,13 +1208,14 @@ export default function CreditCardDetailsPage() {
                 setTransactionDeleteError(null);
               }}
               disabled={transactionDeleteLoading}
+              className="font-medium border-gray-300 hover:bg-gray-50"
             >
               Cancel
             </Button>
             <Button
               onClick={handleDeleteTransaction}
               disabled={transactionDeleteLoading}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-red-600 hover:bg-red-700 text-white font-semibold shadow-md"
             >
               {transactionDeleteLoading ? "Deleting..." : "Delete Transaction"}
             </Button>

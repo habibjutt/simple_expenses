@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { getCreditCards, deleteCreditCard } from "@/app/api/credit-card-action";
 import { formatCurrency } from "@/lib/utils";
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CreditCardModal from "@/components/credit-card-modal";
 import { CreditCard as CreditCardIcon, Edit2, Trash2, Plus, Calendar } from "lucide-react";
@@ -103,9 +102,8 @@ export default function ManageCardsPage() {
 
   if (isPending || loading) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#E3E3E3]">
-        <Header />
-        <main className="flex-1 max-w-7xl mx-auto px-4 py-8 w-full">
+      <div className="min-h-screen flex flex-col bg-white">
+        <main className="flex-1 max-w-7xl mx-auto px-4 py-8 pb-24 w-full">
           <div className="text-center py-12">Loading...</div>
         </main>
         <Footer />
@@ -121,9 +119,8 @@ export default function ManageCardsPage() {
   const usagePercentage = (card: CreditCard) => (usedAmount(card) / card.cardLimit) * 100;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#E3E3E3]">
-      <Header />
-      <main className="flex-1 max-w-7xl mx-auto px-4 py-8 w-full">
+    <div className="min-h-screen flex flex-col bg-white">
+      <main className="flex-1 max-w-7xl mx-auto px-4 py-8 pb-24 w-full">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Manage Credit Cards</h1>
           <Button onClick={handleAddCard} className="flex items-center gap-2">

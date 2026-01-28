@@ -239,9 +239,8 @@ export default function BankAccountDetailsPage() {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto">
-        {/* <Header /> */}
-        <main className="p-4 md:p-6 pb-24">
+      <div className="max-w-7xl mx-auto min-h-screen flex flex-col bg-white">
+        <main className="flex-1 p-4 md:p-6 pb-24">
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-gray-500">Loading account details...</div>
           </div>
@@ -253,9 +252,8 @@ export default function BankAccountDetailsPage() {
 
   if (error || !accountData) {
     return (
-      <div className="max-w-7xl mx-auto">
-        {/* <Header /> */}
-        <main className="p-4 md:p-6 pb-24">
+      <div className="max-w-7xl mx-auto min-h-screen flex flex-col bg-white">
+        <main className="flex-1 p-4 md:p-6 pb-24">
           <Button
             onClick={() => router.push("/")}
             variant="outline"
@@ -334,8 +332,7 @@ export default function BankAccountDetailsPage() {
 
   return (
     <div className="max-w-7xl mx-auto min-h-screen flex flex-col bg-white">
-      {/* <Header /> */}
-      <main className="flex-1 p-4 md:p-6 pb-32 md:pb-36">
+      <main className="flex-1 p-4 md:p-6 pb-24">
         {/* Header with Back Button */}
         <div className="flex items-center justify-between mb-2">
           <Button
@@ -589,7 +586,7 @@ export default function BankAccountDetailsPage() {
       {/* Floating Action Button */}
       <button
         onClick={() => setIsTransactionModalOpen(true)}
-        className="fixed bottom-24 right-6 w-14 h-14 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center transition-colors z-20"
+        className="fixed bottom-28 right-6 w-16 h-16 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center transition-all z-20 border-2 border-blue-700"
         aria-label="Add transaction"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -20,7 +20,7 @@ const Footer = ({
   const isTransactions = pathname === "/transactions";
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-40">
+    <footer className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-lg z-40">
       <div className="max-w-7xl mx-auto px-4 py-3">
         <div className="grid grid-cols-3 gap-3">
           {/* Home Button */}

@@ -172,7 +172,7 @@ export default function Home() {
   if (isPending) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div>Loading...</div>
+        <div className="text-gray-600 text-lg font-medium">Loading...</div>
       </div>
     );
   }
@@ -227,9 +227,33 @@ export default function Home() {
     return colors[index % colors.length];
   };
 
+  const getAccountCardColor = (index: number) => {
+    const gradients = [
+      "bg-gradient-to-br from-green-50 to-emerald-50 border-green-200",
+      "bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200",
+      "bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200",
+      "bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-200",
+      "bg-gradient-to-br from-indigo-50 to-blue-50 border-indigo-200",
+      "bg-gradient-to-br from-teal-50 to-green-50 border-teal-200",
+    ];
+    return gradients[index % gradients.length];
+  };
+
   const getCardIconColor = (index: number) => {
     const colors = ["bg-orange-500", "bg-blue-600", "bg-pink-500", "bg-amber-700"];
     return colors[index % colors.length];
+  };
+
+  const getCreditCardCardColor = (index: number) => {
+    const gradients = [
+      "bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200",
+      "bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200",
+      "bg-gradient-to-br from-pink-50 to-rose-50 border-pink-200",
+      "bg-gradient-to-br from-violet-50 to-purple-50 border-violet-200",
+      "bg-gradient-to-br from-cyan-50 to-blue-50 border-cyan-200",
+      "bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200",
+    ];
+    return gradients[index % gradients.length];
   };
 
   const formatDate = (date: Date) => {
@@ -246,71 +270,76 @@ export default function Home() {
   const currentMonth = new Date().toLocaleString("en-US", { month: "long" });
 
   return (
-    <div className="max-w-7xl mx-auto">
-      {/* <Header /> */}
-      <main className="p-4 md:p-6 pb-32">
+    <div className="max-w-7xl mx-auto min-h-screen flex flex-col bg-white">
+      <main className="flex-1 p-4 md:p-6 pb-24 bg-white">
         {/* Greeting Section */}
-        <div className="mb-4">
-          <p className="text-xs text-gray-500 mb-0.5">{getGreeting()},</p>
-          <h1 className="text-xl md:text-2xl font-bold">
+        <div className="mb-6">
+          <p className="text-sm text-gray-600 mb-1 font-medium">{getGreeting()},</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
             {session.user?.name || session.user?.email?.split("@")[0]}
           </h1>
         </div>
 
         {/* General Balance Section */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-xs text-gray-500">General Balance</span>
-            <button
-              onClick={() => setShowBalance(!showBalance)}
-              className="text-gray-500 hover:text-gray-700"
-              aria-label="Toggle balance visibility"
-            >
-              {showBalance ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
-          </div>
-          <div className="text-2xl md:text-3xl font-bold">
-            {showBalance ? formatCurrency(totalBalance) : "••••••"}
-          </div>
-        </div>
+        <Card className="mb-6 shadow-lg border-2 border-gray-100 bg-gradient-to-br from-blue-50 to-indigo-50">
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-semibold text-gray-700">General Balance</span>
+              <button
+                onClick={() => setShowBalance(!showBalance)}
+                className="text-gray-600 hover:text-gray-800 p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+                aria-label="Toggle balance visibility"
+              >
+                {showBalance ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+            </div>
+            <div className={`text-3xl md:text-4xl font-bold ${showBalance ? 'text-gray-900' : 'text-gray-400'}`}>
+              {showBalance ? formatCurrency(totalBalance) : "••••••"}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* My Accounts Section */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-sm font-semibold">My Accounts</h2>
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-bold text-gray-900">My Accounts</h2>
           </div>
           {loading ? (
-            <div className="text-center py-4 text-gray-500 text-sm">Loading accounts...</div>
+            <div className="text-center py-8 text-gray-600 text-base font-medium">Loading accounts...</div>
           ) : bankAccounts.length === 0 ? (
-            <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-              <p className="text-gray-500 mb-2 text-sm">No bank accounts added yet</p>
-            </div>
+            <Card className="text-center py-12 bg-gray-50 border-2 border-dashed border-gray-300">
+              <CardContent>
+                <Wallet className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                <p className="text-gray-600 mb-2 text-base font-medium">No bank accounts added yet</p>
+              </CardContent>
+            </Card>
           ) : (
-            <div className="space-y-1">
-              {bankAccounts.map((account, index) => (
-                <div
+            <div className="space-y-2">
+              {[...bankAccounts].sort((a, b) => a.name.localeCompare(b.name)).map((account, index) => (
+                <Card
                   key={account.id}
-                  className="flex items-center justify-between p-2 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                  className={`cursor-pointer hover:shadow-lg transition-all border-2 ${getAccountCardColor(index)} hover:shadow-xl`}
                   onClick={(e) => {
                     if (!(e.target as HTMLElement).closest('button')) {
                       router.push(`/bank-account/${account.id}`);
                     }
                   }}
                 >
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <div className={`${getAccountIconColor(index)} w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0`}>
-                      <Wallet className="h-4 w-4 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm truncate">{account.name}</div>
-                      {/* <div className="text-xs text-gray-500">Manual Account</div> */}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`font-semibold text-sm ${account.currentBalance >= 0 ? "text-black" : "text-red-600"
-                      }`}>
-                      {formatCurrency(account.currentBalance)}
-                    </span>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className={`${getAccountIconColor(index)} w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-md`}>
+                          <Wallet className="h-6 w-6 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold text-base text-gray-800 truncate">{account.name}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`font-bold text-base ${account.currentBalance >= 0 ? "text-gray-800" : "text-red-700"
+                          }`}>
+                          {formatCurrency(account.currentBalance)}
+                        </span>
                     {/* <Button
                       variant="ghost"
                       size="sm"
@@ -336,8 +365,10 @@ export default function Home() {
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button> */}
-                  </div>
-                </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
 
@@ -345,7 +376,7 @@ export default function Home() {
           <Button
             onClick={() => router.push('/manage-accounts')}
             size="lg"
-            className="my-4 text-sm w-full bg-green-600 hover:bg-green-700 text-white"
+            className="mt-4 text-base font-semibold w-full bg-green-600 hover:bg-green-700 text-white shadow-lg hover:shadow-xl transition-all h-12"
           >
             Manage Accounts
           </Button>
@@ -353,117 +384,112 @@ export default function Home() {
 
         {/* Monthly Bills Section */}
         {invoices.length > 0 && (
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-1">
-              <div className="flex items-center gap-2">
-                <h2 className="text-sm font-semibold">{currentMonth} Bills</h2>
-                <Info className="h-4 w-4 text-gray-400" />
+          <Card className="mb-6 shadow-lg border-2 border-red-100 bg-gradient-to-br from-red-50 to-pink-50">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-base font-bold text-gray-900">{currentMonth} Bills</h2>
+                  <Info className="h-5 w-5 text-gray-500" />
+                </div>
+                <button
+                  onClick={() => setShowBills(!showBills)}
+                  className="text-gray-600 hover:text-gray-800 p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+                  aria-label="Toggle bills visibility"
+                >
+                  {showBills ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
               </div>
-              <button
-                onClick={() => setShowBills(!showBills)}
-                className="text-gray-500 hover:text-gray-700"
-                aria-label="Toggle bills visibility"
-              >
-                {showBills ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-            <div className="text-lg font-semibold text-red-600">
-              {showBills ? formatCurrency(-totalBills) : "••••••"}
-            </div>
-          </div>
+              <div className={`text-2xl md:text-3xl font-bold ${showBills ? 'text-red-700' : 'text-gray-400'}`}>
+                {showBills ? formatCurrency(-totalBills) : "••••••"}
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* My Cards Section */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-2">
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2 flex-1 min-w-0">
-              <h2 className="text-sm font-semibold">My Cards</h2>
+              <h2 className="text-base font-bold text-gray-900">My Cards</h2>
             </div>
           </div>
           {totalNextBills > 0 && (
-            <div className="text-2xl md:text-3xl font-bold whitespace-nowrap pb-2">
-              Bills: {formatCurrency(totalNextBills)}
-            </div>
+            <Card className="mb-4 shadow-md border-2 border-orange-100 bg-gradient-to-br from-orange-50 to-amber-50">
+              <CardContent className="p-4">
+                <div className="text-xl md:text-2xl font-bold text-orange-700 whitespace-nowrap">
+                  Upcoming Bills: {formatCurrency(totalNextBills)}
+                </div>
+              </CardContent>
+            </Card>
           )}
           {loading ? (
-            <div className="text-center py-4 text-gray-500 text-sm">Loading cards...</div>
+            <div className="text-center py-8 text-gray-600 text-base font-medium">Loading cards...</div>
           ) : creditCards.length === 0 ? (
-            <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-              <p className="text-gray-500 mb-2 text-sm">No credit cards added yet</p>
-            </div>
+            <Card className="text-center py-12 bg-gray-50 border-2 border-dashed border-gray-300">
+              <CardContent>
+                <CreditCard className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                <p className="text-gray-600 mb-2 text-base font-medium">No credit cards added yet</p>
+              </CardContent>
+            </Card>
           ) : (
-            <div className="space-y-1">
-              {creditCards.map((card, index) => {
+            <div className="space-y-3">
+              {[...creditCards].sort((a, b) => a.name.localeCompare(b.name)).map((card, index) => {
                 const invoice = invoices.find((inv) => inv.cardId === card.id);
                 const nextBill = nextBills.find((bill) => bill.cardId === card.id);
                 const availablePercentage = card.cardLimit > 0 ? (card.availableBalance / card.cardLimit) * 100 : 0;
+                const usedPercentage = 100 - availablePercentage;
                 return (
-                  <div key={card.id} className="bg-gray-50 rounded-lg">
-                    <div
-                      className="flex items-center justify-between p-2 cursor-pointer hover:bg-gray-100 transition-colors"
-                      onClick={(e) => {
-                        if (!(e.target as HTMLElement).closest('button')) {
-                          router.push(`/credit-card/${card.id}`);
-                        }
-                      }}
-                    >
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <div className={`${getCardIconColor(index)} w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0`}>
-                          <CreditCard className="h-3 w-3 text-white" />
-                        </div>
-                        <div className="font-medium text-sm truncate">{card.name}</div>
-                      </div>
-                      <div className="flex items-center gap-2">
-
-                        <div className="flex flex-col gap-1">
-                          {/* <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setEditCard(card);
-                              setIsModalOpen(true);
-                            }}
-                            className="h-7 w-7 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50 flex-shrink-0"
-                            aria-label={`Edit ${card.name}`}
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setDeleteCardId(card.id);
-                            }}
-                            className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
-                            aria-label={`Delete ${card.name}`}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button> */}
+                  <Card
+                    key={card.id}
+                    className={`cursor-pointer hover:shadow-xl transition-all border-2 ${getCreditCardCardColor(index)} hover:shadow-2xl`}
+                    onClick={(e) => {
+                      if (!(e.target as HTMLElement).closest('button')) {
+                        router.push(`/credit-card/${card.id}`);
+                      }
+                    }}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className={`${getCardIconColor(index)} w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-md`}>
+                            <CreditCard className="h-6 w-6 text-white" />
+                          </div>
+                          <div className="font-semibold text-base text-gray-800 truncate">{card.name}</div>
                         </div>
                       </div>
-                    </div>
-                    <div className="p-2 flex justify-between gap-0.5">
-                      <div className="text-sm font-semibold text-green-600 whitespace-nowrap">
-                        {formatCurrency(card.availableBalance)}
-                      </div>
-                      {nextBill && nextBill.totalAmount > 0 && (
-                        <div className={`text-sm text-red-600 font-medium text-right leading-tight`}>
-                          Next: {formatCurrency(nextBill.totalAmount)}
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <div className="text-sm font-semibold text-gray-700">Available</div>
+                          <div className="text-base font-bold text-green-700 whitespace-nowrap">
+                            {formatCurrency(card.availableBalance)}
+                          </div>
                         </div>
-                      )}
-                    </div>
-                    {/* Available Limit Progress Bar */}
-                    <div className="px-2 pb-2">
-                      <div className="w-full bg-gray-200 rounded-full h-1 overflow-hidden">
-                        <div
-                          className="h-full bg-green-500 transition-all duration-300 rounded-full"
-                          style={{ width: `${Math.min(availablePercentage, 100)}%` }}
-                        />
+                        {nextBill && nextBill.totalAmount > 0 && (
+                          <div className="flex justify-between items-center pt-2 border-t border-gray-300">
+                            <div className="text-sm font-semibold text-gray-700">Next Bill</div>
+                            <div className="text-base font-bold text-red-700 text-right">
+                              {formatCurrency(nextBill.totalAmount)}
+                            </div>
+                          </div>
+                        )}
+                        {/* Available Limit Progress Bar */}
+                        <div className="pt-2">
+                          <div className="flex justify-between items-center mb-1.5">
+                            <span className="text-xs font-medium text-gray-700">Credit Usage</span>
+                            <span className="text-xs font-bold text-gray-800">{usedPercentage.toFixed(0)}%</span>
+                          </div>
+                          <div className="w-full bg-gray-300 rounded-full h-2 overflow-hidden shadow-inner">
+                            <div
+                              className={`h-full transition-all duration-300 rounded-full ${
+                                usedPercentage < 50 ? 'bg-green-600' : usedPercentage < 80 ? 'bg-yellow-600' : 'bg-red-600'
+                              }`}
+                              style={{ width: `${Math.min(usedPercentage, 100)}%` }}
+                            />
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
                 );
               })}
             </div>
@@ -472,7 +498,7 @@ export default function Home() {
         <Button
           onClick={() => router.push('/manage-cards')}
           size="lg"
-          className="my-4 text-sm w-full bg-blue-600 hover:bg-blue-700 text-white"
+          className="my-4 text-base font-semibold w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all h-12"
         >
           Manage Cards
         </Button>
@@ -532,19 +558,19 @@ export default function Home() {
         open={deleteCardId !== null}
         onOpenChange={(open) => !open && setDeleteCardId(null)}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="border-2 border-gray-200">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Credit Card</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-lg font-bold text-gray-900">Delete Credit Card</AlertDialogTitle>
+            <AlertDialogDescription className="text-base text-gray-700">
               Are you sure you want to delete this credit card? This action
               cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="gap-2">
+            <AlertDialogCancel className="font-medium border-gray-300 hover:bg-gray-50">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => deleteCardId && handleDeleteCard(deleteCardId)}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-red-600 hover:bg-red-700 text-white font-semibold shadow-md"
             >
               Delete
             </AlertDialogAction>
@@ -556,19 +582,19 @@ export default function Home() {
         open={deleteAccountId !== null}
         onOpenChange={(open) => !open && setDeleteAccountId(null)}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="border-2 border-gray-200">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Bank Account</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-lg font-bold text-gray-900">Delete Bank Account</AlertDialogTitle>
+            <AlertDialogDescription className="text-base text-gray-700">
               Are you sure you want to delete this bank account? This action
               cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="gap-2">
+            <AlertDialogCancel className="font-medium border-gray-300 hover:bg-gray-50">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => deleteAccountId && handleDeleteAccount(deleteAccountId)}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-red-600 hover:bg-red-700 text-white font-semibold shadow-md"
             >
               Delete
             </AlertDialogAction>

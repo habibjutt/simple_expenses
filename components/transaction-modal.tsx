@@ -308,6 +308,10 @@ export default function TransactionModal({
                   <option value="Groceries">Groceries</option>
                   <option value="Salary">Salary</option>
                   <option value="Investment">Investment</option>
+                  <option value="Yumni">Yumni</option>
+                  <option value="Splitwise">Splitwise</option>
+                  <option value="Loan">Loan</option>
+                  <option value="Investment">Investment</option>
                   <option value="Others">Others</option>
                 </select>
               </Field>
