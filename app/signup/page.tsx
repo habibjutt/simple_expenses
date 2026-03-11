@@ -1,11 +1,17 @@
 import { SignupForm } from "@/components/signup-form";
+import LandingNav from "@/components/LandingNav";
+import LandingFooter from "@/components/LandingFooter";
 
 export default function Page() {
   return (
-    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
-      <div className="w-full max-w-sm">
-        <SignupForm />
-      </div>
+    <div className="min-h-screen bg-background flex flex-col">
+      <LandingNav />
+      <main className="flex flex-1 items-center justify-center p-6 md:p-10">
+        <div className="w-full max-w-sm">
+          <SignupForm />
+        </div>
+      </main>
+      <LandingFooter />
     </div>
   );
 }

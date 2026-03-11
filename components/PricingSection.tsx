@@ -2,8 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Check, Sparkles, Zap } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Check, Sparkles, Zap, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSession } from "@/lib/auth-client";
+import { createCheckoutSession } from "@/app/api/billing-action";
+import { STRIPE_PRICES } from "@/lib/stripe";
 
 const PLANS = {
   monthly: [
@@ -140,7 +144,28 @@ const PLANS = {
 
 export default function PricingSection() {
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const { data: session } = useSession();
+  const router = useRouter();
   const plans = PLANS[billing];
+
+  const handleProCta = async (planId: string) => {
+    if (planId === "starter") return; // handled by Link
+    if (!session) {
+      router.push("/signup");
+      return;
+    }
+    const priceId = billing === "monthly" ? STRIPE_PRICES.monthly : STRIPE_PRICES.yearly;
+    setLoadingPlan(planId);
+    try {
+      const { url } = await createCheckoutSession(priceId);
+      if (url) window.location.href = url;
+    } catch {
+      router.push("/billing");
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
 
   return (
     <section id="pricing" className="px-6 py-24 bg-muted/30 border-t border-border">
@@ -272,17 +297,33 @@ export default function PricingSection() {
                 ))}
               </ul>
 
-              <Link
-                href={plan.href}
-                className={cn(
-                  "block w-full py-3 rounded-xl font-semibold text-sm text-center transition-all",
-                  plan.highlight
-                    ? "bg-white text-primary hover:bg-white/90 shadow-lg"
-                    : "bg-primary text-primary-foreground hover:bg-primary/90"
-                )}
-              >
-                {plan.cta}
-              </Link>
+              {plan.id === "starter" ? (
+                <Link
+                  href={plan.href}
+                  className={cn(
+                    "block w-full py-3 rounded-xl font-semibold text-sm text-center transition-all",
+                    plan.highlight
+                      ? "bg-white text-primary hover:bg-white/90 shadow-lg"
+                      : "bg-primary text-primary-foreground hover:bg-primary/90"
+                  )}
+                >
+                  {plan.cta}
+                </Link>
+              ) : (
+                <button
+                  onClick={() => handleProCta(plan.id)}
+                  disabled={loadingPlan === plan.id}
+                  className={cn(
+                    "flex items-center justify-center gap-2 w-full py-3 rounded-xl font-semibold text-sm text-center transition-all disabled:opacity-70",
+                    plan.highlight
+                      ? "bg-white text-primary hover:bg-white/90 shadow-lg"
+                      : "bg-primary text-primary-foreground hover:bg-primary/90"
+                  )}
+                >
+                  {loadingPlan === plan.id && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {plan.cta}
+                </button>
+              )}
             </div>
           ))}
         </div>

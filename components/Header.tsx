@@ -20,6 +20,7 @@ import {
   Tags,
   Settings,
   PiggyBank,
+  Receipt,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -147,6 +148,12 @@ const Header = () => {
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
+                        <Link href="/billing" className="flex items-center gap-2 cursor-pointer">
+                          <Receipt className="h-4 w-4" />
+                          Billing
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
                         <button
                           type="button"
                           onClick={() => setShowChangePasswordModal(true)}
@@ -230,6 +237,14 @@ const Header = () => {
                 >
                   <Settings className="h-4 w-4 shrink-0" />
                   Settings
+                </Link>
+                <Link
+                  href="/billing"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+                >
+                  <Receipt className="h-4 w-4 shrink-0" />
+                  Billing
                 </Link>
                 <button
                   onClick={() => { setShowChangePasswordModal(true); setMobileMenuOpen(false); }}
