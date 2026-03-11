@@ -28,6 +28,9 @@ model user {
   verifications verification[]
   creditCards credit_card[]
   bankAccounts bank_account[]
+  categories category[]
+  spendingLimits spending_limit[]
+  savingsGoals   savings_goal[]
 }
 
 model session {
@@ -151,6 +154,8 @@ model transaction {
   amount              Float
   date                DateTime
   category            String
+  type                String   @default("expense") // expense, income, transfer
+  notes               String?  // Optional personal notes/description
   installments        Int      @default(1) // Number of installments (1 for one-time payment)
   parentTransactionId String?  // Reference to the parent transaction if this is part of an installment
   installmentNumber   Int?     // Which installment number this is (1, 2, 3, etc.)
@@ -168,4 +173,53 @@ model transaction {
   @@index([bankAccountId])
   @@index([date])
   @@index([parentTransactionId])
+}
+
+model category {
+  id        String   @id @default(cuid())
+  name      String
+  color     String   @default("#6366f1")
+  icon      String   @default("tag")
+  type      String   @default("expense") // expense, income, both
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user user @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model spending_limit {
+  id           String   @id @default(cuid())
+  categoryName String
+  amount       Float
+  month        Int
+  year         Int
+  userId       String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user user @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, categoryName, month, year])
+  @@index([userId])
+}
+
+model savings_goal {
+  id            String    @id @default(cuid())
+  name          String
+  targetAmount  Float
+  currentAmount Float     @default(0)
+  color         String    @default("#1a9e5c")
+  deadline      DateTime?
+  isCompleted   Boolean   @default(false)
+  userId        String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user user @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

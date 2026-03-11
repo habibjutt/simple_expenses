@@ -1,69 +1,48 @@
 "use client";
 
 import React from "react";
-import { Plus, List, Home } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { LayoutDashboard, ListOrdered, BarChart2, Target, CreditCard } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
-interface FooterProps {
-  onAddTransaction?: () => void;
-  isTransactionDisabled?: boolean;
-}
+const FOOTER_LINKS = [
+  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
+  { href: "/transactions", label: "Transactions", icon: ListOrdered },
+  { href: "/reports", label: "Reports", icon: BarChart2 },
+  { href: "/spending-limits", label: "Budgets", icon: Target },
+  { href: "/manage-cards", label: "Cards", icon: CreditCard },
+];
 
-const Footer = ({
-  onAddTransaction,
-  isTransactionDisabled = false,
-}: FooterProps) => {
+const Footer = () => {
   const pathname = usePathname();
-  const isHome = pathname === "/";
-  const isTransactions = pathname === "/transactions";
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-lg z-40">
-      <div className="max-w-7xl mx-auto px-4 py-3">
-        <div className="grid grid-cols-3 gap-3">
-          {/* Home Button */}
-          <Link href="/" className="flex">
-            <Button
-              variant={isHome ? "default" : "outline"}
-              size="lg"
-              className={`flex items-center justify-center h-auto py-4 w-full ${
-                isHome ? "bg-blue-600 hover:bg-blue-700 text-white" : "border-2"
-              }`}
-              aria-label="Home"
+    <nav className="fixed bottom-0 left-0 right-0 lg:hidden z-40 bg-white border-t border-slate-200 shadow-[0_-2px_12px_rgba(0,0,0,0.06)]">
+      <div className="grid grid-cols-5 h-16">
+        {FOOTER_LINKS.map(({ href, label, icon: Icon }) => {
+          const isActive = pathname === href || pathname.startsWith(href + "/");
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={cn(
+                "flex flex-col items-center justify-center gap-0.5 transition-colors",
+                isActive ? "text-[#1a9e5c]" : "text-slate-400 hover:text-slate-600"
+              )}
             >
-              <Home className="h-6 w-6" />
-            </Button>
-          </Link>
-
-          {/* All Transactions Button */}
-          <Link href="/transactions" className="flex">
-            <Button
-              variant={isTransactions ? "default" : "outline"}
-              size="lg"
-              className={`flex items-center justify-center h-auto py-4 w-full ${
-                isTransactions ? "bg-blue-600 hover:bg-blue-700 text-white" : "border-2"
-              }`}
-              aria-label="All Transactions"
-            >
-              <List className="h-6 w-6" />
-            </Button>
-          </Link>
-
-          {/* Add Transaction Button */}
-          <Button
-            onClick={onAddTransaction}
-            disabled={isTransactionDisabled}
-            size="lg"
-            className="flex items-center justify-center h-auto py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
-            aria-label="Add Transaction"
-          >
-            <Plus className="h-6 w-6" />
-          </Button>
-        </div>
+              <Icon className={cn("h-5 w-5", isActive && "stroke-[2.5]")} />
+              <span className={cn("text-[9px] font-semibold tracking-wide uppercase", isActive && "text-[#1a9e5c]")}>
+                {label}
+              </span>
+              {isActive && (
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-[#1a9e5c] rounded-t-full" />
+              )}
+            </Link>
+          );
+        })}
       </div>
-    </footer>
+    </nav>
   );
 };
 

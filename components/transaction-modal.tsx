@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { createTransaction, createTransfer, updateTransaction } from "@/app/api/transaction-action";
+import { formatCurrency } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +22,7 @@ type EditTransaction = {
   amount: number;
   date: Date;
   category: string;
+  notes: string | null;
   installments: number;
   creditCardId: string | null;
   bankAccountId: string | null;
@@ -53,6 +55,7 @@ export default function TransactionModal({
   const [toAccountId, setToAccountId] = useState("");
   const [installments, setInstallments] = useState("1");
   const [isRecurring, setIsRecurring] = useState(false);
+  const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -63,6 +66,7 @@ export default function TransactionModal({
       setAmount(Math.abs(editTransaction.amount).toString());
       setDate(new Date(editTransaction.date).toISOString().split("T")[0]);
       setCategory(editTransaction.category);
+      setNotes(editTransaction.notes || "");
       setInstallments(editTransaction.installments.toString());
       setIsRecurring(editTransaction.installments > 1);
       
@@ -109,6 +113,7 @@ export default function TransactionModal({
         formData.append("amount", transactionType === "income" ? `-${amount}` : amount);
         formData.append("date", date);
         formData.append("category", category);
+        formData.append("notes", notes);
         formData.append("installments", isRecurring ? installments : "1");
         
         await updateTransaction(editTransaction.id, formData);
@@ -137,6 +142,7 @@ export default function TransactionModal({
           formData.append("amount", transactionType === "income" ? `-${amount}` : amount);
           formData.append("date", date);
           formData.append("category", category);
+          formData.append("notes", notes);
           if (paymentType === "creditCard") {
             formData.append("creditCardId", creditCardId);
           } else {
@@ -164,6 +170,7 @@ export default function TransactionModal({
     setAmount("");
     setDate(new Date().toISOString().split("T")[0]);
     setCategory("");
+    setNotes("");
     setCreditCardId("");
     setBankAccountId("");
     setFromAccountId("");
@@ -192,7 +199,7 @@ export default function TransactionModal({
             className={`flex-1 py-2.5 px-3 text-center text-sm font-medium transition-colors ${
               transactionType === "expense"
                 ? "text-red-600 border-b-2 border-red-600"
-                : "text-gray-500 hover:text-gray-700"
+                : "text-muted-foreground hover:text-foreground"
             } ${editTransaction ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             Expense
@@ -204,7 +211,7 @@ export default function TransactionModal({
             className={`flex-1 py-2.5 px-3 text-center text-sm font-medium transition-colors ${
               transactionType === "income"
                 ? "text-green-600 border-b-2 border-green-600"
-                : "text-gray-500 hover:text-gray-700"
+                : "text-muted-foreground hover:text-foreground"
             } ${editTransaction ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             Income
@@ -216,7 +223,7 @@ export default function TransactionModal({
             className={`flex-1 py-2.5 px-3 text-center text-sm font-medium transition-colors ${
               transactionType === "transfer"
                 ? "text-blue-600 border-b-2 border-blue-600"
-                : "text-gray-500 hover:text-gray-700"
+                : "text-muted-foreground hover:text-foreground"
             } ${editTransaction ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             Transfer
@@ -263,7 +270,7 @@ export default function TransactionModal({
                   <option value="">Select source account</option>
                   {sortedBankAccounts.map((account) => (
                     <option key={account.id} value={account.id}>
-                      {account.name} (${account.currentBalance.toFixed(2)})
+                      {account.name} ({formatCurrency(account.currentBalance)})
                     </option>
                   ))}
                 </select>
@@ -281,7 +288,7 @@ export default function TransactionModal({
                   <option value="">Select destination account</option>
                   {sortedBankAccounts.map((account) => (
                     <option key={account.id} value={account.id} disabled={account.id === fromAccountId}>
-                      {account.name} (${account.currentBalance.toFixed(2)})
+                      {account.name} ({formatCurrency(account.currentBalance)})
                     </option>
                   ))}
                 </select>
@@ -347,7 +354,7 @@ export default function TransactionModal({
                         <option value="">Select a credit card</option>
                         {sortedCreditCards.map((card) => (
                           <option key={card.id} value={card.id}>
-                            {card.name} (Available: ${card.availableBalance.toFixed(2)})
+                            {card.name} (Available: {formatCurrency(card.availableBalance)})
                           </option>
                         ))}
                       </select>
@@ -364,7 +371,7 @@ export default function TransactionModal({
                         <option value="">Select a bank account</option>
                         {sortedBankAccounts.map((account) => (
                           <option key={account.id} value={account.id}>
-                            {account.name} (Balance: ${account.currentBalance.toFixed(2)})
+                            {account.name} (Balance: {formatCurrency(account.currentBalance)})
                           </option>
                         ))}
                       </select>
@@ -404,7 +411,7 @@ export default function TransactionModal({
                         <option value="">Select a credit card</option>
                         {sortedCreditCards.map((card) => (
                           <option key={card.id} value={card.id}>
-                            {card.name} (Available: ${card.availableBalance.toFixed(2)})
+                            {card.name} (Available: {formatCurrency(card.availableBalance)})
                           </option>
                         ))}
                       </select>
@@ -421,7 +428,7 @@ export default function TransactionModal({
                         <option value="">Select a bank account</option>
                         {sortedBankAccounts.map((account) => (
                           <option key={account.id} value={account.id}>
-                            {account.name} (Balance: ${account.currentBalance.toFixed(2)})
+                            {account.name} (Balance: {formatCurrency(account.currentBalance)})
                           </option>
                         ))}
                       </select>
@@ -442,6 +449,20 @@ export default function TransactionModal({
               aria-label="Transaction date"
             />
           </Field>
+
+          {/* Notes Field */}
+          {transactionType !== "transfer" && (
+            <Field label="Notes (optional)">
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Add a note (e.g. 'Lunch with client')"
+                rows={2}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+                aria-label="Transaction notes"
+              />
+            </Field>
+          )}
 
           {/* Repeat Transaction - Only for non-transfer */}
           {transactionType !== "transfer" && (

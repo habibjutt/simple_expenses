@@ -1,9 +1,26 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
+import {
+  CreditCard,
+  ChevronDown,
+  Menu,
+  X,
+  LayoutDashboard,
+  ListOrdered,
+  Building2,
+  LogOut,
+  KeyRound,
+  PlusCircle,
+  BarChart2,
+  Target,
+  Tags,
+  Settings,
+  PiggyBank,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,128 +28,232 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
+import { ThemeToggle } from "./ThemeToggle";
+import { NotificationsBell } from "./NotificationsBell";
 import ExpenseModal from "./expense-modal";
 import ChangePasswordModal from "./change-password-modal";
+
+const NAV_LINKS = [
+  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
+  { href: "/transactions", label: "Transactions", icon: ListOrdered },
+  { href: "/reports", label: "Reports", icon: BarChart2 },
+  { href: "/spending-limits", label: "Budgets", icon: Target },
+  { href: "/goals", label: "Goals", icon: PiggyBank },
+  { href: "/categories", label: "Categories", icon: Tags },
+  { href: "/manage-cards", label: "Cards", icon: CreditCard },
+  { href: "/manage-accounts", label: "Accounts", icon: Building2 },
+];
 
 const Header = () => {
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { data: session, isPending } = useSession();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const pathname = usePathname();
 
   const handleLogout = async () => {
     await signOut();
+    setMobileMenuOpen(false);
   };
 
-  // Don't render until mounted to prevent hydration mismatch
-  if (!mounted) {
-    return (
-      <header className="border-b bg-white sticky top-0 z-50">
-        <div className="flex justify-between items-center py-4 px-6">
-          <div className="font-bold text-lg">Simple Expenses</div>
-        </div>
-      </header>
-    );
-  }
+  const userInitial = session?.user.name
+    ? session.user.name.charAt(0).toUpperCase()
+    : session?.user.email?.charAt(0).toUpperCase() ?? "U";
 
   return (
-    <header className="border-b bg-white sticky top-0 z-50">
-      <div className="flex justify-between items-center py-4 px-6">
-        <div className="flex items-center gap-8">
-          <div className="font-bold text-lg">Simple Expenses</div>
-          {session ? (
-            <nav className="flex gap-6">
-              <Link
-                href="/transactions"
-                className="text-gray-700 hover:text-black transition-colors"
-              >
-                Transactions
-              </Link>
-              <Link
-                href="/manage-cards"
-                className="text-gray-700 hover:text-black transition-colors"
-              >
-                Cards
-              </Link>
-              <Link
-                href="/manage-accounts"
-                className="text-gray-700 hover:text-black transition-colors"
-              >
-                Accounts
-              </Link>
-            </nav>
-          ) : null}
+    <>
+      <header className="sticky top-0 z-50 bg-[#1a9e5c] shadow-md">
+        <div className="max-w-7xl mx-auto flex justify-between items-center py-0 px-4 md:px-6 h-14">
+          {/* Logo + desktop nav */}
+          <div className="flex items-center gap-1 md:gap-2">
+            <Link href="/dashboard" className="flex items-center gap-2 shrink-0 mr-3">
+              <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
+                <CreditCard className="w-4 h-4 text-white" />
+              </div>
+              <span className="font-bold text-sm md:text-base text-white hidden sm:block">
+                Simple Expenses
+              </span>
+            </Link>
+
+            {session && (
+              <nav className="hidden lg:flex items-center gap-0.5">
+                {NAV_LINKS.map(({ href, label }) => {
+                  const isActive = pathname === href || pathname.startsWith(href + "/");
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      className={cn(
+                        "px-3 py-1.5 rounded-lg text-sm font-medium transition-all",
+                        isActive
+                          ? "bg-white/20 text-white"
+                          : "text-white/75 hover:bg-white/10 hover:text-white"
+                      )}
+                    >
+                      {label}
+                    </Link>
+                  );
+                })}
+              </nav>
+            )}
+          </div>
+
+          {/* Right side */}
+          <div className="flex items-center gap-1">
+            {isPending ? (
+              <div className="w-8 h-8 rounded-full bg-white/20 animate-pulse" />
+            ) : session ? (
+              <>
+                <ThemeToggle />
+                <NotificationsBell />
+                {/* Desktop user dropdown */}
+                <div className="hidden md:flex items-center gap-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="flex items-center gap-2 rounded-full px-2 py-1 hover:bg-white/10 transition-colors group">
+                        <div className="w-7 h-7 rounded-full bg-white/25 flex items-center justify-center text-white font-bold text-xs">
+                          {userInitial}
+                        </div>
+                        <span className="text-white/90 text-sm font-medium max-w-[120px] truncate hidden lg:block">
+                          {session.user.name || session.user.email?.split("@")[0]}
+                        </span>
+                        <ChevronDown className="h-3.5 w-3.5 text-white/60 group-hover:text-white/90 transition-colors" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-52">
+                      <DropdownMenuItem disabled>
+                        <span className="text-xs text-muted-foreground truncate">
+                          {session.user.email}
+                        </span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <button
+                          type="button"
+                          onClick={() => setShowExpenseModal(true)}
+                          className="w-full text-left cursor-pointer flex items-center gap-2"
+                        >
+                          <PlusCircle className="h-4 w-4" />
+                          Create Account
+                        </button>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/settings" className="flex items-center gap-2 cursor-pointer">
+                          <Settings className="h-4 w-4" />
+                          Settings
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <button
+                          type="button"
+                          onClick={() => setShowChangePasswordModal(true)}
+                          className="w-full text-left cursor-pointer flex items-center gap-2"
+                        >
+                          <KeyRound className="h-4 w-4" />
+                          Change Password
+                        </button>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={handleLogout}
+                        className="text-red-600 focus:text-red-600"
+                      >
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Logout
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
+                {/* Mobile hamburger */}
+                <button
+                  onClick={() => setMobileMenuOpen((o) => !o)}
+                  className="lg:hidden p-2 rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-colors"
+                  aria-label="Toggle menu"
+                >
+                  {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                </button>
+              </>
+            ) : (
+              <div className="flex gap-2">
+                <Link href="/login">
+                  <Button variant="ghost" size="sm" className="text-white border-white/30 hover:bg-white/10">Login</Button>
+                </Link>
+                <Link href="/signup">
+                  <Button size="sm" className="bg-white text-[#1a9e5c] hover:bg-white/90 font-semibold">Sign Up</Button>
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
 
-        <div>
-          {isPending ? (
-            <div className="text-sm text-gray-500">Loading...</div>
-          ) : session ? (
-            <>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="gap-2">
-                    {session.user.name || session.user.email}
-                    <span className="text-xs">▼</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem asChild>
-                    <button
-                      type="button"
-                      onClick={() => setShowExpenseModal(true)}
-                      className="w-full text-left bg-transparent border-none p-0 m-0 cursor-pointer"
-                    >
-                      Create Expense Account
-                    </button>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem disabled>
-                    <span className="text-sm text-gray-600">
-                      {session.user.email}
-                    </span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <button
-                      type="button"
-                      onClick={() => setShowChangePasswordModal(true)}
-                      className="w-full text-left bg-transparent border-none p-0 m-0 cursor-pointer"
-                    >
-                      Change Password
-                    </button>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout}>
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <ExpenseModal
-                open={showExpenseModal}
-                setOpen={setShowExpenseModal}
-              />
-              <ChangePasswordModal
-                open={showChangePasswordModal}
-                setOpen={setShowChangePasswordModal}
-              />
-            </>
-          ) : (
-            <div className="flex gap-3">
-              <Link href="/login">
-                <Button variant="outline">Login</Button>
-              </Link>
-              <Link href="/signup">
-                <Button>Sign Up</Button>
-              </Link>
+        {/* Mobile slide-down menu */}
+        {mobileMenuOpen && session && (
+          <div className="lg:hidden border-t border-white/10 bg-[#158a4f]">
+            <div className="max-w-7xl mx-auto px-4 py-2 space-y-0.5">
+              {NAV_LINKS.map(({ href, label, icon: Icon }) => {
+                const isActive = pathname === href || pathname.startsWith(href + "/");
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors",
+                      isActive
+                        ? "bg-white/20 text-white"
+                        : "text-white/70 hover:bg-white/10 hover:text-white"
+                    )}
+                  >
+                    <Icon className="h-4 w-4 shrink-0" />
+                    {label}
+                  </Link>
+                );
+              })}
+
+              <div className="border-t border-white/10 pt-2 mt-1 pb-1">
+                <p className="px-3 text-xs mb-1 text-white/40 truncate">{session.user.email}</p>
+                <button
+                  onClick={() => { setShowExpenseModal(true); setMobileMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+                >
+                  <PlusCircle className="h-4 w-4 shrink-0" />
+                  Create Account
+                </button>
+                <Link
+                  href="/settings"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+                >
+                  <Settings className="h-4 w-4 shrink-0" />
+                  Settings
+                </Link>
+                <button
+                  onClick={() => { setShowChangePasswordModal(true); setMobileMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+                >
+                  <KeyRound className="h-4 w-4 shrink-0" />
+                  Change Password
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-300 hover:bg-red-500/10 hover:text-red-200 transition-colors"
+                >
+                  <LogOut className="h-4 w-4 shrink-0" />
+                  Logout
+                </button>
+              </div>
             </div>
-          )}
-        </div>
-      </div>
-    </header>
+          </div>
+        )}
+      </header>
+
+      <ExpenseModal open={showExpenseModal} setOpen={setShowExpenseModal} />
+      <ChangePasswordModal open={showChangePasswordModal} setOpen={setShowChangePasswordModal} />
+    </>
   );
 };
 

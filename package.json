@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "prisma generate && next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write .",
@@ -28,13 +28,16 @@
     "dotenv": "^17.2.3",
     "lucide-react": "^0.555.0",
     "next": "^16.1.0",
+    "next-themes": "^0.4.6",
     "pg": "^8.16.3",
+    "radix-ui": "^1.4.3",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "recharts": "^3.8.0",
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.58.0",
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20.19.25",
     "@types/pg": "^8.15.6",

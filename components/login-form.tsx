@@ -44,7 +44,7 @@ export function LoginForm({
         },
         {
           onSuccess: () => {
-            router.push("/");
+            router.push("/dashboard");
           },
           onError: (ctx) => {
             setError(ctx.error.message || "Login failed");
@@ -65,7 +65,7 @@ export function LoginForm({
     try {
       await signIn.social({
         provider: "github",
-        callbackURL: "/",
+        callbackURL: "/dashboard",
       });
     } catch (err) {
       setError("GitHub login failed");
@@ -131,10 +131,10 @@ export function LoginForm({
 
           <div className="relative my-4">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
+              <div className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="bg-white px-2 text-gray-500">
+              <span className="bg-background px-2 text-muted-foreground">
                 Or continue with
               </span>
             </div>

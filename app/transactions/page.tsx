@@ -6,10 +6,11 @@ import { useSession } from "@/lib/auth-client";
 import { getTransactions, deleteTransaction } from "@/app/api/transaction-action";
 import { formatCurrency } from "@/lib/utils";
 import Footer from "@/components/Footer";
+import Header from "@/components/Header";
 import TransactionModal from "@/components/transaction-modal";
 import { getCreditCards } from "@/app/api/credit-card-action";
 import { getBankAccounts } from "@/app/api/bank-account-action";
-import { CreditCard, Wallet, Calendar, ChevronLeft, ChevronRight, Edit2, Trash2, Filter, X } from "lucide-react";
+import { CreditCard, Wallet, ChevronLeft, ChevronRight, Edit2, Trash2, Filter, X, Search, Download } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,6 +37,7 @@ type Transaction = {
   amount: number;
   date: Date;
   category: string;
+  notes: string | null;
   installments: number;
   parentTransactionId: string | null;
   installmentNumber: number | null;
@@ -99,9 +101,7 @@ export default function TransactionsPage() {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      console.log("Fetching transactions...");
       const txns = await getTransactions();
-      console.log("Transactions fetched:", txns);
       setTransactions(txns);
     } catch (error) {
       console.error("Failed to fetch transactions:", error);
@@ -140,8 +140,11 @@ export default function TransactionsPage() {
 
   if (isPending) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div>Loading...</div>
+      <div className="min-h-screen bg-slate-50">
+        <Header />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-slate-500">Loading...</div>
+        </div>
       </div>
     );
   }
@@ -150,40 +153,11 @@ export default function TransactionsPage() {
     return null;
   }
 
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
-
-  const getCategoryIcon = (category: string) => {
-    // You can customize icons based on category if needed
-    return <Wallet className="h-4 w-4" />;
-  };
-
-  // Debug logging
-  console.log("=== DEBUG INFO ===");
-  console.log("Total transactions:", transactions.length);
-  console.log("Current Date:", currentDate);
-  console.log("Current Month:", currentMonth, "Current Year:", currentYear);
-  
-  if (transactions.length > 0) {
-    console.log("Sample transaction:", transactions[0]);
-    console.log("Sample transaction date:", transactions[0].date);
-    console.log("Sample transaction parsed:", new Date(transactions[0].date));
-  }
-
   // Filter transactions by selected month and filters
   const filteredTransactions = transactions
     .filter((transaction) => {
       const txDate = new Date(transaction.date);
-      const matches = txDate.getMonth() === currentMonth && txDate.getFullYear() === currentYear;
-      console.log(
-        `Transaction: ${transaction.name}, Date: ${transaction.date}, Parsed: ${txDate}, Month: ${txDate.getMonth()}, Year: ${txDate.getFullYear()}, Matches: ${matches}`
-      );
-      return matches;
+      return txDate.getMonth() === currentMonth && txDate.getFullYear() === currentYear;
     })
     .filter((transaction) => {
       // Apply category filter
@@ -216,6 +190,27 @@ export default function TransactionsPage() {
   const clearFilters = () => {
     setFilterCategory("");
     setFilterName("");
+  };
+
+  // CSV export
+  const exportCSV = () => {
+    const headers = ["Date", "Name", "Category", "Amount (AED)", "Account", "Notes"];
+    const rows = filteredTransactions.map((t) => [
+      new Date(t.date).toLocaleDateString("en-GB"),
+      `"${t.name.replace(/"/g, '""')}"`,
+      t.category,
+      t.amount.toFixed(2),
+      t.creditCard?.name || t.bankAccount?.name || "",
+      `"${(t.notes || "").replace(/"/g, '""')}"`,
+    ]);
+    const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `transactions-${getMonthYearDisplay().replace(" ", "-")}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   // Month navigation handlers
@@ -268,35 +263,76 @@ export default function TransactionsPage() {
     }
   };
 
+  // Group filtered transactions by date (Organizze-style)
+  const groupedByDate = filteredTransactions.reduce(
+    (groups, t) => {
+      const dateKey = new Date(t.date).toDateString();
+      if (!groups[dateKey]) groups[dateKey] = [];
+      groups[dateKey].push(t);
+      return groups;
+    },
+    {} as Record<string, Transaction[]>
+  );
+  const groupedDates = Object.keys(groupedByDate).sort(
+    (a, b) => new Date(b).getTime() - new Date(a).getTime()
+  );
+
   return (
-    <div className="max-w-7xl mx-auto min-h-screen flex flex-col bg-white">
-      <main className="flex-1 p-4 md:p-6 pb-24">
-        <div className="mb-4">
-          <h1 className="text-2xl md:text-3xl font-bold">All Transactions</h1>
-          <p className="text-xs text-gray-500 mt-0.5">
-            View and manage all your transactions
-          </p>
+    <div className="min-h-screen bg-[#f0f2f5]">
+      <Header />
+      <main className="pb-24 lg:pb-8">
+        {/* Page header */}
+        <div className="bg-[#1a9e5c] text-white">
+          <div className="max-w-5xl mx-auto px-4 md:px-6 py-5">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div>
+                <h1 className="text-lg font-bold">Transactions</h1>
+                <p className="text-white/60 text-sm mt-0.5">{getMonthYearDisplay()}</p>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="text-center">
+                  <p className="text-white/60 text-xs font-medium">Expenses</p>
+                  <p className="text-sm font-bold tabular-nums">
+                    {formatCurrency(filteredTransactions.filter(t => t.amount > 0).reduce((s, t) => s + t.amount, 0))}
+                  </p>
+                </div>
+                <div className="w-px h-8 bg-white/20" />
+                <div className="text-center">
+                  <p className="text-white/60 text-xs font-medium">Income</p>
+                  <p className="text-sm font-bold tabular-nums">
+                    {formatCurrency(Math.abs(filteredTransactions.filter(t => t.amount < 0).reduce((s, t) => s + t.amount, 0)))}
+                  </p>
+                </div>
+                <div className="w-px h-8 bg-white/20" />
+                <div className="text-center">
+                  <p className="text-white/60 text-xs font-medium">Count</p>
+                  <p className="text-sm font-bold tabular-nums">{filteredTransactions.length}</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
+        <div className="max-w-5xl mx-auto px-4 md:px-6 mt-5">
+
         {/* Month Navigation */}
-        <div className="mb-4 flex items-center justify-between bg-white rounded-lg shadow-sm p-3 border">
+        <div className="mb-5 bg-white rounded-2xl shadow-sm border border-slate-100 p-3 flex items-center justify-between">
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={goToPreviousMonth}
-            className="flex items-center gap-1 h-8 text-xs px-2"
+            className="flex items-center gap-1 h-9 text-slate-600 hover:text-slate-900 hover:bg-slate-100"
           >
-            <ChevronLeft className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Previous</span>
-            <span className="sm:hidden">Prev</span>
+            <ChevronLeft className="h-4 w-4" />
+            <span className="hidden sm:inline text-sm">Prev</span>
           </Button>
           
           <div className="text-center">
-            <h2 className="text-base font-semibold">{getMonthYearDisplay()}</h2>
+            <h2 className="text-sm font-semibold text-slate-800">{getMonthYearDisplay()}</h2>
             {!isCurrentMonth() && (
               <button
                 onClick={() => setCurrentDate(new Date())}
-                className="text-[10px] text-blue-600 hover:underline"
+                className="text-[10px] text-[#1a9e5c] hover:underline"
               >
                 Back to current
               </button>
@@ -304,81 +340,82 @@ export default function TransactionsPage() {
           </div>
           
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={goToNextMonth}
-            className="flex items-center gap-1 h-8 text-xs px-2"
+            className="flex items-center gap-1 h-9 text-slate-600 hover:text-slate-900 hover:bg-slate-100"
           >
-            <span className="hidden sm:inline">Next</span>
-            <span className="sm:hidden">Next</span>
-            <ChevronRight className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline text-sm">Next</span>
+            <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
 
-        {/* Filter Section */}
-        <div className="mb-4 flex items-center gap-2">
+        {/* Search + Filter + Export toolbar */}
+        <div className="mb-4 flex items-center gap-2 flex-wrap">
+          {/* Inline search bar */}
+          <div className="relative flex-1 min-w-[180px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search transactions..."
+              value={filterName}
+              onChange={(e) => setFilterName(e.target.value)}
+              className="w-full h-9 pl-9 pr-3 text-sm rounded-xl border border-slate-200 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1a9e5c]/30 focus:border-[#1a9e5c]"
+            />
+            {filterName && (
+              <button
+                onClick={() => setFilterName("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+          
           <Button
             variant="outline"
             size="sm"
             onClick={() => setFilterDialogOpen(true)}
-            className="flex items-center gap-2 h-9"
+            className="flex items-center gap-2 h-9 border-slate-200 hover:bg-slate-50 shrink-0"
           >
             <Filter className="h-4 w-4" />
-            Filters
-            {hasActiveFilters && (
-              <span className="ml-1 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {(filterCategory ? 1 : 0) + (filterName ? 1 : 0)}
-              </span>
+            <span className="hidden sm:inline">Filters</span>
+            {filterCategory && (
+              <span className="ml-1 bg-[#1a9e5c] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">1</span>
             )}
           </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={exportCSV}
+            disabled={filteredTransactions.length === 0}
+            className="flex items-center gap-2 h-9 border-slate-200 hover:bg-slate-50 shrink-0"
+            title="Export to CSV"
+          >
+            <Download className="h-4 w-4" />
+            <span className="hidden sm:inline">Export</span>
+          </Button>
           
-          {hasActiveFilters && (
-            <>
-              <div className="flex items-center gap-2 flex-wrap">
-                {filterCategory && (
-                  <div className="flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
-                    <span>Category: {filterCategory}</span>
-                    <button
-                      onClick={() => setFilterCategory("")}
-                      className="hover:bg-blue-200 rounded-full p-0.5"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                )}
-                {filterName && (
-                  <div className="flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
-                    <span>Name: {filterName}</span>
-                    <button
-                      onClick={() => setFilterName("")}
-                      className="hover:bg-blue-200 rounded-full p-0.5"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                )}
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearFilters}
-                className="h-9 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
-              >
-                Clear all
-              </Button>
-            </>
+          {filterCategory && (
+            <div className="flex items-center gap-1 bg-[#1a9e5c]/10 text-[#1a9e5c] border border-[#1a9e5c]/20 px-2 py-1 rounded-full text-xs">
+              <span>Category: {filterCategory}</span>
+              <button onClick={() => setFilterCategory("")} className="hover:bg-[#1a9e5c]/20 rounded-full p-0.5">
+                <X className="h-3 w-3" />
+              </button>
+            </div>
           )}
         </div>
 
         {/* Filter Summary */}
         {hasActiveFilters && filteredTransactions.length > 0 && (
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="mb-4 p-3 bg-[#1a9e5c]/10 border border-[#1a9e5c]/20 rounded-xl">
             <div className="flex items-center justify-between">
-              <div className="text-sm text-blue-900">
+              <div className="text-sm text-slate-700">
                 <span className="font-medium">{filteredTransactions.length}</span> transaction{filteredTransactions.length !== 1 ? 's' : ''} found
               </div>
               <div className="text-sm font-semibold">
-                Total: <span className={filteredTotal < 0 ? "text-green-600" : "text-red-600"}>
+                Total: <span className={filteredTotal < 0 ? "text-emerald-600" : "text-red-600"}>
                   {formatCurrency(Math.abs(filteredTotal))}
                 </span>
               </div>
@@ -387,106 +424,154 @@ export default function TransactionsPage() {
         )}
 
         {loading ? (
-          <div className="text-center py-8 text-gray-500 text-sm">
+          <div className="text-center py-8 text-slate-500 text-sm">
             Loading transactions...
           </div>
         ) : filteredTransactions.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-            <p className="text-gray-500 mb-2 text-sm">
+          <div className="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-slate-200">
+            <p className="text-slate-500 mb-2 text-sm font-medium">
               No transactions found for {getMonthYearDisplay()}
             </p>
-            <p className="text-gray-400 text-xs">
+            <p className="text-slate-400 text-xs">
               Add your first transaction to get started
             </p>
           </div>
         ) : (
-          <div className="space-y-1.5">
-            {filteredTransactions.map((transaction) => (
-              <div
-                key={transaction.id}
-                className="flex items-center justify-between p-2.5 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group"
-              >
-                <div className="flex items-center gap-2.5 flex-1 min-w-0">
-                  <div className="bg-blue-500 w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0">
-                    {transaction.creditCardId ? (
-                      <CreditCard className="h-4 w-4 text-white" />
-                    ) : (
-                      <Wallet className="h-4 w-4 text-white" />
-                    )}
+          <div className="space-y-5">
+            {groupedDates.map((dateKey) => {
+              const dayTransactions = groupedByDate[dateKey];
+              const date = new Date(dateKey);
+              const dayNum = date.getDate();
+              const dayName = date.toLocaleDateString("en-US", { weekday: "short" });
+              const monthName = date.toLocaleDateString("en-US", { month: "short" });
+              const dayTotal = dayTransactions.reduce((s, t) => s + t.amount, 0);
+
+              return (
+                <div key={dateKey} className="flex gap-3 items-start">
+                  {/* Date column */}
+                  <div className="w-12 flex-shrink-0 flex flex-col items-center pt-4">
+                    <span className="text-2xl font-bold text-slate-800 leading-none">{dayNum}</span>
+                    <span className="text-[10px] text-slate-400 mt-0.5 uppercase font-medium">{dayName}</span>
+                    <span className="text-[10px] text-slate-400 uppercase font-medium">{monthName}</span>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm truncate">
-                      {transaction.name}
-                    </div>
-                    <div className="flex items-center gap-1.5 text-[10px] text-gray-500 leading-tight mt-0.5">
-                      <Calendar className="h-2.5 w-2.5 flex-shrink-0" />
-                      <span className="whitespace-nowrap">{formatDate(transaction.date)}</span>
-                      <span>•</span>
-                      <span className="truncate">{transaction.category}</span>
-                      {transaction.installments > 1 && (
-                        <>
-                          <span>•</span>
-                          <span className="whitespace-nowrap">
-                            {transaction.installments}x
+
+                  {/* Day transactions card */}
+                  <div className="flex-1 bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+                    {dayTransactions.map((transaction) => (
+                      <div
+                        key={transaction.id}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 group transition-colors border-b border-slate-50 last:border-b-0"
+                      >
+                        <div
+                          className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${
+                            transaction.category === "Transfer"
+                              ? "bg-blue-100"
+                              : transaction.amount < 0
+                              ? "bg-emerald-100"
+                              : "bg-red-100"
+                          }`}
+                        >
+                          {transaction.creditCardId ? (
+                            <CreditCard
+                              className={`h-4 w-4 ${
+                                transaction.category === "Transfer"
+                                  ? "text-blue-600"
+                                  : transaction.amount < 0
+                                  ? "text-emerald-600"
+                                  : "text-red-600"
+                              }`}
+                            />
+                          ) : (
+                            <Wallet
+                              className={`h-4 w-4 ${
+                                transaction.category === "Transfer"
+                                  ? "text-blue-600"
+                                  : transaction.amount < 0
+                                  ? "text-emerald-600"
+                                  : "text-red-600"
+                              }`}
+                            />
+                          )}
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-slate-800 truncate">
+                            {transaction.name}
+                          </p>
+                          <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                            <span className="text-[10px] text-slate-400">{transaction.category}</span>
+                            {transaction.installments > 1 && (
+                              <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full">
+                                {transaction.installments}x
+                              </span>
+                            )}
+                            {(transaction.creditCard || transaction.bankAccount) && (
+                              <span className="text-[10px] bg-[#1a9e5c]/10 text-[#1a9e5c] px-1.5 py-0.5 rounded-full truncate max-w-[120px]">
+                                {transaction.creditCard?.name || transaction.bankAccount?.name}
+                              </span>
+                            )}
+                            {transaction.notes && (
+                              <span className="text-[10px] text-slate-400 italic truncate max-w-[160px]" title={transaction.notes}>
+                                {transaction.notes}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                          <span
+                            className={`text-sm font-bold whitespace-nowrap ${
+                              transaction.category === "Transfer"
+                                ? "text-blue-600"
+                                : transaction.amount < 0
+                                ? "text-emerald-600"
+                                : "text-red-600"
+                            }`}
+                          >
+                            {transaction.amount < 0 ? "+" : ""}
+                            {formatCurrency(Math.abs(transaction.amount))}
                           </span>
-                        </>
-                      )}
-                    </div>
-                    <div className="text-[10px] text-gray-400 mt-0.5 truncate leading-tight">
-                      {transaction.creditCard
-                        ? `${transaction.creditCard.name}`
-                        : transaction.bankAccount
-                        ? `${transaction.bankAccount.name}`
-                        : ""}
+                          <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                              onClick={() => handleEditTransaction(transaction)}
+                              className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors"
+                              title="Edit transaction"
+                              disabled={transaction.category === "Transfer"}
+                            >
+                              <Edit2 className="h-3 w-3 text-slate-400" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteClick(transaction)}
+                              className="p-1.5 hover:bg-red-50 rounded-lg transition-colors"
+                              title="Delete transaction"
+                            >
+                              <Trash2 className="h-3 w-3 text-red-400" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Day total */}
+                    <div className="px-4 py-2 bg-slate-50 flex justify-end border-t border-slate-100">
+                      <span
+                        className={`text-xs font-semibold ${
+                          dayTotal < 0 ? "text-emerald-600" : dayTotal > 0 ? "text-red-600" : "text-slate-500"
+                        }`}
+                      >
+                        {dayTotal < 0 ? "+" : dayTotal > 0 ? "-" : ""}
+                        {formatCurrency(Math.abs(dayTotal))}
+                      </span>
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <span
-                    className={`font-semibold text-xs whitespace-nowrap ${
-                      transaction.amount < 0
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {transaction.amount < 0
-                      ? formatCurrency(Math.abs(transaction.amount))
-                      : formatCurrency(transaction.amount)}
-                  </span>
-                  
-                  {/* Action Buttons */}
-                  <div className="flex items-center gap-0.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => handleEditTransaction(transaction)}
-                      className="p-1.5 hover:bg-blue-100 rounded-full transition-colors"
-                      title="Edit transaction"
-                      disabled={transaction.category === "Transfer"}
-                    >
-                      <Edit2 className="h-3.5 w-3.5 text-blue-600" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteClick(transaction)}
-                      className="p-1.5 hover:bg-red-100 rounded-full transition-colors"
-                      title="Delete transaction"
-                    >
-                      <Trash2 className="h-3.5 w-3.5 text-red-600" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
+        </div>{/* close max-w-5xl wrapper */}
       </main>
-      <Footer
-        onAddTransaction={() => {
-          setEditingTransaction(null);
-          setIsTransactionModalOpen(true);
-        }}
-        isTransactionDisabled={
-          creditCards.length === 0 && bankAccounts.length === 0
-        }
-      />
+      <Footer />
 
       <TransactionModal
         open={isTransactionModalOpen}
@@ -512,7 +597,7 @@ export default function TransactionsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Transaction</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{deletingTransaction?.name}"? 
+              Are you sure you want to delete &ldquo;{deletingTransaction?.name}&rdquo;? 
               {deletingTransaction?.category === "Transfer" && (
                 <span className="block mt-2 text-yellow-600 font-medium">
                   Warning: This is a transfer transaction. Deleting it will affect both accounts.

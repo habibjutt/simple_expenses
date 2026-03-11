@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { getBankAccounts, deleteBankAccount } from "@/app/api/bank-account-action";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, cn } from "@/lib/utils";
+import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BankAccountModal from "@/components/bank-account-modal";
-import { Wallet, Edit2, Trash2, Plus, TrendingUp, TrendingDown } from "lucide-react";
+import { Wallet, Edit2, Trash2, Plus, TrendingUp, TrendingDown, ChevronRight } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,8 +19,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+const ACCOUNT_COLORS = [
+  "bg-emerald-500",
+  "bg-blue-500",
+  "bg-violet-500",
+  "bg-amber-500",
+  "bg-rose-500",
+  "bg-teal-500",
+  "bg-indigo-500",
+  "bg-orange-500",
+];
 
 type BankAccount = {
   id: string;
@@ -53,7 +63,6 @@ export default function ManageAccountsPage() {
       setAccounts(fetchedAccounts);
     } catch (error) {
       console.error("Failed to fetch bank accounts:", error);
-      alert("Error fetching bank accounts: " + (error as Error).message);
     } finally {
       setLoading(false);
     }
@@ -65,24 +74,8 @@ export default function ManageAccountsPage() {
     }
   }, [session]);
 
-  const handleAddAccount = () => {
-    setEditingAccount(null);
-    setIsAccountModalOpen(true);
-  };
-
-  const handleEditAccount = (account: BankAccount) => {
-    setEditingAccount(account);
-    setIsAccountModalOpen(true);
-  };
-
-  const handleDeleteClick = (account: BankAccount) => {
-    setDeletingAccount(account);
-    setDeleteDialogOpen(true);
-  };
-
   const handleDeleteConfirm = async () => {
     if (!deletingAccount) return;
-
     try {
       await deleteBankAccount(deletingAccount.id);
       await fetchAccounts();
@@ -90,152 +83,212 @@ export default function ManageAccountsPage() {
       setDeletingAccount(null);
     } catch (error) {
       console.error("Failed to delete bank account:", error);
-      alert("Error deleting bank account: " + (error as Error).message);
     }
-  };
-
-  const handleModalSuccess = () => {
-    fetchAccounts();
   };
 
   if (isPending || loading) {
     return (
-      <div className="min-h-screen flex flex-col bg-white">
-        <main className="flex-1 max-w-7xl mx-auto px-4 py-8 pb-24 w-full">
-          <div className="text-center py-12">Loading...</div>
-        </main>
-        <Footer />
+      <div className="min-h-screen bg-[#f0f2f5]">
+        <Header />
+        <div className="max-w-5xl mx-auto px-4 md:px-6 py-8 space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-28 rounded-2xl bg-white animate-pulse" />
+          ))}
+        </div>
       </div>
     );
   }
 
-  if (!session) {
-    return null;
-  }
+  if (!session) return null;
 
   const totalBalance = accounts.reduce((sum, acc) => sum + acc.currentBalance, 0);
   const balanceChange = (account: BankAccount) => account.currentBalance - account.initialBalance;
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      <main className="flex-1 max-w-7xl mx-auto px-4 py-8 pb-24 w-full">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Manage Bank Accounts</h1>
-          <Button onClick={handleAddAccount} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Add Account
-          </Button>
+    <div className="min-h-screen bg-[#f0f2f5]">
+      <Header />
+
+      {/* Page hero */}
+      <div className="bg-[#1a9e5c] text-white">
+        <div className="max-w-5xl mx-auto px-4 md:px-6 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-lg font-bold">Bank Accounts</h1>
+              <p className="text-white/60 text-sm mt-0.5">
+                {accounts.length} account{accounts.length !== 1 ? "s" : ""} managed
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setEditingAccount(null);
+                setIsAccountModalOpen(true);
+              }}
+              className="flex items-center gap-2 bg-white text-[#1a9e5c] px-4 py-2 rounded-xl text-sm font-semibold hover:bg-white/90 transition-colors shadow-sm"
+            >
+              <Plus className="h-4 w-4" />
+              Add Account
+            </button>
+          </div>
+
+          {accounts.length > 0 && (
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <div className="bg-white/10 rounded-2xl p-3.5">
+                <p className="text-white/60 text-xs font-medium mb-1">Total Balance</p>
+                <p className="text-white font-bold text-lg">{formatCurrency(totalBalance)}</p>
+              </div>
+              <div className="bg-white/10 rounded-2xl p-3.5">
+                <p className="text-white/60 text-xs font-medium mb-1">Accounts</p>
+                <p className="text-white font-bold text-lg">{accounts.length}</p>
+              </div>
+            </div>
+          )}
         </div>
+      </div>
 
-        {accounts.length > 0 && (
-          <Card className="mb-6">
-            <CardContent className="py-6">
-              <div className="text-center">
-                <p className="text-sm text-gray-600 mb-1">Total Balance</p>
-                <p className="text-3xl font-bold text-gray-900">{formatCurrency(totalBalance)}</p>
-                <p className="text-xs text-gray-500 mt-1">{accounts.length} account{accounts.length !== 1 ? 's' : ''}</p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
+      <main className="max-w-5xl mx-auto px-4 md:px-6 py-6 pb-24 lg:pb-8">
         {accounts.length === 0 ? (
-          <Card>
-            <CardContent className="py-12">
-              <div className="text-center">
-                <Wallet className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                <p className="text-gray-500 mb-4">No bank accounts found</p>
-                <Button onClick={handleAddAccount}>Add Your First Account</Button>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="bg-white rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center py-16 px-4">
+            <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+              <Wallet className="h-8 w-8 text-slate-400" />
+            </div>
+            <p className="text-slate-700 font-semibold mb-1">No bank accounts yet</p>
+            <p className="text-slate-400 text-sm mb-5">Add your first account to start tracking</p>
+            <button
+              onClick={() => {
+                setEditingAccount(null);
+                setIsAccountModalOpen(true);
+              }}
+              className="flex items-center gap-2 bg-[#1a9e5c] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#158a4f] transition-colors"
+            >
+              <Plus className="h-4 w-4" />
+              Add Account
+            </button>
+          </div>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {accounts.map((account) => {
+          <div className="grid gap-4 md:grid-cols-2">
+            {accounts.map((account, i) => {
               const change = balanceChange(account);
               const isPositive = change >= 0;
-              
+              const colorClass = ACCOUNT_COLORS[i % ACCOUNT_COLORS.length];
+              const initial = account.name.charAt(0).toUpperCase();
+
               return (
-                <Card key={account.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-4">
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-center gap-2">
-                        <Wallet className="h-5 w-5 text-green-600" />
-                        <CardTitle className="text-lg">{account.name}</CardTitle>
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEditAccount(account)}
-                          className="p-1 hover:bg-gray-100 rounded"
-                          title="Edit"
+                <div
+                  key={account.id}
+                  className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden"
+                >
+                  <div className={`h-1.5 ${colorClass}`} />
+                  <div className="p-5">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-11 h-11 rounded-xl ${colorClass} flex items-center justify-center text-white font-bold text-lg`}
                         >
-                          <Edit2 className="h-4 w-4 text-gray-600" />
+                          {initial}
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-slate-800">{account.name}</h3>
+                          <p className="text-xs text-slate-400">Bank Account</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => {
+                            setEditingAccount(account);
+                            setIsAccountModalOpen(true);
+                          }}
+                          className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                          title="Edit account"
+                        >
+                          <Edit2 className="h-3.5 w-3.5 text-slate-400" />
                         </button>
                         <button
-                          onClick={() => handleDeleteClick(account)}
-                          className="p-1 hover:bg-gray-100 rounded"
-                          title="Delete"
+                          onClick={() => {
+                            setDeletingAccount(account);
+                            setDeleteDialogOpen(true);
+                          }}
+                          className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Delete account"
                         >
-                          <Trash2 className="h-4 w-4 text-red-600" />
+                          <Trash2 className="h-3.5 w-3.5 text-red-400" />
+                        </button>
+                        <button
+                          onClick={() => router.push(`/bank-account/${account.id}`)}
+                          className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                          title="View details"
+                        >
+                          <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
                         </button>
                       </div>
                     </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <p className="text-sm text-gray-600 mb-1">Current Balance</p>
-                      <p className="text-2xl font-bold text-gray-900">
-                        {formatCurrency(account.currentBalance)}
-                      </p>
-                    </div>
-                    <div className="pt-4 border-t space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Initial Balance</span>
-                        <span className="font-semibold">{formatCurrency(account.initialBalance)}</span>
+
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-xs text-slate-400 mb-0.5">Current Balance</p>
+                        <p className="text-2xl font-bold text-slate-800">
+                          {formatCurrency(account.currentBalance)}
+                        </p>
                       </div>
-                      <div className="flex justify-between text-sm items-center">
-                        <span className="text-gray-600">Change</span>
-                        <span className={`font-semibold flex items-center gap-1 ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                          {isPositive ? (
-                            <TrendingUp className="h-3 w-3" />
-                          ) : (
-                            <TrendingDown className="h-3 w-3" />
-                          )}
-                          {formatCurrency(Math.abs(change))}
-                        </span>
+                      <div className="pt-3 border-t border-slate-100 grid grid-cols-2 gap-3">
+                        <div>
+                          <p className="text-xs text-slate-400 mb-0.5">Initial Balance</p>
+                          <p className="text-sm font-semibold text-slate-600">
+                            {formatCurrency(account.initialBalance)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-slate-400 mb-0.5">Change</p>
+                          <div
+                            className={cn(
+                              "flex items-center gap-1 text-sm font-semibold",
+                              isPositive ? "text-emerald-600" : "text-red-500"
+                            )}
+                          >
+                            {isPositive ? (
+                              <TrendingUp className="h-3.5 w-3.5" />
+                            ) : (
+                              <TrendingDown className="h-3.5 w-3.5" />
+                            )}
+                            {formatCurrency(Math.abs(change))}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               );
             })}
           </div>
         )}
       </main>
+
       <Footer />
 
       <BankAccountModal
         open={isAccountModalOpen}
         setOpen={setIsAccountModalOpen}
-        onSuccess={handleModalSuccess}
+        onSuccess={fetchAccounts}
         editAccount={editingAccount}
       />
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>Delete Bank Account</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the bank account &quot;{deletingAccount?.name}&quot;. 
-              This action cannot be undone.
+              Are you sure you want to delete &quot;{deletingAccount?.name}&quot;? This action
+              cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm}>Delete</AlertDialogAction>
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700">
+              Delete
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
   );
 }
+

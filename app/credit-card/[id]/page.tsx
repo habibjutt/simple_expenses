@@ -13,6 +13,7 @@ import { ArrowLeft, Calendar, DollarSign, CreditCard, Clock, ChevronLeft, Chevro
 import { Input } from "@/components/ui/input";
 import TransactionModal from "@/components/transaction-modal";
 import Footer from "@/components/Footer";
+import Header from "@/components/Header";
 import {
   Dialog,
   DialogContent,
@@ -30,6 +31,7 @@ type Transaction = {
   date: Date;
   category: string;
   installments: number;
+  notes: string | null;
   createdAt: Date;
 };
 
@@ -106,6 +108,7 @@ export default function CreditCardDetailsPage() {
     date: Date;
     category: string;
     installments: number;
+    notes: string | null;
     creditCardId: string | null;
     bankAccountId: string | null;
   } | null>(null);
@@ -124,16 +127,6 @@ export default function CreditCardDetailsPage() {
       try {
         setLoading(true);
         const data = await getUpcomingInvoice(cardId, selectedMonth, selectedYear);
-        console.log('Invoice data received:', data);
-        console.log('Invoice object:', data.invoice);
-        console.log('isPaid:', data.invoice?.isPaid);
-        console.log('paidAt:', data.invoice?.paidAt);
-        
-        // DEBUG: Check all invoices for this card
-        const { debugListInvoices } = await import('@/app/api/credit-card-action');
-        const allInvoices = await debugListInvoices(cardId);
-        console.log('ALL INVOICES:', allInvoices);
-        
         setInvoiceData(data);
       } catch (err: any) {
         setError(err.message || "Failed to load invoice data");
@@ -339,6 +332,7 @@ export default function CreditCardDetailsPage() {
       date: transaction.date,
       category: transaction.category,
       installments: transaction.installments,
+      notes: transaction.notes ?? null,
       creditCardId: cardId,
       bankAccountId: null,
     });
@@ -425,13 +419,11 @@ export default function CreditCardDetailsPage() {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto">
-        {/* <Header /> */}
-        <main className="p-4 md:p-6 pb-24">
-          <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="text-gray-500">Loading invoice details...</div>
-          </div>
-        </main>
+      <div className="min-h-screen bg-[#f0f2f5]">
+        <Header />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="w-8 h-8 border-[3px] border-[#1a9e5c] border-t-transparent rounded-full animate-spin" />
+        </div>
         <Footer />
       </div>
     );
@@ -439,18 +431,14 @@ export default function CreditCardDetailsPage() {
 
   if (error || !invoiceData) {
     return (
-      <div className="max-w-7xl mx-auto">
-        {/* <Header /> */}
-        <main className="p-4 md:p-6 pb-24">
-          <Button
-            onClick={() => router.push("/")}
-            variant="outline"
-            className="mb-2"
-          >
+      <div className="min-h-screen bg-[#f0f2f5]">
+        <Header />
+        <main className="p-4 md:p-8">
+          <Button onClick={() => router.push("/")} variant="outline" className="mb-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Home
+            Back
           </Button>
-          <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="flex items-center justify-center min-h-[50vh]">
             <div className="text-red-500">{error || "Failed to load invoice data"}</div>
           </div>
         </main>
@@ -513,132 +501,131 @@ export default function CreditCardDetailsPage() {
   const invoiceAmount = totalAmount - (invoiceData.invoice?.creditFromPreviousMonth || 0);
 
   return (
-    <div className="max-w-7xl mx-auto min-h-screen flex flex-col bg-white">
-      <main className="flex-1 p-4 md:p-6 pb-24">
-        {/* Header with Back Button */}
-        <div className="flex items-center justify-between mb-2">
-          <Button
-            onClick={() => router.push("/")}
-            variant="ghost"
-            size="sm"
-            className="h-9 px-2"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-sm font-bold">Invoice Details</h1>
-          <div className="w-9"></div> {/* Spacer for centering */}
-        </div>
+    <div className="min-h-screen bg-[#f0f2f5]">
+      <Header />
+      <main className="pb-24 lg:pb-8">
+        {/* Page header */}
+        <div className="bg-[#1a9e5c] text-white">
+          <div className="max-w-5xl mx-auto px-4 md:px-6 py-5">
+            <button
+              onClick={() => router.push("/dashboard")}
+              className="flex items-center gap-2 text-white/60 hover:text-white text-sm mb-3 transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Dashboard
+            </button>
+            <div className="flex items-start justify-between gap-3 flex-wrap">
+              <div>
+                <h1 className="text-lg font-bold">{card.name}</h1>
+                <p className="text-white/60 text-sm mt-0.5">Invoice Details</p>
+              </div>
+              <div className={`px-3 py-1.5 rounded-full text-xs font-semibold ${
+                invoiceData.invoice?.isPaid
+                  ? "bg-white/20 text-white border border-white/30"
+                  : "bg-amber-500/30 text-amber-100 border border-amber-400/40"
+              }`}>
+                {invoiceData.invoice?.isPaid ? "✓ Paid" : "Unpaid"}
+              </div>
+            </div>
 
-        {/* Month Navigation */}
-        <div className="mb-4 flex items-center justify-between gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handlePreviousMonth}
-            className="h-10 px-3 hover:bg-gray-100 text-gray-700"
-            aria-label="Previous month"
-          >
-            <ChevronLeft className="h-5 w-5" />
-            <span className="ml-1 font-medium">{getPreviousMonthLabel()}</span>
-          </Button>
-          
-          <div className="px-6 py-2.5 bg-slate-900 text-white rounded-full shadow-md">
-            <span className="font-semibold text-base">{getMonthYearLabel()}</span>
+            {/* Card stats row */}
+            <div className="flex items-center gap-5 mt-4 flex-wrap">
+              <div>
+                <div className="text-white/50 text-xs font-medium">Invoice Amount</div>
+                <div className="text-base font-bold">{formatCurrency(Math.max(0, invoiceAmount))}</div>
+              </div>
+              <div className="w-px h-6 bg-white/20" />
+              <div>
+                <div className="text-white/50 text-xs font-medium">Period</div>
+                <div className="text-sm font-semibold">
+                  {new Date(billStartDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })} – {new Date(billEndDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                </div>
+              </div>
+              <div className="w-px h-6 bg-white/20" />
+              <div>
+                <div className="text-white/50 text-xs font-medium">Due</div>
+                <div className="text-sm font-semibold">
+                  {new Date(paymentDueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                </div>
+              </div>
+            </div>
           </div>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleNextMonth}
-            className="h-10 px-3 hover:bg-gray-100 text-gray-700"
-            aria-label="Next month"
-          >
-            <span className="mr-1 font-medium">{getNextMonthLabel()}</span>
-            <ChevronRight className="h-5 w-5" />
-          </Button>
         </div>
 
-        {/* Main Invoice Card */}
-        <div className="grid grid-cols-2 md:grid-cols-2 gap-4 mb-4">
-          {/* Left Card - Invoice Status */}
-          <Card className="shadow-lg border-2 border-gray-100 hover:border-gray-200 transition-colors">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3 mb-5">
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center ${
-                  invoiceData.invoice?.isPaid ? 'bg-green-100' : 'bg-orange-100'
-                }`}>
-                  <CreditCard className={`h-7 w-7 ${
-                    invoiceData.invoice?.isPaid ? 'text-green-700' : 'text-orange-700'
-                  }`} />
-                </div>
-                <div>
-                  <div className={`text-base font-bold ${
-                    invoiceData.invoice?.isPaid ? 'text-green-700' : 'text-orange-700'
-                  }`}>
-                    {invoiceData.invoice?.isPaid ? 'Paid' : 'Open'}
-                  </div>
-                  <div className="text-sm font-semibold text-gray-900 mt-0.5">{card.name}</div>
-                </div>
-              </div>
-              
-              <div className="space-y-3 text-sm">
-                <div className="pb-2 border-b border-gray-100">
-                  <div className="text-gray-600 font-medium mb-1">Closes on</div>
-                  <div className="font-bold text-gray-900 text-base">
-                    {new Date(billEndDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-gray-600 font-medium mb-1">Due on</div>
-                  <div className="font-bold text-gray-900 text-base">
-                    {new Date(paymentDueDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Content */}
+        <div className="max-w-5xl mx-auto px-4 md:px-6 mt-5">
+          {/* Month Navigation */}
+          <div className="mb-5 bg-white rounded-2xl shadow-sm border border-slate-200/60 p-3 flex items-center justify-between">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handlePreviousMonth}
+              className="flex items-center gap-1 h-9 text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+              aria-label="Previous month"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              <span className="hidden sm:inline text-sm">{getPreviousMonthLabel()}</span>
+            </Button>
 
-          {/* Right Card - Financial Summary */}
-          <Card className="shadow-lg bg-gradient-to-br from-slate-800 to-slate-900 text-white border-2 border-slate-700">
-            <CardContent className="p-4 space-y-4">
-              <div>
-                <div className="text-slate-300 text-xs font-medium mb-1.5">Previous Balance</div>
-                <div className={`text-base font-bold ${
-                  previousBalance < 0 ? 'text-green-300' : 'text-red-300'
-                }`}>
-                  {formatCurrency(previousBalance)}
-                </div>
+            <div className="text-center">
+              <span className="text-sm font-semibold text-slate-800">{getMonthYearLabel()}</span>
+            </div>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleNextMonth}
+              className="flex items-center gap-1 h-9 text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+              aria-label="Next month"
+            >
+              <span className="hidden sm:inline text-sm">{getNextMonthLabel()}</span>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {/* Financial Summary Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-5">
+            <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-4">
+              <div className="text-xs text-slate-500 font-medium mb-1">Previous Balance</div>
+              <div className={`text-lg font-bold ${previousBalance < 0 ? "text-emerald-600" : "text-red-600"}`}>
+                {formatCurrency(previousBalance)}
               </div>
-              
-              <div>
-                <div className="text-slate-300 text-xs font-medium mb-1.5">Month Spending</div>
-                <div className="text-base font-bold text-red-300">
-                  {formatCurrency(monthSpending)}
-                </div>
+            </div>
+            <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-4">
+              <div className="text-xs text-slate-500 font-medium mb-1">Month Spending</div>
+              <div className="text-lg font-bold text-red-600">{formatCurrency(monthSpending)}</div>
+            </div>
+            <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-4 col-span-2 md:col-span-1">
+              <div className="text-xs text-slate-500 font-medium mb-1">Invoice Amount</div>
+              <div className={`text-lg font-bold ${invoiceAmount <= 0 ? "text-emerald-600" : "text-red-600"}`}>
+                {formatCurrency(invoiceAmount)}
               </div>
-              
-              <div className="pt-3 border-t border-slate-600">
-                <div className="text-slate-300 text-xs font-medium mb-1.5">Invoice Amount</div>
-                <div className={`text-lg font-bold ${
-                  invoiceAmount < 0 ? 'text-green-300' : 'text-red-300'
-                }`}>
-                  {formatCurrency(invoiceAmount)}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </div>
 
         {/* Pay Invoice Button */}
         {!invoiceData.invoice?.isPaid && invoiceAmount > 0 && (
           <Button
             onClick={handleOpenPaymentModal}
-            className="w-full h-14 text-base font-bold bg-green-600 hover:bg-green-700 text-white shadow-lg hover:shadow-xl transition-all mb-4"
+            className="w-full h-14 text-base font-bold bg-[#1a9e5c] hover:bg-[#158a4f] text-white shadow-lg hover:shadow-xl transition-all mb-4"
             aria-label="Pay invoice"
           >
             <Wallet className="h-5 w-5 mr-2" />
             Pay Invoice
           </Button>
+        )}
+
+        {/* View Invoice Details link */}
+        {invoiceData.invoice?.id && (
+          <div className="mb-4">
+            <a
+              href={`/invoice/${invoiceData.invoice.id}`}
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-colors"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+              View Invoice Details
+            </a>
+          </div>
         )}
 
         {/* Credit Balance Banner - shown when invoice amount is negative (excess payment) */}
@@ -810,7 +797,7 @@ export default function CreditCardDetailsPage() {
             <div className="space-y-5">
               {Object.entries(groupedTransactions).map(([dateKey, dayTransactions]) => (
                 <div key={dateKey}>
-                  <div className="text-sm font-bold text-gray-700 mb-3 px-1">
+                  <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 px-1">
                     {dateKey}
                   </div>
                   <div className="space-y-2">
@@ -819,7 +806,7 @@ export default function CreditCardDetailsPage() {
                       return (
                         <div 
                           key={transaction.id} 
-                          className="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 hover:shadow-md transition-all"
+                          className="flex items-center gap-3 p-4 bg-white rounded-xl border border-slate-100 hover:border-slate-200 hover:shadow-sm transition-all"
                         >
                           <div className="flex items-center gap-3 flex-1 min-w-0">
                             {/* Category Icon */}
@@ -881,18 +868,8 @@ export default function CreditCardDetailsPage() {
             </div>
           )}
         </div>
+        </div>
       </main>
-      
-      {/* Floating Action Button */}
-      <button
-        onClick={() => setIsTransactionModalOpen(true)}
-        className="fixed bottom-28 right-6 w-16 h-16 bg-red-600 hover:bg-red-700 text-white rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center transition-all z-20 border-2 border-red-700"
-        aria-label="Add transaction"
-      >
-        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-        </svg>
-      </button>
       
       <Footer />
       

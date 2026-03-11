@@ -1,36 +1,40 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getSessionCookie } from "better-auth/cookies";
+
+const protectedRoutes = [
+  "/dashboard",
+  "/transactions",
+  "/manage-cards",
+  "/manage-accounts",
+  "/credit-card",
+  "/bank-account",
+];
+
+const authRoutes = ["/login", "/signup"];
 
 export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const sessionCookie = getSessionCookie(request);
 
-  // Public routes that don't require authentication
-  const publicRoutes = ["/login", "/signup", "/api/auth"];
-
-  // Check if the current path is a public route
-  const isPublicRoute = publicRoutes.some((route) =>
+  const isProtectedRoute = protectedRoutes.some((route) =>
     pathname.startsWith(route),
   );
+  const isAuthRoute = authRoutes.includes(pathname);
 
-  // Allow access to public routes and API routes
-  if (isPublicRoute || pathname.startsWith("/api/auth")) {
-    return NextResponse.next();
+  if (isProtectedRoute && !sessionCookie) {
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // For protected routes, the session check is handled client-side
-  // in the page components using useSession
+  if (isAuthRoute && sessionCookie) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public files (public folder)
-     */
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

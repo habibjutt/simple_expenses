@@ -18,6 +18,7 @@ export async function createTransaction(formData: FormData) {
   const amount = parseFloat(formData.get("amount") as string);
   const date = formData.get("date") as string;
   const category = formData.get("category") as string;
+  const notes = (formData.get("notes") as string) || null;
   const creditCardId = formData.get("creditCardId") as string;
   const bankAccountId = formData.get("bankAccountId") as string;
   const installments = parseInt(formData.get("installments") as string) || 1;
@@ -99,6 +100,7 @@ export async function createTransaction(formData: FormData) {
           amount,
           date: transactionDate,
           category,
+          notes,
           installments,
           creditCardId,
           installmentNumber: 0, // 0 indicates this is the parent
@@ -118,6 +120,7 @@ export async function createTransaction(formData: FormData) {
               amount: installmentAmount,
               date: installmentDate,
               category,
+              notes,
               installments,
               parentTransactionId: parentTransaction.id,
               installmentNumber: i,
@@ -146,6 +149,7 @@ export async function createTransaction(formData: FormData) {
             amount,
             date: new Date(date),
             category,
+            notes,
             installments,
             creditCardId,
           },
@@ -190,6 +194,7 @@ export async function createTransaction(formData: FormData) {
           amount,
           date: new Date(date),
           category,
+          notes,
           installments,
           bankAccountId,
         },
@@ -490,6 +495,7 @@ export async function updateTransaction(transactionId: string, formData: FormDat
   const newAmount = parseFloat(formData.get("amount") as string);
   const date = formData.get("date") as string;
   const category = formData.get("category") as string;
+  const notes = (formData.get("notes") as string) || null;
   const newInstallments = parseInt(formData.get("installments") as string) || 1;
 
   if (!name || isNaN(newAmount) || !date || !category) {
@@ -556,6 +562,7 @@ export async function updateTransaction(transactionId: string, formData: FormDat
           amount: newAmount,
           date: new Date(date),
           category,
+          notes,
           installments: newInstallments,
         },
       }),
@@ -584,6 +591,7 @@ export async function updateTransaction(transactionId: string, formData: FormDat
           amount: newAmount,
           date: new Date(date),
           category,
+          notes,
           installments: newInstallments,
         },
       }),

@@ -7,8 +7,7 @@ import { deleteTransaction } from "@/app/api/transaction-action";
 import { getCreditCards } from "@/app/api/credit-card-action";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Calendar, DollarSign, Wallet, ChevronLeft, ChevronRight, Utensils, ShoppingCart, Home, Car, Coffee, Gift, Heart, TrendingUp, TrendingDown, Pencil, Trash2, Filter, X } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Utensils, ShoppingCart, Home, Car, Coffee, Gift, Heart, DollarSign, Pencil, Trash2, Filter, X } from "lucide-react";
 import TransactionModal from "@/components/transaction-modal";
 import {
   Dialog,
@@ -21,6 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Footer from "@/components/Footer";
+import Header from "@/components/Header";
 
 type Transaction = {
   id: string;
@@ -29,6 +29,7 @@ type Transaction = {
   date: Date;
   category: string;
   installments: number;
+  notes: string | null;
   createdAt: Date;
 };
 
@@ -67,6 +68,7 @@ export default function BankAccountDetailsPage() {
     date: Date;
     category: string;
     installments: number;
+    notes: string | null;
     creditCardId: string | null;
     bankAccountId: string | null;
   } | null>(null);
@@ -153,6 +155,7 @@ export default function BankAccountDetailsPage() {
       date: transaction.date,
       category: transaction.category,
       installments: transaction.installments,
+      notes: transaction.notes ?? null,
       creditCardId: null,
       bankAccountId: accountId,
     });
@@ -239,10 +242,11 @@ export default function BankAccountDetailsPage() {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto min-h-screen flex flex-col bg-white">
+      <div className="min-h-screen bg-[#f0f2f5]">
+        <Header />
         <main className="flex-1 p-4 md:p-6 pb-24">
           <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="text-gray-500">Loading account details...</div>
+            <div className="w-8 h-8 border-[3px] border-[#1a9e5c] border-t-transparent rounded-full animate-spin" />
           </div>
         </main>
         <Footer />
@@ -252,7 +256,8 @@ export default function BankAccountDetailsPage() {
 
   if (error || !accountData) {
     return (
-      <div className="max-w-7xl mx-auto min-h-screen flex flex-col bg-white">
+      <div className="min-h-screen bg-[#f0f2f5]">
+        <Header />
         <main className="flex-1 p-4 md:p-6 pb-24">
           <Button
             onClick={() => router.push("/")}
@@ -331,271 +336,244 @@ export default function BankAccountDetailsPage() {
   const netBalance = totalIncome - totalExpenses;
 
   return (
-    <div className="max-w-7xl mx-auto min-h-screen flex flex-col bg-white">
-      <main className="flex-1 p-4 md:p-6 pb-24">
-        {/* Header with Back Button */}
-        <div className="flex items-center justify-between mb-2">
-          <Button
-            onClick={() => router.push("/")}
-            variant="ghost"
-            size="sm"
-            className="h-9 px-2"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-sm font-bold">Account Details</h1>
-          <div className="w-9"></div> {/* Spacer for centering */}
-        </div>
+    <div className="min-h-screen bg-[#f0f2f5]">
+      <Header />
+      <main className="pb-24 lg:pb-8">
+        {/* Page header */}
+        <div className="bg-[#1a9e5c] text-white">
+          <div className="max-w-5xl mx-auto px-4 md:px-6 py-5">
+            <button
+              onClick={() => router.push("/dashboard")}
+              className="flex items-center gap-2 text-white/60 hover:text-white text-sm mb-3 transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Dashboard
+            </button>
+            <h1 className="text-lg font-bold">{account.name}</h1>
+            <p className="text-white/60 text-sm mt-0.5">Bank Account</p>
 
-        {/* Month Navigation */}
-        <div className="mb-2 flex items-center justify-between gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handlePreviousMonth}
-            className="h-10 px-3"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </Button>
-          
-          <div className="px-6 py-2 bg-gray-900 text-white rounded-full">
-            <span className="font-semibold">{getMonthYearLabel()}</span>
+            {/* Stats row */}
+            <div className="flex items-center gap-5 mt-4">
+              <div>
+                <div className="text-white/50 text-xs font-medium">Current Balance</div>
+                <div className="text-xl font-bold">{formatCurrency(account.currentBalance)}</div>
+              </div>
+              <div className="w-px h-8 bg-white/20" />
+              <div>
+                <div className="text-white/50 text-xs font-medium">Initial Balance</div>
+                <div className="text-base font-semibold">{formatCurrency(account.initialBalance)}</div>
+              </div>
+            </div>
           </div>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleNextMonth}
-            className="h-10 px-3"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </Button>
         </div>
 
-        {/* Main Account Card */}
-        <div className="grid grid-cols-2 md:grid-cols-2 gap-4 mb-2">
-          {/* Left Card - Account Info */}
-          <Card className="shadow-md py-2">
-            <CardContent className="p-2">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-                  <Wallet className="h-6 w-6 text-gray-600" />
-                </div>
-                <div>
-                  <div className="text-sm font-semibold text-gray-600">Bank Account</div>
-                  <div className="text-sm font-bold mt-0.5">{account.name}</div>
-                </div>
-              </div>
-              
-              <div className="space-y-2 text-sm">
-                <div>
-                  <div className="text-gray-500">Current Balance</div>
-                  <div className="font-bold text-green-600">
-                    {formatCurrency(account.currentBalance)}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-gray-500">Initial Balance</div>
-                  <div className="font-bold">
-                    {formatCurrency(account.initialBalance)}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Content */}
+        <div className="max-w-5xl mx-auto px-4 md:px-6 mt-5">
+          {/* Month Navigation */}
+          <div className="mb-5 bg-white rounded-2xl shadow-sm border border-slate-200/60 p-3 flex items-center justify-between">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handlePreviousMonth}
+              className="flex items-center gap-1 h-9 text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
 
-          {/* Right Card - Monthly Summary */}
-          <Card className="shadow-md bg-gray-800 text-white py-2">
-            <CardContent className="p-2 space-y-3">
-              <div>
-                <div className="text-gray-400 text-xs">Income</div>
-                <div className="text-sm font-bold text-green-400">
-                  +{formatCurrency(totalIncome)}
+            <div className="text-center">
+              <span className="text-sm font-semibold text-slate-800">{getMonthYearLabel()}</span>
+              {!isCurrentMonth() && (
+                <div>
+                  <button onClick={handleCurrentMonth} className="text-[10px] text-[#1a9e5c] hover:underline">
+                    Back to current
+                  </button>
                 </div>
-              </div>
-              
-              <div>
-                <div className="text-gray-400 text-xs">Expenses</div>
-                <div className="text-sm font-bold text-red-400">
-                  -{formatCurrency(totalExpenses)}
-                </div>
-              </div>
-              
-              <div className="pt-2 border-t border-gray-600">
-                <div className="text-gray-400 text-xs">Net Balance</div>
-                <div className={`text-sm font-bold ${netBalance >= 0 ? 'text-blue-400' : 'text-orange-400'}`}>
-                  {formatCurrency(netBalance)}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              )}
+            </div>
 
-        {/* Filter Section */}
-        <div className="mb-4 flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setFilterDialogOpen(true)}
-            className="flex items-center gap-2 h-9"
-          >
-            <Filter className="h-4 w-4" />
-            Filters
-            {hasActiveFilters && (
-              <span className="ml-1 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {(filterCategory ? 1 : 0) + (filterName ? 1 : 0)}
-              </span>
-            )}
-          </Button>
-          
-          {hasActiveFilters && (
-            <>
-              <div className="flex items-center gap-2 flex-wrap">
-                {filterCategory && (
-                  <div className="flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
-                    <span>Category: {filterCategory}</span>
-                    <button
-                      onClick={() => setFilterCategory("")}
-                      className="hover:bg-blue-200 rounded-full p-0.5"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                )}
-                {filterName && (
-                  <div className="flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
-                    <span>Name: {filterName}</span>
-                    <button
-                      onClick={() => setFilterName("")}
-                      className="hover:bg-blue-200 rounded-full p-0.5"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                )}
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearFilters}
-                className="h-9 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
-              >
-                Clear all
-              </Button>
-            </>
-          )}
-        </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleNextMonth}
+              className="flex items-center gap-1 h-9 text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
 
-        {/* Filter Summary */}
-        {hasActiveFilters && filteredTransactions.length > 0 && (
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-blue-900">
-                <span className="font-medium">{filteredTransactions.length}</span> transaction{filteredTransactions.length !== 1 ? 's' : ''} found
+          {/* Monthly Summary Cards */}
+          <div className="grid grid-cols-3 gap-3 mb-5">
+            <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-4">
+              <div className="text-xs text-slate-500 font-medium mb-1">Income</div>
+              <div className="text-lg font-bold text-emerald-600">+{formatCurrency(totalIncome)}</div>
+            </div>
+            <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-4">
+              <div className="text-xs text-slate-500 font-medium mb-1">Expenses</div>
+              <div className="text-lg font-bold text-red-600">-{formatCurrency(totalExpenses)}</div>
+            </div>
+            <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-4">
+              <div className="text-xs text-slate-500 font-medium mb-1">Net</div>
+              <div className={`text-lg font-bold ${netBalance >= 0 ? "text-emerald-600" : "text-red-600"}`}>
+                {formatCurrency(netBalance)}
               </div>
-              <div className="text-sm font-semibold">
-                Total: <span className={filteredTotal < 0 ? "text-green-600" : "text-red-600"}>
-                  {formatCurrency(Math.abs(filteredTotal))}
+            </div>
+          </div>
+
+          {/* Filter Section */}
+          <div className="mb-4 flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setFilterDialogOpen(true)}
+              className="flex items-center gap-2 h-9"
+            >
+              <Filter className="h-4 w-4" />
+              Filters
+              {hasActiveFilters && (
+                <span className="ml-1 bg-[#1a9e5c] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {(filterCategory ? 1 : 0) + (filterName ? 1 : 0)}
                 </span>
+              )}
+            </Button>
+
+            {hasActiveFilters && (
+              <>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {filterCategory && (
+                    <div className="flex items-center gap-1 bg-indigo-50 text-indigo-700 border border-indigo-100 px-2 py-1 rounded text-xs">
+                      <span>Category: {filterCategory}</span>
+                      <button
+                        onClick={() => setFilterCategory("")}
+                        className="hover:bg-indigo-100 rounded-full p-0.5"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  )}
+                  {filterName && (
+                    <div className="flex items-center gap-1 bg-indigo-50 text-indigo-700 border border-indigo-100 px-2 py-1 rounded text-xs">
+                      <span>Name: {filterName}</span>
+                      <button
+                        onClick={() => setFilterName("")}
+                        className="hover:bg-indigo-100 rounded-full p-0.5"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="h-9 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                  Clear all
+                </Button>
+              </>
+            )}
+          </div>
+
+          {/* Filter Summary */}
+          {hasActiveFilters && filteredTransactions.length > 0 && (
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-blue-900">
+                  <span className="font-medium">{filteredTransactions.length}</span> transaction{filteredTransactions.length !== 1 ? 's' : ''} found
+                </div>
+                <div className="text-sm font-semibold">
+                  Total: <span className={filteredTotal < 0 ? "text-green-600" : "text-red-600"}>
+                    {formatCurrency(Math.abs(filteredTotal))}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Transactions List - Simplified */}
-        <div className="mb-20">
-          {transactions.length === 0 ? (
-            <div className="py-12 text-center">
-              <p className="text-gray-500 text-sm">No transactions for this month</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {Object.entries(groupedTransactions).map(([dateKey, dayTransactions]) => (
-                <div key={dateKey}>
-                  <div className="text-sm font-medium text-gray-600 mb-2">
-                    {dateKey}
-                  </div>
-                  <div className="space-y-2">
-                    {dayTransactions.map((transaction) => {
-                      const isIncome = transaction.amount < 0;
-                      return (
-                        <div 
-                          key={transaction.id} 
-                          className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                        >
-                          <div className="flex items-center gap-3 flex-1 min-w-0">
-                            {/* Category Icon */}
-                            <div className={`w-10 h-10 ${isIncome ? 'bg-green-100' : 'bg-red-100'} rounded-full flex items-center justify-center flex-shrink-0`}>
-                              <div className={`${isIncome ? 'text-green-600' : 'text-red-600'} text-xs font-bold`}>
-                                {transaction.category.substring(0, 2).toUpperCase()}
+          {/* Transactions List */}
+          <div className="mb-6">
+            {transactions.length === 0 ? (
+              <div className="py-12 text-center">
+                <p className="text-gray-500 text-sm">No transactions for this month</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {Object.entries(groupedTransactions).map(([dateKey, dayTransactions]) => (
+                  <div key={dateKey}>
+                    <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
+                      {dateKey}
+                    </div>
+                    <div className="space-y-2">
+                      {dayTransactions.map((transaction) => {
+                        const isIncome = transaction.amount < 0;
+                        return (
+                          <div
+                            key={transaction.id}
+                            className="flex items-center gap-2 p-3 bg-white rounded-xl border border-slate-100 hover:border-slate-200 hover:shadow-sm transition-all"
+                          >
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              {/* Category Icon */}
+                              <div className={`w-10 h-10 ${isIncome ? 'bg-green-100' : 'bg-red-100'} rounded-full flex items-center justify-center flex-shrink-0`}>
+                                <div className={`${isIncome ? 'text-green-600' : 'text-red-600'} text-xs font-bold`}>
+                                  {transaction.category.substring(0, 2).toUpperCase()}
+                                </div>
                               </div>
-                            </div>
-                            
-                            {/* Transaction Info */}
-                            <div className="flex-1 min-w-0">
-                              <div className="font-medium text-sm truncate">
-                                {transaction.name}
-                              </div>
-                              <div className="flex items-center gap-2">
-                                {transaction.installments > 1 && (
-                                  <div className="text-xs text-gray-500">
-                                    {transaction.installments} installments
+
+                              {/* Transaction Info */}
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium text-sm truncate">
+                                  {transaction.name}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  {transaction.installments > 1 && (
+                                    <div className="text-xs text-gray-500">
+                                      {transaction.installments} installments
+                                    </div>
+                                  )}
+                                  {/* Amount */}
+                                  <div className={`text-xs font-semibold ${isIncome ? 'text-green-600' : 'text-red-600'}`}>
+                                    {isIncome ? '+' : ''}{formatCurrency(Math.abs(transaction.amount))}
                                   </div>
-                                )}
-                                {/* Amount - shown below name on mobile */}
-                                <div className={`text-xs font-semibold ${isIncome ? 'text-green-600' : 'text-red-600'}`}>
-                                  {isIncome ? '+' : ''}{formatCurrency(Math.abs(transaction.amount))}
                                 </div>
                               </div>
                             </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                              <Button
+                                onClick={() => handleEditTransaction(transaction)}
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                              >
+                                <Pencil className="h-4 w-4 text-blue-600" />
+                              </Button>
+                              <Button
+                                onClick={() => {
+                                  setDeletingTransactionId(transaction.id);
+                                  setIsDeleteTransactionConfirmOpen(true);
+                                }}
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0"
+                              >
+                                <Trash2 className="h-4 w-4 text-red-600" />
+                              </Button>
+                            </div>
                           </div>
-                          
-                          {/* Action Buttons */}
-                          <div className="flex items-center gap-1 flex-shrink-0">
-                            <Button
-                              onClick={() => handleEditTransaction(transaction)}
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                            >
-                              <Pencil className="h-4 w-4 text-blue-600" />
-                            </Button>
-                            <Button
-                              onClick={() => {
-                                setDeletingTransactionId(transaction.id);
-                                setIsDeleteTransactionConfirmOpen(true);
-                              }}
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
-                            >
-                              <Trash2 className="h-4 w-4 text-red-600" />
-                            </Button>
-                          </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </main>
-      
-      {/* Floating Action Button */}
-      <button
-        onClick={() => setIsTransactionModalOpen(true)}
-        className="fixed bottom-28 right-6 w-16 h-16 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center transition-all z-20 border-2 border-blue-700"
-        aria-label="Add transaction"
-      >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-        </svg>
-      </button>
-      
+
       <Footer />
-      
+
       {/* Transaction Edit Modal */}
       <TransactionModal
         open={isTransactionModalOpen}
@@ -605,7 +583,7 @@ export default function BankAccountDetailsPage() {
         onSuccess={handleTransactionSuccess}
         editTransaction={editingTransaction}
       />
-      
+
       {/* Delete Transaction Confirmation Modal */}
       <Dialog open={isDeleteTransactionConfirmOpen} onOpenChange={setIsDeleteTransactionConfirmOpen}>
         <DialogContent className="max-w-md">
@@ -615,13 +593,13 @@ export default function BankAccountDetailsPage() {
               Are you sure you want to delete this transaction? This action cannot be undone and will update your bank account balance.
             </DialogDescription>
           </DialogHeader>
-          
+
           {transactionDeleteError && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
               {transactionDeleteError}
             </div>
           )}
-          
+
           <DialogFooter>
             <Button
               variant="outline"
