@@ -7,7 +7,7 @@ import { Check, Sparkles, Zap, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "@/lib/auth-client";
 import { createCheckoutSession } from "@/app/api/billing-action";
-import { STRIPE_PRICES } from "@/lib/stripe";
+import { STRIPE_PRICES } from "@/lib/stripe-config";
 
 const PLANS = {
   monthly: [

@@ -1,12 +1,18 @@
+import "server-only";
 import Stripe from "stripe";
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-02-25.clover",
-});
+export { STRIPE_PRICES, TRIAL_DAYS } from "@/lib/stripe-config";
 
-export const STRIPE_PRICES = {
-  monthly: process.env.STRIPE_MONTHLY_PRICE_ID!,
-  yearly: process.env.STRIPE_YEARLY_PRICE_ID!,
-};
+let _stripe: Stripe | null = null;
 
-export const TRIAL_DAYS = 14;
+export function getStripe(): Stripe {
+  if (!_stripe) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error("STRIPE_SECRET_KEY environment variable is not set");
+    }
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: "2026-02-25.clover",
+    });
+  }
+  return _stripe;
+}

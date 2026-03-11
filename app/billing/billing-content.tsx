@@ -11,7 +11,7 @@ import {
   createPortalSession,
   getCurrentSubscription,
 } from "@/app/api/billing-action";
-import { STRIPE_PRICES } from "@/lib/stripe";
+import { STRIPE_PRICES } from "@/lib/stripe-config";
 import type { SubscriptionInfo } from "@/lib/subscription";
 import {
   Check,

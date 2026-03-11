@@ -2,7 +2,8 @@
 
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { stripe, STRIPE_PRICES } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
+import { STRIPE_PRICES } from "@/lib/stripe-config";
 import { db } from "@/lib/db";
 import { getSubscriptionInfo } from "@/lib/subscription";
 
@@ -17,7 +18,7 @@ async function getOrCreateStripeCustomer(userId: string) {
 
   if (user.stripeCustomerId) return user.stripeCustomerId;
 
-  const customer = await stripe.customers.create({
+  const customer = await getStripe().customers.create({
     email: user.email,
     name: user.name ?? undefined,
     metadata: { userId },
@@ -48,7 +49,7 @@ export async function createCheckoutSession(priceId: string) {
       ? (subInfo.daysLeftInTrial ?? 0)
       : 0;
 
-  const checkoutSession = await stripe.checkout.sessions.create({
+  const checkoutSession = await getStripe().checkout.sessions.create({
     customer: customerId,
     mode: "subscription",
     payment_method_types: ["card"],
@@ -72,7 +73,7 @@ export async function createPortalSession() {
   });
   if (!user?.stripeCustomerId) throw new Error("No billing account found");
 
-  const portalSession = await stripe.billingPortal.sessions.create({
+  const portalSession = await getStripe().billingPortal.sessions.create({
     customer: user.stripeCustomerId,
     return_url: `${BASE_URL}/billing`,
   });
