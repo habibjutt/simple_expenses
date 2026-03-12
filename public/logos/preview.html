@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Expenses — Logo Concepts</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #F3F4F6;
+      color: #111827;
+      padding: 40px 32px;
+    }
+    header { margin-bottom: 40px; }
+    header h1 { font-size: 28px; font-weight: 800; }
+    header p  { color: #6B7280; margin-top: 6px; font-size: 15px; }
+
+    .concept { margin-bottom: 48px; }
+    .concept-header { margin-bottom: 8px; }
+    .concept-header h2 { font-size: 20px; font-weight: 700; }
+    .concept-header p  { color: #6B7280; font-size: 13px; margin-top: 4px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #E5E7EB;
+      border-radius: 12px;
+      padding: 24px 20px 16px;
+    }
+    .card h3 {
+      font-size: 12px;
+      font-weight: 600;
+      color: #9CA3AF;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 16px;
+    }
+    .preview {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 80px;
+      padding: 8px;
+    }
+    .preview img { max-width: 100%; height: auto; }
+    .hint {
+      font-size: 11px;
+      color: #D1D5DB;
+      margin-top: 12px;
+      text-align: center;
+    }
+
+    .dark-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .card.dark {
+      background: #111827;
+      border-color: #374151;
+    }
+    .card.dark h3 { color: #4B5563; }
+
+    footer {
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid #E5E7EB;
+      font-size: 12px;
+      color: #9CA3AF;
+    }
+    code {
+      background: #F9FAFB;
+      border: 1px solid #E5E7EB;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Simple Expenses — Logo Concepts</h1>
+    <p>3 concepts × 3 layouts · All SVG (infinitely scalable) · Green palette</p>
+  </header>
+
+  <!-- CONCEPT 1 -->
+  <div class="concept">
+    <div class="concept-header">
+      <h2>Concept 1 · Growth Bars</h2>
+      <p>Ascending bar chart — financial growth and expense tracking at a glance.</p>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>Horizontal</h3>
+        <div class="preview"><img src="concept1-horizontal.svg" alt="Concept 1 Horizontal"></div>
+        <p class="hint">Website header · Business card</p>
+      </div>
+      <div class="card">
+        <h3>Vertical</h3>
+        <div class="preview"><img src="concept1-vertical.svg" style="max-width:160px" alt="Concept 1 Vertical"></div>
+        <p class="hint">Social media profile</p>
+      </div>
+      <div class="card">
+        <h3>Icon only</h3>
+        <div class="preview"><img src="concept1-icon.svg" style="width:64px;height:64px" alt="Concept 1 Icon"></div>
+        <p class="hint">Favicon · App icon</p>
+      </div>
+    </div>
+    <div class="dark-row">
+      <div class="card dark">
+        <h3>Dark bg</h3>
+        <div class="preview"><img src="concept1-horizontal.svg" alt="Concept 1 Horizontal dark"></div>
+      </div>
+      <div class="card dark">
+        <h3>Dark bg</h3>
+        <div class="preview"><img src="concept1-vertical.svg" style="max-width:160px" alt="Concept 1 Vertical dark"></div>
+      </div>
+      <div class="card dark">
+        <h3>Dark bg</h3>
+        <div class="preview"><img src="concept1-icon.svg" style="width:64px;height:64px" alt="Concept 1 Icon dark"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONCEPT 2 -->
+  <div class="concept">
+    <div class="concept-header">
+      <h2>Concept 2 · Leaf Square</h2>
+      <p>Green rounded square with a white leaf — growth, freshness, and financial wellness.</p>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>Horizontal</h3>
+        <div class="preview"><img src="concept2-horizontal.svg" alt="Concept 2 Horizontal"></div>
+        <p class="hint">Website header · Business card</p>
+      </div>
+      <div class="card">
+        <h3>Vertical</h3>
+        <div class="preview"><img src="concept2-vertical.svg" style="max-width:160px" alt="Concept 2 Vertical"></div>
+        <p class="hint">Social media profile</p>
+      </div>
+      <div class="card">
+        <h3>Icon only</h3>
+        <div class="preview"><img src="concept2-icon.svg" style="width:64px;height:64px" alt="Concept 2 Icon"></div>
+        <p class="hint">Favicon · App icon</p>
+      </div>
+    </div>
+    <div class="dark-row">
+      <div class="card dark">
+        <h3>Dark bg</h3>
+        <div class="preview"><img src="concept2-horizontal.svg" alt="Concept 2 Horizontal dark"></div>
+      </div>
+      <div class="card dark">
+        <h3>Dark bg</h3>
+        <div class="preview"><img src="concept2-vertical.svg" style="max-width:160px" alt="Concept 2 Vertical dark"></div>
+      </div>
+      <div class="card dark">
+        <h3>Dark bg</h3>
+        <div class="preview"><img src="concept2-icon.svg" style="width:64px;height:64px" alt="Concept 2 Icon dark"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONCEPT 3 -->
+  <div class="concept">
+    <div class="concept-header">
+      <h2>Concept 3 · Card Stack</h2>
+      <p>Three stacked credit cards in graduating greens — multi-account expense management.</p>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>Horizontal</h3>
+        <div class="preview"><img src="concept3-horizontal.svg" alt="Concept 3 Horizontal"></div>
+        <p class="hint">Website header · Business card</p>
+      </div>
+      <div class="card">
+        <h3>Vertical</h3>
+        <div class="preview"><img src="concept3-vertical.svg" style="max-width:160px" alt="Concept 3 Vertical"></div>
+        <p class="hint">Social media profile</p>
+      </div>
+      <div class="card">
+        <h3>Icon only</h3>
+        <div class="preview"><img src="concept3-icon.svg" style="width:64px;height:64px" alt="Concept 3 Icon"></div>
+        <p class="hint">Favicon · App icon</p>
+      </div>
+    </div>
+    <div class="dark-row">
+      <div class="card dark">
+        <h3>Dark bg</h3>
+        <div class="preview"><img src="concept3-horizontal.svg" alt="Concept 3 Horizontal dark"></div>
+      </div>
+      <div class="card dark">
+        <h3>Dark bg</h3>
+        <div class="preview"><img src="concept3-vertical.svg" style="max-width:160px" alt="Concept 3 Vertical dark"></div>
+      </div>
+      <div class="card dark">
+        <h3>Dark bg</h3>
+        <div class="preview"><img src="concept3-icon.svg" style="width:64px;height:64px" alt="Concept 3 Icon dark"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Files saved to <code>public/logos/</code> · Preview at <code>http://localhost:3000/logos/preview.html</code></p>
+    <p style="margin-top:8px">To use a logo: <code>&lt;img src="/logos/concept2-horizontal.svg" alt="Simple Expenses" /&gt;</code></p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 285 72" fill="none" role="img" aria-label="Simple Expenses logo">
+  <!-- Card stack, vertically centered in 72px -->
+  <rect x="16" y="30" width="42" height="24" rx="4" fill="#064E3B"/>
+  <rect x="10" y="24" width="42" height="24" rx="4" fill="#065F46"/>
+  <rect x="4"  y="18" width="42" height="24" rx="4" fill="#10B981"/>
+  <!-- Chip -->
+  <rect x="9" y="22" width="9" height="7" rx="2" fill="white" fill-opacity="0.35"/>
+  <!-- Card number -->
+  <line x1="9"  y1="34" x2="19" y2="34" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.5"/>
+  <line x1="23" y1="34" x2="33" y2="34" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.5"/>
+  <!-- Separator -->
+  <line x1="68" y1="10" x2="68" y2="62" stroke="#E5E7EB" stroke-width="1.5"/>
+  <!-- Wordmark -->
+  <text x="82" y="37" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="700" fill="#111827">Simple</text>
+  <text x="82" y="56" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="500" fill="#9CA3AF" letter-spacing="4">EXPENSES</text>
+</svg>

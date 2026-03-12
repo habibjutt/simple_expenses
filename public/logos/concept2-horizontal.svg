@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 285 72" role="img" aria-label="Simple Expenses logo">
+  <defs>
+    <linearGradient id="leafBgH" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4ADE80"/>
+      <stop offset="100%" stop-color="#15803D"/>
+    </linearGradient>
+  </defs>
+  <!-- Icon: rounded square at x=8 y=8 -->
+  <rect x="8" y="8" width="56" height="56" rx="12" fill="url(#leafBgH)"/>
+  <!-- Leaf centered at (36,36) -->
+  <path d="M36,14 C52,14 58,26 56,36 C54,48 46,56 36,58 C26,56 18,48 16,36 C14,26 20,14 36,14 Z" fill="white"/>
+  <line x1="36" y1="58" x2="36" y2="62" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <line x1="36" y1="16" x2="36" y2="56" stroke="#15803D" stroke-width="1.5" stroke-linecap="round" opacity="0.35"/>
+  <!-- Separator -->
+  <line x1="76" y1="10" x2="76" y2="62" stroke="#E5E7EB" stroke-width="1.5"/>
+  <!-- Wordmark -->
+  <text x="90" y="37" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="700" fill="#111827">Simple</text>
+  <text x="90" y="56" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="500" fill="#9CA3AF" letter-spacing="4">EXPENSES</text>
+</svg>

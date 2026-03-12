@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 285 72" fill="none" role="img" aria-label="Simple Expenses logo">
+  <!-- Icon: ascending bars -->
+  <rect x="4"  y="42" width="13" height="20" rx="3" fill="#10B981" fill-opacity="0.35"/>
+  <rect x="23" y="28" width="13" height="34" rx="3" fill="#10B981" fill-opacity="0.70"/>
+  <rect x="42" y="10" width="13" height="52" rx="3" fill="#10B981"/>
+  <!-- Separator -->
+  <line x1="68" y1="10" x2="68" y2="62" stroke="#E5E7EB" stroke-width="1.5"/>
+  <!-- Wordmark -->
+  <text x="82" y="37" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="25" font-weight="700" fill="#111827">Simple</text>
+  <text x="82" y="56" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="500" fill="#9CA3AF" letter-spacing="4">EXPENSES</text>
+</svg>
