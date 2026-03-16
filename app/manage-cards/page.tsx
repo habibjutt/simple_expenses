@@ -114,7 +114,7 @@ export default function ManageCardsPage() {
     return (
       <div className="min-h-screen bg-[#f0f2f5]">
         <Header />
-        <div className="max-w-5xl mx-auto px-4 md:px-6 py-8 space-y-3">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-32 rounded-2xl bg-white animate-pulse" />
           ))}
@@ -139,7 +139,7 @@ export default function ManageCardsPage() {
 
       {/* Page hero */}
       <div className="bg-[#1a9e5c] text-white">
-        <div className="max-w-5xl mx-auto px-4 md:px-6 py-6">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-lg font-bold">Credit Cards</h1>
@@ -175,7 +175,7 @@ export default function ManageCardsPage() {
         </div>
       </div>
 
-      <main className="max-w-5xl mx-auto px-4 md:px-6 py-6 pb-24 lg:pb-8">
+      <main className="max-w-7xl mx-auto px-4 md:px-6 py-6 pb-24 lg:pb-8">
         {cards.length === 0 ? (
           <div className="bg-white rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center py-16 px-4">
             <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">

@@ -8,14 +8,15 @@ import { useRouter } from "next/navigation";
 import { getReportData, getMonthlyTrend, getBudgetVsActual } from "@/app/api/reports-action";
 import { formatCurrency } from "@/lib/utils";
 import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, PieChart as PieIcon, Target } from "lucide-react";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend,
   type PieLabelRenderProps,
 } from "recharts";
 
-type CategoryStat = { category: string; amount: number; color: string };
+type CategoryStat = { category: string; amount: number; color: string; icon: string };
 type MonthlyData = { month: string; income: number; expenses: number };
-type BudgetItem = { category: string; budget: number; actual: number; color: string };
+type BudgetItem = { category: string; budget: number; actual: number; color: string; icon: string };
 
 const RADIAN = Math.PI / 180;
 const renderLabel = (props: PieLabelRenderProps) => {
@@ -123,7 +124,7 @@ export default function ReportsPage() {
       <main className="pb-24 lg:pb-8">
         {/* Page header */}
         <div className="bg-[#1a9e5c] text-white">
-          <div className="max-w-5xl mx-auto px-4 md:px-6 py-5">
+          <div className="max-w-7xl mx-auto px-4 md:px-6 py-5">
             <h1 className="text-lg font-bold">Reports</h1>
             <p className="text-white/60 text-sm mt-0.5">Understand where your money goes</p>
 
@@ -148,7 +149,7 @@ export default function ReportsPage() {
           </div>
         </div>
 
-        <div className="max-w-5xl mx-auto px-4 md:px-6 mt-5">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 mt-5">
           {/* Month nav (for categories + budget tabs) */}
           {(tab === "categories" || tab === "budget") && (
             <div className="flex items-center justify-between mb-5 bg-white rounded-2xl p-3 shadow-sm border border-slate-200/60">
@@ -211,7 +212,9 @@ export default function ReportsPage() {
                         const pct = totalExpenses > 0 ? ((cat.amount / totalExpenses) * 100).toFixed(1) : "0";
                         return (
                           <div key={i} className="flex items-center gap-3 px-5 py-3">
-                            <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
+                            <div className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: cat.color + "22" }}>
+                              <CategoryIcon icon={cat.icon} className="h-3.5 w-3.5" color={cat.color} />
+                            </div>
                             <span className="flex-1 text-sm text-slate-700 truncate">{cat.category}</span>
                             <span className="text-xs text-slate-400">{pct}%</span>
                             <span className="text-sm font-semibold text-slate-800 tabular-nums">{formatCurrency(cat.amount)}</span>
@@ -238,7 +241,9 @@ export default function ReportsPage() {
                   <div className="divide-y divide-slate-50">
                     {incomeStats.map((cat, i) => (
                       <div key={i} className="flex items-center gap-3 px-5 py-3">
-                        <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
+                        <div className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: cat.color + "22" }}>
+                          <CategoryIcon icon={cat.icon} className="h-3.5 w-3.5" color={cat.color} />
+                        </div>
                         <span className="flex-1 text-sm text-slate-700">{cat.category}</span>
                         <span className="text-sm font-semibold text-emerald-700 tabular-nums">+{formatCurrency(cat.amount)}</span>
                       </div>
@@ -293,7 +298,9 @@ export default function ReportsPage() {
                       <div key={i} className="px-5 py-4">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
-                            <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                            <div className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: item.color + "22" }}>
+                              <CategoryIcon icon={item.icon} className="h-3.5 w-3.5" color={item.color} />
+                            </div>
                             <span className="text-sm font-medium text-slate-700">{item.category}</span>
                             {over && <span className="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full font-medium">Over budget</span>}
                           </div>

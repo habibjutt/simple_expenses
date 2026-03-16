@@ -18,7 +18,6 @@ import { Input } from "@/components/ui/input";
 import { signUp, signIn } from "@/lib/auth-client";
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const [name, setName] = useState("");
@@ -27,7 +26,6 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   const handleEmailPasswordSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +52,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
         },
         {
           onSuccess: () => {
-            router.push("/dashboard");
+            window.location.href = "/dashboard";
           },
           onError: (ctx) => {
             setError(ctx.error.message || "Signup failed");

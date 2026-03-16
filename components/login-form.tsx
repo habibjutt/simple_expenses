@@ -19,7 +19,6 @@ import { Input } from "@/components/ui/input";
 import { signIn } from "@/lib/auth-client";
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 export function LoginForm({
   className,
@@ -29,7 +28,6 @@ export function LoginForm({
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   const handleEmailPasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,7 +42,7 @@ export function LoginForm({
         },
         {
           onSuccess: () => {
-            router.push("/dashboard");
+            window.location.href = "/dashboard";
           },
           onError: (ctx) => {
             setError(ctx.error.message || "Login failed");

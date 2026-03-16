@@ -6,10 +6,13 @@ import { getUpcomingInvoice, payInvoice } from "@/app/api/credit-card-action";
 import { getBankAccounts } from "@/app/api/bank-account-action";
 import { deleteInvoice, unpayInvoice } from "@/app/api/invoice-action";
 import { deleteTransaction } from "@/app/api/transaction-action";
+import { getCategories } from "@/app/api/category-action";
+import { type Category as CategoryType } from "@/lib/category-data";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Calendar, DollarSign, CreditCard, Clock, ChevronLeft, ChevronRight, CheckCircle, Wallet, Pencil, Trash2, XCircle, Utensils, ShoppingCart, Home, Car, Coffee, Gift, Heart, TrendingUp, TrendingDown, Filter, X } from "lucide-react";
+import { ArrowLeft, Calendar, DollarSign, CreditCard, Clock, ChevronLeft, ChevronRight, CheckCircle, Wallet, Pencil, Trash2, XCircle, TrendingUp, TrendingDown, Filter, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import TransactionModal from "@/components/transaction-modal";
 import Footer from "@/components/Footer";
@@ -79,6 +82,7 @@ export default function CreditCardDetailsPage() {
   // Month navigation state - default to null to let backend determine the correct period
   const [selectedMonth, setSelectedMonth] = useState<number | undefined>(undefined);
   const [selectedYear, setSelectedYear] = useState<number | undefined>(undefined);
+  const [categories, setCategories] = useState<CategoryType[]>([]);
   
   // Payment modal state
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -126,8 +130,12 @@ export default function CreditCardDetailsPage() {
     const fetchInvoiceData = async () => {
       try {
         setLoading(true);
-        const data = await getUpcomingInvoice(cardId, selectedMonth, selectedYear);
+        const [data, cats] = await Promise.all([
+          getUpcomingInvoice(cardId, selectedMonth, selectedYear),
+          getCategories(),
+        ]);
         setInvoiceData(data);
+        setCategories(cats);
       } catch (err: any) {
         setError(err.message || "Failed to load invoice data");
       } finally {
@@ -375,47 +383,7 @@ export default function CreditCardDetailsPage() {
     });
   };
   
-  const getCategoryIcon = (category: string) => {
-    const categoryLower = category.toLowerCase();
-    if (categoryLower.includes("food") || categoryLower.includes("restaurant")) {
-      return <Utensils className="h-5 w-5" />;
-    } else if (categoryLower.includes("grocery") || categoryLower.includes("groceries") || categoryLower.includes("supermarket")) {
-      return <ShoppingCart className="h-5 w-5" />;
-    } else if (categoryLower.includes("home") || categoryLower.includes("rent") || categoryLower.includes("utilities")) {
-      return <Home className="h-5 w-5" />;
-    } else if (categoryLower.includes("transport") || categoryLower.includes("car") || categoryLower.includes("gas")) {
-      return <Car className="h-5 w-5" />;
-    } else if (categoryLower.includes("coffee") || categoryLower.includes("cafe")) {
-      return <Coffee className="h-5 w-5" />;
-    } else if (categoryLower.includes("gift") || categoryLower.includes("shopping")) {
-      return <Gift className="h-5 w-5" />;
-    } else if (categoryLower.includes("health") || categoryLower.includes("medical")) {
-      return <Heart className="h-5 w-5" />;
-    } else {
-      return <DollarSign className="h-5 w-5" />;
-    }
-  };
-  
-  const getCategoryColor = (category: string) => {
-    const categoryLower = category.toLowerCase();
-    if (categoryLower.includes("food") || categoryLower.includes("restaurant")) {
-      return "bg-pink-500";
-    } else if (categoryLower.includes("grocery") || categoryLower.includes("groceries")) {
-      return "bg-orange-500";
-    } else if (categoryLower.includes("home") || categoryLower.includes("rent")) {
-      return "bg-blue-500";
-    } else if (categoryLower.includes("transport") || categoryLower.includes("car")) {
-      return "bg-green-500";
-    } else if (categoryLower.includes("coffee")) {
-      return "bg-amber-600";
-    } else if (categoryLower.includes("gift") || categoryLower.includes("shopping")) {
-      return "bg-purple-500";
-    } else if (categoryLower.includes("health")) {
-      return "bg-red-500";
-    } else {
-      return "bg-gray-500";
-    }
-  };
+  const catMap = new Map(categories.map((c) => [c.name, c]));
 
   if (loading) {
     return (
@@ -506,7 +474,7 @@ export default function CreditCardDetailsPage() {
       <main className="pb-24 lg:pb-8">
         {/* Page header */}
         <div className="bg-[#1a9e5c] text-white">
-          <div className="max-w-5xl mx-auto px-4 md:px-6 py-5">
+          <div className="max-w-7xl mx-auto px-4 md:px-6 py-5">
             <button
               onClick={() => router.push("/dashboard")}
               className="flex items-center gap-2 text-white/60 hover:text-white text-sm mb-3 transition-colors"
@@ -553,7 +521,7 @@ export default function CreditCardDetailsPage() {
         </div>
 
         {/* Content */}
-        <div className="max-w-5xl mx-auto px-4 md:px-6 mt-5">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 mt-5">
           {/* Month Navigation */}
           <div className="mb-5 bg-white rounded-2xl shadow-sm border border-slate-200/60 p-3 flex items-center justify-between">
             <Button
@@ -810,10 +778,15 @@ export default function CreditCardDetailsPage() {
                         >
                           <div className="flex items-center gap-3 flex-1 min-w-0">
                             {/* Category Icon */}
-                            <div className={`w-12 h-12 ${isIncome ? 'bg-green-100 border-2 border-green-200' : 'bg-red-100 border-2 border-red-200'} rounded-full flex items-center justify-center shrink-0 shadow-sm`}>
-                              <div className={`${isIncome ? 'text-green-700' : 'text-red-700'} text-xs font-bold`}>
-                                {transaction.category.substring(0, 2).toUpperCase()}
-                              </div>
+                            <div
+                              className="w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-sm"
+                              style={{ backgroundColor: (catMap.get(transaction.category)?.color ?? "#64748b") + "22" }}
+                            >
+                              <CategoryIcon
+                                icon={catMap.get(transaction.category)?.icon ?? "tag"}
+                                className="h-5 w-5"
+                                color={catMap.get(transaction.category)?.color ?? "#64748b"}
+                              />
                             </div>
                             
                             {/* Transaction Info */}

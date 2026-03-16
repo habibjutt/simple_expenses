@@ -256,7 +256,7 @@ export default function GoalsPage() {
       <main className="pb-24 lg:pb-8">
         {/* Hero */}
         <div className="bg-[#1a9e5c] text-white">
-          <div className="max-w-5xl mx-auto px-4 md:px-6 py-6">
+          <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-lg font-bold">Savings Goals</h1>
@@ -294,7 +294,7 @@ export default function GoalsPage() {
           </div>
         </div>
 
-        <div className="max-w-5xl mx-auto px-4 md:px-6 mt-5">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 mt-5">
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <div className="w-8 h-8 border-[3px] border-[#1a9e5c] border-t-transparent rounded-full animate-spin" />

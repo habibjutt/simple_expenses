@@ -14,6 +14,7 @@ export type CategoryStat = {
   category: string;
   amount: number;
   color: string;
+  icon: string;
 };
 
 export type MonthlyData = {
@@ -27,6 +28,7 @@ export type BudgetVsActual = {
   budget: number;
   actual: number;
   color: string;
+  icon: string;
 };
 
 export async function getReportData(month: number, year: number) {
@@ -66,6 +68,7 @@ export async function getReportData(month: number, year: number) {
 
   const categories = await prisma.category.findMany({ where: { userId } });
   const colorMap = new Map(categories.map((c) => [c.name, c.color]));
+  const iconMap = new Map(categories.map((c) => [c.name, c.icon]));
 
   const COLORS = ["#f97316","#ef4444","#3b82f6","#a855f7","#22c55e","#ec4899","#06b6d4","#84cc16","#14b8a6","#f59e0b","#8b5cf6","#64748b"];
   let colorIdx = 0;
@@ -76,6 +79,7 @@ export async function getReportData(month: number, year: number) {
       category,
       amount,
       color: colorMap.get(category) ?? COLORS[colorIdx++ % COLORS.length],
+      icon: iconMap.get(category) ?? "tag",
     }));
 
   const incomeStats: CategoryStat[] = Array.from(incomeMap.entries())
@@ -84,6 +88,7 @@ export async function getReportData(month: number, year: number) {
       category,
       amount,
       color: colorMap.get(category) ?? "#22c55e",
+      icon: iconMap.get(category) ?? "tag",
     }));
 
   return { totalIncome, totalExpenses, expenseStats, incomeStats };
@@ -157,6 +162,7 @@ export async function getBudgetVsActual(month: number, year: number): Promise<Bu
 
   const categories = await prisma.category.findMany({ where: { userId } });
   const colorMap = new Map(categories.map((c) => [c.name, c.color]));
+  const iconMap = new Map(categories.map((c) => [c.name, c.icon]));
   const COLORS = ["#f97316","#ef4444","#3b82f6","#a855f7","#22c55e","#ec4899","#06b6d4","#84cc16","#14b8a6","#f59e0b","#8b5cf6","#64748b"];
   let colorIdx = 0;
 
@@ -165,5 +171,6 @@ export async function getBudgetVsActual(month: number, year: number): Promise<Bu
     budget: limit.amount,
     actual: actualMap.get(limit.categoryName) || 0,
     color: colorMap.get(limit.categoryName) ?? COLORS[colorIdx++ % COLORS.length],
+    icon: iconMap.get(limit.categoryName) ?? "tag",
   })).sort((a, b) => b.budget - a.budget);
 }

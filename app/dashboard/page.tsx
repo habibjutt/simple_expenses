@@ -34,6 +34,7 @@ import {
   ArrowRight,
   Tag,
 } from "lucide-react";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -70,7 +71,7 @@ type NextBill = {
   cardId: string; nextBillStartDate: Date; nextBillEndDate: Date;
   nextPaymentDueDate: Date; totalAmount: number;
 };
-type CategoryStat = { category: string; amount: number; color: string };
+type CategoryStat = { category: string; amount: number; color: string; icon: string };
 
 export default function Home() {
   const { data: session, isPending } = useSession();
@@ -519,7 +520,12 @@ export default function Home() {
                       return (
                         <div key={i}>
                           <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs font-medium text-slate-600 truncate max-w-[130px]">{cat.category}</span>
+                            <div className="flex items-center gap-1.5">
+                              <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ backgroundColor: cat.color + "22" }}>
+                                <CategoryIcon icon={cat.icon} className="h-3 w-3" color={cat.color} />
+                              </div>
+                              <span className="text-xs font-medium text-slate-600 truncate max-w-[100px]">{cat.category}</span>
+                            </div>
                             <span className="text-xs font-bold text-slate-800 tabular-nums">{formatCurrency(cat.amount)}</span>
                           </div>
                           <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">

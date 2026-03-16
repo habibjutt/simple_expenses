@@ -10,6 +10,7 @@ import {
   seedDefaultCategories, type Category,
 } from "@/app/api/category-action";
 import { Plus, Pencil, Trash2, Tag } from "lucide-react";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -40,6 +41,7 @@ function CategoryForm({
 }) {
   const [name, setName] = useState(initial?.name ?? "");
   const [color, setColor] = useState(initial?.color ?? "#3b82f6");
+  const [icon, setIcon] = useState(initial?.icon ?? "tag");
   const [type, setType] = useState(initial?.type ?? "expense");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -50,7 +52,7 @@ function CategoryForm({
     setLoading(true);
     setError("");
     try {
-      await onSave({ name: name.trim(), color, icon: "tag", type });
+      await onSave({ name: name.trim(), color, icon, type });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to save");
     } finally {
@@ -89,6 +91,25 @@ function CategoryForm({
             className="w-7 h-7 rounded-full border-2 border-slate-300 cursor-pointer overflow-hidden"
             title="Custom color"
           />
+        </div>
+      </div>
+      <div>
+        <label className="block text-xs font-semibold text-slate-600 mb-1.5">Icon</label>
+        <div className="flex flex-wrap gap-2">
+          {PRESET_ICONS.map(ic => (
+            <button
+              key={ic}
+              type="button"
+              onClick={() => setIcon(ic)}
+              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
+                icon === ic ? "ring-2 ring-offset-1 ring-slate-700" : "bg-slate-100 hover:bg-slate-200"
+              }`}
+              style={icon === ic ? { backgroundColor: color + "33" } : undefined}
+              title={ic}
+            >
+              <CategoryIcon icon={ic} className="h-4 w-4" color={icon === ic ? color : "#64748b"} />
+            </button>
+          ))}
         </div>
       </div>
       <div>
@@ -184,7 +205,7 @@ export default function CategoriesPage() {
       <main className="pb-24 lg:pb-8">
         {/* Page header */}
         <div className="bg-[#1a9e5c] text-white">
-          <div className="max-w-3xl mx-auto px-4 md:px-6 py-5">
+          <div className="max-w-7xl mx-auto px-4 md:px-6 py-5">
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-lg font-bold">Categories</h1>
@@ -218,7 +239,7 @@ export default function CategoriesPage() {
           </div>
         </div>
 
-        <div className="max-w-3xl mx-auto px-4 md:px-6 mt-5 space-y-4">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 mt-5 space-y-4">
           {/* Add form */}
           {showForm && (
             <CategoryForm onSave={handleCreate} onCancel={() => setShowForm(false)} />
@@ -252,7 +273,7 @@ export default function CategoriesPage() {
                 {filtered.map(cat => (
                   <div key={cat.id} className="flex items-center gap-3 px-5 py-3.5">
                     <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: cat.color + "22" }}>
-                      <div className="w-4 h-4 rounded-full" style={{ backgroundColor: cat.color }} />
+                      <CategoryIcon icon={cat.icon} className="h-4 w-4" color={cat.color} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-slate-800 truncate">{cat.name}</p>

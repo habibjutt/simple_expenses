@@ -189,7 +189,7 @@ export default function InvoiceDetailPage() {
       <div className="min-h-screen bg-[#f0f2f5]">
         {/* Hero banner */}
         <div className="bg-[#1a9e5c] text-white">
-          <div className="max-w-4xl mx-auto px-4 md:px-6 py-6">
+          <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
             <button
               onClick={() => router.back()}
               className="flex items-center gap-1.5 text-white/75 hover:text-white text-sm mb-4 transition-colors"
@@ -237,7 +237,7 @@ export default function InvoiceDetailPage() {
           </div>
         </div>
 
-        <div className="max-w-4xl mx-auto px-4 md:px-6 py-6 space-y-4">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 space-y-4">
           {/* Details card */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-5">
             <h2 className="text-sm font-semibold text-slate-700 mb-4">Payment Details</h2>

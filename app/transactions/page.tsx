@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { getTransactions, deleteTransaction } from "@/app/api/transaction-action";
+import { getCategories } from "@/app/api/category-action";
+import { type Category as CategoryType } from "@/lib/category-data";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import { formatCurrency } from "@/lib/utils";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
@@ -73,6 +76,7 @@ export default function TransactionsPage() {
   const { data: session, isPending } = useSession();
   const router = useRouter();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [categories, setCategories] = useState<CategoryType[]>([]);
   const [creditCards, setCreditCards] = useState<CreditCard[]>([]);
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
   const [loading, setLoading] = useState(true);
@@ -129,11 +133,21 @@ export default function TransactionsPage() {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const cats = await getCategories();
+      setCategories(cats);
+    } catch (error) {
+      console.error("Failed to fetch categories:", error);
+    }
+  };
+
   useEffect(() => {
     if (session && !dataLoaded) {
       fetchTransactions();
       fetchCreditCards();
       fetchBankAccounts();
+      fetchCategories();
       setDataLoaded(true);
     }
   }, [session, dataLoaded]);
@@ -152,6 +166,8 @@ export default function TransactionsPage() {
   if (!session) {
     return null;
   }
+
+  const catMap = new Map(categories.map((c) => [c.name, c]));
 
   // Filter transactions by selected month and filters
   const filteredTransactions = transactions
@@ -283,7 +299,7 @@ export default function TransactionsPage() {
       <main className="pb-24 lg:pb-8">
         {/* Page header */}
         <div className="bg-[#1a9e5c] text-white">
-          <div className="max-w-5xl mx-auto px-4 md:px-6 py-5">
+          <div className="max-w-7xl mx-auto px-4 md:px-6 py-5">
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div>
                 <h1 className="text-lg font-bold">Transactions</h1>
@@ -313,7 +329,7 @@ export default function TransactionsPage() {
           </div>
         </div>
 
-        <div className="max-w-5xl mx-auto px-4 md:px-6 mt-5">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 mt-5">
 
         {/* Month Navigation */}
         <div className="mb-5 bg-white rounded-2xl shadow-sm border border-slate-100 p-3 flex items-center justify-between">
@@ -463,35 +479,14 @@ export default function TransactionsPage() {
                         className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 group transition-colors border-b border-slate-50 last:border-b-0"
                       >
                         <div
-                          className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${
-                            transaction.category === "Transfer"
-                              ? "bg-blue-100"
-                              : transaction.amount < 0
-                              ? "bg-emerald-100"
-                              : "bg-red-100"
-                          }`}
+                          className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+                          style={{ backgroundColor: (catMap.get(transaction.category)?.color ?? "#64748b") + "22" }}
                         >
-                          {transaction.creditCardId ? (
-                            <CreditCard
-                              className={`h-4 w-4 ${
-                                transaction.category === "Transfer"
-                                  ? "text-blue-600"
-                                  : transaction.amount < 0
-                                  ? "text-emerald-600"
-                                  : "text-red-600"
-                              }`}
-                            />
-                          ) : (
-                            <Wallet
-                              className={`h-4 w-4 ${
-                                transaction.category === "Transfer"
-                                  ? "text-blue-600"
-                                  : transaction.amount < 0
-                                  ? "text-emerald-600"
-                                  : "text-red-600"
-                              }`}
-                            />
-                          )}
+                          <CategoryIcon
+                            icon={catMap.get(transaction.category)?.icon ?? "tag"}
+                            className="h-4 w-4"
+                            color={catMap.get(transaction.category)?.color ?? "#64748b"}
+                          />
                         </div>
 
                         <div className="flex-1 min-w-0">
@@ -499,7 +494,15 @@ export default function TransactionsPage() {
                             {transaction.name}
                           </p>
                           <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                            <span className="text-[10px] text-slate-400">{transaction.category}</span>
+                            <span
+                              className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
+                              style={{
+                                backgroundColor: (catMap.get(transaction.category)?.color ?? "#64748b") + "22",
+                                color: catMap.get(transaction.category)?.color ?? "#64748b",
+                              }}
+                            >
+                              {transaction.category}
+                            </span>
                             {transaction.installments > 1 && (
                               <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full">
                                 {transaction.installments}x

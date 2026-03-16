@@ -134,7 +134,7 @@ export default function SpendingLimitsPage() {
       <main className="pb-24 lg:pb-8">
         {/* Page header */}
         <div className="bg-[#1a9e5c] text-white">
-          <div className="max-w-3xl mx-auto px-4 md:px-6 py-5">
+          <div className="max-w-7xl mx-auto px-4 md:px-6 py-5">
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-lg font-bold">Spending Limits</h1>
@@ -153,7 +153,7 @@ export default function SpendingLimitsPage() {
           </div>
         </div>
 
-        <div className="max-w-3xl mx-auto px-4 md:px-6 mt-5 space-y-4">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 mt-5 space-y-4">
           {/* Month nav */}
           <div className="flex items-center justify-between bg-white rounded-2xl p-3 shadow-sm border border-slate-200/60">
             <button onClick={prevMonth} className="p-2 rounded-xl hover:bg-slate-100 transition-colors">

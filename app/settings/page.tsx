@@ -95,13 +95,13 @@ export default function SettingsPage() {
       <main className="pb-24 lg:pb-8">
         {/* Hero banner */}
         <div className="bg-[#1a9e5c] text-white">
-          <div className="max-w-3xl mx-auto px-4 md:px-6 py-6">
+          <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
             <h1 className="text-lg font-bold">Settings</h1>
             <p className="text-white/60 text-sm mt-0.5">Manage your profile, security and preferences</p>
           </div>
         </div>
 
-        <div className="max-w-3xl mx-auto px-4 md:px-6 mt-6 space-y-5">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 mt-6 space-y-5">
           <AlertBanner alert={alert} onDismiss={() => setAlert(null)} />
 
           {/* Profile Section */}
