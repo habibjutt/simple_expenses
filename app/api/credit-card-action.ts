@@ -60,16 +60,12 @@ export async function updateCreditCard(cardId: string, formData: FormData) {
     throw new Error("Unauthorized");
   }
 
-  const card = await db.credit_card.findUnique({
-    where: { id: cardId },
+  const card = await db.credit_card.findFirst({
+    where: { id: cardId, userId: session.user.id },
   });
 
   if (!card) {
-    throw new Error("Credit card not found");
-  }
-
-  if (card.userId !== session.user.id) {
-    throw new Error("Unauthorized");
+    throw new Error("Credit card not found or unauthorized");
   }
 
   const name = formData.get("name") as string;
@@ -143,16 +139,12 @@ export async function deleteCreditCard(cardId: string) {
     throw new Error("Unauthorized");
   }
 
-  const card = await db.credit_card.findUnique({
-    where: { id: cardId },
+  const card = await db.credit_card.findFirst({
+    where: { id: cardId, userId: session.user.id },
   });
 
   if (!card) {
-    throw new Error("Credit card not found");
-  }
-
-  if (card.userId !== session.user.id) {
-    throw new Error("Unauthorized");
+    throw new Error("Credit card not found or unauthorized");
   }
 
   await db.credit_card.delete({
@@ -171,8 +163,8 @@ export async function getCreditCardDetails(cardId: string) {
     throw new Error("Unauthorized");
   }
 
-  const card = await db.credit_card.findUnique({
-    where: { id: cardId },
+  const card = await db.credit_card.findFirst({
+    where: { id: cardId, userId: session.user.id },
     include: {
       transactions: {
         orderBy: {
@@ -183,11 +175,7 @@ export async function getCreditCardDetails(cardId: string) {
   });
 
   if (!card) {
-    throw new Error("Credit card not found");
-  }
-
-  if (card.userId !== session.user.id) {
-    throw new Error("Unauthorized");
+    throw new Error("Credit card not found or unauthorized");
   }
 
   return card;
@@ -202,16 +190,12 @@ export async function getUpcomingInvoice(cardId: string, month?: number, year?: 
     throw new Error("Unauthorized");
   }
 
-  const card = await db.credit_card.findUnique({
-    where: { id: cardId },
+  const card = await db.credit_card.findFirst({
+    where: { id: cardId, userId: session.user.id },
   });
 
   if (!card) {
-    throw new Error("Credit card not found");
-  }
-
-  if (card.userId !== session.user.id) {
-    throw new Error("Unauthorized");
+    throw new Error("Credit card not found or unauthorized");
   }
 
   // Calculate the billing period for the specified or current month
@@ -323,14 +307,6 @@ export async function getUpcomingInvoice(cardId: string, month?: number, year?: 
   // Calculate total amount
   const totalAmount = transactions.reduce((sum, txn) => sum + txn.amount, 0);
 
-  // Check if there's an existing invoice record for this period
-  console.log('=== QUERYING DATABASE ===');
-  console.log('cardId:', cardId);
-  console.log('billStartDate:', billStartDate);
-  console.log('billEndDate:', billEndDate);
-  console.log('billStartDate ISO:', billStartDate.toISOString());
-  console.log('billEndDate ISO:', billEndDate.toISOString());
-  
   const existingInvoice = await db.invoice.findUnique({
     where: {
       creditCardId_billStartDate_billEndDate: {
@@ -343,13 +319,6 @@ export async function getUpcomingInvoice(cardId: string, month?: number, year?: 
       paidFromBankAccount: true,
     },
   });
-
-  console.log('=== SERVER: Invoice from DB ===');
-  console.log('Invoice:', existingInvoice);
-  console.log('isPaid:', existingInvoice?.isPaid);
-  console.log('paidAt:', existingInvoice?.paidAt);
-  console.log('paidAmount:', existingInvoice?.paidAmount);
-  console.log('totalAmount:', existingInvoice?.totalAmount);
 
   return {
     billStartDate,
@@ -556,31 +525,4 @@ export async function payInvoice(
 
   revalidatePath("/");
   revalidatePath(`/credit-card/${cardId}`);
-}
-
-export async function debugListInvoices(cardId: string) {
-  const invoices = await db.invoice.findMany({
-    where: { creditCardId: cardId },
-    orderBy: { billStartDate: 'desc' },
-  });
-  
-  console.log(`\n=== ALL INVOICES FOR CARD ${cardId} ===`);
-  invoices.forEach((inv, idx) => {
-    console.log(`\nInvoice ${idx + 1}:`);
-    console.log(`  billStartDate: ${inv.billStartDate.toISOString()}`);
-    console.log(`  billEndDate: ${inv.billEndDate.toISOString()}`);
-    console.log(`  isPaid: ${inv.isPaid}`);
-    console.log(`  paidAt: ${inv.paidAt?.toISOString()}`);
-    console.log(`  totalAmount: ${inv.totalAmount}`);
-    console.log(`  paidAmount: ${inv.paidAmount}`);
-  });
-  
-  return invoices.map(inv => ({
-    billStartDate: inv.billStartDate.toISOString(),
-    billEndDate: inv.billEndDate.toISOString(),
-    isPaid: inv.isPaid,
-    paidAt: inv.paidAt?.toISOString(),
-    totalAmount: inv.totalAmount,
-    paidAmount: inv.paidAmount,
-  }));
 }

@@ -430,9 +430,15 @@ export async function deleteTransaction(transactionId: string) {
   // If this is an installment transaction, get the parent to delete all related installments
   const parentId = transaction.parentTransactionId || transaction.id;
   
-  // Get the parent transaction to calculate total refund amount
-  const parentTransaction = await db.transaction.findUnique({
-    where: { id: parentId },
+  // Get the parent transaction with ownership re-verified via the credit card / bank account relation
+  const parentTransaction = await db.transaction.findFirst({
+    where: {
+      id: parentId,
+      OR: [
+        { creditCard: { userId: session.user.id } },
+        { bankAccount: { userId: session.user.id } },
+      ],
+    },
     include: {
       creditCard: true,
       bankAccount: true,
@@ -440,7 +446,7 @@ export async function deleteTransaction(transactionId: string) {
   });
 
   if (!parentTransaction) {
-    throw new Error("Parent transaction not found");
+    throw new Error("Parent transaction not found or unauthorized");
   }
 
   // Refund the full original amount when deleting installment plan

@@ -46,16 +46,12 @@ export async function updateBankAccount(accountId: string, formData: FormData) {
     throw new Error("Unauthorized");
   }
 
-  const account = await db.bank_account.findUnique({
-    where: { id: accountId },
+  const account = await db.bank_account.findFirst({
+    where: { id: accountId, userId: session.user.id },
   });
 
   if (!account) {
-    throw new Error("Bank account not found");
-  }
-
-  if (account.userId !== session.user.id) {
-    throw new Error("Unauthorized");
+    throw new Error("Bank account not found or unauthorized");
   }
 
   const name = formData.get("name") as string;
@@ -115,16 +111,12 @@ export async function deleteBankAccount(accountId: string) {
     throw new Error("Unauthorized");
   }
 
-  const account = await db.bank_account.findUnique({
-    where: { id: accountId },
+  const account = await db.bank_account.findFirst({
+    where: { id: accountId, userId: session.user.id },
   });
 
   if (!account) {
-    throw new Error("Bank account not found");
-  }
-
-  if (account.userId !== session.user.id) {
-    throw new Error("Unauthorized");
+    throw new Error("Bank account not found or unauthorized");
   }
 
   await db.bank_account.delete({
@@ -148,16 +140,12 @@ export async function getBankAccountTransactions(
   }
 
   // Get the bank account and verify ownership
-  const account = await db.bank_account.findUnique({
-    where: { id: accountId },
+  const account = await db.bank_account.findFirst({
+    where: { id: accountId, userId: session.user.id },
   });
 
   if (!account) {
-    throw new Error("Bank account not found");
-  }
-
-  if (account.userId !== session.user.id) {
-    throw new Error("Unauthorized");
+    throw new Error("Bank account not found or unauthorized");
   }
 
   // Determine the date range
