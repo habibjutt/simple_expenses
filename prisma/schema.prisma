@@ -30,6 +30,8 @@ model user {
   trialEndsAt          DateTime?
   currentPeriodEnd     DateTime?
 
+  preferredCurrency    String    @default("AED")
+
   accounts account[]
   sessions session[]
   verifications verification[]
@@ -105,6 +107,7 @@ model credit_card {
   paymentDate         Int      // Day of month (1-31)
   cardLimit           Float
   availableBalance    Float    @default(0) // Tracks remaining available balance
+  currency            String   @default("AED")
   userId              String
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
@@ -121,6 +124,7 @@ model bank_account {
   name            String
   initialBalance  Float
   currentBalance  Float
+  currency        String   @default("AED")
   userId          String
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
