@@ -50,11 +50,11 @@ const ACCOUNT_COLORS = ["bg-emerald-500","bg-blue-500","bg-violet-500","bg-amber
 
 type CreditCardType = {
   id: string; name: string; billGenerationDate: number; paymentDate: number;
-  cardLimit: number; availableBalance: number; createdAt: Date; updatedAt: Date;
+  cardLimit: number; availableBalance: number; currency: string; createdAt: Date; updatedAt: Date;
 };
 type BankAccount = {
   id: string; name: string; initialBalance: number; currentBalance: number;
-  createdAt: Date; updatedAt: Date;
+  currency: string; createdAt: Date; updatedAt: Date;
 };
 type Transaction = {
   id: string; name: string; amount: number; date: Date; category: string;

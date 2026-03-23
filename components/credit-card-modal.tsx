@@ -12,6 +12,7 @@ import {
 import { Field } from "./ui/field";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { SUPPORTED_CURRENCIES } from "@/lib/utils";
 
 type CreditCard = {
   id: string;
@@ -20,6 +21,7 @@ type CreditCard = {
   paymentDate: number;
   cardLimit: number;
   availableBalance: number;
+  currency: string;
 };
 
 export default function CreditCardModal({
@@ -37,6 +39,7 @@ export default function CreditCardModal({
   const [billGenerationDate, setBillGenerationDate] = useState("");
   const [paymentDate, setPaymentDate] = useState("");
   const [cardLimit, setCardLimit] = useState("");
+  const [currency, setCurrency] = useState("AED");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,11 +49,13 @@ export default function CreditCardModal({
       setBillGenerationDate(editCard.billGenerationDate.toString());
       setPaymentDate(editCard.paymentDate.toString());
       setCardLimit(editCard.cardLimit.toString());
+      setCurrency(editCard.currency ?? "AED");
     } else {
       setName("");
       setBillGenerationDate("");
       setPaymentDate("");
       setCardLimit("");
+      setCurrency("AED");
     }
     setError(null);
   }, [editCard, open]);
@@ -65,6 +70,7 @@ export default function CreditCardModal({
       formData.append("billGenerationDate", billGenerationDate);
       formData.append("paymentDate", paymentDate);
       formData.append("cardLimit", cardLimit);
+      formData.append("currency", currency);
       
       let result;
       if (editCard) {
@@ -82,6 +88,7 @@ export default function CreditCardModal({
       setBillGenerationDate("");
       setPaymentDate("");
       setCardLimit("");
+      setCurrency("AED");
       if (onSuccess) {
         onSuccess();
       }
@@ -143,6 +150,20 @@ export default function CreditCardModal({
               step="0.01"
               aria-label="Card limit"
             />
+          </Field>
+          <Field label="Currency">
+            <select
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+              className="w-full h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs focus:outline-none focus:ring-2 focus:ring-ring/50 focus:border-ring"
+              aria-label="Currency"
+            >
+              {SUPPORTED_CURRENCIES.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.code} — {c.name}
+                </option>
+              ))}
+            </select>
           </Field>
           {error && (
             <div className="text-red-500 text-sm" role="alert">

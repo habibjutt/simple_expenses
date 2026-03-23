@@ -19,17 +19,19 @@ export async function createBankAccount(formData: FormData): Promise<ActionResul
   const parse = BankAccountSchema.safeParse({
     name: formData.get("name"),
     initialBalance: formData.get("initialBalance"),
+    currency: formData.get("currency"),
   });
   if (!parse.success) {
     return { error: parse.error.issues[0].message };
   }
-  const { name, initialBalance } = parse.data;
+  const { name, initialBalance, currency } = parse.data;
 
   await db.bank_account.create({
     data: {
       name,
       initialBalance,
-      currentBalance: initialBalance, // Initialize current balance to initial balance
+      currentBalance: initialBalance,
+      currency,
       userId: session.user.id,
     },
   });
@@ -57,11 +59,12 @@ export async function updateBankAccount(accountId: string, formData: FormData): 
   const parse = BankAccountSchema.safeParse({
     name: formData.get("name"),
     initialBalance: formData.get("initialBalance"),
+    currency: formData.get("currency"),
   });
   if (!parse.success) {
     return { error: parse.error.issues[0].message };
   }
-  const { name, initialBalance } = parse.data;
+  const { name, initialBalance, currency } = parse.data;
 
   // Calculate the difference in initial balance to adjust current balance
   const balanceDifference = initialBalance - account.initialBalance;
@@ -73,6 +76,7 @@ export async function updateBankAccount(accountId: string, formData: FormData): 
       name,
       initialBalance,
       currentBalance: newCurrentBalance,
+      currency,
     },
   });
 
@@ -176,6 +180,7 @@ export async function getBankAccountTransactions(
       name: account.name,
       initialBalance: account.initialBalance,
       currentBalance: account.currentBalance,
+      currency: account.currency,
     },
     monthStartDate: startDate,
     monthEndDate: endDate,

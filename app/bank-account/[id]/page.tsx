@@ -46,6 +46,7 @@ type BankAccountData = {
     name: string;
     initialBalance: number;
     currentBalance: number;
+    currency: string;
   };
 };
 
@@ -322,12 +323,12 @@ export default function BankAccountDetailsPage() {
             <div className="flex items-center gap-5 mt-4">
               <div>
                 <div className="text-white/50 text-xs font-medium">Current Balance</div>
-                <div className="text-xl font-bold">{formatCurrency(account.currentBalance)}</div>
+                <div className="text-xl font-bold">{formatCurrency(account.currentBalance, account.currency)}</div>
               </div>
               <div className="w-px h-8 bg-white/20" />
               <div>
                 <div className="text-white/50 text-xs font-medium">Initial Balance</div>
-                <div className="text-base font-semibold">{formatCurrency(account.initialBalance)}</div>
+                <div className="text-base font-semibold">{formatCurrency(account.initialBalance, account.currency)}</div>
               </div>
             </div>
           </div>
@@ -371,16 +372,16 @@ export default function BankAccountDetailsPage() {
           <div className="grid grid-cols-3 gap-3 mb-5">
             <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-4">
               <div className="text-xs text-slate-500 font-medium mb-1">Income</div>
-              <div className="text-lg font-bold text-emerald-600">+{formatCurrency(totalIncome)}</div>
+              <div className="text-lg font-bold text-emerald-600">+{formatCurrency(totalIncome, account.currency)}</div>
             </div>
             <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-4">
               <div className="text-xs text-slate-500 font-medium mb-1">Expenses</div>
-              <div className="text-lg font-bold text-red-600">-{formatCurrency(totalExpenses)}</div>
+              <div className="text-lg font-bold text-red-600">-{formatCurrency(totalExpenses, account.currency)}</div>
             </div>
             <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-4">
               <div className="text-xs text-slate-500 font-medium mb-1">Net</div>
               <div className={`text-lg font-bold ${netBalance >= 0 ? "text-emerald-600" : "text-red-600"}`}>
-                {formatCurrency(netBalance)}
+                {formatCurrency(netBalance, account.currency)}
               </div>
             </div>
           </div>
@@ -449,7 +450,7 @@ export default function BankAccountDetailsPage() {
                 </div>
                 <div className="text-sm font-semibold">
                   Total: <span className={filteredTotal < 0 ? "text-green-600" : "text-red-600"}>
-                    {formatCurrency(Math.abs(filteredTotal))}
+                    {formatCurrency(Math.abs(filteredTotal), account.currency)}
                   </span>
                 </div>
               </div>
@@ -503,7 +504,7 @@ export default function BankAccountDetailsPage() {
                                   )}
                                   {/* Amount */}
                                   <div className={`text-xs font-semibold ${isIncome ? 'text-green-600' : 'text-red-600'}`}>
-                                    {isIncome ? '+' : ''}{formatCurrency(Math.abs(transaction.amount))}
+                                    {isIncome ? '+' : ''}{formatCurrency(Math.abs(transaction.amount), account.currency)}
                                   </div>
                                 </div>
                               </div>

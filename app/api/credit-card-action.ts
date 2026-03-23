@@ -22,11 +22,12 @@ export async function createCreditCard(formData: FormData): Promise<ActionResult
     billGenerationDate: formData.get("billGenerationDate"),
     paymentDate: formData.get("paymentDate"),
     cardLimit: formData.get("cardLimit"),
+    currency: formData.get("currency"),
   });
   if (!parse.success) {
     return { error: parse.error.issues[0].message };
   }
-  const { name, billGenerationDate, paymentDate, cardLimit } = parse.data;
+  const { name, billGenerationDate, paymentDate, cardLimit, currency } = parse.data;
 
   await db.credit_card.create({
     data: {
@@ -35,6 +36,7 @@ export async function createCreditCard(formData: FormData): Promise<ActionResult
       paymentDate,
       cardLimit,
       availableBalance: cardLimit, // Initialize available balance to card limit
+      currency,
       userId: session.user.id,
     },
   });
@@ -64,11 +66,12 @@ export async function updateCreditCard(cardId: string, formData: FormData): Prom
     billGenerationDate: formData.get("billGenerationDate"),
     paymentDate: formData.get("paymentDate"),
     cardLimit: formData.get("cardLimit"),
+    currency: formData.get("currency"),
   });
   if (!parse.success) {
     return { error: parse.error.issues[0].message };
   }
-  const { name, billGenerationDate, paymentDate, cardLimit } = parse.data;
+  const { name, billGenerationDate, paymentDate, cardLimit, currency } = parse.data;
 
   // Calculate the difference in card limit to adjust available balance
   const limitDifference = cardLimit - card.cardLimit;
@@ -82,6 +85,7 @@ export async function updateCreditCard(cardId: string, formData: FormData): Prom
       paymentDate,
       cardLimit,
       availableBalance: newAvailableBalance,
+      currency,
     },
   });
 

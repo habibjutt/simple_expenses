@@ -38,6 +38,7 @@ type CreditCard = {
   paymentDate: number;
   cardLimit: number;
   availableBalance: number;
+  currency: string;
   createdAt: Date;
   updatedAt: Date;
 };

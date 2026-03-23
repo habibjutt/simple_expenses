@@ -11,6 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { User, KeyRound, Bell, Palette, CheckCircle2, AlertCircle } from "lucide-react";
 import ChangePasswordModal from "@/components/change-password-modal";
+import { SUPPORTED_CURRENCIES } from "@/lib/utils";
+import { updatePreferredCurrency } from "@/app/api/user-action";
 
 type AlertState = { type: "success" | "error"; message: string } | null;
 
@@ -41,9 +43,11 @@ export default function SettingsPage() {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [alert, setAlert] = useState<AlertState>(null);
 
-  // Profile form state
   const [displayName, setDisplayName] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
+
+  const [preferredCurrency, setPreferredCurrency] = useState("AED");
+  const [savingCurrency, setSavingCurrency] = useState(false);
 
   useEffect(() => {
     if (!isPending && !session) {
@@ -54,6 +58,9 @@ export default function SettingsPage() {
   useEffect(() => {
     if (session?.user?.name) {
       setDisplayName(session.user.name);
+    }
+    if ((session?.user as any)?.preferredCurrency) {
+      setPreferredCurrency((session?.user as any).preferredCurrency);
     }
   }, [session]);
 
@@ -75,6 +82,23 @@ export default function SettingsPage() {
     }
   };
 
+  const handleSaveCurrency = async () => {
+    setSavingCurrency(true);
+    setAlert(null);
+    try {
+      const result = await updatePreferredCurrency(preferredCurrency);
+      if (result?.error) {
+        setAlert({ type: "error", message: result.error });
+      } else {
+        setAlert({ type: "success", message: "Currency preference saved!" });
+      }
+    } catch (err) {
+      setAlert({ type: "error", message: (err as Error).message || "Failed to save currency." });
+    } finally {
+      setSavingCurrency(false);
+    }
+  };
+
   if (isPending) {
     return (
       <div className="min-h-screen bg-[#f0f2f5]">
@@ -93,7 +117,6 @@ export default function SettingsPage() {
       <Header />
 
       <main className="pb-24 lg:pb-8">
-        {/* Hero banner */}
         <div className="bg-[#1a9e5c] text-white">
           <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
             <h1 className="text-lg font-bold">Settings</h1>
@@ -116,7 +139,6 @@ export default function SettingsPage() {
               </div>
             </div>
             <div className="px-5 py-5">
-              {/* Avatar */}
               <div className="flex items-center gap-4 mb-5">
                 <div className="w-14 h-14 rounded-full bg-[#1a9e5c] flex items-center justify-center text-white text-xl font-bold">
                   {displayName?.charAt(0)?.toUpperCase() || session.user.email?.charAt(0)?.toUpperCase() || "U"}
@@ -126,7 +148,6 @@ export default function SettingsPage() {
                   <p className="text-xs text-slate-500">{session.user.email}</p>
                 </div>
               </div>
-
               <form onSubmit={handleSaveProfile} className="space-y-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="display-name" className="text-xs font-medium text-slate-600">Display Name</Label>
@@ -217,12 +238,33 @@ export default function SettingsPage() {
               </div>
             </div>
             <div className="px-5 py-5 space-y-3">
-              <div className="flex items-center justify-between p-4 rounded-xl border border-slate-100 bg-slate-50">
+              <div className="p-4 rounded-xl border border-slate-100 bg-slate-50 space-y-3">
                 <div>
-                  <p className="text-sm font-medium text-slate-800">Currency</p>
-                  <p className="text-xs text-slate-500 mt-0.5">All amounts displayed in AED (UAE Dirham)</p>
+                  <p className="text-sm font-medium text-slate-800">Preferred Currency</p>
+                  <p className="text-xs text-slate-500 mt-0.5">Default currency for new accounts and cards</p>
                 </div>
-                <span className="text-xs font-semibold text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-lg">AED</span>
+                <div className="flex items-center gap-3">
+                  <select
+                    value={preferredCurrency}
+                    onChange={(e) => setPreferredCurrency(e.target.value)}
+                    className="h-9 rounded-md border border-input bg-white px-3 text-sm shadow-xs focus:outline-none focus:ring-2 focus:ring-ring/50"
+                    aria-label="Preferred currency"
+                  >
+                    {SUPPORTED_CURRENCIES.map((c) => (
+                      <option key={c.code} value={c.code}>
+                        {c.code} — {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  <Button
+                    size="sm"
+                    disabled={savingCurrency}
+                    onClick={handleSaveCurrency}
+                    className="bg-[#1a9e5c] hover:bg-[#158a4f] text-white"
+                  >
+                    {savingCurrency ? "Saving…" : "Save"}
+                  </Button>
+                </div>
               </div>
               <div className="flex items-center justify-between p-4 rounded-xl border border-slate-100 bg-slate-50">
                 <div>

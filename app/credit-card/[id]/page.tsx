@@ -67,6 +67,7 @@ type InvoiceData = {
     availableBalance: number;
     billGenerationDate: number;
     paymentDate: number;
+    currency: string;
   };
   invoice: Invoice | null;
 };
@@ -500,7 +501,7 @@ export default function CreditCardDetailsPage() {
             <div className="flex items-center gap-5 mt-4 flex-wrap">
               <div>
                 <div className="text-white/50 text-xs font-medium">Invoice Amount</div>
-                <div className="text-base font-bold">{formatCurrency(Math.max(0, invoiceAmount))}</div>
+                <div className="text-base font-bold">{formatCurrency(Math.max(0, invoiceAmount), invoiceData.card.currency)}</div>
               </div>
               <div className="w-px h-6 bg-white/20" />
               <div>
@@ -556,17 +557,17 @@ export default function CreditCardDetailsPage() {
             <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-4">
               <div className="text-xs text-slate-500 font-medium mb-1">Previous Balance</div>
               <div className={`text-lg font-bold ${previousBalance < 0 ? "text-emerald-600" : "text-red-600"}`}>
-                {formatCurrency(previousBalance)}
+                {formatCurrency(previousBalance, invoiceData.card.currency)}
               </div>
             </div>
             <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-4">
               <div className="text-xs text-slate-500 font-medium mb-1">Month Spending</div>
-              <div className="text-lg font-bold text-red-600">{formatCurrency(monthSpending)}</div>
+              <div className="text-lg font-bold text-red-600">{formatCurrency(monthSpending, invoiceData.card.currency)}</div>
             </div>
             <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-4 col-span-2 md:col-span-1">
               <div className="text-xs text-slate-500 font-medium mb-1">Invoice Amount</div>
               <div className={`text-lg font-bold ${invoiceAmount <= 0 ? "text-emerald-600" : "text-red-600"}`}>
-                {formatCurrency(invoiceAmount)}
+                {formatCurrency(invoiceAmount, invoiceData.card.currency)}
               </div>
             </div>
           </div>
@@ -603,7 +604,7 @@ export default function CreditCardDetailsPage() {
               <CheckCircle className="h-6 w-6 text-green-600 shrink-0" />
               <div className="flex-1">
                 <div className="font-bold text-base mb-1">Credit Balance Available</div>
-                <div className="text-sm text-green-700">You have a credit of <span className="font-semibold">{formatCurrency(Math.abs(invoiceAmount))}</span> that will be applied to future invoices.</div>
+                <div className="text-sm text-green-700">You have a credit of <span className="font-semibold">{formatCurrency(Math.abs(invoiceAmount), invoiceData.card.currency)}</span> that will be applied to future invoices.</div>
               </div>
             </div>
           </div>
@@ -648,11 +649,11 @@ export default function CreditCardDetailsPage() {
             <div className="text-sm text-blue-900 space-y-3">
               <div className="flex items-center justify-between pb-2 border-b border-blue-200">
                 <span className="font-bold text-base">Partially Paid:</span>
-                <span className="font-bold text-green-700 text-base">{formatCurrency(invoiceData.invoice.paidAmount)}</span>
+                <span className="font-bold text-green-700 text-base">{formatCurrency(invoiceData.invoice.paidAmount, invoiceData.card.currency)}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="font-bold text-base">Remaining:</span>
-                <span className="font-bold text-red-700 text-base">{formatCurrency(Math.max(0, invoiceAmount - invoiceData.invoice.paidAmount))}</span>
+                <span className="font-bold text-red-700 text-base">{formatCurrency(Math.max(0, invoiceAmount - invoiceData.invoice.paidAmount), invoiceData.card.currency)}</span>
               </div>
               <div className="flex gap-2 pt-3">
                 <Button
@@ -748,7 +749,7 @@ export default function CreditCardDetailsPage() {
               </div>
               <div className="text-sm font-bold">
                 Total: <span className={`text-base ${filteredTotal < 0 ? "text-green-700" : "text-red-700"}`}>
-                  {formatCurrency(Math.abs(filteredTotal))}
+                  {formatCurrency(Math.abs(filteredTotal), invoiceData.card.currency)}
                 </span>
               </div>
             </div>
@@ -802,7 +803,7 @@ export default function CreditCardDetailsPage() {
                                 )}
                                 {/* Amount - shown below name on mobile */}
                                 <div className={`text-sm font-bold ${isIncome ? 'text-green-700' : 'text-red-700'}`}>
-                                  {isIncome ? '+' : ''}{formatCurrency(Math.abs(transaction.amount))}
+                                  {isIncome ? '+' : ''}{formatCurrency(Math.abs(transaction.amount), invoiceData.card.currency)}
                                 </div>
                               </div>
                             </div>
@@ -862,7 +863,7 @@ export default function CreditCardDetailsPage() {
                 <div className="flex justify-between items-center mb-3">
                   <span className="text-sm font-semibold text-gray-700">Total Invoice Amount:</span>
                   <span className="text-lg font-bold text-red-700">
-                    {formatCurrency(invoiceData.totalAmount)}
+                    {formatCurrency(invoiceData.totalAmount, invoiceData.card.currency)}
                   </span>
                 </div>
                 <div className="text-sm text-gray-600 font-medium">
@@ -873,13 +874,13 @@ export default function CreditCardDetailsPage() {
                     <div className="flex justify-between items-center text-sm mb-2">
                       <span className="text-gray-700 font-semibold">Already Paid:</span>
                       <span className="font-bold text-green-700 text-base">
-                        {formatCurrency(invoiceData.invoice.paidAmount)}
+                        {formatCurrency(invoiceData.invoice.paidAmount, invoiceData.card.currency)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-gray-700 font-semibold">Remaining:</span>
                       <span className="font-bold text-red-700 text-base">
-                        {formatCurrency(invoiceData.totalAmount - invoiceData.invoice.paidAmount)}
+                        {formatCurrency(invoiceData.totalAmount - invoiceData.invoice.paidAmount, invoiceData.card.currency)}
                       </span>
                     </div>
                   </div>
@@ -959,8 +960,8 @@ export default function CreditCardDetailsPage() {
               {parseFloat(paymentAmount) > 0 && parseFloat(paymentAmount) < (invoiceData.totalAmount - (invoiceData.invoice?.paidAmount || 0)) && (
                 <div className="p-4 bg-blue-50 border-2 border-blue-300 rounded-lg">
                   <p className="text-sm text-blue-900 font-medium">
-                    <strong className="font-bold">Partial Payment:</strong> After paying {formatCurrency(parseFloat(paymentAmount))}, 
-                    you will still owe <strong className="font-bold text-red-700">{formatCurrency((invoiceData.totalAmount - (invoiceData.invoice?.paidAmount || 0)) - parseFloat(paymentAmount))}</strong> on this invoice.
+                    <strong className="font-bold">Partial Payment:</strong> After paying {formatCurrency(parseFloat(paymentAmount), invoiceData.card.currency)}, 
+                    you will still owe <strong className="font-bold text-red-700">{formatCurrency((invoiceData.totalAmount - (invoiceData.invoice?.paidAmount || 0)) - parseFloat(paymentAmount), invoiceData.card.currency)}</strong> on this invoice.
                   </p>
                 </div>
               )}
@@ -1009,7 +1010,7 @@ export default function CreditCardDetailsPage() {
                 <div className="flex justify-between items-center mb-3">
                   <span className="text-sm font-semibold text-gray-700">Invoice Amount:</span>
                   <span className="text-lg font-bold text-red-700">
-                    {formatCurrency(invoiceData.totalAmount)}
+                    {formatCurrency(invoiceData.totalAmount, invoiceData.card.currency)}
                   </span>
                 </div>
                 <div className="text-sm text-gray-600 font-medium">
@@ -1075,7 +1076,7 @@ export default function CreditCardDetailsPage() {
                 <div className="flex justify-between items-center mb-3">
                   <span className="text-sm text-red-800 font-bold">Invoice Amount:</span>
                   <span className="text-lg font-bold text-red-700">
-                    {formatCurrency(invoiceData.totalAmount)}
+                    {formatCurrency(invoiceData.totalAmount, invoiceData.card.currency)}
                   </span>
                 </div>
                 <div className="text-sm text-red-700 font-medium">

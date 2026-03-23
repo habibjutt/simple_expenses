@@ -36,6 +36,7 @@ type BankAccount = {
   name: string;
   initialBalance: number;
   currentBalance: number;
+  currency: string;
   createdAt: Date;
   updatedAt: Date;
 };
