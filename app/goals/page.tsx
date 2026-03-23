@@ -199,10 +199,15 @@ export default function GoalsPage() {
     setError(null);
     try {
       const deadline = formDeadline ? new Date(formDeadline) : null;
+      let result;
       if (modalMode === "create") {
-        await createSavingsGoal({ name: formName.trim(), targetAmount: target, color: formColor, deadline });
+        result = await createSavingsGoal({ name: formName.trim(), targetAmount: target, color: formColor, deadline });
       } else if (modalMode === "edit" && activeGoal) {
-        await updateSavingsGoal(activeGoal.id, { name: formName.trim(), targetAmount: target, color: formColor, deadline });
+        result = await updateSavingsGoal(activeGoal.id, { name: formName.trim(), targetAmount: target, color: formColor, deadline });
+      }
+      if (result?.error) {
+        setError(result.error);
+        return;
       }
       await load();
       setModalMode(null);
@@ -220,7 +225,11 @@ export default function GoalsPage() {
     setSaving(true);
     setError(null);
     try {
-      await addContribution(activeGoal.id, amt);
+      const result = await addContribution(activeGoal.id, amt);
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
       await load();
       setModalMode(null);
     } catch (e) {
@@ -232,8 +241,12 @@ export default function GoalsPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this goal?")) return;
-    await deleteSavingsGoal(id);
-    await load();
+    try {
+      await deleteSavingsGoal(id);
+      await load();
+    } catch (e) {
+      alert((e as Error).message || "Failed to delete goal");
+    }
   };
 
   if (isPending || !session) {

@@ -66,10 +66,15 @@ export default function CreditCardModal({
       formData.append("paymentDate", paymentDate);
       formData.append("cardLimit", cardLimit);
       
+      let result;
       if (editCard) {
-        await updateCreditCard(editCard.id, formData);
+        result = await updateCreditCard(editCard.id, formData);
       } else {
-        await createCreditCard(formData);
+        result = await createCreditCard(formData);
+      }
+      if (result?.error) {
+        setError(result.error);
+        return;
       }
       
       setOpen(false);

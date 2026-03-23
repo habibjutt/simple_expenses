@@ -4,8 +4,11 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { CreditCardSchema } from "@/lib/validations/credit-card";
+import { PayInvoiceSchema } from "@/lib/validations/invoice";
+import type { ActionResult } from "@/lib/validations";
 
-export async function createCreditCard(formData: FormData) {
+export async function createCreditCard(formData: FormData): Promise<ActionResult> {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -14,28 +17,16 @@ export async function createCreditCard(formData: FormData) {
     throw new Error("Unauthorized");
   }
 
-  const name = formData.get("name") as string;
-  const billGenerationDate = parseInt(
-    formData.get("billGenerationDate") as string
-  );
-  const paymentDate = parseInt(formData.get("paymentDate") as string);
-  const cardLimit = parseFloat(formData.get("cardLimit") as string);
-
-  if (!name || isNaN(billGenerationDate) || isNaN(paymentDate) || isNaN(cardLimit)) {
-    throw new Error("Invalid input");
+  const parse = CreditCardSchema.safeParse({
+    name: formData.get("name"),
+    billGenerationDate: formData.get("billGenerationDate"),
+    paymentDate: formData.get("paymentDate"),
+    cardLimit: formData.get("cardLimit"),
+  });
+  if (!parse.success) {
+    return { error: parse.error.issues[0].message };
   }
-
-  if (billGenerationDate < 1 || billGenerationDate > 31) {
-    throw new Error("Bill generation date must be between 1 and 31");
-  }
-
-  if (paymentDate < 1 || paymentDate > 31) {
-    throw new Error("Payment date must be between 1 and 31");
-  }
-
-  if (cardLimit <= 0) {
-    throw new Error("Card limit must be greater than 0");
-  }
+  const { name, billGenerationDate, paymentDate, cardLimit } = parse.data;
 
   await db.credit_card.create({
     data: {
@@ -51,7 +42,7 @@ export async function createCreditCard(formData: FormData) {
   revalidatePath("/");
 }
 
-export async function updateCreditCard(cardId: string, formData: FormData) {
+export async function updateCreditCard(cardId: string, formData: FormData): Promise<ActionResult> {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -68,28 +59,16 @@ export async function updateCreditCard(cardId: string, formData: FormData) {
     throw new Error("Credit card not found or unauthorized");
   }
 
-  const name = formData.get("name") as string;
-  const billGenerationDate = parseInt(
-    formData.get("billGenerationDate") as string
-  );
-  const paymentDate = parseInt(formData.get("paymentDate") as string);
-  const cardLimit = parseFloat(formData.get("cardLimit") as string);
-
-  if (!name || isNaN(billGenerationDate) || isNaN(paymentDate) || isNaN(cardLimit)) {
-    throw new Error("Invalid input");
+  const parse = CreditCardSchema.safeParse({
+    name: formData.get("name"),
+    billGenerationDate: formData.get("billGenerationDate"),
+    paymentDate: formData.get("paymentDate"),
+    cardLimit: formData.get("cardLimit"),
+  });
+  if (!parse.success) {
+    return { error: parse.error.issues[0].message };
   }
-
-  if (billGenerationDate < 1 || billGenerationDate > 31) {
-    throw new Error("Bill generation date must be between 1 and 31");
-  }
-
-  if (paymentDate < 1 || paymentDate > 31) {
-    throw new Error("Payment date must be between 1 and 31");
-  }
-
-  if (cardLimit <= 0) {
-    throw new Error("Card limit must be greater than 0");
-  }
+  const { name, billGenerationDate, paymentDate, cardLimit } = parse.data;
 
   // Calculate the difference in card limit to adjust available balance
   const limitDifference = cardLimit - card.cardLimit;
@@ -338,7 +317,19 @@ export async function payInvoice(
   billEndDate: Date,
   paymentDueDate: Date,
   totalAmount: number
-) {
+): Promise<ActionResult> {
+  const parse = PayInvoiceSchema.safeParse({
+    cardId,
+    bankAccountId,
+    billStartDate,
+    billEndDate,
+    paymentDueDate,
+    totalAmount,
+  });
+  if (!parse.success) {
+    return { error: parse.error.issues[0].message };
+  }
+
   const session = await auth.api.getSession({
     headers: await headers(),
   });

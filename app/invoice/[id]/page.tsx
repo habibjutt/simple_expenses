@@ -108,7 +108,7 @@ export default function InvoiceDetailPage() {
     setPayError(null);
     try {
       const inv = data.invoice;
-      await payInvoice(
+      const result = await payInvoice(
         inv.creditCardId,
         selectedBankId,
         new Date(inv.billStartDate),
@@ -116,6 +116,10 @@ export default function InvoiceDetailPage() {
         new Date(inv.paymentDueDate),
         inv.totalAmount
       );
+      if (result?.error) {
+        setPayError(result.error);
+        return;
+      }
       await fetchData();
       setPayDialogOpen(false);
     } catch (err) {
@@ -128,7 +132,11 @@ export default function InvoiceDetailPage() {
   const handleUnpay = async () => {
     setUnpayLoading(true);
     try {
-      await unpayInvoice(invoiceId);
+      const result = await unpayInvoice(invoiceId);
+      if (result?.error) {
+        alert(result.error);
+        return;
+      }
       await fetchData();
     } catch (err) {
       alert((err as Error).message);

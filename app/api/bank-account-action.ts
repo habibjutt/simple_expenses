@@ -4,8 +4,10 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { BankAccountSchema } from "@/lib/validations/bank-account";
+import type { ActionResult } from "@/lib/validations";
 
-export async function createBankAccount(formData: FormData) {
+export async function createBankAccount(formData: FormData): Promise<ActionResult> {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -14,16 +16,14 @@ export async function createBankAccount(formData: FormData) {
     throw new Error("Unauthorized");
   }
 
-  const name = formData.get("name") as string;
-  const initialBalance = parseFloat(formData.get("initialBalance") as string);
-
-  if (!name || isNaN(initialBalance)) {
-    throw new Error("Invalid input");
+  const parse = BankAccountSchema.safeParse({
+    name: formData.get("name"),
+    initialBalance: formData.get("initialBalance"),
+  });
+  if (!parse.success) {
+    return { error: parse.error.issues[0].message };
   }
-
-  if (initialBalance < 0) {
-    throw new Error("Initial balance cannot be negative");
-  }
+  const { name, initialBalance } = parse.data;
 
   await db.bank_account.create({
     data: {
@@ -37,7 +37,7 @@ export async function createBankAccount(formData: FormData) {
   revalidatePath("/");
 }
 
-export async function updateBankAccount(accountId: string, formData: FormData) {
+export async function updateBankAccount(accountId: string, formData: FormData): Promise<ActionResult> {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -54,16 +54,14 @@ export async function updateBankAccount(accountId: string, formData: FormData) {
     throw new Error("Bank account not found or unauthorized");
   }
 
-  const name = formData.get("name") as string;
-  const initialBalance = parseFloat(formData.get("initialBalance") as string);
-
-  if (!name || isNaN(initialBalance)) {
-    throw new Error("Invalid input");
+  const parse = BankAccountSchema.safeParse({
+    name: formData.get("name"),
+    initialBalance: formData.get("initialBalance"),
+  });
+  if (!parse.success) {
+    return { error: parse.error.issues[0].message };
   }
-
-  if (initialBalance < 0) {
-    throw new Error("Initial balance cannot be negative");
-  }
+  const { name, initialBalance } = parse.data;
 
   // Calculate the difference in initial balance to adjust current balance
   const balanceDifference = initialBalance - account.initialBalance;

@@ -3,6 +3,8 @@
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { db as prisma } from "@/lib/db";
+import { SpendingLimitSchema } from "@/lib/validations/spending-limit";
+import type { ActionResult } from "@/lib/validations";
 
 export type SpendingLimit = {
   id: string;
@@ -32,9 +34,13 @@ export async function upsertSpendingLimit(data: {
   amount: number;
   month: number;
   year: number;
-}) {
+}): Promise<ActionResult> {
   const session = await getSession();
-  return prisma.spending_limit.upsert({
+  const parse = SpendingLimitSchema.safeParse(data);
+  if (!parse.success) {
+    return { error: parse.error.issues[0].message };
+  }
+  await prisma.spending_limit.upsert({
     where: {
       userId_categoryName_month_year: {
         userId: session.user.id,

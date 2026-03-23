@@ -4,8 +4,14 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import {
+  CreateTransactionSchema,
+  CreateTransferSchema,
+  UpdateTransactionSchema,
+} from "@/lib/validations/transaction";
+import type { ActionResult } from "@/lib/validations";
 
-export async function createTransaction(formData: FormData) {
+export async function createTransaction(formData: FormData): Promise<ActionResult> {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -14,18 +20,21 @@ export async function createTransaction(formData: FormData) {
     throw new Error("Unauthorized");
   }
 
-  const name = formData.get("name") as string;
-  const amount = parseFloat(formData.get("amount") as string);
-  const date = formData.get("date") as string;
-  const category = formData.get("category") as string;
-  const notes = (formData.get("notes") as string) || null;
-  const creditCardId = formData.get("creditCardId") as string;
-  const bankAccountId = formData.get("bankAccountId") as string;
-  const installments = parseInt(formData.get("installments") as string) || 1;
-
-  if (!name || isNaN(amount) || !date || !category) {
-    throw new Error("Invalid input");
+  const parse = CreateTransactionSchema.safeParse({
+    name: formData.get("name"),
+    amount: formData.get("amount"),
+    date: formData.get("date"),
+    category: formData.get("category"),
+    notes: (formData.get("notes") as string) || null,
+    creditCardId: (formData.get("creditCardId") as string) || null,
+    bankAccountId: (formData.get("bankAccountId") as string) || null,
+    installments: formData.get("installments") || "1",
+  });
+  if (!parse.success) {
+    return { error: parse.error.issues[0].message };
   }
+  const { name, amount, date, category, notes, creditCardId, bankAccountId, installments } =
+    parse.data;
 
   if (!creditCardId && !bankAccountId) {
     throw new Error("Either credit card or bank account must be selected");
@@ -33,15 +42,6 @@ export async function createTransaction(formData: FormData) {
 
   if (creditCardId && bankAccountId) {
     throw new Error("Cannot use both credit card and bank account for the same transaction");
-  }
-
-  // Allow negative amounts for income transactions
-  if (amount === 0) {
-    throw new Error("Amount cannot be zero");
-  }
-
-  if (installments < 1) {
-    throw new Error("Installments must be at least 1");
   }
 
   if (creditCardId) {
@@ -211,7 +211,7 @@ export async function createTransaction(formData: FormData) {
   revalidatePath("/");
 }
 
-export async function createTransfer(formData: FormData) {
+export async function createTransfer(formData: FormData): Promise<ActionResult> {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -220,15 +220,17 @@ export async function createTransfer(formData: FormData) {
     throw new Error("Unauthorized");
   }
 
-  const name = formData.get("name") as string;
-  const amount = parseFloat(formData.get("amount") as string);
-  const date = formData.get("date") as string;
-  const fromAccountId = formData.get("fromAccountId") as string;
-  const toAccountId = formData.get("toAccountId") as string;
-
-  if (!name || isNaN(amount) || !date) {
-    throw new Error("Invalid input");
+  const parse = CreateTransferSchema.safeParse({
+    name: formData.get("name"),
+    amount: formData.get("amount"),
+    date: formData.get("date"),
+    fromAccountId: formData.get("fromAccountId"),
+    toAccountId: formData.get("toAccountId"),
+  });
+  if (!parse.success) {
+    return { error: parse.error.issues[0].message };
   }
+  const { name, amount, date, fromAccountId, toAccountId } = parse.data;
 
   if (!fromAccountId || !toAccountId) {
     throw new Error("Both source and destination accounts must be selected");
@@ -236,10 +238,6 @@ export async function createTransfer(formData: FormData) {
 
   if (fromAccountId === toAccountId) {
     throw new Error("Source and destination accounts must be different");
-  }
-
-  if (amount <= 0) {
-    throw new Error("Transfer amount must be greater than 0");
   }
 
   // Verify both accounts belong to the user
@@ -470,13 +468,14 @@ export async function deleteTransaction(transactionId: string) {
       }),
     ]);
   } else if (parentTransaction.bankAccountId && parentTransaction.bankAccount) {
-    // For bank account: use the amount from the specific transaction being deleted
-    // (not installments, just single transaction)
+    // For bank account: reverse the original effect by adding the amount back.
+    // createTransaction uses: newBalance = currentBalance - amount
+    // So deleteTransaction must use: newBalance = currentBalance + amount
     await db.$transaction([
       db.bank_account.update({
         where: { id: parentTransaction.bankAccountId },
         data: {
-          currentBalance: parentTransaction.bankAccount.currentBalance - parentTransaction.amount,
+          currentBalance: parentTransaction.bankAccount.currentBalance + parentTransaction.amount,
         },
       }),
       db.transaction.delete({
@@ -488,7 +487,7 @@ export async function deleteTransaction(transactionId: string) {
   revalidatePath("/");
 }
 
-export async function updateTransaction(transactionId: string, formData: FormData) {
+export async function updateTransaction(transactionId: string, formData: FormData): Promise<ActionResult> {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -497,24 +496,19 @@ export async function updateTransaction(transactionId: string, formData: FormDat
     throw new Error("Unauthorized");
   }
 
-  const name = formData.get("name") as string;
-  const newAmount = parseFloat(formData.get("amount") as string);
-  const date = formData.get("date") as string;
-  const category = formData.get("category") as string;
-  const notes = (formData.get("notes") as string) || null;
-  const newInstallments = parseInt(formData.get("installments") as string) || 1;
-
-  if (!name || isNaN(newAmount) || !date || !category) {
-    throw new Error("Invalid input");
+  const parse = UpdateTransactionSchema.safeParse({
+    name: formData.get("name"),
+    amount: formData.get("amount"),
+    date: formData.get("date"),
+    category: formData.get("category"),
+    notes: (formData.get("notes") as string) || null,
+    installments: formData.get("installments") || "1",
+  });
+  if (!parse.success) {
+    return { error: parse.error.issues[0].message };
   }
-
-  if (newAmount === 0) {
-    throw new Error("Amount cannot be zero");
-  }
-
-  if (newInstallments < 1) {
-    throw new Error("Installments must be at least 1");
-  }
+  const { name, amount: newAmount, date, category, notes, installments: newInstallments } =
+    parse.data;
 
   // Get the existing transaction
   const existingTransaction = await db.transaction.findFirst({

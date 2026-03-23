@@ -4,6 +4,8 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { db as prisma } from "@/lib/db";
 import { DEFAULT_CATEGORIES, type Category } from "@/lib/category-data";
+import { CategorySchema, UpdateCategorySchema } from "@/lib/validations/category";
+import type { ActionResult } from "@/lib/validations";
 
 export type { Category } from "@/lib/category-data";
 
@@ -39,26 +41,32 @@ export async function createCategory(data: {
   color: string;
   icon: string;
   type: string;
-}): Promise<Category> {
+}): Promise<ActionResult> {
   const session = await getSession();
-  const cat = await prisma.category.create({
+  const parse = CategorySchema.safeParse(data);
+  if (!parse.success) {
+    return { error: parse.error.issues[0].message };
+  }
+  await prisma.category.create({
     data: {
-      ...data,
+      ...parse.data,
       userId: session.user.id,
     },
   });
-  return cat;
 }
 
 export async function updateCategory(
   id: string,
   data: { name?: string; color?: string; icon?: string; type?: string }
-): Promise<Category> {
+): Promise<ActionResult> {
   const session = await getSession();
+  const parse = UpdateCategorySchema.safeParse(data);
+  if (!parse.success) {
+    return { error: parse.error.issues[0].message };
+  }
   const existing = await prisma.category.findFirst({ where: { id, userId: session.user.id } });
   if (!existing) throw new Error("Category not found");
-  const cat = await prisma.category.update({ where: { id }, data });
-  return cat;
+  await prisma.category.update({ where: { id }, data: parse.data });
 }
 
 export async function deleteCategory(id: string): Promise<void> {

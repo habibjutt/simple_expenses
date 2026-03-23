@@ -116,7 +116,8 @@ export default function TransactionModal({
         formData.append("notes", notes);
         formData.append("installments", isRecurring ? installments : "1");
         
-        await updateTransaction(editTransaction.id, formData);
+        const result = await updateTransaction(editTransaction.id, formData);
+        if (result?.error) throw new Error(result.error);
       } else {
         // Create new transaction
         if (transactionType === "transfer") {
@@ -135,7 +136,8 @@ export default function TransactionModal({
           formData.append("fromAccountId", fromAccountId);
           formData.append("toAccountId", toAccountId);
           
-          await createTransfer(formData);
+          const result = await createTransfer(formData);
+          if (result?.error) throw new Error(result.error);
         } else {
           const formData = new FormData();
           formData.append("name", name);
@@ -149,7 +151,8 @@ export default function TransactionModal({
             formData.append("bankAccountId", bankAccountId);
           }
           formData.append("installments", isRecurring ? installments : "1");
-          await createTransaction(formData);
+          const result = await createTransaction(formData);
+          if (result?.error) throw new Error(result.error);
         }
       }
       

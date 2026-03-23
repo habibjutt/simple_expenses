@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { bearer } from "better-auth/plugins/bearer";
+import { admin } from "better-auth/plugins/admin";
 import { db } from "./db";
 import { sendPasswordResetEmail } from "./email";
 
@@ -24,5 +25,5 @@ export const auth = betterAuth({
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     },
   },
-  plugins: [bearer()],
+  plugins: [bearer(), admin()],
 });

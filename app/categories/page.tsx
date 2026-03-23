@@ -169,23 +169,29 @@ export default function CategoriesPage() {
   useEffect(() => { load(); }, [load]);
 
   const handleCreate = async (data: { name: string; color: string; icon: string; type: string }) => {
-    await createCategory(data);
+    const result = await createCategory(data);
+    if (result?.error) throw new Error(result.error);
     setShowForm(false);
     load();
   };
 
   const handleUpdate = async (data: { name: string; color: string; icon: string; type: string }) => {
     if (!editId) return;
-    await updateCategory(editId, data);
+    const result = await updateCategory(editId, data);
+    if (result?.error) throw new Error(result.error);
     setEditId(null);
     load();
   };
 
   const handleDelete = async () => {
     if (!deleteId) return;
-    await deleteCategory(deleteId);
-    setDeleteId(null);
-    load();
+    try {
+      await deleteCategory(deleteId);
+      setDeleteId(null);
+      load();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to delete category");
+    }
   };
 
   const filtered = filterType === "all" ? categories : categories.filter(c => c.type === filterType || c.type === "both");

@@ -4,8 +4,15 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { IdSchema, EditInvoiceSchema } from "@/lib/validations/invoice";
+import type { ActionResult } from "@/lib/validations";
 
-export async function deleteInvoice(invoiceId: string) {
+export async function deleteInvoice(invoiceId: string): Promise<ActionResult> {
+  const idParse = IdSchema.safeParse({ id: invoiceId });
+  if (!idParse.success) {
+    return { error: idParse.error.issues[0].message };
+  }
+
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -112,7 +119,12 @@ export async function deleteInvoice(invoiceId: string) {
 export async function editInvoice(
   invoiceId: string,
   newBankAccountId: string | null
-) {
+): Promise<ActionResult> {
+  const parse = EditInvoiceSchema.safeParse({ invoiceId, newBankAccountId });
+  if (!parse.success) {
+    return { error: parse.error.issues[0].message };
+  }
+
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -255,7 +267,12 @@ export async function editInvoice(
   revalidatePath(`/credit-card/${invoice.creditCardId}`);
 }
 
-export async function unpayInvoice(invoiceId: string) {
+export async function unpayInvoice(invoiceId: string): Promise<ActionResult> {
+  const idParse = IdSchema.safeParse({ id: invoiceId });
+  if (!idParse.success) {
+    return { error: idParse.error.issues[0].message };
+  }
+
   const session = await auth.api.getSession({
     headers: await headers(),
   });

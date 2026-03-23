@@ -534,7 +534,7 @@ export default function TransactionsPage() {
                             {transaction.amount < 0 ? "+" : ""}
                             {formatCurrency(Math.abs(transaction.amount))}
                           </span>
-                          <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="hidden sm:flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
                               onClick={() => handleEditTransaction(transaction)}
                               className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors"

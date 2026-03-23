@@ -38,6 +38,7 @@ export default function SpendingLimitsPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editAmount, setEditAmount] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [formError, setFormError] = useState("");
 
   useEffect(() => {
     if (!isPending && !session) router.push("/login");
@@ -78,7 +79,9 @@ export default function SpendingLimitsPage() {
     if (!newCat || !newAmount) return;
     const amount = parseFloat(newAmount);
     if (isNaN(amount) || amount <= 0) return;
-    await upsertSpendingLimit({ categoryName: newCat, amount, month, year });
+    setFormError("");
+    const result = await upsertSpendingLimit({ categoryName: newCat, amount, month, year });
+    if (result?.error) { setFormError(result.error); return; }
     setShowAdd(false);
     setNewCat("");
     setNewAmount("");
@@ -90,7 +93,9 @@ export default function SpendingLimitsPage() {
     if (isNaN(amount) || amount <= 0) return;
     const limit = limits.find(l => l.id === id);
     if (!limit) return;
-    await upsertSpendingLimit({ categoryName: limit.categoryName, amount, month, year });
+    setFormError("");
+    const result = await upsertSpendingLimit({ categoryName: limit.categoryName, amount, month, year });
+    if (result?.error) { setFormError(result.error); return; }
     setEditingId(null);
     setEditAmount("");
     load();
@@ -98,9 +103,13 @@ export default function SpendingLimitsPage() {
 
   const handleDelete = async () => {
     if (!deleteId) return;
-    await deleteSpendingLimit(deleteId);
-    setDeleteId(null);
-    load();
+    try {
+      await deleteSpendingLimit(deleteId);
+      setDeleteId(null);
+      load();
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : "Failed to delete");
+    }
   };
 
   const getSpent = (categoryName: string) => {
@@ -223,8 +232,9 @@ export default function SpendingLimitsPage() {
               </div>
               <div className="flex gap-2">
                 <Button onClick={handleAdd} className="bg-[#1a9e5c] hover:bg-[#158a4f]">Save</Button>
-                <Button variant="outline" onClick={() => { setShowAdd(false); setNewCat(""); setNewAmount(""); }}>Cancel</Button>
+                <Button variant="outline" onClick={() => { setShowAdd(false); setNewCat(""); setNewAmount(""); setFormError(""); }}>Cancel</Button>
               </div>
+              {formError && <p className="text-sm text-red-600">{formError}</p>}
             </div>
           )}
 

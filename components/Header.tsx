@@ -21,6 +21,7 @@ import {
   Settings,
   PiggyBank,
   Receipt,
+  Shield,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -163,6 +164,17 @@ const Header = () => {
                           Change Password
                         </button>
                       </DropdownMenuItem>
+                      {(session.user as { role?: string }).role === "admin" && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem asChild>
+                            <Link href="/admin" className="flex items-center gap-2 cursor-pointer text-[#4f6ef7] focus:text-[#4f6ef7]">
+                              <Shield className="h-4 w-4" />
+                              Admin Panel
+                            </Link>
+                          </DropdownMenuItem>
+                        </>
+                      )}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onClick={handleLogout}
@@ -260,6 +272,17 @@ const Header = () => {
                   <LogOut className="h-4 w-4 shrink-0" />
                   Logout
                 </button>
+                {(session.user as { role?: string }).role === "admin" && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors"
+                    style={{ color: "#a5b4ff" }}
+                  >
+                    <Shield className="h-4 w-4 shrink-0" style={{ color: "#4f6ef7" }} />
+                    Admin Panel
+                  </Link>
+                )}
               </div>
             </div>
           </div>

@@ -23,6 +23,12 @@ model user {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  // Role-based access control (Better Auth admin plugin)
+  role       String   @default("user")
+  banned     Boolean  @default(false)
+  banReason  String?
+  banExpires DateTime?
+
   // Stripe subscription fields
   stripeCustomerId     String?
   stripeSubscriptionId String?
@@ -40,6 +46,7 @@ model user {
   categories category[]
   spendingLimits spending_limit[]
   savingsGoals   savings_goal[]
+  auditLogs audit_log[]
 }
 
 model session {
@@ -233,4 +240,31 @@ model savings_goal {
   user user @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model audit_log {
+  id         String   @id @default(cuid())
+  userId     String
+  action     String
+  entityType String?
+  entityId   String?
+  metadata   Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  user user @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model feature_flag {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  enabled     Boolean  @default(false)
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

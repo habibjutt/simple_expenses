@@ -191,7 +191,7 @@ export default function Home() {
               </div>
               <button
                 onClick={() => setShowBalance((b) => !b)}
-                className="p-2 rounded-full hover:bg-white/10 transition-colors"
+                className="p-2 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
                 aria-label="Toggle balance visibility"
               >
                 {showBalance ? <EyeOff className="h-5 w-5 text-white/70" /> : <Eye className="h-5 w-5 text-white/70" />}
@@ -199,52 +199,52 @@ export default function Home() {
             </div>
 
             {/* Month stats */}
-            <div className="mt-5 grid grid-cols-3 gap-3">
-              <div className="bg-white/10 rounded-2xl p-3.5">
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <TrendingDown className="h-3.5 w-3.5 text-red-300" />
-                  <span className="text-white/60 text-xs font-medium">Expenses</span>
+            <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
+              <div className="bg-white/10 rounded-2xl p-2.5 sm:p-3.5">
+                <div className="flex items-center gap-1 sm:gap-1.5 mb-1 sm:mb-1.5">
+                  <TrendingDown className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-red-300 shrink-0" />
+                  <span className="text-white/60 text-[10px] sm:text-xs font-medium">Expenses</span>
                 </div>
-                <p className="text-white font-bold text-base truncate">{fmt(monthExpenses)}</p>
+                <p className="text-white font-bold text-[11px] sm:text-sm leading-tight">{fmt(monthExpenses)}</p>
               </div>
-              <div className="bg-white/10 rounded-2xl p-3.5">
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <TrendingUp className="h-3.5 w-3.5 text-emerald-300" />
-                  <span className="text-white/60 text-xs font-medium">Income</span>
+              <div className="bg-white/10 rounded-2xl p-2.5 sm:p-3.5">
+                <div className="flex items-center gap-1 sm:gap-1.5 mb-1 sm:mb-1.5">
+                  <TrendingUp className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-emerald-300 shrink-0" />
+                  <span className="text-white/60 text-[10px] sm:text-xs font-medium">Income</span>
                 </div>
-                <p className="text-white font-bold text-base truncate">{fmt(monthIncome)}</p>
+                <p className="text-white font-bold text-[11px] sm:text-sm leading-tight">{fmt(monthIncome)}</p>
               </div>
-              <div className="bg-white/10 rounded-2xl p-3.5">
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <Wallet className="h-3.5 w-3.5 text-sky-300" />
-                  <span className="text-white/60 text-xs font-medium">Balance</span>
+              <div className="bg-white/10 rounded-2xl p-2.5 sm:p-3.5">
+                <div className="flex items-center gap-1 sm:gap-1.5 mb-1 sm:mb-1.5">
+                  <Wallet className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-sky-300 shrink-0" />
+                  <span className="text-white/60 text-[10px] sm:text-xs font-medium">Balance</span>
                 </div>
-                <p className="text-white font-bold text-base truncate">{fmt(totalBalance)}</p>
+                <p className="text-white font-bold text-[11px] sm:text-sm leading-tight">{fmt(totalBalance)}</p>
               </div>
             </div>
 
             {/* Quick actions */}
-            <div className="mt-5 flex items-center gap-3">
+            <div className="mt-5 flex items-center gap-2 sm:gap-3 flex-wrap">
               <button
                 onClick={() => setIsTransactionModalOpen(true)}
                 disabled={creditCards.length === 0 && bankAccounts.length === 0}
-                className="flex items-center gap-2 bg-white text-[#1a9e5c] px-4 py-2 rounded-xl text-sm font-semibold hover:bg-white/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+                className="flex items-center gap-2 bg-white text-[#1a9e5c] px-3 sm:px-4 py-2 rounded-xl text-sm font-semibold hover:bg-white/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm cursor-pointer"
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-4 w-4 shrink-0" />
                 Add Transaction
               </button>
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="flex items-center gap-2 bg-white/15 text-white border border-white/20 px-4 py-2 rounded-xl text-sm font-medium hover:bg-white/25 transition-colors"
+                className="flex items-center gap-2 bg-white/15 text-white border border-white/20 px-3 sm:px-4 py-2 rounded-xl text-sm font-medium hover:bg-white/25 transition-colors cursor-pointer"
               >
-                <CreditCardIcon className="h-4 w-4" />
+                <CreditCardIcon className="h-4 w-4 shrink-0" />
                 Add Card
               </button>
               <button
                 onClick={() => setIsBankAccountModalOpen(true)}
-                className="flex items-center gap-2 bg-white/15 text-white border border-white/20 px-4 py-2 rounded-xl text-sm font-medium hover:bg-white/25 transition-colors"
+                className="flex items-center gap-2 bg-white/15 text-white border border-white/20 px-3 sm:px-4 py-2 rounded-xl text-sm font-medium hover:bg-white/25 transition-colors cursor-pointer"
               >
-                <Wallet className="h-4 w-4" />
+                <Wallet className="h-4 w-4 shrink-0" />
                 Add Account
               </button>
             </div>
@@ -297,7 +297,7 @@ export default function Home() {
                   </div>
                   <button
                     onClick={() => router.push("/manage-accounts")}
-                    className="text-xs text-[#1a9e5c] hover:text-[#158a4f] font-semibold flex items-center gap-0.5"
+                    className="text-xs text-[#1a9e5c] hover:text-[#158a4f] font-semibold flex items-center gap-0.5 cursor-pointer"
                   >
                     <Settings2 className="h-3 w-3" /> Manage
                   </button>
@@ -363,7 +363,7 @@ export default function Home() {
                   </div>
                   <button
                     onClick={() => router.push("/manage-cards")}
-                    className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold flex items-center gap-0.5"
+                    className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold flex items-center gap-0.5 cursor-pointer"
                   >
                     <Settings2 className="h-3 w-3" /> Manage
                   </button>

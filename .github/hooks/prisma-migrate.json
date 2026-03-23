@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "type": "command",
+        "command": "node .github/hooks/scripts/prisma-sync.mjs",
+        "timeout": 120
+      }
+    ]
+  }
+}

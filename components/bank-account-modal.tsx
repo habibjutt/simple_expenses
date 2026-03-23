@@ -56,10 +56,15 @@ export default function BankAccountModal({
       formData.append("name", name);
       formData.append("initialBalance", initialBalance);
       
+      let result;
       if (editAccount) {
-        await updateBankAccount(editAccount.id, formData);
+        result = await updateBankAccount(editAccount.id, formData);
       } else {
-        await createBankAccount(formData);
+        result = await createBankAccount(formData);
+      }
+      if (result?.error) {
+        setError(result.error);
+        return;
       }
       
       setOpen(false);

@@ -12,6 +12,7 @@ const protectedRoutes = [
   "/manage-accounts",
   "/credit-card",
   "/bank-account",
+  "/admin",
 ];
 
 const authRoutes = ["/login", "/signup"];
