@@ -4,13 +4,14 @@ import { bearer } from "better-auth/plugins/bearer";
 import { admin } from "better-auth/plugins/admin";
 import { db } from "./db";
 import { sendPasswordResetEmail } from "./email";
+import { env } from "./env";
 
 export const auth = betterAuth({
   database: prismaAdapter(db, {
     provider: "postgresql",
   }),
-  secret: process.env.BETTER_AUTH_SECRET,
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  secret: env.BETTER_AUTH_SECRET,
+  baseURL: env.BETTER_AUTH_URL,
   emailAndPassword: {
     enabled: true,
     resetPasswordTokenExpiresIn: 3600,
@@ -21,8 +22,8 @@ export const auth = betterAuth({
   },
   socialProviders: {
     github: {
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      clientId: env.GITHUB_CLIENT_ID ?? "",
+      clientSecret: env.GITHUB_CLIENT_SECRET ?? "",
     },
   },
   plugins: [bearer(), admin()],

@@ -1,8 +1,9 @@
 import { getApiUser, api } from "@/lib/api-auth";
 import { getStripe } from "@/lib/stripe";
 import { db } from "@/lib/db";
+import { env } from "@/lib/env";
 
-const BASE_URL = process.env.BETTER_AUTH_URL || "http://localhost:3000";
+const BASE_URL = env.BETTER_AUTH_URL;
 
 // POST /api/v1/billing/portal
 export async function POST(request: Request) {

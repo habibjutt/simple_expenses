@@ -13,6 +13,7 @@ import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend,
   type PieLabelRenderProps,
 } from "recharts";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 type CategoryStat = { category: string; amount: number; color: string; icon: string };
 type MonthlyData = { month: string; income: number; expenses: number };
@@ -200,12 +201,14 @@ export default function ReportsPage() {
                   </div>
                   <div className="md:flex">
                     <div className="flex items-center justify-center py-4 md:w-56 md:shrink-0">
-                      <PieChart width={180} height={180}>
-                        <Pie data={expenseStats} cx={85} cy={85} innerRadius={45} outerRadius={80} dataKey="amount" labelLine={false} label={renderLabel}>
-                          {expenseStats.map((e, i) => <Cell key={i} fill={e.color} />)}
-                        </Pie>
-                        <Tooltip formatter={(v) => formatCurrency(Number(v))} />
-                      </PieChart>
+                      <ErrorBoundary>
+                        <PieChart width={180} height={180}>
+                          <Pie data={expenseStats} cx={85} cy={85} innerRadius={45} outerRadius={80} dataKey="amount" labelLine={false} label={renderLabel}>
+                            {expenseStats.map((e, i) => <Cell key={i} fill={e.color} />)}
+                          </Pie>
+                          <Tooltip formatter={(v) => formatCurrency(Number(v))} />
+                        </PieChart>
+                      </ErrorBoundary>
                     </div>
                     <div className="flex-1 divide-y divide-slate-50">
                       {expenseStats.map((cat, i) => {
@@ -261,16 +264,18 @@ export default function ReportsPage() {
               </div>
               <div className="p-4">
                 {trendData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={280}>
-                    <BarChart data={trendData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }} barSize={14} barGap={2}>
-                      <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                      <YAxis tickFormatter={(v) => `${Math.round(v / 1000)}k`} tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                      <Tooltip formatter={(v) => formatCurrency(Number(v))} />
-                      <Legend />
-                      <Bar dataKey="income" name="Income" fill="#1a9e5c" radius={[4, 4, 0, 0]} />
-                      <Bar dataKey="expenses" name="Expenses" fill="#ef4444" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
+                  <ErrorBoundary>
+                    <ResponsiveContainer width="100%" height={280}>
+                      <BarChart data={trendData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }} barSize={14} barGap={2}>
+                        <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                        <YAxis tickFormatter={(v) => `${Math.round(v / 1000)}k`} tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                        <Tooltip formatter={(v) => formatCurrency(Number(v))} />
+                        <Legend />
+                        <Bar dataKey="income" name="Income" fill="#1a9e5c" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="expenses" name="Expenses" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </ErrorBoundary>
                 ) : (
                   <p className="text-center text-sm text-slate-400 py-16">No data for {year}</p>
                 )}

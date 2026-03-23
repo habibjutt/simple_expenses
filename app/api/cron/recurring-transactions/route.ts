@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { env } from "@/lib/env";
 
 // Vercel Cron: runs daily at 00:00 UTC
 // Configured in vercel.json: /api/cron/recurring-transactions
@@ -20,7 +21,7 @@ function computeNextRecurDate(from: Date, frequency: string): Date {
 export async function GET(request: Request) {
   // Validate cron secret to prevent unauthorized invocations
   const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (authHeader !== `Bearer ${env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

@@ -6,8 +6,9 @@ import { getStripe } from "@/lib/stripe";
 import { STRIPE_PRICES } from "@/lib/stripe-config";
 import { db } from "@/lib/db";
 import { getSubscriptionInfo } from "@/lib/subscription";
+import { env } from "@/lib/env";
 
-const BASE_URL = process.env.BETTER_AUTH_URL || "http://localhost:3000";
+const BASE_URL = env.BETTER_AUTH_URL;
 
 async function getOrCreateStripeCustomer(userId: string) {
   const user = await db.user.findUnique({

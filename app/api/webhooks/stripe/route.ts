@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import { db } from "@/lib/db";
+import { env } from "@/lib/env";
 
 async function getUserIdByCustomerId(customerId: string): Promise<string | null> {
   const user = await db.user.findFirst({
@@ -55,7 +56,7 @@ export async function POST(req: NextRequest) {
 
   let event: Stripe.Event;
   try {
-    event = getStripe().webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
+    event = getStripe().webhooks.constructEvent(body, sig, env.STRIPE_WEBHOOK_SECRET ?? "");
   } catch {
     return NextResponse.json({ error: "Webhook signature verification failed" }, { status: 400 });
   }

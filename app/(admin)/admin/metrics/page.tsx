@@ -1,6 +1,7 @@
 import { getAdminMetrics } from "@/app/api/admin-action";
 import { BarChart3, Users, CreditCard, ArrowUpRight } from "lucide-react";
 import MetricsChart from "./MetricsChart";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 function MetricCard({
   label,
@@ -90,7 +91,9 @@ export default async function AdminMetricsPage() {
           <h2 className="text-base font-semibold text-white mb-4">
             User Signups — Last 6 Months
           </h2>
-          <MetricsChart data={metrics.usersByMonth} />
+          <ErrorBoundary>
+            <MetricsChart data={metrics.usersByMonth} />
+          </ErrorBoundary>
         </div>
       )}
     </div>
