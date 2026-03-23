@@ -162,6 +162,10 @@ model invoice {
   paidFromBankAccount bank_account? @relation(fields: [paidFromBankAccountId], references: [id], onDelete: SetNull)
 
   @@unique([creditCardId, billStartDate, billEndDate])
+  // Composite indexes: filter by card+status and card+date range (common dashboard queries)
+  @@index([creditCardId, isPaid])
+  @@index([creditCardId, billStartDate])
+  // Kept individual indexes for backward compat / single-column lookups
   @@index([creditCardId])
   @@index([isPaid])
 }
@@ -187,10 +191,15 @@ model transaction {
   parentTransaction transaction? @relation("InstallmentRelation", fields: [parentTransactionId], references: [id], onDelete: Cascade)
   childTransactions transaction[] @relation("InstallmentRelation")
 
+  // Composite indexes for common query patterns: filter by account + sort by date
+  @@index([creditCardId, createdAt])
+  @@index([bankAccountId, createdAt])
+  // Kept individual indexes for FK lookups / installment traversal
   @@index([creditCardId])
   @@index([bankAccountId])
   @@index([date])
   @@index([parentTransactionId])
+  @@index([category])
 }
 
 model category {
@@ -222,6 +231,8 @@ model spending_limit {
   user user @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, categoryName, month, year])
+  // Composite index: look up limits for a specific user+month+year (most common pattern)
+  @@index([userId, month, year])
   @@index([userId])
 }
 
@@ -255,6 +266,8 @@ model audit_log {
 
   user user @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  // Composite index: list a user's audit history sorted by time (most common admin query)
+  @@index([userId, createdAt])
   @@index([userId])
   @@index([action])
   @@index([createdAt])
