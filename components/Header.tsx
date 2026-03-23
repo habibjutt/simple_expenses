@@ -20,6 +20,7 @@ import {
   PiggyBank,
   Receipt,
   Shield,
+  Lightbulb,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -138,6 +139,12 @@ const Header = () => {
                           Billing
                         </Link>
                       </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/request-feature" className="flex items-center gap-2 cursor-pointer">
+                          <Lightbulb className="h-4 w-4" />
+                          Request a Feature
+                        </Link>
+                      </DropdownMenuItem>
                       {(session.user as { role?: string }).role === "admin" && (
                         <>
                           <DropdownMenuSeparator />
@@ -224,6 +231,14 @@ const Header = () => {
                 >
                   <Receipt className="h-4 w-4 shrink-0" />
                   Billing
+                </Link>
+                <Link
+                  href="/request-feature"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+                >
+                  <Lightbulb className="h-4 w-4 shrink-0" />
+                  Request a Feature
                 </Link>
                 <button
                   onClick={handleLogout}

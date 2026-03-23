@@ -11,6 +11,7 @@ const navLinks = [
   { href: "/#testimonials", label: "Testimonials" },
   { href: "/#faq", label: "FAQ" },
   { href: "/contact", label: "Contact" },
+  { href: "/request-feature", label: "Request a Feature" },
 ];
 
 export default function LandingNav() {

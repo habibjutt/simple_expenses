@@ -16,6 +16,7 @@ const FOOTER_LINKS = {
   ],
   company: [
     { href: "/contact", label: "Contact Us" },
+    { href: "/request-feature", label: "Request a Feature" },
     { href: "/privacy", label: "Privacy Policy" },
     { href: "/terms", label: "Terms of Service" },
   ],
@@ -150,6 +151,9 @@ export default function LandingFooter() {
             </Link>
             <Link href="/contact" className="text-xs text-white/35 hover:text-white/70 transition-colors">
               Contact
+            </Link>
+            <Link href="/request-feature" className="text-xs text-white/35 hover:text-white/70 transition-colors">
+              Request a Feature
             </Link>
           </div>
         </div>
