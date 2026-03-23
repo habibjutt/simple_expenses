@@ -159,7 +159,7 @@ export function LoginForm({
             {loading ? "Signing in..." : "Sign in with GitHub"}
           </Button>
 
-          <FieldDescription className="text-center mt-4">
+          <FieldDescription className="text-center mt-8">
             Don&apos;t have an account?{" "}
             <Link
               href="/signup"

@@ -11,6 +11,18 @@ import {
 } from "@/lib/validations/transaction";
 import type { ActionResult } from "@/lib/validations";
 
+// Compute the next recurrence date from a base date + frequency
+function computeNextRecurDate(from: Date, frequency: string): Date {
+  const next = new Date(from);
+  switch (frequency) {
+    case "daily":   next.setDate(next.getDate() + 1); break;
+    case "weekly":  next.setDate(next.getDate() + 7); break;
+    case "monthly": next.setMonth(next.getMonth() + 1); break;
+    case "yearly":  next.setFullYear(next.getFullYear() + 1); break;
+  }
+  return next;
+}
+
 export async function createTransaction(formData: FormData): Promise<ActionResult> {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -29,12 +41,19 @@ export async function createTransaction(formData: FormData): Promise<ActionResul
     creditCardId: (formData.get("creditCardId") as string) || null,
     bankAccountId: (formData.get("bankAccountId") as string) || null,
     installments: formData.get("installments") || "1",
+    isRecurring: formData.get("isRecurring") === "true",
+    recurringFrequency: (formData.get("recurringFrequency") as string) || null,
+    recurringEndDate: (formData.get("recurringEndDate") as string) || null,
   });
   if (!parse.success) {
     return { error: parse.error.issues[0].message };
   }
-  const { name, amount, date, category, notes, creditCardId, bankAccountId, installments } =
+  const { name, amount, date, category, notes, creditCardId, bankAccountId, installments, isRecurring, recurringFrequency, recurringEndDate } =
     parse.data;
+
+  if (isRecurring && !recurringFrequency) {
+    return { error: "Please select a recurring frequency" };
+  }
 
   if (!creditCardId && !bankAccountId) {
     throw new Error("Either credit card or bank account must be selected");
@@ -43,6 +62,12 @@ export async function createTransaction(formData: FormData): Promise<ActionResul
   if (creditCardId && bankAccountId) {
     throw new Error("Cannot use both credit card and bank account for the same transaction");
   }
+
+  // Compute nextRecurDate for recurring transactions
+  const transactionDate = new Date(date);
+  const nextRecurDate = isRecurring && recurringFrequency
+    ? computeNextRecurDate(transactionDate, recurringFrequency)
+    : null;
 
   if (creditCardId) {
     // Verify the credit card belongs to the user
@@ -78,14 +103,14 @@ export async function createTransaction(formData: FormData): Promise<ActionResul
     // If installments > 1, create multiple transactions spread across billing cycles
     if (installments > 1) {
       const installmentAmount = amount / installments;
-      const transactionDate = new Date(date);
+      const txDate = new Date(date);
       
       // Calculate billing cycle start based on billGenerationDate
-      const currentDay = transactionDate.getDate();
+      const currentDay = txDate.getDate();
       const billGenerationDate = creditCard.billGenerationDate;
       
       // Determine the first billing cycle this transaction belongs to
-      let firstBillingMonth = new Date(transactionDate);
+      let firstBillingMonth = new Date(txDate);
       if (currentDay >= billGenerationDate) {
         // Transaction is in current billing cycle, first installment next month
         firstBillingMonth.setMonth(firstBillingMonth.getMonth() + 1);
@@ -98,7 +123,7 @@ export async function createTransaction(formData: FormData): Promise<ActionResul
         data: {
           name: `${name} (${installments} installments)`,
           amount,
-          date: transactionDate,
+          date: txDate,
           category,
           notes,
           installments,
@@ -141,17 +166,22 @@ export async function createTransaction(formData: FormData): Promise<ActionResul
         }),
       ]);
     } else {
-      // Single payment transaction
+      // Single payment transaction (possibly recurring)
       await db.$transaction([
         db.transaction.create({
           data: {
             name,
             amount,
-            date: new Date(date),
+            date: transactionDate,
             category,
             notes,
             installments,
             creditCardId,
+            isRecurring: isRecurring ?? false,
+            recurringFrequency: recurringFrequency ?? null,
+            recurringEndDate: recurringEndDate ? new Date(recurringEndDate) : null,
+            isRecurringActive: isRecurring ? true : undefined,
+            nextRecurDate,
           },
         }),
         db.credit_card.update({
@@ -192,11 +222,16 @@ export async function createTransaction(formData: FormData): Promise<ActionResul
         data: {
           name,
           amount,
-          date: new Date(date),
+          date: transactionDate,
           category,
           notes,
           installments,
           bankAccountId,
+          isRecurring: isRecurring ?? false,
+          recurringFrequency: recurringFrequency ?? null,
+          recurringEndDate: recurringEndDate ? new Date(recurringEndDate) : null,
+          isRecurringActive: isRecurring ? true : undefined,
+          nextRecurDate,
         },
       }),
       db.bank_account.update({
@@ -605,4 +640,38 @@ export async function updateTransaction(transactionId: string, formData: FormDat
   }
 
   revalidatePath("/");
+}
+
+
+export async function toggleRecurringStatus(transactionId: string): Promise<{ error?: string }> {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const transaction = await db.transaction.findFirst({
+    where: {
+      id: transactionId,
+      isRecurring: true,
+      OR: [
+        { creditCard: { userId: session.user.id } },
+        { bankAccount: { userId: session.user.id } },
+      ],
+    },
+  });
+
+  if (!transaction) {
+    return { error: "Recurring transaction not found or unauthorized" };
+  }
+
+  await db.transaction.update({
+    where: { id: transactionId },
+    data: { isRecurringActive: !transaction.isRecurringActive },
+  });
+
+  revalidatePath("/");
+  return {};
 }

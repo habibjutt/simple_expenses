@@ -13,8 +13,6 @@ import {
   ListOrdered,
   Building2,
   LogOut,
-  KeyRound,
-  PlusCircle,
   BarChart2,
   Target,
   Tags,
@@ -35,8 +33,6 @@ import { cn } from "@/lib/utils";
 
 import { ThemeToggle } from "./ThemeToggle";
 import { NotificationsBell } from "./NotificationsBell";
-import ExpenseModal from "./expense-modal";
-import ChangePasswordModal from "./change-password-modal";
 
 const NAV_LINKS = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
@@ -50,8 +46,6 @@ const NAV_LINKS = [
 ];
 
 const Header = () => {
-  const [showExpenseModal, setShowExpenseModal] = useState(false);
-  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { data: session, isPending } = useSession();
   const pathname = usePathname();
@@ -133,16 +127,6 @@ const Header = () => {
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
-                        <button
-                          type="button"
-                          onClick={() => setShowExpenseModal(true)}
-                          className="w-full text-left cursor-pointer flex items-center gap-2"
-                        >
-                          <PlusCircle className="h-4 w-4" />
-                          Create Account
-                        </button>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
                         <Link href="/settings" className="flex items-center gap-2 cursor-pointer">
                           <Settings className="h-4 w-4" />
                           Settings
@@ -153,16 +137,6 @@ const Header = () => {
                           <Receipt className="h-4 w-4" />
                           Billing
                         </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <button
-                          type="button"
-                          onClick={() => setShowChangePasswordModal(true)}
-                          className="w-full text-left cursor-pointer flex items-center gap-2"
-                        >
-                          <KeyRound className="h-4 w-4" />
-                          Change Password
-                        </button>
                       </DropdownMenuItem>
                       {(session.user as { role?: string }).role === "admin" && (
                         <>
@@ -235,13 +209,6 @@ const Header = () => {
 
               <div className="border-t border-white/10 pt-2 mt-1 pb-1">
                 <p className="px-3 text-xs mb-1 text-white/40 truncate">{session.user.email}</p>
-                <button
-                  onClick={() => { setShowExpenseModal(true); setMobileMenuOpen(false); }}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white transition-colors"
-                >
-                  <PlusCircle className="h-4 w-4 shrink-0" />
-                  Create Account
-                </button>
                 <Link
                   href="/settings"
                   onClick={() => setMobileMenuOpen(false)}
@@ -258,13 +225,6 @@ const Header = () => {
                   <Receipt className="h-4 w-4 shrink-0" />
                   Billing
                 </Link>
-                <button
-                  onClick={() => { setShowChangePasswordModal(true); setMobileMenuOpen(false); }}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white transition-colors"
-                >
-                  <KeyRound className="h-4 w-4 shrink-0" />
-                  Change Password
-                </button>
                 <button
                   onClick={handleLogout}
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-300 hover:bg-red-500/10 hover:text-red-200 transition-colors"
@@ -289,8 +249,6 @@ const Header = () => {
         )}
       </header>
 
-      <ExpenseModal open={showExpenseModal} setOpen={setShowExpenseModal} />
-      <ChangePasswordModal open={showChangePasswordModal} setOpen={setShowChangePasswordModal} />
     </>
   );
 };

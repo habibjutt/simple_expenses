@@ -13,7 +13,7 @@ import Header from "@/components/Header";
 import TransactionModal from "@/components/transaction-modal";
 import { getCreditCards } from "@/app/api/credit-card-action";
 import { getBankAccounts } from "@/app/api/bank-account-action";
-import { CreditCard, Wallet, ChevronLeft, ChevronRight, Edit2, Trash2, Filter, X, Search, Download } from "lucide-react";
+import { CreditCard, Wallet, ChevronLeft, ChevronRight, Edit2, Trash2, Filter, X, Search, Download, RefreshCw } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,6 +48,10 @@ type Transaction = {
   creditCard: { name: string } | null;
   bankAccountId: string | null;
   bankAccount: { name: string } | null;
+  isRecurring: boolean;
+  isRecurringActive: boolean;
+  recurringFrequency: string | null;
+  parentRecurringId: string | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -506,6 +510,19 @@ export default function TransactionsPage() {
                             {transaction.installments > 1 && (
                               <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full">
                                 {transaction.installments}x
+                              </span>
+                            )}
+                            {transaction.isRecurring && (
+                              <span
+                                className={`inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                                  transaction.isRecurringActive
+                                    ? "bg-violet-100 text-violet-600"
+                                    : "bg-slate-100 text-slate-400 line-through"
+                                }`}
+                                title={transaction.isRecurringActive ? `Repeats ${transaction.recurringFrequency}` : "Recurring paused"}
+                              >
+                                <RefreshCw className="h-2 w-2" />
+                                {transaction.recurringFrequency}
                               </span>
                             )}
                             {(transaction.creditCard || transaction.bankAccount) && (

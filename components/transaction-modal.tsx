@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { createTransaction, createTransfer, updateTransaction } from "@/app/api/transaction-action";
-import { formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -13,8 +13,10 @@ import {
 import { Field } from "./ui/field";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { ChevronDown, ChevronUp, RefreshCw, Layers } from "lucide-react";
 
 type TransactionType = "expense" | "income" | "transfer";
+type RecurringFrequency = "daily" | "weekly" | "monthly" | "yearly";
 
 type EditTransaction = {
   id: string;
@@ -26,7 +28,13 @@ type EditTransaction = {
   installments: number;
   creditCardId: string | null;
   bankAccountId: string | null;
+  isRecurring?: boolean;
+  recurringFrequency?: string | null;
+  recurringEndDate?: Date | null;
 };
+
+const SELECT_CLASS =
+  "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
 
 export default function TransactionModal({
   open,
@@ -54,8 +62,12 @@ export default function TransactionModal({
   const [fromAccountId, setFromAccountId] = useState("");
   const [toAccountId, setToAccountId] = useState("");
   const [installments, setInstallments] = useState("1");
+  const [isInstallments, setIsInstallments] = useState(false);
   const [isRecurring, setIsRecurring] = useState(false);
+  const [recurringFrequency, setRecurringFrequency] = useState<RecurringFrequency>("monthly");
+  const [recurringEndDate, setRecurringEndDate] = useState("");
   const [notes, setNotes] = useState("");
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -68,7 +80,15 @@ export default function TransactionModal({
       setCategory(editTransaction.category);
       setNotes(editTransaction.notes || "");
       setInstallments(editTransaction.installments.toString());
-      setIsRecurring(editTransaction.installments > 1);
+      setIsInstallments(editTransaction.installments > 1);
+      setIsRecurring(editTransaction.isRecurring ?? false);
+      setRecurringFrequency((editTransaction.recurringFrequency as RecurringFrequency) ?? "monthly");
+      setRecurringEndDate(
+        editTransaction.recurringEndDate
+          ? new Date(editTransaction.recurringEndDate).toISOString().split("T")[0]
+          : ""
+      );
+      if (editTransaction.isRecurring || editTransaction.notes) setShowAdvanced(true);
       
       // Determine transaction type and payment method
       if (editTransaction.amount < 0) {
@@ -114,7 +134,12 @@ export default function TransactionModal({
         formData.append("date", date);
         formData.append("category", category);
         formData.append("notes", notes);
-        formData.append("installments", isRecurring ? installments : "1");
+        formData.append("installments", isInstallments ? installments : "1");
+        formData.append("isRecurring", isRecurring ? "true" : "false");
+        if (isRecurring) {
+          formData.append("recurringFrequency", recurringFrequency);
+          if (recurringEndDate) formData.append("recurringEndDate", recurringEndDate);
+        }
         
         const result = await updateTransaction(editTransaction.id, formData);
         if (result?.error) throw new Error(result.error);
@@ -150,7 +175,12 @@ export default function TransactionModal({
           } else {
             formData.append("bankAccountId", bankAccountId);
           }
-          formData.append("installments", isRecurring ? installments : "1");
+          formData.append("installments", isInstallments ? installments : "1");
+          formData.append("isRecurring", isRecurring ? "true" : "false");
+          if (isRecurring) {
+            formData.append("recurringFrequency", recurringFrequency);
+            if (recurringEndDate) formData.append("recurringEndDate", recurringEndDate);
+          }
           const result = await createTransaction(formData);
           if (result?.error) throw new Error(result.error);
         }
@@ -179,98 +209,116 @@ export default function TransactionModal({
     setFromAccountId("");
     setToAccountId("");
     setInstallments("1");
+    setIsInstallments(false);
     setIsRecurring(false);
+    setRecurringFrequency("monthly");
+    setRecurringEndDate("");
+    setShowAdvanced(false);
   };
 
   // Sort credit cards and bank accounts by name
   const sortedCreditCards = [...creditCards].sort((a, b) => a.name.localeCompare(b.name));
   const sortedBankAccounts = [...bankAccounts].sort((a, b) => a.name.localeCompare(b.name));
 
+  const typeConfig = {
+    expense: { label: "Expense", color: "text-red-600", activeBg: "bg-red-50 dark:bg-red-950/40", border: "border-red-200 dark:border-red-800" },
+    income:  { label: "Income",  color: "text-green-600", activeBg: "bg-green-50 dark:bg-green-950/40", border: "border-green-200 dark:border-green-800" },
+    transfer:{ label: "Transfer",color: "text-blue-600",  activeBg: "bg-blue-50 dark:bg-blue-950/40",   border: "border-blue-200 dark:border-blue-800"  },
+  };
+
+  const canShowInstallments = transactionType === "expense" && paymentType === "creditCard" && !isRecurring;
+  const canShowRecurring = transactionType !== "transfer" && !isInstallments;
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-lg">{editTransaction ? "Edit Transaction" : "Add Transaction"}</DialogTitle>
+      <DialogContent className="max-w-lg max-h-[92vh] overflow-y-auto">
+        <DialogHeader className="pb-0">
+          <DialogTitle className="text-base font-semibold">
+            {editTransaction ? "Edit Transaction" : "New Transaction"}
+          </DialogTitle>
         </DialogHeader>
 
-        {/* Transaction Type Tabs - Disabled when editing */}
-        <div className="flex border-b border-gray-200 -mx-6 px-6">
-          <button
-            type="button"
-            onClick={() => setTransactionType("expense")}
-            disabled={!!editTransaction}
-            className={`flex-1 py-2.5 px-3 text-center text-sm font-medium transition-colors ${
-              transactionType === "expense"
-                ? "text-red-600 border-b-2 border-red-600"
-                : "text-muted-foreground hover:text-foreground"
-            } ${editTransaction ? "opacity-50 cursor-not-allowed" : ""}`}
-          >
-            Expense
-          </button>
-          <button
-            type="button"
-            onClick={() => setTransactionType("income")}
-            disabled={!!editTransaction}
-            className={`flex-1 py-2.5 px-3 text-center text-sm font-medium transition-colors ${
-              transactionType === "income"
-                ? "text-green-600 border-b-2 border-green-600"
-                : "text-muted-foreground hover:text-foreground"
-            } ${editTransaction ? "opacity-50 cursor-not-allowed" : ""}`}
-          >
-            Income
-          </button>
-          <button
-            type="button"
-            onClick={() => setTransactionType("transfer")}
-            disabled={!!editTransaction}
-            className={`flex-1 py-2.5 px-3 text-center text-sm font-medium transition-colors ${
-              transactionType === "transfer"
-                ? "text-blue-600 border-b-2 border-blue-600"
-                : "text-muted-foreground hover:text-foreground"
-            } ${editTransaction ? "opacity-50 cursor-not-allowed" : ""}`}
-          >
-            Transfer
-          </button>
+        {/* Transaction Type Tabs */}
+        <div className="flex gap-1.5 p-1 rounded-lg bg-muted/60">
+          {(["expense", "income", "transfer"] as TransactionType[]).map((type) => {
+            const cfg = typeConfig[type];
+            const isActive = transactionType === type;
+            return (
+              <button
+                key={type}
+                type="button"
+                onClick={() => {
+                  setTransactionType(type);
+                  if (type === "transfer") { setIsInstallments(false); setIsRecurring(false); }
+                }}
+                disabled={!!editTransaction}
+                className={cn(
+                  "flex-1 py-2 px-2 rounded-md text-sm font-medium transition-all duration-150",
+                  isActive
+                    ? `${cfg.color} ${cfg.activeBg} border ${cfg.border} shadow-sm`
+                    : "text-muted-foreground hover:text-foreground",
+                  editTransaction && "opacity-40 cursor-not-allowed"
+                )}
+              >
+                {cfg.label}
+              </button>
+            );
+          })}
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-3 mt-3">
-          {/* Amount Field - Prominent at top */}
-          <Field label="Amount" required>
-            <Input
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="0.00"
-              required
-              min={0}
-              step="0.01"
-              className="text-xl font-bold text-center h-12"
-              aria-label="Transaction amount"
-            />
-          </Field>
+        <form onSubmit={handleSubmit} className="space-y-4">
 
-          {/* Description Field */}
+          {/* Amount + Date row */}
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Amount" required>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-muted-foreground">AED</span>
+                <Input
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="0.00"
+                  required
+                  min={0}
+                  step="0.01"
+                  className="pl-12 font-semibold"
+                  aria-label="Transaction amount"
+                />
+              </div>
+            </Field>
+            <Field label="Date" required>
+              <Input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                required
+                aria-label="Transaction date"
+              />
+            </Field>
+          </div>
+
+          {/* Description */}
           <Field label="Description">
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Add a description"
+              placeholder="What was this for?"
               aria-label="Transaction description"
             />
           </Field>
 
+          {/* Transfer fields */}
           {transactionType === "transfer" ? (
-            <>
-              {/* Transfer From */}
+            <div className="grid grid-cols-2 gap-3">
               <Field label="From Account" required>
                 <select
                   value={fromAccountId}
                   onChange={(e) => setFromAccountId(e.target.value)}
                   required
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className={SELECT_CLASS}
                   aria-label="Select source account"
                 >
-                  <option value="">Select source account</option>
+                  <option value="">Select account</option>
                   {sortedBankAccounts.map((account) => (
                     <option key={account.id} value={account.id}>
                       {account.name} ({formatCurrency(account.currentBalance)})
@@ -278,17 +326,15 @@ export default function TransactionModal({
                   ))}
                 </select>
               </Field>
-
-              {/* Transfer To */}
               <Field label="To Account" required>
                 <select
                   value={toAccountId}
                   onChange={(e) => setToAccountId(e.target.value)}
                   required
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className={SELECT_CLASS}
                   aria-label="Select destination account"
                 >
-                  <option value="">Select destination account</option>
+                  <option value="">Select account</option>
                   {sortedBankAccounts.map((account) => (
                     <option key={account.id} value={account.id} disabled={account.id === fromAccountId}>
                       {account.name} ({formatCurrency(account.currentBalance)})
@@ -296,7 +342,7 @@ export default function TransactionModal({
                   ))}
                 </select>
               </Field>
-            </>
+            </div>
           ) : (
             <>
               {/* Category */}
@@ -305,7 +351,7 @@ export default function TransactionModal({
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                   required
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className={SELECT_CLASS}
                   aria-label="Select category"
                 >
                   <option value="">Select category</option>
@@ -321,203 +367,223 @@ export default function TransactionModal({
                   <option value="Yumni">Yumni</option>
                   <option value="Splitwise">Splitwise</option>
                   <option value="Loan">Loan</option>
-                  <option value="Investment">Investment</option>
                   <option value="Others">Others</option>
                 </select>
               </Field>
 
-              {/* Payment Method - Only for expenses */}
-              {transactionType === "expense" && (
-                <>
-                  <Field label="Payment Method" required>
+              {/* Payment Method */}
+              <div className="grid grid-cols-2 gap-3">
+                <Field label={transactionType === "income" ? "Receive To" : "Pay With"} required>
+                  <select
+                    value={paymentType}
+                    onChange={(e) => {
+                      setPaymentType(e.target.value as "creditCard" | "bankAccount");
+                      setCreditCardId("");
+                      setBankAccountId("");
+                      if (e.target.value !== "creditCard") setIsInstallments(false);
+                    }}
+                    className={SELECT_CLASS}
+                    aria-label="Select payment method"
+                  >
+                    <option value="bankAccount">Bank Account</option>
+                    <option value="creditCard">{transactionType === "income" ? "Credit Card (Cashback)" : "Credit Card"}</option>
+                  </select>
+                </Field>
+
+                {paymentType === "creditCard" ? (
+                  <Field label="Credit Card" required>
                     <select
-                      value={paymentType}
-                      onChange={(e) => {
-                        setPaymentType(e.target.value as "creditCard" | "bankAccount");
-                        setCreditCardId("");
-                        setBankAccountId("");
-                      }}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      aria-label="Select payment method"
+                      value={creditCardId}
+                      onChange={(e) => setCreditCardId(e.target.value)}
+                      required
+                      className={SELECT_CLASS}
+                      aria-label="Select credit card"
                     >
-                      <option value="bankAccount">Bank Account</option>
-                      <option value="creditCard">Credit Card</option>
+                      <option value="">Select card</option>
+                      {sortedCreditCards.map((card) => (
+                        <option key={card.id} value={card.id}>
+                          {card.name} ({formatCurrency(card.availableBalance)})
+                        </option>
+                      ))}
                     </select>
                   </Field>
-
-                  {paymentType === "creditCard" ? (
-                    <Field label="Credit Card" required>
-                      <select
-                        value={creditCardId}
-                        onChange={(e) => setCreditCardId(e.target.value)}
-                        required
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        aria-label="Select credit card"
-                      >
-                        <option value="">Select a credit card</option>
-                        {sortedCreditCards.map((card) => (
-                          <option key={card.id} value={card.id}>
-                            {card.name} (Available: {formatCurrency(card.availableBalance)})
-                          </option>
-                        ))}
-                      </select>
-                    </Field>
-                  ) : (
-                    <Field label="Bank Account" required>
-                      <select
-                        value={bankAccountId}
-                        onChange={(e) => setBankAccountId(e.target.value)}
-                        required
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        aria-label="Select bank account"
-                      >
-                        <option value="">Select a bank account</option>
-                        {sortedBankAccounts.map((account) => (
-                          <option key={account.id} value={account.id}>
-                            {account.name} (Balance: {formatCurrency(account.currentBalance)})
-                          </option>
-                        ))}
-                      </select>
-                    </Field>
-                  )}
-                </>
-              )}
-
-              {/* For income, allow selection between bank account and credit card */}
-              {transactionType === "income" && (
-                <>
-                  <Field label="Receive Income To" required>
+                ) : (
+                  <Field label="Bank Account" required>
                     <select
-                      value={paymentType}
-                      onChange={(e) => {
-                        setPaymentType(e.target.value as "creditCard" | "bankAccount");
-                        setCreditCardId("");
-                        setBankAccountId("");
-                      }}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      aria-label="Select income destination"
+                      value={bankAccountId}
+                      onChange={(e) => setBankAccountId(e.target.value)}
+                      required
+                      className={SELECT_CLASS}
+                      aria-label="Select bank account"
                     >
-                      <option value="bankAccount">Bank Account</option>
-                      <option value="creditCard">Credit Card (Cashback)</option>
+                      <option value="">Select account</option>
+                      {sortedBankAccounts.map((account) => (
+                        <option key={account.id} value={account.id}>
+                          {account.name} ({formatCurrency(account.currentBalance)})
+                        </option>
+                      ))}
                     </select>
                   </Field>
-
-                  {paymentType === "creditCard" ? (
-                    <Field label="Credit Card" required>
-                      <select
-                        value={creditCardId}
-                        onChange={(e) => setCreditCardId(e.target.value)}
-                        required
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        aria-label="Select credit card"
-                      >
-                        <option value="">Select a credit card</option>
-                        {sortedCreditCards.map((card) => (
-                          <option key={card.id} value={card.id}>
-                            {card.name} (Available: {formatCurrency(card.availableBalance)})
-                          </option>
-                        ))}
-                      </select>
-                    </Field>
-                  ) : (
-                    <Field label="Bank Account" required>
-                      <select
-                        value={bankAccountId}
-                        onChange={(e) => setBankAccountId(e.target.value)}
-                        required
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        aria-label="Select bank account"
-                      >
-                        <option value="">Select a bank account</option>
-                        {sortedBankAccounts.map((account) => (
-                          <option key={account.id} value={account.id}>
-                            {account.name} (Balance: {formatCurrency(account.currentBalance)})
-                          </option>
-                        ))}
-                      </select>
-                    </Field>
-                  )}
-                </>
-              )}
+                )}
+              </div>
             </>
           )}
 
-          {/* Date Field */}
-          <Field label="Date" required>
-            <Input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              required
-              aria-label="Transaction date"
-            />
-          </Field>
-
-          {/* Notes Field */}
+          {/* Advanced Section */}
           {transactionType !== "transfer" && (
-            <Field label="Notes (optional)">
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Add a note (e.g. 'Lunch with client')"
-                rows={2}
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
-                aria-label="Transaction notes"
-              />
-            </Field>
-          )}
+            <div className="border border-dashed border-border rounded-lg overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors"
+              >
+                <span className="flex items-center gap-2">
+                  {(isInstallments || isRecurring) ? (
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
+                  ) : null}
+                  Advanced options
+                </span>
+                {showAdvanced ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+              </button>
 
-          {/* Repeat Transaction - Only for non-transfer */}
-          {transactionType !== "transfer" && (
-            <div className="space-y-2">
-              <label className="text-xs font-medium">Repeat Transaction</label>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant={!isRecurring ? "default" : "outline"}
-                  onClick={() => setIsRecurring(false)}
-                  className="flex-1 h-9 text-sm"
-                >
-                  One-time
-                </Button>
-                <Button
-                  type="button"
-                  variant={isRecurring ? "default" : "outline"}
-                  onClick={() => setIsRecurring(true)}
-                  className="flex-1 h-9 text-sm"
-                >
-                  Installments
-                </Button>
-              </div>
-              
-              {isRecurring && (
-                <Field label="Number of Installments">
-                  <Input
-                    type="number"
-                    value={installments}
-                    onChange={(e) => setInstallments(e.target.value)}
-                    placeholder="Enter number of installments"
-                    min={2}
-                    required
-                    aria-label="Number of installments"
-                  />
-                </Field>
+              {showAdvanced && (
+                <div className="px-4 pb-4 pt-1 space-y-4 border-t border-dashed border-border">
+                  {/* Notes */}
+                  <Field label="Notes (optional)">
+                    <textarea
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder="Add a note…"
+                      rows={2}
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+                      aria-label="Transaction notes"
+                    />
+                  </Field>
+
+                  {/* Installments - credit card expense only */}
+                  {canShowInstallments && (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-sm font-medium">
+                          <Layers size={14} className="text-muted-foreground" />
+                          Split into Installments
+                        </div>
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={isInstallments}
+                          onClick={() => { setIsInstallments(!isInstallments); if (isInstallments) setInstallments("1"); }}
+                          className={cn(
+                            "relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                            isInstallments ? "bg-primary" : "bg-muted-foreground/30"
+                          )}
+                        >
+                          <span className={cn("inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform", isInstallments ? "translate-x-4" : "translate-x-1")} />
+                        </button>
+                      </div>
+                      {isInstallments && (
+                        <Field label="Number of Installments">
+                          <Input
+                            type="number"
+                            value={installments}
+                            onChange={(e) => setInstallments(e.target.value)}
+                            placeholder="e.g. 3"
+                            min={2}
+                            max={60}
+                            required
+                            aria-label="Number of installments"
+                          />
+                        </Field>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Recurring Transaction */}
+                  {canShowRecurring && (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-sm font-medium">
+                          <RefreshCw size={14} className="text-muted-foreground" />
+                          Recurring Transaction
+                        </div>
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={isRecurring}
+                          onClick={() => setIsRecurring(!isRecurring)}
+                          className={cn(
+                            "relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                            isRecurring ? "bg-primary" : "bg-muted-foreground/30"
+                          )}
+                        >
+                          <span className={cn("inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform", isRecurring ? "translate-x-4" : "translate-x-1")} />
+                        </button>
+                      </div>
+
+                      {isRecurring && (
+                        <div className="space-y-3">
+                          <div>
+                            <p className="text-xs text-muted-foreground mb-2">Repeat every</p>
+                            <div className="grid grid-cols-4 gap-1.5">
+                              {(["daily", "weekly", "monthly", "yearly"] as RecurringFrequency[]).map((freq) => (
+                                <button
+                                  key={freq}
+                                  type="button"
+                                  onClick={() => setRecurringFrequency(freq)}
+                                  className={cn(
+                                    "py-1.5 px-2 rounded-md text-xs font-medium border capitalize transition-colors",
+                                    recurringFrequency === freq
+                                      ? "bg-primary text-primary-foreground border-primary"
+                                      : "bg-background text-muted-foreground border-border hover:border-foreground/30"
+                                  )}
+                                >
+                                  {freq}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                          <Field label="End date (optional)">
+                            <Input
+                              type="date"
+                              value={recurringEndDate}
+                              onChange={(e) => setRecurringEndDate(e.target.value)}
+                              min={date}
+                              aria-label="Recurring end date"
+                            />
+                          </Field>
+                          <p className="text-xs text-muted-foreground bg-muted/50 px-3 py-2 rounded-md">
+                            A new transaction will be created automatically each {recurringFrequency === "daily" ? "day" : recurringFrequency === "weekly" ? "week" : recurringFrequency === "monthly" ? "month" : "year"}. You can pause or stop this anytime.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           )}
 
           {error && (
-            <div className="text-red-500 text-sm" role="alert">
+            <div className="text-red-500 text-sm bg-red-50 dark:bg-red-950/40 px-3 py-2 rounded-md" role="alert">
               {error}
             </div>
           )}
-          
+
           <DialogFooter>
-            <Button type="submit" variant="default" disabled={loading} className="w-full">
-              {loading 
-                ? (editTransaction ? "Updating..." : "Adding...") 
-                : (editTransaction ? "Update Transaction" : "Add Transaction")
-              }
+            <Button
+              type="submit"
+              variant="default"
+              disabled={loading}
+              className={cn(
+                "w-full font-medium",
+                transactionType === "expense" && "bg-red-600 hover:bg-red-700",
+                transactionType === "income" && "bg-green-600 hover:bg-green-700",
+                transactionType === "transfer" && "bg-blue-600 hover:bg-blue-700"
+              )}
+            >
+              {loading
+                ? (editTransaction ? "Updating…" : "Adding…")
+                : (editTransaction ? "Update Transaction" : `Add ${typeConfig[transactionType].label}`)}
             </Button>
           </DialogFooter>
         </form>

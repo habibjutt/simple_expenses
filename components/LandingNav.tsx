@@ -46,7 +46,7 @@ export default function LandingNav() {
             <Button
               variant="ghost"
               size="sm"
-              className="text-white border-white/30 hover:bg-white/10"
+              className="text-white border-white/30 hover:bg-white/10 hover:text-white"
             >
               Sign in
             </Button>
@@ -100,7 +100,7 @@ export default function LandingNav() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="w-full text-white hover:bg-white/10 justify-start"
+                  className="w-full text-white hover:bg-white/10 hover:text-white justify-start"
                 >
                   Sign in
                 </Button>

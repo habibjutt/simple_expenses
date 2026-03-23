@@ -189,7 +189,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
           {loading ? "Signing up..." : "Sign up with GitHub"}
         </Button>
 
-        <FieldDescription className="px-6 text-center mt-4">
+        <FieldDescription className="px-6 text-center mt-8">
           Already have an account?{" "}
           <Link
             href="/login"

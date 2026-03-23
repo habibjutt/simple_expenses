@@ -183,13 +183,24 @@ model transaction {
   installmentNumber   Int?     // Which installment number this is (1, 2, 3, etc.)
   creditCardId        String?
   bankAccountId       String?
+
+  // Recurring transaction fields
+  isRecurring         Boolean   @default(false)         // Is this a recurring transaction template?
+  recurringFrequency  String?                           // "daily", "weekly", "monthly", "yearly"
+  recurringEndDate    DateTime?                         // Optional end date for the recurrence
+  isRecurringActive   Boolean   @default(true)          // Can be paused/canceled
+  nextRecurDate       DateTime?                         // Next scheduled recurrence date (for cron job)
+  parentRecurringId   String?                           // Links cron-generated instances to their template
+
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
-  creditCard       credit_card?  @relation(fields: [creditCardId], references: [id], onDelete: Cascade)
-  bankAccount      bank_account? @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
-  parentTransaction transaction? @relation("InstallmentRelation", fields: [parentTransactionId], references: [id], onDelete: Cascade)
-  childTransactions transaction[] @relation("InstallmentRelation")
+  creditCard         credit_card?  @relation(fields: [creditCardId], references: [id], onDelete: Cascade)
+  bankAccount        bank_account? @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+  parentTransaction  transaction?  @relation("InstallmentRelation", fields: [parentTransactionId], references: [id], onDelete: Cascade)
+  childTransactions  transaction[] @relation("InstallmentRelation")
+  parentRecurring    transaction?  @relation("RecurringInstances", fields: [parentRecurringId], references: [id], onDelete: SetNull)
+  recurringInstances transaction[] @relation("RecurringInstances")
 
   // Composite indexes for common query patterns: filter by account + sort by date
   @@index([creditCardId, createdAt])
@@ -200,6 +211,8 @@ model transaction {
   @@index([date])
   @@index([parentTransactionId])
   @@index([category])
+  @@index([isRecurring, isRecurringActive, nextRecurDate])
+  @@index([parentRecurringId])
 }
 
 model category {
