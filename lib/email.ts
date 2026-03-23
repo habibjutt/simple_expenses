@@ -1,9 +1,15 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import { env } from "@/lib/env";
 
-const resend = new Resend(env.RESEND_API_KEY ?? "");
-
-const FROM_ADDRESS = env.EMAIL_FROM;
+const transporter = nodemailer.createTransport({
+  host: env.SMTP_HOST,
+  port: env.SMTP_PORT,
+  secure: env.SMTP_SECURE,
+  auth:
+    env.SMTP_USER && env.SMTP_PASS
+      ? { user: env.SMTP_USER, pass: env.SMTP_PASS }
+      : undefined,
+});
 
 export async function sendPasswordResetEmail({
   to,
@@ -12,8 +18,8 @@ export async function sendPasswordResetEmail({
   to: string;
   url: string;
 }) {
-  await resend.emails.send({
-    from: FROM_ADDRESS,
+  await transporter.sendMail({
+    from: env.EMAIL_FROM,
     to,
     subject: "Reset your password",
     html: `
