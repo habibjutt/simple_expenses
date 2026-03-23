@@ -47,6 +47,10 @@ export default defineConfig({
         // Force en-US locale so date.toLocaleDateString() in the browser matches
         // the en-US format used in the test helpers (M/D/YYYY).
         locale: 'en-US',
+        // Force UTC browser timezone so DayPicker's toISOString() stores the same
+        // calendar date the test picked — without this, UTC+N machines store
+        // "March 11 local midnight" as "March 10 UTC", breaking boundary assertions.
+        timezoneId: 'UTC',
       },
     },
 

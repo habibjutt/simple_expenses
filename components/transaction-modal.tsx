@@ -50,6 +50,8 @@ export default function TransactionModal({
   bankAccounts,
   onSuccess,
   editTransaction,
+  defaultBankAccountId,
+  defaultCreditCardId,
 }: {
   open: boolean;
   setOpen: (v: boolean) => void;
@@ -57,6 +59,8 @@ export default function TransactionModal({
   bankAccounts: Array<{ id: string; name: string; currentBalance: number }>;
   onSuccess?: () => void;
   editTransaction?: EditTransaction | null;
+  defaultBankAccountId?: string;
+  defaultCreditCardId?: string;
 }) {
   const [transactionType, setTransactionType] = useState<TransactionType>("expense");
   const [name, setName] = useState("");
@@ -223,8 +227,15 @@ export default function TransactionModal({
     setDate(new Date().toISOString().split("T")[0]);
     setCategory("");
     setNotes("");
-    setCreditCardId("");
-    setBankAccountId("");
+    if (defaultCreditCardId) {
+      setPaymentType("creditCard");
+      setCreditCardId(defaultCreditCardId);
+      setBankAccountId("");
+    } else {
+      setPaymentType("bankAccount");
+      setCreditCardId("");
+      setBankAccountId(defaultBankAccountId ?? "");
+    }
     setFromAccountId("");
     setToAccountId("");
     setInstallments("1");

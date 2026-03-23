@@ -10,7 +10,7 @@ import { type Category as CategoryType } from "@/lib/category-data";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ChevronLeft, ChevronRight, Pencil, Trash2, Filter, X } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Pencil, Trash2, Filter, X, Plus } from "lucide-react";
 import TransactionModal from "@/components/transaction-modal";
 import {
   Dialog,
@@ -316,20 +316,41 @@ export default function BankAccountDetailsPage() {
               <ArrowLeft className="h-4 w-4" />
               Dashboard
             </button>
-            <h1 className="text-lg font-bold">{account.name}</h1>
-            <p className="text-white/60 text-sm mt-0.5">Bank Account</p>
 
-            {/* Stats row */}
-            <div className="flex items-center gap-5 mt-4">
-              <div>
-                <div className="text-white/50 text-xs font-medium">Current Balance</div>
-                <div className="text-xl font-bold">{formatCurrency(account.currentBalance, account.currency)}</div>
+            <div className="flex items-end justify-between gap-4">
+              <div className="min-w-0">
+                <h1 className="text-lg font-bold truncate">{account.name}</h1>
+                <p className="text-white/60 text-sm mt-0.5">Bank Account</p>
+
+                {/* Stats row */}
+                <div className="flex items-center gap-5 mt-4">
+                  <div>
+                    <div className="text-white/50 text-xs font-medium">Current Balance</div>
+                    <div className="text-xl font-bold">{formatCurrency(account.currentBalance, account.currency)}</div>
+                  </div>
+                  <div className="w-px h-8 bg-white/20" />
+                  <div>
+                    <div className="text-white/50 text-xs font-medium">Initial Balance</div>
+                    <div className="text-base font-semibold">{formatCurrency(account.initialBalance, account.currency)}</div>
+                  </div>
+                </div>
               </div>
-              <div className="w-px h-8 bg-white/20" />
-              <div>
-                <div className="text-white/50 text-xs font-medium">Initial Balance</div>
-                <div className="text-base font-semibold">{formatCurrency(account.initialBalance, account.currency)}</div>
-              </div>
+
+              {/* Add Transaction CTA */}
+              <button
+                onClick={() => {
+                  setEditingTransaction(null);
+                  setIsTransactionModalOpen(true);
+                }}
+                className="shrink-0 flex items-center gap-2 bg-white/15 hover:bg-white/25 active:bg-white/30 border border-white/30 hover:border-white/50 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-all duration-150 backdrop-blur-sm shadow-sm"
+                aria-label="Add new transaction"
+              >
+                <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                  <Plus className="h-3.5 w-3.5" />
+                </div>
+                <span className="hidden sm:inline">Add Transaction</span>
+                <span className="sm:hidden">Add</span>
+              </button>
             </div>
           </div>
         </div>
@@ -481,7 +502,7 @@ export default function BankAccountDetailsPage() {
                             <div className="flex items-center gap-3 flex-1 min-w-0">
                               {/* Category Icon */}
                               <div
-                                className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                                className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
                                 style={{ backgroundColor: (catMap.get(transaction.category)?.color ?? "#64748b") + "22" }}
                               >
                                 <CategoryIcon
@@ -511,7 +532,7 @@ export default function BankAccountDetailsPage() {
                             </div>
 
                             {/* Action Buttons */}
-                            <div className="flex items-center gap-1 flex-shrink-0">
+                            <div className="flex items-center gap-1 shrink-0">
                               <Button
                                 onClick={() => handleEditTransaction(transaction)}
                                 variant="ghost"
@@ -546,7 +567,7 @@ export default function BankAccountDetailsPage() {
 
       <Footer />
 
-      {/* Transaction Edit Modal */}
+      {/* Transaction Modal (create & edit) */}
       <TransactionModal
         open={isTransactionModalOpen}
         setOpen={setIsTransactionModalOpen}
@@ -554,6 +575,7 @@ export default function BankAccountDetailsPage() {
         bankAccounts={bankAccounts}
         onSuccess={handleTransactionSuccess}
         editTransaction={editingTransaction}
+        defaultBankAccountId={accountId}
       />
 
       {/* Delete Transaction Confirmation Modal */}

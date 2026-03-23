@@ -21,6 +21,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+const formatCompact = (amount: number) => {
+  if (Math.abs(amount) >= 1000) {
+    return `AED ${(amount / 1000).toFixed(1)}K`;
+  }
+  return formatCurrency(amount);
+};
+
 const CARD_COLOR_CONFIGS = [
   { bgClass: "bg-indigo-500", from: "#4338ca", to: "#1e1b4b" },
   { bgClass: "bg-violet-500", from: "#7c3aed", to: "#2e1065" },
@@ -182,24 +189,33 @@ export default function ManageCardsPage() {
           </div>
 
           {cards.length > 0 && (
-            <div className="mt-6 grid grid-cols-3 gap-3">
-              <div className="bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl p-3.5">
-                <p className="text-white/50 text-[10px] font-semibold uppercase tracking-widest mb-2">
+            <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-3">
+              <div className="bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl p-2.5 sm:p-3.5 min-w-0">
+                <p className="text-white/50 text-[10px] font-semibold uppercase tracking-widest mb-1.5 sm:mb-2">
                   Limit
                 </p>
-                <p className="text-white font-bold text-base leading-none">{formatCurrency(totalLimit)}</p>
+                <p className="text-white font-bold text-xs sm:text-sm md:text-base leading-none">
+                  <span className="sm:hidden">{formatCompact(totalLimit)}</span>
+                  <span className="hidden sm:block">{formatCurrency(totalLimit)}</span>
+                </p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl p-3.5">
-                <p className="text-white/50 text-[10px] font-semibold uppercase tracking-widest mb-2">
+              <div className="bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl p-2.5 sm:p-3.5 min-w-0">
+                <p className="text-white/50 text-[10px] font-semibold uppercase tracking-widest mb-1.5 sm:mb-2">
                   Used
                 </p>
-                <p className="text-white font-bold text-base leading-none">{formatCurrency(totalUsed)}</p>
+                <p className="text-white font-bold text-xs sm:text-sm md:text-base leading-none">
+                  <span className="sm:hidden">{formatCompact(totalUsed)}</span>
+                  <span className="hidden sm:block">{formatCurrency(totalUsed)}</span>
+                </p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl p-3.5">
-                <p className="text-white/50 text-[10px] font-semibold uppercase tracking-widest mb-2">
+              <div className="bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl p-2.5 sm:p-3.5 min-w-0">
+                <p className="text-white/50 text-[10px] font-semibold uppercase tracking-widest mb-1.5 sm:mb-2">
                   Free
                 </p>
-                <p className="text-white font-bold text-base leading-none">{formatCurrency(totalAvailable)}</p>
+                <p className="text-white font-bold text-xs sm:text-sm md:text-base leading-none">
+                  <span className="sm:hidden">{formatCompact(totalAvailable)}</span>
+                  <span className="hidden sm:block">{formatCurrency(totalAvailable)}</span>
+                </p>
               </div>
             </div>
           )}

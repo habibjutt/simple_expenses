@@ -28,11 +28,13 @@ export const auth = betterAuth({
     max: 100,
     storage: "database",
     customRules: {
-      "/sign-in/email":            { window: 60, max: 5 },
-      "/sign-up/email":            { window: 60, max: 3 },
-      "/forget-password":          { window: 60, max: 3 },
-      "/reset-password":           { window: 60, max: 5 },
-      "/send-verification-email":  { window: 60, max: 3 },
+      // 5 attempts per 15 min in production; relaxed in development/test
+      "/sign-in/email":            { window: 900,  max: process.env.NODE_ENV === "production" ? 5  : 100 },
+      // 10 sign-ups per hour in production; relaxed in development/test
+      "/sign-up/email":            { window: 3600, max: process.env.NODE_ENV === "production" ? 10 : 100 },
+      "/forget-password":          { window: 3600, max: 5  },
+      "/reset-password":           { window: 3600, max: 5  },
+      "/send-verification-email":  { window: 3600, max: 5  },
     },
   },
 

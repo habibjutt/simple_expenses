@@ -12,7 +12,7 @@ import { CategoryIcon } from "@/components/CategoryIcon";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Calendar, DollarSign, CreditCard, Clock, ChevronLeft, ChevronRight, CheckCircle, Wallet, Pencil, Trash2, XCircle, TrendingUp, TrendingDown, Filter, X } from "lucide-react";
+import { ArrowLeft, Calendar, DollarSign, CreditCard, Clock, ChevronLeft, ChevronRight, CheckCircle, Wallet, Pencil, Trash2, XCircle, TrendingUp, TrendingDown, Filter, X, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import TransactionModal from "@/components/transaction-modal";
 import Footer from "@/components/Footer";
@@ -377,6 +377,20 @@ export default function CreditCardDetailsPage() {
     setInvoiceData(data);
   };
 
+  const handleAddTransaction = async () => {
+    // Ensure bank accounts are loaded in case user switches payment type
+    if (bankAccounts.length === 0) {
+      try {
+        const accounts = await getBankAccounts();
+        setBankAccounts(accounts);
+      } catch {
+        // Non-blocking — modal still opens, bank account list may be empty
+      }
+    }
+    setEditingTransaction(null);
+    setIsTransactionModalOpen(true);
+  };
+
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString("en-US", {
       year: "numeric",
@@ -484,18 +498,33 @@ export default function CreditCardDetailsPage() {
               <ArrowLeft className="h-4 w-4" />
               Dashboard
             </button>
-            <div className="flex items-start justify-between gap-3 flex-wrap">
-              <div>
-                <h1 className="text-lg font-bold">{card.name}</h1>
+            <div className="flex items-end justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-lg font-bold truncate">{card.name}</h1>
+                  <div className={`px-2.5 py-1 rounded-full text-xs font-semibold shrink-0 ${
+                    invoiceData.invoice?.isPaid
+                      ? "bg-white/20 text-white border border-white/30"
+                      : "bg-amber-500/30 text-amber-100 border border-amber-400/40"
+                  }`}>
+                    {invoiceData.invoice?.isPaid ? "✓ Paid" : "Unpaid"}
+                  </div>
+                </div>
                 <p className="text-white/60 text-sm mt-0.5">Invoice Details</p>
               </div>
-              <div className={`px-3 py-1.5 rounded-full text-xs font-semibold ${
-                invoiceData.invoice?.isPaid
-                  ? "bg-white/20 text-white border border-white/30"
-                  : "bg-amber-500/30 text-amber-100 border border-amber-400/40"
-              }`}>
-                {invoiceData.invoice?.isPaid ? "✓ Paid" : "Unpaid"}
-              </div>
+
+              {/* Add Transaction CTA */}
+              <button
+                onClick={handleAddTransaction}
+                className="shrink-0 flex items-center gap-2 bg-white/15 hover:bg-white/25 active:bg-white/30 border border-white/30 hover:border-white/50 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-all duration-150 backdrop-blur-sm shadow-sm"
+                aria-label="Add new transaction"
+              >
+                <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                  <Plus className="h-3.5 w-3.5" />
+                </div>
+                <span className="hidden sm:inline">Add Transaction</span>
+                <span className="sm:hidden">Add</span>
+              </button>
             </div>
 
             {/* Card stats row */}
@@ -1118,7 +1147,7 @@ export default function CreditCardDetailsPage() {
         </DialogContent>
       </Dialog>
       
-      {/* Transaction Edit Modal */}
+      {/* Transaction Modal (create & edit) */}
       <TransactionModal
         open={isTransactionModalOpen}
         setOpen={setIsTransactionModalOpen}
@@ -1126,6 +1155,7 @@ export default function CreditCardDetailsPage() {
         bankAccounts={bankAccounts}
         onSuccess={handleTransactionSuccess}
         editTransaction={editingTransaction}
+        defaultCreditCardId={cardId}
       />
       
       {/* Delete Transaction Confirmation Modal */}

@@ -29,38 +29,44 @@ const CARD_NAME    = 'Test Billing Card';
 /**
  * Returns the most recent occurrence of BILL_GEN_DAY — i.e. the billStartDate
  * of the invoice that is currently "active" in the UI.
+ *
+ * Uses the LOCAL calendar day (matching the server's own `new Date().getDate()`
+ * check) but returns a UTC-midnight Date so that calendar interactions and DB
+ * storage are consistent with the server's `Date.UTC(year, month, billGenDay)`
+ * boundary values.  The Playwright billing project sets `timezoneId:'UTC'` in
+ * the browser so `DayPicker.onSelect` → `d.toISOString().split("T")[0]` always
+ * produces the same date the test intended.
  */
 function getBillPeriodStart(): Date {
   const today = new Date();
-  if (today.getDate() >= BILL_GEN_DAY) {
-    return new Date(today.getFullYear(), today.getMonth(), BILL_GEN_DAY);
+  const localDay = today.getDate();   // matches server's `new Date().getDate()`
+  if (localDay >= BILL_GEN_DAY) {
+    return new Date(Date.UTC(today.getFullYear(), today.getMonth(), BILL_GEN_DAY));
   }
   // Before the cut-off: previous month's bill start
-  return new Date(today.getFullYear(), today.getMonth() - 1, BILL_GEN_DAY);
+  return new Date(Date.UTC(today.getFullYear(), today.getMonth() - 1, BILL_GEN_DAY));
 }
 
 // ─── Page-interaction helpers ──────────────────────────────────────────────────
 
 /**
- * Creates a pre-verified test user via the seed-user API endpoint, then logs in
- * through the UI. This bypasses the email-verification flow that would otherwise
- * block tests from reaching /dashboard.
+ * Creates a pre-verified test user via the seed-user API endpoint.
+ * The endpoint calls Better Auth's signInEmail internally (bypassing the
+ * IP-based rate limiter) and forwards the session Set-Cookie header.
+ * Playwright's page.request automatically stores those cookies in the
+ * browser's cookie jar — so the next page.goto('/dashboard') is authenticated
+ * without any manual cookie injection.
  */
 async function signUpFresh(page: Page): Promise<void> {
-  // Seed a verified user on the server (only works in non-production)
   const res = await page.request.post('/api/test-utils/seed-user');
   if (!res.ok()) {
     throw new Error(`seed-user failed: ${res.status()} ${await res.text()}`);
   }
-  const { email, password } = await res.json() as { email: string; password: string };
 
-  // Log in through the UI with the seeded credentials
-  await page.goto('/login');
-  await page.waitForLoadState('networkidle');
-  await page.locator('#email').fill(email);
-  await page.locator('#password').fill(password);
-  await page.getByRole('button', { name: 'Login' }).click();
-  await page.waitForURL('**/dashboard', { timeout: 20_000 });
+  // Session cookie is already in the browser's cookie jar from the Set-Cookie
+  // response header forwarded by seed-user.
+  await page.goto('/dashboard');
+  await page.waitForURL('**/dashboard', { timeout: 30_000 });
 }
 
 async function createCreditCard(page: Page): Promise<void> {
@@ -89,22 +95,29 @@ async function selectCalendarDate(page: Page, date: Date): Promise<void> {
   //   nth(1) = year   (option value = "2024", "2025", …)
   // The selects are styled with opacity-0 (overlaid on the visible caption labels)
   // but are still fully interactive.
+  // Use UTC month/year because the browser runs with timezoneId:'UTC', so the
+  // calendar renders days keyed by their UTC date.
   const selects = calendar.locator('select');
   if ((await selects.count()) >= 2) {
-    await selects.nth(0).selectOption({ value: String(date.getMonth()) }, { force: true });
-    await selects.nth(1).selectOption({ value: String(date.getFullYear()) }, { force: true });
+    await selects.nth(0).selectOption({ value: String(date.getUTCMonth()) }, { force: true });
+    await selects.nth(1).selectOption({ value: String(date.getUTCFullYear()) }, { force: true });
   }
 
-  // data-day uses `date.toLocaleDateString()` in the browser (en-US locale forced
-  // via playwright project config), so it matches en-US format "M/D/YYYY".
-  const dayStr = date.toLocaleDateString('en-US');
+  // Format using UTC timezone so the string matches the browser calendar's
+  // data-day attributes (browser is UTC-pinned via timezoneId:'UTC').
+  const dayStr = date.toLocaleDateString('en-US', { timeZone: 'UTC' });
   await calendar.locator(`button[data-day="${dayStr}"]`).click();
 }
 
 /**
- * Open a FormCombobox (identified by its placeholder text) and select an option.
+ * Open a FormCombobox (identified by its current display text) and select an option.
  * The combobox renders with role="combobox" on the trigger button and a
  * `[cmdk-input]` search field inside the popover.
+ *
+ * Uses `.last()` for the cmdk input because Radix UI portals append newest-last,
+ * so when a previous popover is still animating out there may be two inputs.
+ * After selection, waits for all popovers to close before returning so the
+ * next call never encounters stale cmdk inputs.
  */
 async function pickCombobox(page: Page, placeholder: string, optionText: string): Promise<void> {
   await page
@@ -113,7 +126,9 @@ async function pickCombobox(page: Page, placeholder: string, optionText: string)
     .first()
     .click();
 
-  const cmdInput = page.locator('[cmdk-input]');
+  // Use .last() – Radix portals append newest last, avoiding strict-mode
+  // violations when a previous popover is still animating closed.
+  const cmdInput = page.locator('[cmdk-input]').last();
   await expect(cmdInput).toBeVisible({ timeout: 5_000 });
   await cmdInput.fill(optionText);
 
@@ -122,6 +137,13 @@ async function pickCombobox(page: Page, placeholder: string, optionText: string)
     .getByRole('option', { name: new RegExp(escapeRegex(optionText), 'i') })
     .first()
     .click();
+
+  // Wait for ALL open popovers to close so the next pickCombobox call does
+  // not find stale cmdk inputs from this one still in the DOM.
+  await page.waitForFunction(
+    () => document.querySelectorAll('[cmdk-input]').length === 0,
+    { timeout: 5_000 },
+  ).catch(() => { /* ignore if already gone */ });
 }
 
 function escapeRegex(s: string): string {
@@ -175,11 +197,14 @@ async function addExpense(page: Page, tx: TxInput): Promise<void> {
 
 /** Navigate to the credit card detail page by clicking the card on the dashboard. */
 async function goToCreditCardPage(page: Page): Promise<void> {
-  // Each credit card renders as a <button> containing a <p> with the card name
-  await page.getByText(CARD_NAME).first().click();
-  await page.waitForURL('**/credit-card/**', { timeout: 10_000 });
+  // The card is rendered as a <button> with an accessible name containing the card
+  // name. Use getByRole to avoid matching non-navigating text (e.g., Upcoming Bills).
+  await page
+    .getByRole('button', { name: new RegExp(escapeRegex(CARD_NAME)) })
+    .click();
+  await page.waitForURL('**/credit-card/**', { timeout: 15_000 });
   // Wait for the month navigation bar to confirm the page has loaded
-  await expect(page.getByLabel('Next month')).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByLabel('Next month')).toBeVisible({ timeout: 15_000 });
 }
 
 /** Wait for invoice data to reload after month navigation. */
@@ -213,12 +238,12 @@ test.describe('Billing boundary – single transactions (Issue #63)', () => {
 
     const billStart = getBillPeriodStart();
 
-    // TC-02: the day before the cut-off
-    const tc02Date = new Date(billStart.getFullYear(), billStart.getMonth(), BILL_GEN_DAY - 1);
-    // TC-04: exactly on the cut-off date
+    // TC-02: the day before the cut-off (UTC midnight)
+    const tc02Date = new Date(Date.UTC(billStart.getUTCFullYear(), billStart.getUTCMonth(), BILL_GEN_DAY - 1));
+    // TC-04: exactly on the cut-off date (UTC midnight)
     const tc04Date = new Date(billStart);
-    // TC-01: the day after the cut-off (belongs to the NEXT billing period)
-    const tc01Date = new Date(billStart.getFullYear(), billStart.getMonth(), BILL_GEN_DAY + 1);
+    // TC-01: the day after the cut-off (UTC midnight) – belongs to the NEXT billing period
+    const tc01Date = new Date(Date.UTC(billStart.getUTCFullYear(), billStart.getUTCMonth(), BILL_GEN_DAY + 1));
 
     await test.step('Add TC-02 (day before boundary)', async () => {
       await addExpense(page, { name: 'TC02 Before Boundary', amount: 100, date: tc02Date });
@@ -317,7 +342,7 @@ test.describe('Installment count validation (Issue #63 TC-15 / TC-16)', () => {
     await page.getByLabel('Select transaction date').click();
     await selectCalendarDate(page, getBillPeriodStart());
     await pickCombobox(page, 'Select category…', 'Shopping');
-    await pickCombobox(page, 'Select…', 'Credit Card');
+    await pickCombobox(page, 'Bank Account', 'Credit Card');
     await pickCombobox(page, 'Select card…', CARD_NAME);
 
     // Expand Advanced options and enable installments
