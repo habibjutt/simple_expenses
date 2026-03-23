@@ -7,8 +7,10 @@ export async function GET(request: Request) {
   if (!user) return api.unauthorized();
 
   const { searchParams } = new URL(request.url);
-  const creditCardId = searchParams.get("creditCardId") ?? undefined;
-  const bankAccountId = searchParams.get("bankAccountId") ?? undefined;
+  const creditCardId =
+    searchParams.get("creditCardId") ?? searchParams.get("cardId") ?? undefined;
+  const bankAccountId =
+    searchParams.get("bankAccountId") ?? searchParams.get("accountId") ?? undefined;
   const month = searchParams.get("month");
   const year = searchParams.get("year");
 

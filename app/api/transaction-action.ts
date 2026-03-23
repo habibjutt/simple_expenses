@@ -109,10 +109,13 @@ export async function createTransaction(formData: FormData): Promise<ActionResul
       const currentDay = txDate.getDate();
       const billGenerationDate = creditCard.billGenerationDate;
       
-      // Determine the first billing cycle this transaction belongs to
+      // Determine the first billing cycle this transaction belongs to.
+      // Transactions AFTER the bill generation date go to the NEXT month's cycle;
+      // transactions ON or BEFORE the bill generation date stay in the current cycle
+      // (TC-04 boundary: exact match = same cycle, not next cycle).
       let firstBillingMonth = new Date(txDate);
-      if (currentDay >= billGenerationDate) {
-        // Transaction is in current billing cycle, first installment next month
+      if (currentDay > billGenerationDate) {
+        // Transaction is after current billing cycle cutoff, first installment next month
         firstBillingMonth.setMonth(firstBillingMonth.getMonth() + 1);
       }
       // Set to billing generation date

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { format } from "date-fns";
 import { createTransaction, createTransfer, updateTransaction } from "@/app/api/transaction-action";
 import { cn, formatCurrency } from "@/lib/utils";
 import {
@@ -13,7 +14,10 @@ import {
 import { Field } from "./ui/field";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { ChevronDown, ChevronUp, RefreshCw, Layers } from "lucide-react";
+import { Calendar } from "./ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { CalendarIcon, ChevronDown, ChevronUp, RefreshCw, Layers } from "lucide-react";
+import { FormCombobox } from "@/components/ui/form-combobox";
 
 type TransactionType = "expense" | "income" | "transfer";
 type RecurringFrequency = "daily" | "weekly" | "monthly" | "yearly";
@@ -33,8 +37,11 @@ type EditTransaction = {
   recurringEndDate?: Date | null;
 };
 
-const SELECT_CLASS =
-  "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
+const CATEGORIES = [
+  "Food & Dining", "Shopping", "Transportation", "Entertainment",
+  "Bills & Utilities", "Healthcare", "Groceries", "Salary",
+  "Investment", "Yumni", "Splitwise", "Loan", "Others",
+];
 
 export default function TransactionModal({
   open,
@@ -70,6 +77,8 @@ export default function TransactionModal({
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [endDatePickerOpen, setEndDatePickerOpen] = useState(false);
 
   // Populate form when editing
   useEffect(() => {
@@ -122,6 +131,16 @@ export default function TransactionModal({
     setLoading(true);
     setError(null);
     try {
+      // Validate required combobox fields
+      if (transactionType === "transfer") {
+        if (!fromAccountId) throw new Error("Please select a source account");
+        if (!toAccountId) throw new Error("Please select a destination account");
+      } else {
+        if (!category) throw new Error("Please select a category");
+        if (paymentType === "creditCard" && !creditCardId) throw new Error("Please select a credit card");
+        if (paymentType === "bankAccount" && !bankAccountId) throw new Error("Please select a bank account");
+      }
+
       if (editTransaction) {
         // Update existing transaction (transfers cannot be edited)
         if (transactionType === "transfer") {
@@ -214,6 +233,8 @@ export default function TransactionModal({
     setRecurringFrequency("monthly");
     setRecurringEndDate("");
     setShowAdvanced(false);
+    setDatePickerOpen(false);
+    setEndDatePickerOpen(false);
   };
 
   // Sort credit cards and bank accounts by name
@@ -287,13 +308,38 @@ export default function TransactionModal({
               </div>
             </Field>
             <Field label="Date" required>
-              <Input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                required
-                aria-label="Transaction date"
-              />
+              <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    aria-label="Select transaction date"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !date && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                    {date
+                      ? format(new Date(date + "T00:00:00"), "MMM d, yyyy")
+                      : "Pick a date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={date ? new Date(date + "T00:00:00") : undefined}
+                    onSelect={(d) => {
+                      if (d) {
+                        setDate(d.toISOString().split("T")[0]);
+                        setDatePickerOpen(false);
+                      }
+                    }}
+                    captionLayout="dropdown"
+                    autoFocus
+                  />
+                </PopoverContent>
+              </Popover>
             </Field>
           </div>
 
@@ -311,118 +357,98 @@ export default function TransactionModal({
           {transactionType === "transfer" ? (
             <div className="grid grid-cols-2 gap-3">
               <Field label="From Account" required>
-                <select
+                <FormCombobox
                   value={fromAccountId}
-                  onChange={(e) => setFromAccountId(e.target.value)}
-                  required
-                  className={SELECT_CLASS}
-                  aria-label="Select source account"
-                >
-                  <option value="">Select account</option>
-                  {sortedBankAccounts.map((account) => (
-                    <option key={account.id} value={account.id}>
-                      {account.name} ({formatCurrency(account.currentBalance)})
-                    </option>
-                  ))}
-                </select>
+                  onValueChange={setFromAccountId}
+                  options={sortedBankAccounts.map((a) => ({
+                    value: a.id,
+                    label: `${a.name} (${formatCurrency(a.currentBalance)})`,
+                  }))}
+                  placeholder="Select account…"
+                  searchPlaceholder="Search accounts…"
+                  emptyText="No accounts found."
+                />
               </Field>
               <Field label="To Account" required>
-                <select
+                <FormCombobox
                   value={toAccountId}
-                  onChange={(e) => setToAccountId(e.target.value)}
-                  required
-                  className={SELECT_CLASS}
-                  aria-label="Select destination account"
-                >
-                  <option value="">Select account</option>
-                  {sortedBankAccounts.map((account) => (
-                    <option key={account.id} value={account.id} disabled={account.id === fromAccountId}>
-                      {account.name} ({formatCurrency(account.currentBalance)})
-                    </option>
-                  ))}
-                </select>
+                  onValueChange={setToAccountId}
+                  options={sortedBankAccounts.map((a) => ({
+                    value: a.id,
+                    label: `${a.name} (${formatCurrency(a.currentBalance)})`,
+                    disabled: a.id === fromAccountId,
+                  }))}
+                  placeholder="Select account…"
+                  searchPlaceholder="Search accounts…"
+                  emptyText="No accounts found."
+                />
               </Field>
             </div>
           ) : (
             <>
               {/* Category */}
               <Field label="Category" required>
-                <select
+                <FormCombobox
                   value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  required
-                  className={SELECT_CLASS}
-                  aria-label="Select category"
-                >
-                  <option value="">Select category</option>
-                  <option value="Food & Dining">Food & Dining</option>
-                  <option value="Shopping">Shopping</option>
-                  <option value="Transportation">Transportation</option>
-                  <option value="Entertainment">Entertainment</option>
-                  <option value="Bills & Utilities">Bills & Utilities</option>
-                  <option value="Healthcare">Healthcare</option>
-                  <option value="Groceries">Groceries</option>
-                  <option value="Salary">Salary</option>
-                  <option value="Investment">Investment</option>
-                  <option value="Yumni">Yumni</option>
-                  <option value="Splitwise">Splitwise</option>
-                  <option value="Loan">Loan</option>
-                  <option value="Others">Others</option>
-                </select>
+                  onValueChange={setCategory}
+                  options={CATEGORIES.map((cat) => ({ value: cat, label: cat }))}
+                  placeholder="Select category…"
+                  searchPlaceholder="Search categories…"
+                  emptyText="No category found."
+                />
               </Field>
 
               {/* Payment Method */}
               <div className="grid grid-cols-2 gap-3">
                 <Field label={transactionType === "income" ? "Receive To" : "Pay With"} required>
-                  <select
+                  <FormCombobox
                     value={paymentType}
-                    onChange={(e) => {
-                      setPaymentType(e.target.value as "creditCard" | "bankAccount");
+                    onValueChange={(v) => {
+                      const val = (v || "bankAccount") as "creditCard" | "bankAccount";
+                      setPaymentType(val);
                       setCreditCardId("");
                       setBankAccountId("");
-                      if (e.target.value !== "creditCard") setIsInstallments(false);
+                      if (val !== "creditCard") setIsInstallments(false);
                     }}
-                    className={SELECT_CLASS}
-                    aria-label="Select payment method"
-                  >
-                    <option value="bankAccount">Bank Account</option>
-                    <option value="creditCard">{transactionType === "income" ? "Credit Card (Cashback)" : "Credit Card"}</option>
-                  </select>
+                    options={[
+                      { value: "bankAccount", label: "Bank Account" },
+                      {
+                        value: "creditCard",
+                        label: transactionType === "income" ? "Credit Card (Cashback)" : "Credit Card",
+                      },
+                    ]}
+                    placeholder="Select…"
+                    searchPlaceholder="Search…"
+                  />
                 </Field>
 
                 {paymentType === "creditCard" ? (
                   <Field label="Credit Card" required>
-                    <select
+                    <FormCombobox
                       value={creditCardId}
-                      onChange={(e) => setCreditCardId(e.target.value)}
-                      required
-                      className={SELECT_CLASS}
-                      aria-label="Select credit card"
-                    >
-                      <option value="">Select card</option>
-                      {sortedCreditCards.map((card) => (
-                        <option key={card.id} value={card.id}>
-                          {card.name} ({formatCurrency(card.availableBalance)})
-                        </option>
-                      ))}
-                    </select>
+                      onValueChange={setCreditCardId}
+                      options={sortedCreditCards.map((card) => ({
+                        value: card.id,
+                        label: `${card.name} (${formatCurrency(card.availableBalance)})`,
+                      }))}
+                      placeholder="Select card…"
+                      searchPlaceholder="Search cards…"
+                      emptyText="No cards found."
+                    />
                   </Field>
                 ) : (
                   <Field label="Bank Account" required>
-                    <select
+                    <FormCombobox
                       value={bankAccountId}
-                      onChange={(e) => setBankAccountId(e.target.value)}
-                      required
-                      className={SELECT_CLASS}
-                      aria-label="Select bank account"
-                    >
-                      <option value="">Select account</option>
-                      {sortedBankAccounts.map((account) => (
-                        <option key={account.id} value={account.id}>
-                          {account.name} ({formatCurrency(account.currentBalance)})
-                        </option>
-                      ))}
-                    </select>
+                      onValueChange={setBankAccountId}
+                      options={sortedBankAccounts.map((a) => ({
+                        value: a.id,
+                        label: `${a.name} (${formatCurrency(a.currentBalance)})`,
+                      }))}
+                      placeholder="Select account…"
+                      searchPlaceholder="Search accounts…"
+                      emptyText="No accounts found."
+                    />
                   </Field>
                 )}
               </div>
@@ -543,13 +569,39 @@ export default function TransactionModal({
                             </div>
                           </div>
                           <Field label="End date (optional)">
-                            <Input
-                              type="date"
-                              value={recurringEndDate}
-                              onChange={(e) => setRecurringEndDate(e.target.value)}
-                              min={date}
-                              aria-label="Recurring end date"
-                            />
+                            <Popover open={endDatePickerOpen} onOpenChange={setEndDatePickerOpen}>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  aria-label="Select recurring end date"
+                                  className={cn(
+                                    "w-full justify-start text-left font-normal",
+                                    !recurringEndDate && "text-muted-foreground"
+                                  )}
+                                >
+                                  <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                                  {recurringEndDate
+                                    ? format(new Date(recurringEndDate + "T00:00:00"), "MMM d, yyyy")
+                                    : "No end date"}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={recurringEndDate ? new Date(recurringEndDate + "T00:00:00") : undefined}
+                                  onSelect={(d) => {
+                                    setRecurringEndDate(d ? d.toISOString().split("T")[0] : "");
+                                    setEndDatePickerOpen(false);
+                                  }}
+                                  disabled={(d) =>
+                                    date ? d < new Date(date + "T00:00:00") : false
+                                  }
+                                  captionLayout="dropdown"
+                                  autoFocus
+                                />
+                              </PopoverContent>
+                            </Popover>
                           </Field>
                           <p className="text-xs text-muted-foreground bg-muted/50 px-3 py-2 rounded-md">
                             A new transaction will be created automatically each {recurringFrequency === "daily" ? "day" : recurringFrequency === "weekly" ? "week" : recurringFrequency === "monthly" ? "month" : "year"}. You can pause or stop this anytime.

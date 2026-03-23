@@ -289,6 +289,8 @@ const spec = {
         parameters: [
           { name: "creditCardId", in: "query", schema: { type: "string" } },
           { name: "bankAccountId", in: "query", schema: { type: "string" } },
+          { name: "cardId", in: "query", description: "Alias for creditCardId", schema: { type: "string" } },
+          { name: "accountId", in: "query", description: "Alias for bankAccountId", schema: { type: "string" } },
           { name: "month", in: "query", schema: { type: "integer" } },
           { name: "year", in: "query", schema: { type: "integer" } },
         ],
@@ -319,6 +321,24 @@ const spec = {
           },
         },
         responses: { "201": { description: "Created" } },
+      },
+    },
+    "/transactions/export": {
+      get: {
+        tags: ["Transactions"],
+        summary: "Export transactions as CSV",
+        parameters: [
+          { name: "month", in: "query", schema: { type: "integer" } },
+          { name: "year", in: "query", schema: { type: "integer" } },
+          { name: "creditCardId", in: "query", schema: { type: "string" } },
+          { name: "bankAccountId", in: "query", schema: { type: "string" } },
+          { name: "cardId", in: "query", description: "Alias for creditCardId", schema: { type: "string" } },
+          { name: "accountId", in: "query", description: "Alias for bankAccountId", schema: { type: "string" } },
+        ],
+        responses: {
+          "200": { description: "CSV file", content: { "text/csv": { schema: { type: "string", format: "binary" } } } },
+          "401": { description: "Unauthorized" },
+        },
       },
     },
     "/transactions/transfer": {
@@ -399,6 +419,22 @@ const spec = {
     },
     "/reports/budget": {
       get: { tags: ["Reports"], summary: "Budget vs actual spending", parameters: [{ name: "month", in: "query", schema: { type: "integer" } }, { name: "year", in: "query", schema: { type: "integer" } }], responses: { "200": { description: "Budget data" } } },
+    },
+    "/reports/export": {
+      get: {
+        tags: ["Reports"],
+        summary: "Export report data as CSV",
+        parameters: [
+          { name: "tab", in: "query", required: true, schema: { type: "string", enum: ["categories", "trend", "budget"] } },
+          { name: "month", in: "query", schema: { type: "integer", description: "Required for categories and budget" } },
+          { name: "year", in: "query", schema: { type: "integer", description: "Required for all tabs" } },
+        ],
+        responses: {
+          "200": { description: "CSV file", content: { "text/csv": { schema: { type: "string", format: "binary" } } } },
+          "400": { description: "Bad request" },
+          "401": { description: "Unauthorized" },
+        },
+      },
     },
     "/notifications/bills": {
       get: { tags: ["Notifications"], summary: "Upcoming bills (due within 7 days)", responses: { "200": { description: "Upcoming invoices" } } },

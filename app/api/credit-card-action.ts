@@ -265,17 +265,20 @@ export async function getUpcomingInvoice(cardId: string, month?: number, year?: 
   const transactionStartDate = new Date(billStartDate);
   transactionStartDate.setMonth(transactionStartDate.getMonth() - 1);
   
-  // The transaction end date is the billStartDate (transactions up to but not including billStartDate)
+  // The transaction end date is the billStartDate (inclusive: transactions ON the bill gen date
+  // belong to this cycle, matching real-world credit card billing where the cut-off date is inclusive)
   const transactionEndDate = billStartDate;
 
-  // Fetch transactions from the previous billing period (these will appear on this invoice)
+  // Fetch transactions from the previous billing period (these will appear on this invoice).
+  // Uses gt (exclusive) for start and lte (inclusive) for end so that a transaction on the
+  // exact bill generation date falls into this cycle, not the next one (TC-04 boundary fix).
   // Exclude parent transactions (installmentNumber: 0) - only show actual installments
   const transactions = await db.transaction.findMany({
     where: {
       creditCardId: cardId,
       date: {
-        gte: transactionStartDate,
-        lt: transactionEndDate,
+        gt: transactionStartDate,
+        lte: transactionEndDate,
       },
       OR: [
         { installmentNumber: null },

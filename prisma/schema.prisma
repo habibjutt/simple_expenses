@@ -287,6 +287,13 @@ model audit_log {
   @@index([createdAt])
 }
 
+model rateLimit {
+  id          String @id @default(cuid())
+  key         String @unique
+  count       Int    @default(0)
+  lastRequest BigInt
+}
+
 model feature_flag {
   id          String   @id @default(cuid())
   key         String   @unique

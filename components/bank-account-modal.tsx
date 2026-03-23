@@ -13,6 +13,7 @@ import { Field } from "./ui/field";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { SUPPORTED_CURRENCIES } from "@/lib/utils";
+import { FormCombobox } from "@/components/ui/form-combobox";
 
 type BankAccount = {
   id: string;
@@ -116,18 +117,14 @@ export default function BankAccountModal({
             />
           </Field>
           <Field label="Currency">
-            <select
+            <FormCombobox
               value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-              className="w-full h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs focus:outline-none focus:ring-2 focus:ring-ring/50 focus:border-ring"
-              aria-label="Currency"
-            >
-              {SUPPORTED_CURRENCIES.map((c) => (
-                <option key={c.code} value={c.code}>
-                  {c.code} — {c.name}
-                </option>
-              ))}
-            </select>
+              onValueChange={(v) => setCurrency(v || "AED")}
+              options={SUPPORTED_CURRENCIES.map((c) => ({ value: c.code, label: `${c.code} — ${c.name}` }))}
+              placeholder="Select currency…"
+              searchPlaceholder="Search currency…"
+              emptyText="No currency found."
+            />
           </Field>
           {error && (
             <div className="text-red-500 text-sm" role="alert">

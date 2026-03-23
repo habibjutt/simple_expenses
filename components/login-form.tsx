@@ -11,14 +11,16 @@ import {
 } from "@/components/ui/card";
 import {
   Field,
-  FieldDescription,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { signIn } from "@/lib/auth-client";
-import { useState } from "react";
+import { signIn, sendVerificationEmail } from "@/lib/auth-client";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { MailWarning, CheckCircle2, RefreshCw } from "lucide-react";
+
+const RESEND_COOLDOWN_SECONDS = 60;
 
 export function LoginForm({
   className,
@@ -29,9 +31,42 @@ export function LoginForm({
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Unverified email state
+  const [isEmailUnverified, setIsEmailUnverified] = useState(false);
+  const [unverifiedEmail, setUnverifiedEmail] = useState("");
+
+  // Resend cooldown
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
+  const [resendError, setResendError] = useState("");
+  const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (cooldownRef.current) clearInterval(cooldownRef.current);
+    };
+  }, []);
+
+  const startCooldown = () => {
+    setResendCooldown(RESEND_COOLDOWN_SECONDS);
+    cooldownRef.current = setInterval(() => {
+      setResendCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(cooldownRef.current!);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
   const handleEmailPasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setIsEmailUnverified(false);
+    setResendSuccess(false);
+    setResendError("");
     setLoading(true);
 
     try {
@@ -45,11 +80,23 @@ export function LoginForm({
             window.location.href = "/dashboard";
           },
           onError: (ctx) => {
-            setError(ctx.error.message || "Login failed");
+            const code = ctx.error.code ?? "";
+            const message = ctx.error.message ?? "";
+            const isUnverified =
+              code === "EMAIL_NOT_VERIFIED" ||
+              message.toLowerCase().includes("not verified") ||
+              message.toLowerCase().includes("email verif");
+
+            if (isUnverified) {
+              setIsEmailUnverified(true);
+              setUnverifiedEmail(email);
+            } else {
+              setError(message || "Login failed");
+            }
           },
         },
       );
-    } catch (err) {
+    } catch {
       setError("An unexpected error occurred");
     } finally {
       setLoading(false);
@@ -65,10 +112,60 @@ export function LoginForm({
         provider: "github",
         callbackURL: "/dashboard",
       });
-    } catch (err) {
+    } catch {
       setError("GitHub login failed");
       setLoading(false);
     }
+  };
+
+  const handleResendEmail = async () => {
+    if (resendCooldown > 0 || resendLoading) return;
+
+    setResendLoading(true);
+    setResendSuccess(false);
+    setResendError("");
+
+    try {
+      await sendVerificationEmail(
+        {
+          email: unverifiedEmail,
+          callbackURL: "/dashboard",
+        },
+        {
+          onSuccess: () => {
+            setResendSuccess(true);
+            startCooldown();
+          },
+          onError: (ctx) => {
+            const message = ctx.error.message || "Failed to resend email";
+            if (
+              ctx.error.status === 429 ||
+              message.toLowerCase().includes("rate limit") ||
+              message.toLowerCase().includes("too many")
+            ) {
+              setResendError(
+                "Too many requests. Please wait a minute before trying again.",
+              );
+              startCooldown();
+            } else {
+              setResendError(message);
+            }
+          },
+        },
+      );
+    } catch {
+      setResendError("Failed to resend. Please try again later.");
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
+  const handleDismissUnverified = () => {
+    setIsEmailUnverified(false);
+    setResendSuccess(false);
+    setResendError("");
+    if (cooldownRef.current) clearInterval(cooldownRef.current);
+    setResendCooldown(0);
   };
 
   return (
@@ -81,12 +178,106 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {error && (
-            <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-800">
+          {/* Unverified email banner */}
+          {isEmailUnverified && (
+            <div
+              className="mb-4 rounded-md border border-amber-200 bg-amber-50 p-4"
+              role="alert"
+              aria-live="assertive"
+            >
+              <div className="flex gap-3">
+                <MailWarning
+                  className="h-5 w-5 shrink-0 text-amber-600 mt-0.5"
+                  aria-hidden="true"
+                />
+                <div className="flex-1 space-y-3">
+                  <div>
+                    <p className="text-sm font-medium text-amber-900">
+                      Email not verified
+                    </p>
+                    <p className="text-sm text-amber-700 mt-0.5">
+                      Please verify{" "}
+                      <span className="font-medium">{unverifiedEmail}</span>{" "}
+                      before signing in. Check your inbox and spam folder.
+                    </p>
+                  </div>
+
+                  {resendSuccess && (
+                    <div
+                      className="flex items-center gap-2 rounded-md bg-green-100 px-3 py-2 text-sm text-green-800"
+                      role="status"
+                      aria-live="polite"
+                    >
+                      <CheckCircle2
+                        className="h-4 w-4 shrink-0"
+                        aria-hidden="true"
+                      />
+                      Verification email sent! Check your inbox.
+                    </div>
+                  )}
+
+                  {resendError && (
+                    <p
+                      className="text-sm text-red-700"
+                      role="alert"
+                      aria-live="assertive"
+                    >
+                      {resendError}
+                    </p>
+                  )}
+
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={handleResendEmail}
+                      disabled={resendCooldown > 0 || resendLoading}
+                      className="border-amber-300 bg-white text-amber-900 hover:bg-amber-100"
+                      aria-label={
+                        resendCooldown > 0
+                          ? `Resend available in ${resendCooldown} seconds`
+                          : "Resend verification email"
+                      }
+                    >
+                      <RefreshCw
+                        className={`mr-1.5 h-3.5 w-3.5 ${resendLoading ? "animate-spin" : ""}`}
+                        aria-hidden="true"
+                      />
+                      {resendLoading
+                        ? "Sending…"
+                        : resendCooldown > 0
+                          ? `Resend in ${resendCooldown}s`
+                          : "Resend email"}
+                    </Button>
+
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={handleDismissUnverified}
+                      className="text-amber-700 hover:bg-amber-100 hover:text-amber-900"
+                    >
+                      Use a different account
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Generic error */}
+          {error && !isEmailUnverified && (
+            <div
+              className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-800"
+              role="alert"
+              aria-live="assertive"
+            >
               {error}
             </div>
           )}
-          <form onSubmit={handleEmailPasswordLogin}>
+
+          <form onSubmit={handleEmailPasswordLogin} noValidate>
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -98,6 +289,7 @@ export function LoginForm({
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={loading}
+                  autoComplete="email"
                 />
               </Field>
               <Field>
@@ -117,17 +309,18 @@ export function LoginForm({
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={loading}
+                  autoComplete="current-password"
                 />
               </Field>
               <Field>
                 <Button type="submit" disabled={loading} className="w-full">
-                  {loading ? "Logging in..." : "Login"}
+                  {loading ? "Logging in…" : "Login"}
                 </Button>
               </Field>
             </FieldGroup>
           </form>
 
-          <div className="relative my-4">
+          <div className="relative my-4" aria-hidden="true">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-border" />
             </div>
@@ -144,11 +337,13 @@ export function LoginForm({
             className="w-full"
             onClick={handleGitHubLogin}
             disabled={loading}
+            aria-label="Sign in with GitHub"
           >
             <svg
               className="mr-2 h-4 w-4"
               fill="currentColor"
               viewBox="0 0 20 20"
+              aria-hidden="true"
             >
               <path
                 fillRule="evenodd"
@@ -156,7 +351,7 @@ export function LoginForm({
                 clipRule="evenodd"
               />
             </svg>
-            {loading ? "Signing in..." : "Sign in with GitHub"}
+            {loading ? "Signing in…" : "Sign in with GitHub"}
           </Button>
 
           <p className="text-center mt-8 text-sm text-muted-foreground">

@@ -38,6 +38,18 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
 
+    // 4. Billing boundary logic tests — creates its own fresh account, no stored session.
+    {
+      name: 'billing',
+      testMatch: /billing\.spec\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        // Force en-US locale so date.toLocaleDateString() in the browser matches
+        // the en-US format used in the test helpers (M/D/YYYY).
+        locale: 'en-US',
+      },
+    },
+
     // 3. All other tests — reuse the saved session so login is skipped.
     {
       name: 'chromium',

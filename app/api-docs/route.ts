@@ -33,7 +33,27 @@ export async function GET() {
 </body>
 </html>`;
 
+  // The global CSP in next.config.ts is strict. Swagger UI requires external
+  // scripts/styles from unpkg.com plus an inline init script, so we loosen
+  // the policy only for this route by overriding the header here.
+  const apiDocsCsp = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' https://unpkg.com",
+    "style-src 'self' 'unsafe-inline' https://unpkg.com",
+    "img-src 'self' data: blob:",
+    "font-src 'self' https://unpkg.com",
+    "connect-src 'self'",
+    "frame-src 'none'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+  ].join("; ");
+
   return new Response(html, {
-    headers: { "Content-Type": "text/html; charset=utf-8" },
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Content-Security-Policy": apiDocsCsp,
+    },
   });
 }

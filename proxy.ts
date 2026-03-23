@@ -5,6 +5,7 @@ import { getSessionCookie } from "better-auth/cookies";
 const ALLOWED_METHODS = "GET, POST, PUT, DELETE, OPTIONS";
 const ALLOWED_HEADERS = "Content-Type, Authorization";
 
+/** Must stay in sync with `app/(protected)/` routes (cookie gate before layout runs). */
 const protectedRoutes = [
   "/dashboard",
   "/transactions",
@@ -12,10 +13,19 @@ const protectedRoutes = [
   "/manage-accounts",
   "/credit-card",
   "/bank-account",
+  "/invoice",
+  "/onboarding",
+  "/billing",
+  "/settings",
+  "/categories",
+  "/goals",
+  "/spending-limits",
+  "/reports",
   "/admin",
 ];
 
-const authRoutes = ["/login", "/signup"];
+/** Logged-in users are redirected away from these (sign-in / recovery entry points). */
+const guestOnlyRoutes = ["/login", "/signup", "/forgot-password"];
 
 export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -46,14 +56,20 @@ export default function proxy(request: NextRequest) {
   // Auth route protection
   const sessionCookie = getSessionCookie(request);
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
-  const isAuthRoute = authRoutes.includes(pathname);
+  const isGuestOnlyRoute = guestOnlyRoutes.includes(pathname);
 
   if (isProtectedRoute && !sessionCookie) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (isAuthRoute && sessionCookie) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+  if (sessionCookie) {
+    if (isGuestOnlyRoute) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+    // Reset page: allow when following email link with token; otherwise send to app
+    if (pathname === "/reset-password" && !request.nextUrl.searchParams.get("token")) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
   }
 
   return NextResponse.next();
