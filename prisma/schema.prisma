@@ -37,6 +37,7 @@ model user {
   currentPeriodEnd     DateTime?
 
   preferredCurrency    String    @default("AED")
+  onboardingCompleted  Boolean   @default(false)
 
   accounts account[]
   sessions session[]

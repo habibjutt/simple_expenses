@@ -457,26 +457,29 @@ export default function TransactionsPage() {
             </p>
           </div>
         ) : (
-          <div className="space-y-5">
+          <div>
             {groupedDates.map((dateKey) => {
               const dayTransactions = groupedByDate[dateKey];
               const date = new Date(dateKey);
-              const dayNum = date.getDate();
-              const dayName = date.toLocaleDateString("en-US", { weekday: "short" });
-              const monthName = date.toLocaleDateString("en-US", { month: "short" });
               const dayTotal = dayTransactions.reduce((s, t) => s + t.amount, 0);
 
+              const dateLabel = date.toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                weekday: "short",
+              });
+
               return (
-                <div key={dateKey} className="flex gap-3 items-start">
-                  {/* Date column */}
-                  <div className="w-12 flex-shrink-0 flex flex-col items-center pt-4">
-                    <span className="text-2xl font-bold text-slate-800 leading-none">{dayNum}</span>
-                    <span className="text-[10px] text-slate-400 mt-0.5 uppercase font-medium">{dayName}</span>
-                    <span className="text-[10px] text-slate-400 uppercase font-medium">{monthName}</span>
+                <div key={dateKey}>
+                  {/* Full-width date header */}
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                      {dateLabel}
+                    </span>
                   </div>
 
                   {/* Day transactions card */}
-                  <div className="flex-1 bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+                  <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden mb-5">
                     {dayTransactions.map((transaction) => (
                       <div
                         key={transaction.id}

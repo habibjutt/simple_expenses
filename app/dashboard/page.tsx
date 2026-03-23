@@ -14,6 +14,7 @@ import { getTransactions } from "@/app/api/transaction-action";
 import { getCurrentMonthInvoices, getNextBillAmounts } from "@/app/api/invoice-action";
 import { seedDefaultCategories } from "@/app/api/category-action";
 import { getReportData } from "@/app/api/reports-action";
+import { getUserProfile, completeOnboarding } from "@/app/api/user-action";
 import { formatCurrency, cn } from "@/lib/utils";
 import Link from "next/link";
 import {
@@ -33,6 +34,8 @@ import {
   Calendar,
   ArrowRight,
   Tag,
+  CheckCircle2,
+  X,
 } from "lucide-react";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import {
@@ -81,7 +84,7 @@ export default function Home() {
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
   const [creditCards, setCreditCards] = useState<CreditCardType[]>([]);
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
-  const [, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [nextBills, setNextBills] = useState<NextBill[]>([]);
   const [loading, setLoading] = useState(false);
@@ -94,19 +97,22 @@ export default function Home() {
   const [monthIncome, setMonthIncome] = useState(0);
   const [monthExpenses, setMonthExpenses] = useState(0);
   const [topCategories, setTopCategories] = useState<CategoryStat[]>([]);
+  const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
+  const [dismissChecklist, setDismissChecklist] = useState(false);
 
   const fetchAll = async () => {
     try {
       setLoading(true);
-      const [cards, accounts, txns, invs, bills] = await Promise.all([
+      const [cards, accounts, txns, invs, bills, profile] = await Promise.all([
         getCreditCards(), getBankAccounts(), getTransactions(),
-        getCurrentMonthInvoices(), getNextBillAmounts(),
+        getCurrentMonthInvoices(), getNextBillAmounts(), getUserProfile(),
       ]);
       setCreditCards(cards);
       setBankAccounts(accounts);
       setTransactions(txns);
       setInvoices(invs);
       setNextBills(bills);
+      setOnboardingCompleted(profile?.onboardingCompleted ?? true);
 
       const now = new Date();
       try {
@@ -277,6 +283,78 @@ export default function Home() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Getting Started checklist ────────────────────────── */}
+          {onboardingCompleted === false && !dismissChecklist && (
+            <div className="mb-5 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 p-4">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
+                    <Target className="h-4 w-4 text-emerald-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-emerald-900">Getting Started</p>
+                    <p className="text-xs text-emerald-600">Complete your setup to get the most out of Simple Expenses</p>
+                  </div>
+                </div>
+                <button
+                  onClick={async () => {
+                    setDismissChecklist(true);
+                    await completeOnboarding();
+                  }}
+                  className="text-emerald-400 hover:text-emerald-600 transition-colors cursor-pointer"
+                  title="Dismiss"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="space-y-2">
+                {[
+                  { done: true, label: "Account created", sub: "You're logged in and ready" },
+                  { done: bankAccounts.length > 0, label: "Add a bank account", sub: "Track your savings and spending", href: "/manage-accounts" },
+                  { done: creditCards.length > 0, label: "Add a credit card", sub: "Monitor bills and due dates", href: "/manage-cards" },
+                  { done: transactions.length > 0, label: "Record your first transaction", sub: "Start tracking your expenses", action: () => setIsTransactionModalOpen(true) },
+                ].map((item, i) => (
+                  <div
+                    key={i}
+                    onClick={() => !item.done && (item.action ? item.action() : item.href && router.push(item.href))}
+                    className={cn(
+                      "flex items-center gap-3 rounded-xl px-3 py-2.5 border transition-all",
+                      item.done
+                        ? "bg-white border-emerald-100 opacity-60"
+                        : "bg-white border-emerald-200 hover:border-emerald-400 cursor-pointer hover:shadow-sm"
+                    )}
+                  >
+                    <div className={cn(
+                      "w-5 h-5 rounded-full flex items-center justify-center shrink-0",
+                      item.done ? "bg-emerald-500" : "bg-slate-100 border-2 border-slate-200"
+                    )}>
+                      {item.done && <CheckCircle2 className="h-3.5 w-3.5 text-white" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={cn("text-sm font-medium", item.done ? "line-through text-slate-400" : "text-slate-800")}>{item.label}</p>
+                      <p className="text-xs text-slate-400 truncate">{item.sub}</p>
+                    </div>
+                    {!item.done && <ChevronRight className="h-4 w-4 text-slate-300 shrink-0" />}
+                  </div>
+                ))}
+              </div>
+              <div className="mt-3 pt-3 border-t border-emerald-100 flex items-center justify-between">
+                <p className="text-xs text-emerald-600">
+                  {[bankAccounts.length > 0, creditCards.length > 0, transactions.length > 0].filter(Boolean).length + 1}/4 completed
+                </p>
+                <button
+                  onClick={async () => {
+                    setDismissChecklist(true);
+                    await completeOnboarding();
+                  }}
+                  className="text-xs text-emerald-700 hover:text-emerald-900 font-semibold cursor-pointer"
+                >
+                  Dismiss checklist
+                </button>
               </div>
             </div>
           )}

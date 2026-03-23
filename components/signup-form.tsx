@@ -52,7 +52,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
         },
         {
           onSuccess: () => {
-            window.location.href = "/dashboard";
+            window.location.href = "/onboarding";
           },
           onError: (ctx) => {
             setError(ctx.error.message || "Signup failed");
@@ -189,15 +189,15 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
           {loading ? "Signing up..." : "Sign up with GitHub"}
         </Button>
 
-        <FieldDescription className="px-6 text-center mt-8">
+        <p className="text-center mt-8 text-sm text-muted-foreground">
           Already have an account?{" "}
           <Link
             href="/login"
-            className="underline underline-offset-4 hover:no-underline"
+            className="underline underline-offset-4 hover:no-underline hover:text-primary"
           >
             Sign in
           </Link>
-        </FieldDescription>
+        </p>
       </CardContent>
     </Card>
   );

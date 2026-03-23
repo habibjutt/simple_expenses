@@ -159,15 +159,15 @@ export function LoginForm({
             {loading ? "Signing in..." : "Sign in with GitHub"}
           </Button>
 
-          <FieldDescription className="text-center mt-8">
+          <p className="text-center mt-8 text-sm text-muted-foreground">
             Don&apos;t have an account?{" "}
             <Link
               href="/signup"
-              className="underline underline-offset-4 hover:no-underline"
+              className="underline underline-offset-4 hover:no-underline hover:text-primary"
             >
               Sign up
             </Link>
-          </FieldDescription>
+          </p>
         </CardContent>
       </Card>
     </div>
