@@ -1,6 +1,7 @@
 import { getAdminStats, getAuditLogs } from "@/app/api/admin-action";
-import { Users, CreditCard, ArrowUpRight, BarChart3, ShieldAlert, Activity } from "lucide-react";
+import { Users, CreditCard, ArrowUpRight, BarChart3, ShieldAlert, Activity, DatabaseBackup } from "lucide-react";
 import Link from "next/link";
+import BackupDownloadButton from "@/components/BackupDownloadButton";
 
 function StatCard({
   label,
@@ -143,6 +144,21 @@ export default async function AdminPage() {
             {label}
           </Link>
         ))}
+      </div>
+
+      {/* Data Management */}
+      <div
+        className="rounded-xl border p-5"
+        style={{ background: "#0f1e38", borderColor: "#1a2d4a" }}
+      >
+        <div className="flex items-center gap-2 mb-1">
+          <DatabaseBackup className="w-4 h-4" style={{ color: "#4f6ef7" }} />
+          <h2 className="text-base font-semibold text-white">Data Management</h2>
+        </div>
+        <p className="text-sm mb-4" style={{ color: "#64748b" }}>
+          Download a full JSON backup of all application data.
+        </p>
+        <BackupDownloadButton />
       </div>
 
       {/* Recent audit activity */}
