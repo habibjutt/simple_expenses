@@ -1,0 +1,12 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "@simple-expenses/types": ["../../packages/types/src/index.ts"],
+      "@simple-expenses/utils": ["../../packages/utils/src/index.ts"],
+      "@simple-expenses/api": ["../../packages/api/src/index.ts"]
+    }
+  }
+}
+

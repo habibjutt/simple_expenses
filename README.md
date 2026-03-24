@@ -1,46 +1,138 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Simple Expenses - Expense Tracking Application
+## Simple Expenses — Expense Tracking Application
 
-A comprehensive expense tracking application built with Next.js, featuring credit card management, bank account tracking, and transaction monitoring.
+A comprehensive expense tracking application built with Next.js (web) and React Native + Expo (iOS & Android), organized as a Turborepo monorepo.
+
+### Repository Structure
+
+```
+simple_expenses/
+├── apps/
+│   ├── web/        Next.js 16 web app (App Router, Prisma, Better Auth)
+│   └── mobile/     Expo SDK app (React Native, Expo Router, NativeWind)
+└── packages/
+    ├── types/      Shared TypeScript types and Zod schemas
+    ├── utils/      Shared utilities (formatCurrency, date helpers, cn)
+    └── api/        REST API client (calls apps/web's /api/v1/ endpoints)
+```
 
 ### Currency Configuration
 
-This application uses **AED (UAE Dirham)** as the base currency. All monetary values are formatted using a centralized utility function. 
+This application supports 18 currencies with AED as default. See [CURRENCY.md](./CURRENCY.md) for details.
 
-For detailed information about currency configuration and formatting, see [CURRENCY.md](./CURRENCY.md).
+---
 
-## Getting Started
+## Web App
 
-First, run the development server:
+### Getting Started
 
 ```bash
+# Install all dependencies (from repo root)
+npm install
+
+# Start web development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# or from root with turbo:
+npx turbo dev --filter=@simple-expenses/web
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Environment Variables (Web)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create `apps/web/.env.local`:
+
+```
+DATABASE_URL=postgresql://...
+BETTER_AUTH_SECRET=...
+BETTER_AUTH_URL=http://localhost:3000
+NEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:3000
+GITHUB_CLIENT_ID=...
+GITHUB_CLIENT_SECRET=...
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+```
+
+---
+
+## Mobile App (iOS & Android)
+
+### Prerequisites
+
+- Install [Expo Go](https://expo.dev/go) on your device (for quick testing)
+- Or set up [EAS Build](https://docs.expo.dev/build/introduction/) for native builds
+- The web app must be running and accessible from your device
+
+### Getting Started
+
+```bash
+# Install all dependencies (from repo root)
+npm install
+
+# Start the Expo dev server
+cd apps/mobile
+npx expo start
+
+# or scan the QR code with Expo Go on your phone
+```
+
+### Environment Variables (Mobile)
+
+Create `apps/mobile/.env.local`:
+
+```
+EXPO_PUBLIC_API_URL=http://YOUR_LOCAL_IP:3000
+```
+
+Replace `YOUR_LOCAL_IP` with your machine's local IP (e.g., `192.168.1.10`).  
+Use `http://localhost:3000` only if running in the same machine (simulator/emulator).
+
+### EAS Build (Native Builds)
+
+```bash
+# Install EAS CLI
+npm install -g eas-cli
+
+# Login to Expo account
+eas login
+
+# Build for both platforms
+cd apps/mobile
+eas build --platform all --profile preview
+```
+
+**Required secret in GitHub Actions:** `EXPO_TOKEN` — generate at [expo.dev/settings/access-tokens](https://expo.dev/settings/access-tokens).
+
+Update the `EXPO_PUBLIC_API_URL` in `apps/mobile/eas.json` for each build profile before building for production.
+
+---
+
+## Monorepo Commands
+
+```bash
+# Run all apps in dev mode
+npx turbo dev
+
+# Build everything
+npx turbo build
+
+# Lint all workspaces
+npx turbo lint
+
+# Build only the web app
+npx turbo build --filter=@simple-expenses/web
+
+# Build only the mobile app
+npx turbo build --filter=@simple-expenses/mobile
+```
+
+---
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Expo Documentation](https://docs.expo.dev)
+- [Expo Router](https://docs.expo.dev/router/introduction)
+- [NativeWind](https://www.nativewind.dev)
+- [EAS Build](https://docs.expo.dev/build/introduction)

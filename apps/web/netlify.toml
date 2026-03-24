@@ -1,0 +1,10 @@
+[[plugins]]
+package = "@netlify/plugin-nextjs"
+
+[build]
+  base    = "../../"
+  command = "cd apps/web && npm run build"
+  publish = "apps/web/.next"
+
+[build.environment]
+  NODE_VERSION = "22"
