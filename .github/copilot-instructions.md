@@ -29,6 +29,13 @@ Next.js 16 App Router application for expense tracking (credit cards, bank accou
 - Prisma client is generated to `generated/prisma/` (not the default location) — import from `@/generated/prisma/client`
 - Run `prisma generate` before build (already wired into `npm run build` and `postinstall`)
 
+**Schema change workflow — always follow this order, no exceptions:**
+1. Edit `prisma/schema.prisma`
+2. `npx prisma migrate dev --name <descriptive_name>` — creates a migration file in `prisma/migrations/` and applies it
+3. `npx prisma generate` — regenerates the Prisma client
+
+**Never use `prisma db push` for schema changes.** `db push` bypasses the migration history, causes schema drift, and breaks `prisma migrate deploy` in production. Only use `db push` in a throw-away local environment when you explicitly want to discard migration history.
+
 **Key models:**
 - `credit_card` — name, bill_date, payment_date, card_limit, available_balance
 - `bank_account` — initial_balance, current_balance
@@ -49,7 +56,7 @@ const session = await auth.api.getSession({ headers: await headers() });
 import { signIn, signOut, useSession } from "@/lib/auth-client";
 ```
 
-Supported: email/password and GitHub OAuth. Env vars required: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `NEXT_PUBLIC_BETTER_AUTH_URL`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`.
+Supported: email/password, GitHub OAuth, and Google OAuth. Env vars required: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `NEXT_PUBLIC_BETTER_AUTH_URL`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`.
 
 ## Conventions
 

@@ -233,7 +233,7 @@ export default function CreditCardDetailsPage() {
       const invoiceTotal = invoiceData?.totalAmount || 0;
       const amountOwed = invoiceTotal - creditFromPrevious;
       const remaining = Math.max(0, amountOwed - paidSoFar);
-      setPaymentAmount(remaining.toString());
+      setPaymentAmount(remaining.toFixed(2));
     } catch (err: any) {
       setPaymentError(err.message || "Failed to load bank accounts");
     }
@@ -940,7 +940,7 @@ export default function CreditCardDetailsPage() {
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => setPaymentAmount((invoiceData.totalAmount - (invoiceData.invoice?.paidAmount || 0)).toString())}
+                    onClick={() => setPaymentAmount((invoiceData.totalAmount - (invoiceData.invoice?.paidAmount || 0)).toFixed(2))}
                     disabled={paymentLoading}
                     className="text-sm font-medium border-gray-300 hover:bg-gray-50"
                   >
@@ -980,7 +980,7 @@ export default function CreditCardDetailsPage() {
                 />
               </div>
               
-              {parseFloat(paymentAmount) > 0 && parseFloat(paymentAmount) < (invoiceData.totalAmount - (invoiceData.invoice?.paidAmount || 0)) && (
+              {parseFloat(paymentAmount) > 0 && parseFloat(((invoiceData.totalAmount - (invoiceData.invoice?.paidAmount || 0)) - parseFloat(paymentAmount)).toFixed(2)) > 0 && (
                 <div className="p-4 bg-blue-50 border-2 border-blue-300 rounded-lg">
                   <p className="text-sm text-blue-900 font-medium">
                     <strong className="font-bold">Partial Payment:</strong> After paying {formatCurrency(parseFloat(paymentAmount), invoiceData.card.currency)}, 

@@ -77,7 +77,7 @@ export default function Page() {
           </div>
 
           {/* Right: form */}
-          <div className="flex flex-1 flex-col items-center justify-center p-8 md:p-10 bg-background">
+          <div className="flex flex-1 flex-col items-center justify-center px-4 py-6 sm:p-8 md:p-10 bg-background">
             {/* Mobile-only brand header */}
             <div className="flex lg:hidden items-center gap-2 justify-center mb-8">
               <div className="w-8 h-8 rounded-full bg-[#1a9e5c] flex items-center justify-center">

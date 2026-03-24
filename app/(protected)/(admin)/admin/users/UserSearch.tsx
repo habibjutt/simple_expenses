@@ -3,6 +3,14 @@
 import { useRouter, usePathname } from "next/navigation";
 import { useCallback } from "react";
 import { Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function UserSearch({
   defaultSearch,
@@ -30,44 +38,39 @@ export default function UserSearch({
     [router, pathname, defaultSearch, defaultRole, defaultBanned]
   );
 
-  const inputStyle = {
-    background: "#0f1e38",
-    borderColor: "#1a2d4a",
-    color: "#e2e8f0",
-  };
-
   return (
     <div className="flex flex-wrap gap-3">
       <div className="relative flex-1 min-w-[200px]">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "#64748b" }} />
-        <input
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+        <Input
           defaultValue={defaultSearch}
           onChange={(e) => update("search", e.target.value)}
           placeholder="Search by name or email..."
-          className="w-full pl-9 pr-3 py-2 rounded-lg border text-sm outline-none"
-          style={inputStyle}
+          className="pl-9"
         />
       </div>
-      <select
-        defaultValue={defaultRole}
-        onChange={(e) => update("role", e.target.value)}
-        className="px-3 py-2 rounded-lg border text-sm outline-none"
-        style={inputStyle}
-      >
-        <option value="">All roles</option>
-        <option value="user">User</option>
-        <option value="admin">Admin</option>
-      </select>
-      <select
-        defaultValue={defaultBanned}
-        onChange={(e) => update("banned", e.target.value)}
-        className="px-3 py-2 rounded-lg border text-sm outline-none"
-        style={inputStyle}
-      >
-        <option value="">All statuses</option>
-        <option value="false">Active</option>
-        <option value="true">Banned</option>
-      </select>
+
+      <Select defaultValue={defaultRole || "all"} onValueChange={(v) => update("role", v === "all" ? "" : v)}>
+        <SelectTrigger className="w-[140px]">
+          <SelectValue placeholder="All roles" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All roles</SelectItem>
+          <SelectItem value="user">User</SelectItem>
+          <SelectItem value="admin">Admin</SelectItem>
+        </SelectContent>
+      </Select>
+
+      <Select defaultValue={defaultBanned || "all"} onValueChange={(v) => update("banned", v === "all" ? "" : v)}>
+        <SelectTrigger className="w-[150px]">
+          <SelectValue placeholder="All statuses" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All statuses</SelectItem>
+          <SelectItem value="false">Active</SelectItem>
+          <SelectItem value="true">Banned</SelectItem>
+        </SelectContent>
+      </Select>
     </div>
   );
 }

@@ -60,6 +60,14 @@ export const auth = betterAuth({
     },
   },
 
+  // ── Account linking ──────────────────────────────────────────────
+  account: {
+    accountLinking: {
+      enabled: true,
+      trustedProviders: ["github", "google", "credential"],
+    },
+  },
+
   // ── Social providers (only registered when credentials are set) ──
   socialProviders: {
     ...(env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET
@@ -67,6 +75,14 @@ export const auth = betterAuth({
           github: {
             clientId: env.GITHUB_CLIENT_ID,
             clientSecret: env.GITHUB_CLIENT_SECRET,
+          },
+        }
+      : {}),
+    ...(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
+      ? {
+          google: {
+            clientId: env.GOOGLE_CLIENT_ID,
+            clientSecret: env.GOOGLE_CLIENT_SECRET,
           },
         }
       : {}),

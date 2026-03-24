@@ -1,5 +1,9 @@
 import { requireAdmin } from "@/lib/permissions";
-import AdminSidebar from "./AdminSidebar";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { AdminAppSidebar } from "@/components/admin-app-sidebar";
+import { AdminSiteHeader } from "@/components/admin-site-header";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 export const metadata = {
   title: "Admin Panel — Simple Expenses",
@@ -10,14 +14,26 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await requireAdmin();
+  await requireAdmin();
+
+  const session = await auth.api.getSession({ headers: await headers() });
 
   return (
-    <div className="min-h-screen flex" style={{ background: "#070c1a" }}>
-      <AdminSidebar userEmail={session.user.email} userName={session.user.name} />
-      <main className="flex-1 min-w-0 flex flex-col pt-14 lg:pt-0">
-        {children}
-      </main>
-    </div>
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 72)",
+          "--header-height": "calc(var(--spacing) * 12)",
+        } as React.CSSProperties
+      }
+    >
+      <AdminAppSidebar variant="inset" user={session?.user} />
+      <SidebarInset>
+        <AdminSiteHeader />
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+          {children}
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

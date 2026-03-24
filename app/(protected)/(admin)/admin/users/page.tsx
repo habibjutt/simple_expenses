@@ -2,6 +2,8 @@ import { listAdminUsers } from "@/app/api/admin-action";
 import { Users } from "lucide-react";
 import { UsersTable } from "./UsersTable";
 import UserSearch from "./UserSearch";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default async function AdminUsersPage({
   searchParams,
@@ -17,48 +19,45 @@ export default async function AdminUsersPage({
   const { users, total, pages } = await listAdminUsers({ page, search, role, banned });
 
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <div className="flex items-center gap-2 mb-1">
-          <Users className="w-4 h-4" style={{ color: "#4f6ef7" }} />
-          <span className="text-xs font-medium uppercase tracking-widest" style={{ color: "#4f6ef7" }}>
-            User Management
-          </span>
+    <div className="py-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <Users className="size-4 text-[#4f6ef7]" />
+            <span className="text-xs font-medium uppercase tracking-widest text-[#4f6ef7]">
+              User Management
+            </span>
+          </div>
+          <h1 className="text-2xl font-bold">Users</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {total} total user{total !== 1 ? "s" : ""}
+          </p>
         </div>
-        <h1 className="text-2xl font-bold text-white">Users</h1>
-        <p className="text-sm mt-1" style={{ color: "#64748b" }}>
-          {total} total user{total !== 1 ? "s" : ""}
-        </p>
       </div>
 
       <UserSearch defaultSearch={search} defaultRole={role} defaultBanned={banned} />
 
       <UsersTable users={users} />
 
-      {/* Pagination */}
       {pages > 1 && (
         <div className="flex items-center justify-between">
-          <p className="text-sm" style={{ color: "#64748b" }}>
+          <p className="text-sm text-muted-foreground">
             Page {page} of {pages}
           </p>
           <div className="flex gap-2">
             {page > 1 && (
-              <a
-                href={`?page=${page - 1}&search=${search}&role=${role}&banned=${banned}`}
-                className="px-4 py-2 rounded-lg border text-sm font-medium transition-colors"
-                style={{ borderColor: "#1a2d4a", color: "#94a3b8", background: "#0f1e38" }}
-              >
-                Previous
-              </a>
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`?page=${page - 1}&search=${search}&role=${role}&banned=${banned}`}>
+                  Previous
+                </Link>
+              </Button>
             )}
             {page < pages && (
-              <a
-                href={`?page=${page + 1}&search=${search}&role=${role}&banned=${banned}`}
-                className="px-4 py-2 rounded-lg border text-sm font-medium transition-colors"
-                style={{ borderColor: "#1a2d4a", color: "#94a3b8", background: "#0f1e38" }}
-              >
-                Next
-              </a>
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`?page=${page + 1}&search=${search}&role=${role}&banned=${banned}`}>
+                  Next
+                </Link>
+              </Button>
             )}
           </div>
         </div>

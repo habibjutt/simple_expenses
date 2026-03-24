@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FormCombobox } from "@/components/ui/form-combobox";
 
 type Transaction = {
   id: string;
@@ -182,7 +183,7 @@ export default function TransactionsPage() {
     })
     .filter((transaction) => {
       // Apply category filter
-      if (filterCategory && transaction.category.toLowerCase() !== filterCategory.toLowerCase()) {
+      if (filterCategory && transaction.category !== filterCategory) {
         return false;
       }
       // Apply name filter (case-insensitive)
@@ -684,24 +685,15 @@ export default function TransactionsPage() {
           <div className="space-y-4 py-4">
             {/* Category Filter */}
             <div className="space-y-2">
-              <Label htmlFor="filter-category">Category</Label>
-              <Input
-                id="filter-category"
-                placeholder="Enter category name"
+              <Label>Category</Label>
+              <FormCombobox
                 value={filterCategory}
-                onChange={(e) => setFilterCategory(e.target.value)}
-                list="categories"
+                onValueChange={setFilterCategory}
+                options={uniqueCategories.map((cat) => ({ value: cat, label: cat }))}
+                placeholder="Select category…"
+                searchPlaceholder="Search categories…"
+                emptyText="No categories found."
               />
-              <datalist id="categories">
-                {uniqueCategories.map((category) => (
-                  <option key={category} value={category} />
-                ))}
-              </datalist>
-              {uniqueCategories.length > 0 && (
-                <div className="text-xs text-gray-500 mt-1">
-                  Available categories: {uniqueCategories.join(", ")}
-                </div>
-              )}
             </div>
 
             {/* Name Filter */}
