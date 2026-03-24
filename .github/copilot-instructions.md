@@ -71,7 +71,35 @@ Supported: email/password, GitHub OAuth, and Google OAuth. Env vars required: `B
 - Tailwind CSS v4; use the `cn()` utility from `@/lib/utils` for conditional classes
 
 **Currency:**
-- All monetary values are in **AED (UAE Dirham)**
-- Use `formatCurrency(amount)` from `@/lib/utils` for display — it uses `Intl.NumberFormat` with `currency: "AED"`
+- The app is **multi-currency**. AED is the default but users can set a preferred currency per card/account.
+- Use `formatCurrency(amount, currency?)` from `@/lib/utils` — second arg is an ISO 4217 code (default: `"AED"`). It uses `Intl.NumberFormat` with the correct locale per currency via `CURRENCY_LOCALE_MAP`.
+- Use the `CurrencyCode` type (from `@/lib/utils`) for currency code values — it is derived from `SUPPORTED_CURRENCIES` (18 currencies: AED, USD, EUR, GBP, SAR, KWD, BHD, OMR, QAR, INR, PKR, EGP, CAD, AUD, JPY, CHF, CNY, SGD).
+- Never hardcode `"AED"` in display logic — always pass the currency from the model or user preference.
 
 **Path alias:** `@/` maps to the repository root.
+
+## Tools & MCP Servers
+
+**Always prefer these tools over manual approaches:**
+
+**Chrome DevTools MCP** — Use for browser automation, testing UI flows, taking screenshots, inspecting network requests, and verifying changes in the running app. Always use this instead of asking the user to manually test in the browser.
+- Navigate pages, click elements, fill forms, take screenshots
+- Check console errors and network responses after UI changes
+- Verify OAuth flows, redirects, and auth state
+
+**Playwright MCP** — Use for writing and running end-to-end tests, automating multi-step user flows, and regression testing. Prefer over manual testing for repeatable scenarios.
+- Use the `webapp-testing` skill to interact with the local dev server
+- Always run `npm run dev` first and confirm the server is up before running Playwright tests
+
+**Context7 MCP** — Use to fetch up-to-date library documentation before implementing features with third-party packages. Always call Context7 when working with:
+- Better Auth (auth configuration, plugins, providers)
+- Prisma (schema syntax, migrations, adapter APIs)
+- Next.js (App Router, Server Actions, caching)
+- shadcn/ui (component APIs and variants)
+- Any package where you are unsure of the current API
+
+**`frontend-design` skill** — Use whenever building or modifying UI components, pages, or layouts. This skill produces high-quality, production-grade frontend code. Trigger it for:
+- New pages or page sections
+- Component redesigns or visual improvements
+- Landing pages, dashboards, modals, forms
+- Any task described as "make it look better", "redesign", or "add a UI for..."
