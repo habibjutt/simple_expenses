@@ -24,10 +24,7 @@ const protectedRoutes = [
   "/admin",
 ];
 
-/** Logged-in users are redirected away from these (sign-in / recovery entry points). */
-const guestOnlyRoutes = ["/login", "/signup", "/forgot-password"];
-
-export default function proxy(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // CORS handling for API v1 routes
@@ -53,23 +50,17 @@ export default function proxy(request: NextRequest) {
     return response;
   }
 
-  // Auth route protection
+  // Fast cookie-based gate: redirect unauthenticated users away from protected
+  // routes before the layout even runs. We intentionally do NOT redirect
+  // cookie-holders away from /login or /signup because the cookie may be
+  // stale/expired — the server layout validates the real session and handles
+  // that case. Redirecting based on a possibly-expired cookie was the root
+  // cause of ERR_TOO_MANY_REDIRECTS loops.
   const sessionCookie = getSessionCookie(request);
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
-  const isGuestOnlyRoute = guestOnlyRoutes.includes(pathname);
 
   if (isProtectedRoute && !sessionCookie) {
     return NextResponse.redirect(new URL("/login", request.url));
-  }
-
-  if (sessionCookie) {
-    if (isGuestOnlyRoute) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
-    }
-    // Reset page: allow when following email link with token; otherwise send to app
-    if (pathname === "/reset-password" && !request.nextUrl.searchParams.get("token")) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
-    }
   }
 
   return NextResponse.next();

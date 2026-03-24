@@ -551,7 +551,7 @@ export default function Home() {
               {/* Quick Links */}
               <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-4">
                 <h3 className="text-sm font-bold text-slate-700 mb-3">Quick Access</h3>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-3">
                   {[
                     { href:"/transactions", icon:ArrowLeftRight, label:"Transactions", color:"bg-blue-50 text-blue-600" },
                     { href:"/reports", icon:BarChart2, label:"Reports", color:"bg-purple-50 text-purple-600" },
@@ -563,12 +563,12 @@ export default function Home() {
                     <Link
                       key={href}
                       href={href}
-                      className="flex flex-col items-center gap-1.5 p-3 rounded-xl hover:bg-slate-50 transition-colors group"
+                      className="flex flex-col items-center gap-2 py-3 px-1 rounded-xl hover:bg-slate-50 transition-colors group"
                     >
-                      <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105", color)}>
-                        <Icon className="h-5 w-5" />
+                      <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-105 shadow-sm", color)}>
+                        <Icon className="h-7 w-7" />
                       </div>
-                      <span className="text-[10px] font-semibold text-slate-500 text-center leading-tight">{label}</span>
+                      <span className="text-xs font-semibold text-slate-500 text-center leading-tight">{label}</span>
                     </Link>
                   ))}
                 </div>
