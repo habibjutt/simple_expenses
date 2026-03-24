@@ -135,6 +135,11 @@ export default function Home() {
   }, [session, isPending]);
 
   useEffect(() => {
+    if (onboardingCompleted === false) router.push("/onboarding");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onboardingCompleted]);
+
+  useEffect(() => {
     if (session && !dataLoaded) {
       setDataLoaded(true);
       fetchAll();

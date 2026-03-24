@@ -110,7 +110,7 @@ export function LoginForm({
     try {
       await signIn.social({
         provider: "github",
-        callbackURL: "/dashboard",
+        callbackURL: "/onboarding",
       });
     } catch {
       setError("GitHub login failed");
@@ -125,7 +125,7 @@ export function LoginForm({
     try {
       await signIn.social({
         provider: "google",
-        callbackURL: "/dashboard",
+        callbackURL: "/onboarding",
       });
     } catch {
       setError("Google login failed");
@@ -144,7 +144,7 @@ export function LoginForm({
       await sendVerificationEmail(
         {
           email: unverifiedEmail,
-          callbackURL: "/dashboard",
+          callbackURL: "/onboarding",
         },
         {
           onSuccess: () => {

@@ -82,6 +82,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
           email,
           password,
           name,
+          callbackURL: "/onboarding",
         },
         {
           onSuccess: () => {
@@ -108,7 +109,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
     try {
       await signIn.social({
         provider: "github",
-        callbackURL: "/dashboard",
+        callbackURL: "/onboarding",
       });
     } catch {
       setError("GitHub signup failed");
@@ -127,7 +128,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
       await sendVerificationEmail(
         {
           email: sentToEmail,
-          callbackURL: "/dashboard",
+          callbackURL: "/onboarding",
         },
         {
           onSuccess: () => {
