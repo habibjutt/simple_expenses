@@ -21,6 +21,7 @@ import {
   Receipt,
   Shield,
   Lightbulb,
+  Sparkles,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -31,6 +32,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { FEATURE_LINKS } from "@/lib/feature-links";
 
 import { ThemeToggle } from "./ThemeToggle";
 import { NotificationsBell } from "./NotificationsBell";
@@ -48,6 +50,7 @@ const NAV_LINKS = [
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileFeaturesOpen, setMobileFeaturesOpen] = useState(false);
   const { data: session, isPending } = useSession();
   const pathname = usePathname();
 
@@ -94,6 +97,40 @@ const Header = () => {
                     </Link>
                   );
                 })}
+
+                {/* Features dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      className={cn(
+                        "flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-all",
+                        pathname.startsWith("/features")
+                          ? "bg-white/20 text-white"
+                          : "text-white/75 hover:bg-white/10 hover:text-white"
+                      )}
+                    >
+                      <Sparkles className="h-3.5 w-3.5" />
+                      Features
+                      <ChevronDown className="h-3.5 w-3.5" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-56">
+                    {FEATURE_LINKS.map(({ href, label, icon: Icon }) => (
+                      <DropdownMenuItem key={href} asChild>
+                        <Link href={href} className="flex items-center gap-2 cursor-pointer">
+                          <Icon className="h-4 w-4 text-[#1a9e5c]" />
+                          {label}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/features" className="flex items-center gap-2 cursor-pointer font-medium text-[#1a9e5c]">
+                        View all features →
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </nav>
             )}
           </div>
@@ -213,6 +250,48 @@ const Header = () => {
                   </Link>
                 );
               })}
+
+              {/* Features submenu */}
+              <button
+                onClick={() => setMobileFeaturesOpen((v) => !v)}
+                className={cn(
+                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors",
+                  pathname.startsWith("/features")
+                    ? "bg-white/20 text-white"
+                    : "text-white/70 hover:bg-white/10 hover:text-white"
+                )}
+              >
+                <Sparkles className="h-4 w-4 shrink-0" />
+                <span className="flex-1 text-left">Features</span>
+                <ChevronDown
+                  className={cn(
+                    "h-4 w-4 transition-transform",
+                    mobileFeaturesOpen && "rotate-180"
+                  )}
+                />
+              </button>
+              {mobileFeaturesOpen && (
+                <div className="pl-7 space-y-0.5">
+                  {FEATURE_LINKS.map(({ href, label, icon: Icon }) => (
+                    <Link
+                      key={href}
+                      href={href}
+                      onClick={() => { setMobileMenuOpen(false); setMobileFeaturesOpen(false); }}
+                      className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+                    >
+                      <Icon className="h-4 w-4 shrink-0" />
+                      {label}
+                    </Link>
+                  ))}
+                  <Link
+                    href="/features"
+                    onClick={() => { setMobileMenuOpen(false); setMobileFeaturesOpen(false); }}
+                    className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-white hover:bg-white/10 transition-colors"
+                  >
+                    View all features →
+                  </Link>
+                </div>
+              )}
 
               <div className="border-t border-white/10 pt-2 mt-1 pb-1">
                 <p className="px-3 text-xs mb-1 text-white/40 truncate">{session.user.email}</p>
