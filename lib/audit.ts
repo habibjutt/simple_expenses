@@ -14,7 +14,8 @@ export type AuditAction =
   | "bank_account.deleted"
   | "feature_flag.toggled"
   | "feature_flag.created"
-  | "feature_flag.deleted";
+  | "feature_flag.deleted"
+  | "admin.backup_downloaded";
 
 export async function logAuditEvent({
   userId,
