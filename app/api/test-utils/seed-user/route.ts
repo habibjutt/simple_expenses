@@ -29,10 +29,11 @@ export async function POST() {
   });
 
   // Force emailVerified=true so signInEmail passes the requireEmailVerification
-  // check (createUser sets it to false by default).
+  // check, and onboardingCompleted=true so the dashboard doesn't redirect to
+  // /onboarding before the test can interact with it.
   await db.user.update({
     where: { id: created.user.id },
-    data: { emailVerified: true },
+    data: { emailVerified: true, onboardingCompleted: true },
   });
 
   // Sign in programmatically — internal calls bypass IP-based rate limiting.
