@@ -13,6 +13,16 @@ export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
   baseURL: env.BETTER_AUTH_URL,
 
+  // ── Session ──────────────────────────────────────────────────────
+  session: {
+    expiresIn: 60 * 60 * 24 * 7,  // 7 days
+    updateAge: 60 * 60 * 24,       // refresh token once per day
+    cookieCache: {
+      enabled: true,
+      maxAge: 60 * 5, // 5-minute client-side cache to cut DB round-trips
+    },
+  },
+
   // ── CSRF / open-redirect protection ─────────────────────────────
   trustedOrigins: [env.BETTER_AUTH_URL],
 
