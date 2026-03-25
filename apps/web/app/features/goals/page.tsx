@@ -1,13 +1,31 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { PiggyBank, Star, Zap, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/LandingFooter";
+import { SITE_URL } from "@/lib/seo";
 
-export const metadata = {
-  title: "Savings Goals – Simple Expenses",
+export const metadata: Metadata = {
+  title: "Savings Goals",
   description:
     "Define savings targets, track progress visually, and reach your financial goals faster with Simple Expenses.",
+  keywords: [
+    "savings goals UAE",
+    "financial goals tracker UAE",
+    "save money UAE app",
+    "target savings AED",
+    "savings progress tracker",
+  ],
+  alternates: {
+    canonical: `${SITE_URL}/features/goals`,
+  },
+  openGraph: {
+    title: "Savings Goals | Simple Expenses",
+    description:
+      "Define savings targets and track progress visually to reach your financial goals faster.",
+    url: `${SITE_URL}/features/goals`,
+  },
 };
 
 const HIGHLIGHTS = [

@@ -1,13 +1,32 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ListOrdered, Filter, Clock, Download, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/LandingFooter";
+import { SITE_URL } from "@/lib/seo";
 
-export const metadata = {
-  title: "Expense Tracking – Simple Expenses",
+export const metadata: Metadata = {
+  title: "Expense Tracking",
   description:
     "Log every dirham you spend in seconds. Smart categories, filters, installment support, and full transaction history.",
+  keywords: [
+    "expense tracking UAE",
+    "track spending UAE",
+    "transaction log UAE",
+    "installment tracking UAE",
+    "dirham expense log",
+    "category expense tracker",
+  ],
+  alternates: {
+    canonical: `${SITE_URL}/features/expense-tracking`,
+  },
+  openGraph: {
+    title: "Expense Tracking | Simple Expenses",
+    description:
+      "Log every dirham in seconds with smart categories, filters, and installment support.",
+    url: `${SITE_URL}/features/expense-tracking`,
+  },
 };
 
 const HIGHLIGHTS = [

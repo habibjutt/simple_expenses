@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +26,39 @@ import LandingFooter from "@/components/LandingFooter";
 import LandingNav from "@/components/LandingNav";
 import PricingSection from "@/components/PricingSection";
 import AnimateOnScroll from "@/components/AnimateOnScroll";
+import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/seo";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: `${SITE_NAME} — Personal Finance App for UAE Residents`,
+  },
+  description: SITE_DESCRIPTION,
+  keywords: [
+    "expense tracker UAE",
+    "personal finance app UAE",
+    "AED expense tracking",
+    "credit card tracker UAE",
+    "bank account manager UAE",
+    "UAE financial app",
+    "free expense tracker",
+    "dirham spending tracker",
+    "invoice management UAE",
+    "Simple Expenses",
+  ],
+  alternates: {
+    canonical: SITE_URL,
+  },
+  openGraph: {
+    title: `${SITE_NAME} — Personal Finance App for UAE Residents`,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    type: "website",
+  },
+  twitter: {
+    title: `${SITE_NAME} — Personal Finance App for UAE Residents`,
+    description: SITE_DESCRIPTION,
+  },
+};
 
 export default function LandingPage() {
   return (

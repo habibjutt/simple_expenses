@@ -1,12 +1,28 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Lightbulb, ArrowRight, Rocket, ThumbsUp, Star } from "lucide-react";
 import LandingFooter from "@/components/LandingFooter";
 import LandingNav from "@/components/LandingNav";
+import { SITE_URL } from "@/lib/seo";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Request a Feature",
-  description: "Share your ideas and help shape the future of Simple Expenses.",
+  description:
+    "Share your ideas and help shape the future of Simple Expenses. Tell us what features you'd love to see in the UAE's favourite personal finance app.",
+  keywords: [
+    "Simple Expenses feature request",
+    "suggest feature UAE finance app",
+    "product feedback Simple Expenses",
+  ],
+  alternates: {
+    canonical: `${SITE_URL}/request-feature`,
+  },
+  openGraph: {
+    title: "Request a Feature | Simple Expenses",
+    description: "Share your ideas and help shape the future of Simple Expenses.",
+    url: `${SITE_URL}/request-feature`,
+  },
 };
 
 export default function RequestFeaturePage() {

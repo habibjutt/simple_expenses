@@ -1,13 +1,32 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { BarChart2, PieChart, TrendingUp, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/LandingFooter";
+import { SITE_URL } from "@/lib/seo";
 
-export const metadata = {
-  title: "Reports & Analytics – Simple Expenses",
+export const metadata: Metadata = {
+  title: "Reports & Analytics",
   description:
     "Turn your transactions into actionable insights with beautiful charts, category breakdowns, and monthly summaries.",
+  keywords: [
+    "expense reports UAE",
+    "spending analytics UAE",
+    "financial reports AED",
+    "category spending breakdown",
+    "monthly expense summary",
+    "finance charts UAE",
+  ],
+  alternates: {
+    canonical: `${SITE_URL}/features/reports`,
+  },
+  openGraph: {
+    title: "Reports & Analytics | Simple Expenses",
+    description:
+      "Beautiful charts, category breakdowns, and monthly summaries for your UAE spending.",
+    url: `${SITE_URL}/features/reports`,
+  },
 };
 
 const HIGHLIGHTS = [

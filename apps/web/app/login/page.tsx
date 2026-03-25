@@ -1,7 +1,29 @@
+import type { Metadata } from "next";
 import { LoginForm } from "@/components/login-form";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/LandingFooter";
 import { CreditCard, BarChart3, Shield, Wallet, CheckCircle2 } from "lucide-react";
+import { SITE_URL } from "@/lib/seo";
+
+export const metadata: Metadata = {
+  title: "Sign In",
+  description:
+    "Sign in to Simple Expenses and pick up right where you left off. Track your credit cards, bank accounts, and spending across the UAE.",
+  keywords: [
+    "login Simple Expenses",
+    "sign in expense tracker UAE",
+    "personal finance login",
+    "AED tracker login",
+  ],
+  alternates: {
+    canonical: `${SITE_URL}/login`,
+  },
+  openGraph: {
+    title: "Sign In | Simple Expenses",
+    description: "Sign in and take control of your UAE finances.",
+    url: `${SITE_URL}/login`,
+  },
+};
 
 const features = [
   { icon: BarChart3, text: "Real-time spending insights" },

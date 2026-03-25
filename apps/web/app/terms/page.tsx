@@ -1,11 +1,27 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import LandingFooter from "@/components/LandingFooter";
 import LandingNav from "@/components/LandingNav";
 import { Button } from "@/components/ui/button";
+import { SITE_URL } from "@/lib/seo";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Terms of Service",
-  description: "Simple Expenses Terms of Service — the rules and conditions governing your use of the platform.",
+  description:
+    "Simple Expenses Terms of Service — the rules and conditions governing your use of the platform.",
+  keywords: [
+    "Simple Expenses terms of service",
+    "expense app terms and conditions",
+    "UAE finance app terms",
+  ],
+  alternates: {
+    canonical: `${SITE_URL}/terms`,
+  },
+  openGraph: {
+    title: "Terms of Service | Simple Expenses",
+    description: "The rules and conditions governing your use of Simple Expenses.",
+    url: `${SITE_URL}/terms`,
+  },
 };
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {

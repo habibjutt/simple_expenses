@@ -1,13 +1,32 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { CreditCard, FileText, CalendarClock, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/LandingFooter";
+import { SITE_URL } from "@/lib/seo";
 
-export const metadata = {
-  title: "Credit Card Management – Simple Expenses",
+export const metadata: Metadata = {
+  title: "Credit Card Management",
   description:
     "Track balances, due dates, payment dates, and invoices for all your credit cards in one clean dashboard.",
+  keywords: [
+    "credit card tracker UAE",
+    "credit card management UAE",
+    "UAE credit card bill dates",
+    "payment due date tracker",
+    "credit card invoice UAE",
+    "credit limit tracker",
+  ],
+  alternates: {
+    canonical: `${SITE_URL}/features/credit-cards`,
+  },
+  openGraph: {
+    title: "Credit Card Management | Simple Expenses",
+    description:
+      "Track balances, due dates, and invoices for all your UAE credit cards in one place.",
+    url: `${SITE_URL}/features/credit-cards`,
+  },
 };
 
 const HIGHLIGHTS = [

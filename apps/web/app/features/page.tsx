@@ -1,14 +1,34 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Tags } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/LandingFooter";
 import { FEATURE_LINKS } from "@/lib/feature-links";
+import { SITE_URL } from "@/lib/seo";
 
-export const metadata = {
-  title: "Features – Simple Expenses",
+export const metadata: Metadata = {
+  title: "Features",
   description:
     "Explore all the powerful features Simple Expenses offers to help you track every dirham across credit cards, bank accounts, and more.",
+  keywords: [
+    "expense tracking features UAE",
+    "personal finance tools UAE",
+    "credit card management UAE",
+    "bank account tracker features",
+    "savings goals app UAE",
+    "spending limits UAE",
+    "finance app features",
+  ],
+  alternates: {
+    canonical: `${SITE_URL}/features`,
+  },
+  openGraph: {
+    title: "Features | Simple Expenses",
+    description:
+      "Powerful features for UAE residents — expense tracking, credit cards, bank accounts, budgets, savings goals, and reports.",
+    url: `${SITE_URL}/features`,
+  },
 };
 
 const ALL_FEATURES = [

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { SignupForm } from "@/components/signup-form";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/LandingFooter";
@@ -8,6 +9,29 @@ import {
   Globe,
   CheckCircle2,
 } from "lucide-react";
+import { SITE_URL } from "@/lib/seo";
+
+export const metadata: Metadata = {
+  title: "Create Account",
+  description:
+    "Create your free Simple Expenses account. Track credit cards, bank accounts, and invoices — built for UAE residents. No credit card required.",
+  keywords: [
+    "sign up Simple Expenses",
+    "create account expense tracker UAE",
+    "free finance app UAE",
+    "AED expense tracker free",
+    "personal finance UAE free",
+  ],
+  alternates: {
+    canonical: `${SITE_URL}/signup`,
+  },
+  openGraph: {
+    title: "Create Your Free Account | Simple Expenses",
+    description:
+      "Join thousands of UAE residents tracking their finances with Simple Expenses. Free, private, and built for AED.",
+    url: `${SITE_URL}/signup`,
+  },
+};
 
 const benefits = [
   { icon: TrendingUp, text: "Track spending across all cards & accounts" },

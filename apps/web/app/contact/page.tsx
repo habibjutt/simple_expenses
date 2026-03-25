@@ -1,12 +1,29 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Mail, MapPin, Clock, MessageCircle, ArrowRight, Phone } from "lucide-react";
 import LandingFooter from "@/components/LandingFooter";
 import LandingNav from "@/components/LandingNav";
+import { SITE_URL } from "@/lib/seo";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Contact Us",
-  description: "Get in touch with the Simple Expenses team. We're here to help UAE users with any questions.",
+  description:
+    "Get in touch with the Simple Expenses team. We're here to help UAE users with any questions about tracking expenses, credit cards, and bank accounts.",
+  keywords: [
+    "contact Simple Expenses",
+    "Simple Expenses support",
+    "UAE finance app help",
+    "expense tracker support",
+  ],
+  alternates: {
+    canonical: `${SITE_URL}/contact`,
+  },
+  openGraph: {
+    title: "Contact Us | Simple Expenses",
+    description: "Get in touch with the Simple Expenses team.",
+    url: `${SITE_URL}/contact`,
+  },
 };
 
 export default function ContactPage() {

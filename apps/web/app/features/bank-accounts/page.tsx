@@ -1,13 +1,31 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Building2, Wallet, RefreshCw, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/LandingFooter";
+import { SITE_URL } from "@/lib/seo";
 
-export const metadata = {
-  title: "Bank Account Management – Simple Expenses",
+export const metadata: Metadata = {
+  title: "Bank Account Management",
   description:
     "Connect multiple UAE bank accounts and keep a real-time view of your total available balance across all accounts.",
+  keywords: [
+    "UAE bank account tracker",
+    "bank balance tracker",
+    "multiple bank accounts UAE",
+    "AED bank balance app",
+    "savings account tracker UAE",
+  ],
+  alternates: {
+    canonical: `${SITE_URL}/features/bank-accounts`,
+  },
+  openGraph: {
+    title: "Bank Account Management | Simple Expenses",
+    description:
+      "Connect multiple UAE bank accounts and track your total balance in real time.",
+    url: `${SITE_URL}/features/bank-accounts`,
+  },
 };
 
 const HIGHLIGHTS = [

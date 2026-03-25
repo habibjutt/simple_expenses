@@ -1,11 +1,28 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import LandingFooter from "@/components/LandingFooter";
 import LandingNav from "@/components/LandingNav";
 import { Button } from "@/components/ui/button";
+import { SITE_URL } from "@/lib/seo";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Privacy Policy",
-  description: "Simple Expenses Privacy Policy — how we collect, use, and protect your data in compliance with UAE PDPL.",
+  description:
+    "Simple Expenses Privacy Policy — how we collect, use, and protect your data in compliance with UAE PDPL.",
+  keywords: [
+    "Simple Expenses privacy policy",
+    "UAE PDPL compliance",
+    "expense app data privacy",
+    "finance app privacy UAE",
+  ],
+  alternates: {
+    canonical: `${SITE_URL}/privacy`,
+  },
+  openGraph: {
+    title: "Privacy Policy | Simple Expenses",
+    description: "How Simple Expenses collects, uses, and protects your data.",
+    url: `${SITE_URL}/privacy`,
+  },
 };
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {

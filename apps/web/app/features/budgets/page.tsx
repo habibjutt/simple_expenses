@@ -1,13 +1,32 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Target, Bell, TrendingDown, ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/LandingFooter";
+import { SITE_URL } from "@/lib/seo";
 
-export const metadata = {
-  title: "Budgets & Spending Limits – Simple Expenses",
+export const metadata: Metadata = {
+  title: "Budgets & Spending Limits",
   description:
     "Set monthly spending limits per category, track your usage in real time, and get alerts before you overspend.",
+  keywords: [
+    "spending limits UAE",
+    "budget tracker UAE",
+    "monthly budget app UAE",
+    "overspending alerts UAE",
+    "category budget UAE",
+    "personal budget AED",
+  ],
+  alternates: {
+    canonical: `${SITE_URL}/features/budgets`,
+  },
+  openGraph: {
+    title: "Budgets & Spending Limits | Simple Expenses",
+    description:
+      "Set monthly spending limits by category and get alerts before you overspend.",
+    url: `${SITE_URL}/features/budgets`,
+  },
 };
 
 const HIGHLIGHTS = [

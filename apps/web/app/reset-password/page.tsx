@@ -1,7 +1,19 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ResetPasswordForm } from "@/components/reset-password-form";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/LandingFooter";
+import { SITE_URL } from "@/lib/seo";
+
+export const metadata: Metadata = {
+  title: "Reset Password",
+  description: "Set a new password for your Simple Expenses account.",
+  keywords: ["reset password Simple Expenses"],
+  alternates: {
+    canonical: `${SITE_URL}/reset-password`,
+  },
+  robots: { index: false, follow: false },
+};
 
 export default function Page() {
   return (
