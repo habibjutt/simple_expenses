@@ -27,6 +27,24 @@ import type {
   Subscription,
 } from "@simple-expenses/types";
 
+import {
+  userSchema,
+  creditCardSchema,
+  bankAccountSchema,
+  transactionSchema,
+  invoiceSchema,
+  categorySchema,
+  spendingLimitSchema,
+  savingsGoalSchema,
+  reportSummarySchema,
+  reportTrendSchema,
+  reportBudgetSchema,
+  billNotificationsSchema,
+  subscriptionSchema,
+} from "@simple-expenses/types";
+
+import { z } from "zod";
+
 // ---------------------------------------------------------------------------
 // Client configuration
 // ---------------------------------------------------------------------------
@@ -52,17 +70,22 @@ function getConfig(): ApiClientConfig {
 // Core fetch wrapper
 // ---------------------------------------------------------------------------
 
+interface RequestOptions<T> extends RequestInit {
+  schema?: z.ZodType<T>;
+}
+
 async function request<T>(
   path: string,
-  options: RequestInit = {},
+  options: RequestOptions<T> = {},
   skipAuth = false
 ): Promise<T> {
+  const { schema, ...fetchOptions } = options;
   const config = getConfig();
   const token = skipAuth ? null : await config.getToken();
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    ...(options.headers as Record<string, string>),
+    ...(fetchOptions.headers as Record<string, string>),
   };
 
   if (token) {
@@ -70,7 +93,7 @@ async function request<T>(
   }
 
   const response = await fetch(`${config.baseUrl}${path}`, {
-    ...options,
+    ...fetchOptions,
     headers,
   });
 
@@ -93,7 +116,23 @@ async function request<T>(
   // 204 No Content
   if (response.status === 204) return undefined as T;
 
-  return response.json() as Promise<T>;
+  const data = await response.json();
+
+  // Runtime validation when a Zod schema is provided
+  if (schema) {
+    const result = schema.safeParse(data);
+    if (!result.success) {
+      console.warn(
+        `[API] Response validation failed for ${path}:`,
+        result.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join(", ")
+      );
+      // Return raw data as fallback — don't crash the app for validation mismatches
+      return data as T;
+    }
+    return result.data;
+  }
+
+  return data as T;
 }
 
 export class ApiError extends Error {
@@ -110,6 +149,9 @@ export class ApiError extends Error {
 // Auth
 // ---------------------------------------------------------------------------
 
+const loginResponseSchema = z.object({ user: userSchema, token: z.string() });
+const signupResponseSchema = z.object({ user: userSchema, token: z.string() });
+
 export interface LoginResponse {
   user: User;
   token: string;
@@ -125,6 +167,7 @@ export const auth = {
     return request<LoginResponse>("/api/v1/auth/login", {
       method: "POST",
       body: JSON.stringify(input),
+      schema: loginResponseSchema,
     }, true);
   },
 
@@ -132,6 +175,7 @@ export const auth = {
     return request<SignupResponse>("/api/v1/auth/signup", {
       method: "POST",
       body: JSON.stringify(input),
+      schema: signupResponseSchema,
     }, true);
   },
 
@@ -143,13 +187,14 @@ export const auth = {
   },
 
   async me(): Promise<User> {
-    return request<User>("/api/v1/auth/me");
+    return request<User>("/api/v1/auth/me", { schema: userSchema });
   },
 
   async updateProfile(data: { name: string }): Promise<{ name: string }> {
     return request<{ name: string }>("/api/v1/auth/profile", {
       method: "PUT",
       body: JSON.stringify(data),
+      schema: z.object({ name: z.string() }),
     });
   },
 
@@ -157,6 +202,7 @@ export const auth = {
     return request<{ success: boolean }>("/api/v1/auth/change-password", {
       method: "POST",
       body: JSON.stringify(data),
+      schema: z.object({ success: z.boolean() }),
     });
   },
 
@@ -164,6 +210,7 @@ export const auth = {
     return request<{ preferredCurrency: string }>("/api/v1/auth/currency", {
       method: "PUT",
       body: JSON.stringify({ currency }),
+      schema: z.object({ preferredCurrency: z.string() }),
     });
   },
 
@@ -178,17 +225,18 @@ export const auth = {
 
 export const creditCards = {
   async list(): Promise<CreditCard[]> {
-    return request<CreditCard[]>("/api/v1/credit-cards");
+    return request<CreditCard[]>("/api/v1/credit-cards", { schema: z.array(creditCardSchema) });
   },
 
   async get(id: string): Promise<CreditCard> {
-    return request<CreditCard>(`/api/v1/credit-cards/${id}`);
+    return request<CreditCard>(`/api/v1/credit-cards/${id}`, { schema: creditCardSchema });
   },
 
   async create(input: CreateCreditCardInput): Promise<CreditCard> {
     return request<CreditCard>("/api/v1/credit-cards", {
       method: "POST",
       body: JSON.stringify(input),
+      schema: creditCardSchema,
     });
   },
 
@@ -196,6 +244,7 @@ export const creditCards = {
     return request<CreditCard>(`/api/v1/credit-cards/${id}`, {
       method: "PUT",
       body: JSON.stringify(input),
+      schema: creditCardSchema,
     });
   },
 
@@ -210,17 +259,18 @@ export const creditCards = {
 
 export const bankAccounts = {
   async list(): Promise<BankAccount[]> {
-    return request<BankAccount[]>("/api/v1/bank-accounts");
+    return request<BankAccount[]>("/api/v1/bank-accounts", { schema: z.array(bankAccountSchema) });
   },
 
   async get(id: string): Promise<BankAccount> {
-    return request<BankAccount>(`/api/v1/bank-accounts/${id}`);
+    return request<BankAccount>(`/api/v1/bank-accounts/${id}`, { schema: bankAccountSchema });
   },
 
   async create(input: CreateBankAccountInput): Promise<BankAccount> {
     return request<BankAccount>("/api/v1/bank-accounts", {
       method: "POST",
       body: JSON.stringify(input),
+      schema: bankAccountSchema,
     });
   },
 
@@ -228,6 +278,7 @@ export const bankAccounts = {
     return request<BankAccount>(`/api/v1/bank-accounts/${id}`, {
       method: "PUT",
       body: JSON.stringify(input),
+      schema: bankAccountSchema,
     });
   },
 
@@ -263,13 +314,16 @@ export const transactions = {
     if (filters?.month) params.set("month", String(filters.month));
     if (filters?.year) params.set("year", String(filters.year));
     const qs = params.toString();
-    return request<Transaction[]>(`/api/v1/transactions${qs ? `?${qs}` : ""}`);
+    return request<Transaction[]>(`/api/v1/transactions${qs ? `?${qs}` : ""}`, {
+      schema: z.array(transactionSchema),
+    });
   },
 
   async create(input: CreateTransactionInput): Promise<Transaction> {
     return request<Transaction>("/api/v1/transactions", {
       method: "POST",
       body: JSON.stringify(input),
+      schema: transactionSchema,
     });
   },
 
@@ -277,6 +331,7 @@ export const transactions = {
     return request<Transaction>(`/api/v1/transactions/${id}`, {
       method: "PUT",
       body: JSON.stringify(input),
+      schema: transactionSchema,
     });
   },
 
@@ -284,6 +339,7 @@ export const transactions = {
     return request<{ success: boolean; amount: number }>("/api/v1/transactions/transfer", {
       method: "POST",
       body: JSON.stringify(input),
+      schema: z.object({ success: z.boolean(), amount: z.number() }),
     });
   },
 
@@ -299,19 +355,21 @@ export const transactions = {
 export const invoices = {
   async list(creditCardId?: string): Promise<Invoice[]> {
     const qs = creditCardId ? `?creditCardId=${creditCardId}` : "";
-    return request<Invoice[]>(`/api/v1/invoices${qs}`);
+    return request<Invoice[]>(`/api/v1/invoices${qs}`, { schema: z.array(invoiceSchema) });
   },
 
   async pay(invoiceId: string, bankAccountId: string): Promise<Invoice> {
     return request<Invoice>(`/api/v1/invoices/${invoiceId}/pay`, {
       method: "POST",
       body: JSON.stringify({ bankAccountId }),
+      schema: invoiceSchema,
     });
   },
 
   async unpay(invoiceId: string): Promise<{ success: boolean }> {
     return request<{ success: boolean }>(`/api/v1/invoices/${invoiceId}/unpay`, {
       method: "POST",
+      schema: z.object({ success: z.boolean() }),
     });
   },
 };
@@ -323,13 +381,14 @@ export const invoices = {
 export const categories = {
   async list(type?: string): Promise<Category[]> {
     const qs = type ? `?type=${encodeURIComponent(type)}` : "";
-    return request<Category[]>(`/api/v1/categories${qs}`);
+    return request<Category[]>(`/api/v1/categories${qs}`, { schema: z.array(categorySchema) });
   },
 
   async create(input: CreateCategoryInput): Promise<Category> {
     return request<Category>("/api/v1/categories", {
       method: "POST",
       body: JSON.stringify(input),
+      schema: categorySchema,
     });
   },
 
@@ -337,6 +396,7 @@ export const categories = {
     return request<Category>(`/api/v1/categories/${id}`, {
       method: "PUT",
       body: JSON.stringify(input),
+      schema: categorySchema,
     });
   },
 
@@ -355,13 +415,16 @@ export const spendingLimits = {
     if (month) params.set("month", String(month));
     if (year) params.set("year", String(year));
     const qs = params.toString();
-    return request<SpendingLimit[]>(`/api/v1/spending-limits${qs ? `?${qs}` : ""}`);
+    return request<SpendingLimit[]>(`/api/v1/spending-limits${qs ? `?${qs}` : ""}`, {
+      schema: z.array(spendingLimitSchema),
+    });
   },
 
   async create(input: CreateSpendingLimitInput): Promise<SpendingLimit> {
     return request<SpendingLimit>("/api/v1/spending-limits", {
       method: "POST",
       body: JSON.stringify(input),
+      schema: spendingLimitSchema,
     });
   },
 
@@ -376,17 +439,18 @@ export const spendingLimits = {
 
 export const goals = {
   async list(): Promise<SavingsGoal[]> {
-    return request<SavingsGoal[]>("/api/v1/goals");
+    return request<SavingsGoal[]>("/api/v1/goals", { schema: z.array(savingsGoalSchema) });
   },
 
   async get(id: string): Promise<SavingsGoal> {
-    return request<SavingsGoal>(`/api/v1/goals/${id}`);
+    return request<SavingsGoal>(`/api/v1/goals/${id}`, { schema: savingsGoalSchema });
   },
 
   async create(input: CreateSavingsGoalInput): Promise<SavingsGoal> {
     return request<SavingsGoal>("/api/v1/goals", {
       method: "POST",
       body: JSON.stringify(input),
+      schema: savingsGoalSchema,
     });
   },
 
@@ -394,6 +458,7 @@ export const goals = {
     return request<SavingsGoal>(`/api/v1/goals/${id}`, {
       method: "PUT",
       body: JSON.stringify(input),
+      schema: savingsGoalSchema,
     });
   },
 
@@ -405,6 +470,7 @@ export const goals = {
     return request<SavingsGoal>(`/api/v1/goals/${id}/contribute`, {
       method: "POST",
       body: JSON.stringify({ amount }),
+      schema: savingsGoalSchema,
     });
   },
 };
@@ -419,12 +485,14 @@ export const reports = {
     if (month) params.set("month", String(month));
     if (year) params.set("year", String(year));
     const qs = params.toString();
-    return request<ReportSummary>(`/api/v1/reports/summary${qs ? `?${qs}` : ""}`);
+    return request<ReportSummary>(`/api/v1/reports/summary${qs ? `?${qs}` : ""}`, {
+      schema: reportSummarySchema,
+    });
   },
 
   async trend(year?: number): Promise<ReportTrend> {
     const qs = year ? `?year=${year}` : "";
-    return request<ReportTrend>(`/api/v1/reports/trend${qs}`);
+    return request<ReportTrend>(`/api/v1/reports/trend${qs}`, { schema: reportTrendSchema });
   },
 
   async budget(month?: number, year?: number): Promise<ReportBudget> {
@@ -432,7 +500,9 @@ export const reports = {
     if (month) params.set("month", String(month));
     if (year) params.set("year", String(year));
     const qs = params.toString();
-    return request<ReportBudget>(`/api/v1/reports/budget${qs ? `?${qs}` : ""}`);
+    return request<ReportBudget>(`/api/v1/reports/budget${qs ? `?${qs}` : ""}`, {
+      schema: reportBudgetSchema,
+    });
   },
 };
 
@@ -442,7 +512,9 @@ export const reports = {
 
 export const notifications = {
   async bills(): Promise<BillNotifications> {
-    return request<BillNotifications>("/api/v1/notifications/bills");
+    return request<BillNotifications>("/api/v1/notifications/bills", {
+      schema: billNotificationsSchema,
+    });
   },
 };
 
@@ -452,19 +524,23 @@ export const notifications = {
 
 export const billing = {
   async subscription(): Promise<Subscription> {
-    return request<Subscription>("/api/v1/billing/subscription");
+    return request<Subscription>("/api/v1/billing/subscription", {
+      schema: subscriptionSchema,
+    });
   },
 
   async checkout(priceId: string): Promise<{ url: string }> {
     return request<{ url: string }>("/api/v1/billing/checkout", {
       method: "POST",
       body: JSON.stringify({ priceId }),
+      schema: z.object({ url: z.string() }),
     });
   },
 
   async portal(): Promise<{ url: string }> {
     return request<{ url: string }>("/api/v1/billing/portal", {
       method: "POST",
+      schema: z.object({ url: z.string() }),
     });
   },
 };

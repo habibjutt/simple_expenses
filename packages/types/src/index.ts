@@ -350,3 +350,173 @@ export interface ApiError {
   error: string;
   status: number;
 }
+
+// ---------------------------------------------------------------------------
+// Response Schemas (Zod) — for runtime validation in the API client
+// ---------------------------------------------------------------------------
+
+export const userSchema = z.object({
+  id: z.string(),
+  name: z.string().nullable(),
+  email: z.string(),
+  emailVerified: z.boolean(),
+  image: z.string().nullable(),
+  role: z.string(),
+  preferredCurrency: z.string(),
+  onboardingCompleted: z.boolean(),
+  subscriptionStatus: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export const creditCardSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  billGenerationDate: z.number(),
+  paymentDate: z.number(),
+  cardLimit: z.number(),
+  availableBalance: z.number(),
+  currency: z.string(),
+  userId: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export const bankAccountSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  initialBalance: z.number(),
+  currentBalance: z.number(),
+  currency: z.string(),
+  userId: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export const transactionSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  amount: z.number(),
+  date: z.string(),
+  category: z.string(),
+  type: z.enum(["expense", "income", "transfer"]),
+  notes: z.string().nullable(),
+  installments: z.number(),
+  installmentNumber: z.number().nullable(),
+  parentTransactionId: z.string().nullable(),
+  creditCardId: z.string().nullable(),
+  bankAccountId: z.string().nullable(),
+  isRecurring: z.boolean(),
+  recurringFrequency: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  creditCard: z.object({ name: z.string() }).nullable().optional(),
+  bankAccount: z.object({ name: z.string() }).nullable().optional(),
+});
+
+export const invoiceSchema = z.object({
+  id: z.string(),
+  creditCardId: z.string(),
+  billStartDate: z.string(),
+  billEndDate: z.string(),
+  paymentDueDate: z.string(),
+  totalAmount: z.number(),
+  paidAmount: z.number(),
+  creditFromPreviousMonth: z.number(),
+  isPaid: z.boolean(),
+  paidAt: z.string().nullable(),
+  paidFromBankAccountId: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  creditCard: z.object({ name: z.string(), currency: z.string() }).nullable().optional(),
+});
+
+export const categorySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  color: z.string(),
+  icon: z.string(),
+  type: z.enum(["expense", "income", "both"]),
+  userId: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export const spendingLimitSchema = z.object({
+  id: z.string(),
+  categoryName: z.string(),
+  amount: z.number(),
+  month: z.number(),
+  year: z.number(),
+  userId: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export const savingsGoalSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  targetAmount: z.number(),
+  currentAmount: z.number(),
+  color: z.string(),
+  deadline: z.string().nullable(),
+  isCompleted: z.boolean(),
+  userId: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export const reportSummarySchema = z.object({
+  month: z.number(),
+  year: z.number(),
+  summary: z.array(z.object({
+    category: z.string(),
+    expense: z.number(),
+    income: z.number(),
+    net: z.number(),
+  })),
+  totalExpense: z.number(),
+  totalIncome: z.number(),
+});
+
+export const reportTrendSchema = z.object({
+  year: z.number(),
+  trend: z.array(z.object({
+    month: z.number(),
+    year: z.number(),
+    expense: z.number(),
+    income: z.number(),
+  })),
+});
+
+export const reportBudgetSchema = z.object({
+  month: z.number(),
+  year: z.number(),
+  budget: z.array(z.object({
+    category: z.string(),
+    limit: z.number(),
+    actual: z.number(),
+    remaining: z.number(),
+    percentage: z.number(),
+  })),
+});
+
+export const billNotificationsSchema = z.object({
+  count: z.number(),
+  bills: z.array(z.object({
+    invoiceId: z.string(),
+    creditCardId: z.string(),
+    creditCardName: z.string(),
+    totalAmount: z.number(),
+    paymentDueDate: z.string(),
+    daysUntilDue: z.number(),
+  })),
+});
+
+export const subscriptionSchema = z.object({
+  planTier: z.string(),
+  status: z.string().nullable(),
+  trialDaysRemaining: z.number().nullable(),
+  currentPeriodEnd: z.string().nullable(),
+  cancelAtPeriodEnd: z.boolean(),
+});
