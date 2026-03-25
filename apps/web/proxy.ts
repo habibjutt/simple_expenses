@@ -11,6 +11,26 @@ import {
 const ALLOWED_METHODS = "GET, POST, PUT, DELETE, OPTIONS";
 const ALLOWED_HEADERS = "Content-Type, Authorization";
 
+// Build the whitelist once at startup from env vars.
+// Mobile apps send requests without an Origin header (native fetch),
+// so they are implicitly allowed. Only browser-based origins need checking.
+const ALLOWED_ORIGINS = new Set(
+  [
+    process.env.BETTER_AUTH_URL,
+    process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
+    process.env.CORS_ALLOWED_ORIGINS?.split(",").map((o) => o.trim()),
+  ]
+    .flat()
+    .filter(Boolean) as string[]
+);
+
+function getAllowedOrigin(request: NextRequest): string | null {
+  const origin = request.headers.get("origin");
+  if (!origin) return null; // same-origin or non-browser (mobile) — no CORS header needed
+  if (ALLOWED_ORIGINS.has(origin)) return origin;
+  return null; // origin not whitelisted
+}
+
 /** Must stay in sync with `app/(protected)/` routes (cookie gate before layout runs). */
 const protectedRoutes = [
   "/dashboard",
@@ -38,16 +58,20 @@ export function proxy(request: NextRequest) {
 
   // CORS + rate-limiting for API v1 routes
   if (pathname.startsWith("/api/v1")) {
-    const origin = request.headers.get("origin") ?? "*";
+    const allowedOrigin = getAllowedOrigin(request);
 
     if (request.method === "OPTIONS") {
+      // Reject preflight from unknown origins
+      if (!allowedOrigin) {
+        return new NextResponse(null, { status: 403 });
+      }
       return new NextResponse(null, {
         status: 204,
         headers: {
-          "Access-Control-Allow-Origin": origin,
+          "Access-Control-Allow-Origin": allowedOrigin,
           "Access-Control-Allow-Methods": ALLOWED_METHODS,
           "Access-Control-Allow-Headers": ALLOWED_HEADERS,
-          "Access-Control-Max-Age": "86400",
+          "Access-Control-Max-Age": "3600",
         },
       });
     }
@@ -71,24 +95,25 @@ export function proxy(request: NextRequest) {
     const result = rateLimit(key, tier);
 
     if (!result.allowed) {
+      const rlHeaders: Record<string, string> = {
+        "Retry-After": String(result.retryAfterSeconds),
+        "X-RateLimit-Limit": String(result.limit),
+        "X-RateLimit-Remaining": "0",
+      };
+      if (allowedOrigin) rlHeaders["Access-Control-Allow-Origin"] = allowedOrigin;
+
       return NextResponse.json(
         { error: "Too many requests. Please try again later." },
-        {
-          status: 429,
-          headers: {
-            "Retry-After": String(result.retryAfterSeconds),
-            "X-RateLimit-Limit": String(result.limit),
-            "X-RateLimit-Remaining": "0",
-            "Access-Control-Allow-Origin": origin,
-          },
-        }
+        { status: 429, headers: rlHeaders }
       );
     }
 
     const response = NextResponse.next();
-    response.headers.set("Access-Control-Allow-Origin", origin);
-    response.headers.set("Access-Control-Allow-Methods", ALLOWED_METHODS);
-    response.headers.set("Access-Control-Allow-Headers", ALLOWED_HEADERS);
+    if (allowedOrigin) {
+      response.headers.set("Access-Control-Allow-Origin", allowedOrigin);
+      response.headers.set("Access-Control-Allow-Methods", ALLOWED_METHODS);
+      response.headers.set("Access-Control-Allow-Headers", ALLOWED_HEADERS);
+    }
     response.headers.set("X-RateLimit-Limit", String(result.limit));
     response.headers.set("X-RateLimit-Remaining", String(result.remaining));
     return response;
