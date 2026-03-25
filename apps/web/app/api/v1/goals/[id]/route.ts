@@ -1,4 +1,5 @@
 import { getApiUser, api } from "@/lib/api-auth";
+import { sanitizeString } from "@/lib/sanitize";
 import { db } from "@/lib/db";
 
 // GET /api/v1/goals/:id
@@ -40,7 +41,7 @@ export async function PUT(
   const { name, targetAmount, color, deadline, isCompleted } = body as Record<string, unknown>;
 
   const updates: Record<string, unknown> = {};
-  if (name !== undefined) updates.name = String(name);
+  if (name !== undefined) updates.name = sanitizeString(String(name));
   if (targetAmount !== undefined) updates.targetAmount = Number(targetAmount);
   if (color !== undefined) updates.color = String(color);
   if (deadline !== undefined) updates.deadline = deadline ? new Date(String(deadline)) : null;

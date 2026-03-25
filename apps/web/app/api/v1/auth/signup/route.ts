@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { api } from "@/lib/api-auth";
+import { sanitizeString } from "@/lib/sanitize";
 
 // POST /api/v1/auth/signup
 export async function POST(request: Request) {
@@ -16,7 +17,7 @@ export async function POST(request: Request) {
 
   try {
     const response = await auth.api.signUpEmail({
-      body: { email: String(email), password: String(password), name: String(name) },
+      body: { email: String(email), password: String(password), name: sanitizeString(String(name)) },
       asResponse: true,
     });
     return response;

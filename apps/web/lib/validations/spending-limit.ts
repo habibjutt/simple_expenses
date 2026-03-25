@@ -1,10 +1,12 @@
 import { z } from "zod";
+import { sanitizeString } from "@/lib/sanitize";
 
 export const SpendingLimitSchema = z.object({
   categoryName: z
     .string()
     .min(1, "Category is required")
-    .max(100, "Category name is too long"),
+    .max(100, "Category name is too long")
+    .transform(sanitizeString),
   amount: z.number().positive("Amount must be positive"),
   month: z
     .number()

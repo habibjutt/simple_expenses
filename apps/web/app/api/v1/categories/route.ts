@@ -1,4 +1,5 @@
 import { getApiUser, api } from "@/lib/api-auth";
+import { sanitizeString } from "@/lib/sanitize";
 import { db } from "@/lib/db";
 
 // GET /api/v1/categories?type=expense|income|both
@@ -41,9 +42,9 @@ export async function POST(request: Request) {
 
   const category = await db.category.create({
     data: {
-      name: String(name),
+      name: sanitizeString(String(name)),
       color: String(color),
-      icon: String(icon),
+      icon: sanitizeString(String(icon)),
       type: String(type),
       userId: user.id,
     },

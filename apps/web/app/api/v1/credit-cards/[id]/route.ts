@@ -1,4 +1,5 @@
 import { getApiUser, api } from "@/lib/api-auth";
+import { sanitizeString } from "@/lib/sanitize";
 import { db } from "@/lib/db";
 
 // GET /api/v1/credit-cards/:id
@@ -50,7 +51,7 @@ export async function PUT(
   const { name, billGenerationDate, paymentDate, cardLimit } = body as Record<string, unknown>;
 
   const updates: Record<string, unknown> = {};
-  if (name !== undefined) updates.name = String(name);
+  if (name !== undefined) updates.name = sanitizeString(String(name));
   if (billGenerationDate !== undefined) {
     const bgd = Number(billGenerationDate);
     if (isNaN(bgd) || bgd < 1 || bgd > 31)

@@ -1,4 +1,5 @@
 import { getApiUser, api } from "@/lib/api-auth";
+import { sanitizeString } from "@/lib/sanitize";
 import { db } from "@/lib/db";
 
 // GET /api/v1/bank-accounts/:id
@@ -50,7 +51,7 @@ export async function PUT(
   const { name, initialBalance } = body as Record<string, unknown>;
 
   const updates: Record<string, unknown> = {};
-  if (name !== undefined) updates.name = String(name);
+  if (name !== undefined) updates.name = sanitizeString(String(name));
   if (initialBalance !== undefined) {
     const bal = Number(initialBalance);
     if (isNaN(bal) || bal < 0) return api.badRequest("initialBalance must be >= 0");

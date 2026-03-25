@@ -1,17 +1,18 @@
 import { z } from "zod";
+import { sanitizeString } from "@/lib/sanitize";
 
 const RECURRING_FREQUENCIES = ["daily", "weekly", "monthly", "yearly"] as const;
 
 export const CreateTransactionSchema = z.object({
-  name: z.string().min(1, "Name is required").max(255, "Name is too long"),
+  name: z.string().min(1, "Name is required").max(255, "Name is too long").transform(sanitizeString),
   amount: z.coerce
     .number()
     .refine((v) => v !== 0, { message: "Amount cannot be zero" }),
   date: z
     .string()
     .refine((v) => !isNaN(Date.parse(v)), { message: "Invalid date" }),
-  category: z.string().min(1, "Category is required"),
-  notes: z.string().max(500, "Notes are too long").optional().nullable(),
+  category: z.string().min(1, "Category is required").transform(sanitizeString),
+  notes: z.string().max(500, "Notes are too long").transform(sanitizeString).optional().nullable(),
   creditCardId: z.string().optional().nullable(),
   bankAccountId: z.string().optional().nullable(),
   installments: z.coerce
@@ -29,7 +30,7 @@ export const CreateTransactionSchema = z.object({
 });
 
 export const CreateTransferSchema = z.object({
-  name: z.string().max(255, "Name is too long").optional(),
+  name: z.string().max(255, "Name is too long").transform(sanitizeString).optional(),
   amount: z.coerce
     .number()
     .positive("Transfer amount must be greater than 0"),
@@ -41,15 +42,15 @@ export const CreateTransferSchema = z.object({
 });
 
 export const UpdateTransactionSchema = z.object({
-  name: z.string().min(1, "Name is required").max(255, "Name is too long"),
+  name: z.string().min(1, "Name is required").max(255, "Name is too long").transform(sanitizeString),
   amount: z.coerce
     .number()
     .refine((v) => v !== 0, { message: "Amount cannot be zero" }),
   date: z
     .string()
     .refine((v) => !isNaN(Date.parse(v)), { message: "Invalid date" }),
-  category: z.string().min(1, "Category is required"),
-  notes: z.string().max(500, "Notes are too long").optional().nullable(),
+  category: z.string().min(1, "Category is required").transform(sanitizeString),
+  notes: z.string().max(500, "Notes are too long").transform(sanitizeString).optional().nullable(),
   installments: z.coerce
     .number()
     .int()

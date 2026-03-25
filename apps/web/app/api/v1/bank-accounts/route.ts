@@ -1,4 +1,5 @@
 import { getApiUser, api } from "@/lib/api-auth";
+import { sanitizeString } from "@/lib/sanitize";
 import { db } from "@/lib/db";
 
 // GET /api/v1/bank-accounts
@@ -36,7 +37,7 @@ export async function POST(request: Request) {
 
   const account = await db.bank_account.create({
     data: {
-      name: String(name),
+      name: sanitizeString(String(name)),
       initialBalance: bal,
       currentBalance: bal,
       userId: user.id,

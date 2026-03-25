@@ -1,4 +1,5 @@
 import { getApiUser, api } from "@/lib/api-auth";
+import { sanitizeString } from "@/lib/sanitize";
 import { db } from "@/lib/db";
 
 // PUT /api/v1/categories/:id
@@ -24,9 +25,9 @@ export async function PUT(
   const { name, color, icon, type } = body as Record<string, unknown>;
 
   const updates: Record<string, unknown> = {};
-  if (name !== undefined) updates.name = String(name);
+  if (name !== undefined) updates.name = sanitizeString(String(name));
   if (color !== undefined) updates.color = String(color);
-  if (icon !== undefined) updates.icon = String(icon);
+  if (icon !== undefined) updates.icon = sanitizeString(String(icon));
   if (type !== undefined) {
     const validTypes = ["expense", "income", "both"];
     if (!validTypes.includes(String(type)))

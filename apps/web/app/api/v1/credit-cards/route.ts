@@ -1,4 +1,5 @@
 import { getApiUser, api } from "@/lib/api-auth";
+import { sanitizeString } from "@/lib/sanitize";
 import { db } from "@/lib/db";
 
 // GET /api/v1/credit-cards
@@ -44,7 +45,7 @@ export async function POST(request: Request) {
 
   const card = await db.credit_card.create({
     data: {
-      name: String(name),
+      name: sanitizeString(String(name)),
       billGenerationDate: bgd,
       paymentDate: pd,
       cardLimit: cl,

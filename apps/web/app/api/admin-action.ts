@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { sanitizeString } from "@/lib/sanitize";
 import { requireAdmin } from "@/lib/permissions";
 import { logAuditEvent } from "@/lib/audit";
 import { revalidatePath } from "next/cache";
@@ -90,7 +91,7 @@ export async function banUser(userId: string, reason: string) {
   const session = await requireAdmin();
   await db.user.update({
     where: { id: userId },
-    data: { banned: true, banReason: reason },
+    data: { banned: true, banReason: sanitizeString(reason) },
   });
   await logAuditEvent({
     userId: session.user.id,
