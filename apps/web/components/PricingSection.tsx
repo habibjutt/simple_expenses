@@ -16,7 +16,8 @@ const PLANS = {
       name: "Starter",
       price: "Free",
       priceLabel: "forever",
-      description: "Perfect for getting started with personal finance tracking.",
+      description:
+        "Perfect for getting started with personal finance tracking.",
       cta: "Start for free",
       href: "/signup",
       highlight: false,
@@ -35,7 +36,8 @@ const PLANS = {
       name: "Pro",
       price: "AED 29",
       priceLabel: "/ month",
-      description: "Unlock the full power of Smart Expenses for serious savers.",
+      description:
+        "Unlock the full power of Smart Expenses for serious savers.",
       cta: "Start 14-day free trial",
       href: "/signup?plan=pro",
       highlight: true,
@@ -59,7 +61,8 @@ const PLANS = {
       name: "Premium",
       price: "AED 79",
       priceLabel: "/ month",
-      description: "For power users who need exports, advanced analytics and top support.",
+      description:
+        "For power users who need exports, advanced analytics and top support.",
       cta: "Get Premium",
       href: "/signup?plan=premium",
       highlight: false,
@@ -83,7 +86,8 @@ const PLANS = {
       name: "Starter",
       price: "Free",
       priceLabel: "forever",
-      description: "Perfect for getting started with personal finance tracking.",
+      description:
+        "Perfect for getting started with personal finance tracking.",
       cta: "Start for free",
       href: "/signup",
       highlight: false,
@@ -102,7 +106,8 @@ const PLANS = {
       name: "Pro",
       price: "AED 249",
       priceLabel: "/ year",
-      description: "Unlock the full power of Smart Expenses for serious savers.",
+      description:
+        "Unlock the full power of Smart Expenses for serious savers.",
       cta: "Start 14-day free trial",
       href: "/signup?plan=pro-yearly",
       highlight: true,
@@ -126,7 +131,8 @@ const PLANS = {
       name: "Premium",
       price: "AED 679",
       priceLabel: "/ year",
-      description: "For power users who need exports, advanced analytics and top support.",
+      description:
+        "For power users who need exports, advanced analytics and top support.",
       cta: "Get Premium",
       href: "/signup?plan=premium-yearly",
       highlight: false,
@@ -161,9 +167,10 @@ export default function PricingSection() {
     }
     // Find the plan to get its specific price ID
     const plan = plans.find((p) => p.id === planId);
-    const priceId = plan && "priceId" in plan && typeof plan.priceId === "function"
-      ? plan.priceId()
-      : "";
+    const priceId =
+      plan && "priceId" in plan && typeof plan.priceId === "function"
+        ? plan.priceId()
+        : "";
     if (!priceId) {
       router.push("/billing");
       return;
@@ -183,27 +190,33 @@ export default function PricingSection() {
     <section
       id="pricing"
       className="relative overflow-hidden border-t border-[#1a9e5c]/20"
-      style={{ background: "linear-gradient(160deg, #071812 0%, #0b2218 40%, #091a14 70%, #071610 100%)" }}
+      style={{
+        background:
+          "linear-gradient(160deg, #071812 0%, #0b2218 40%, #091a14 70%, #071610 100%)",
+      }}
     >
       {/* Atmospheric orbs */}
       <div
         className="absolute -top-40 -left-40 w-[700px] h-[700px] rounded-full pointer-events-none"
         style={{
-          background: "radial-gradient(circle, rgba(26,158,92,0.18) 0%, transparent 70%)",
+          background:
+            "radial-gradient(circle, rgba(26,158,92,0.18) 0%, transparent 70%)",
           animation: "se-orb-drift 18s ease-in-out infinite",
         }}
       />
       <div
         className="absolute -bottom-40 -right-40 w-[600px] h-[600px] rounded-full pointer-events-none"
         style={{
-          background: "radial-gradient(circle, rgba(26,158,92,0.12) 0%, transparent 70%)",
+          background:
+            "radial-gradient(circle, rgba(26,158,92,0.12) 0%, transparent 70%)",
           animation: "se-orb-drift 14s ease-in-out 5s infinite reverse",
         }}
       />
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full pointer-events-none"
         style={{
-          background: "radial-gradient(circle, rgba(26,158,92,0.08) 0%, transparent 70%)",
+          background:
+            "radial-gradient(circle, rgba(26,158,92,0.08) 0%, transparent 70%)",
           animation: "se-orb-drift 22s ease-in-out 2s infinite",
         }}
       />
@@ -221,7 +234,8 @@ export default function PricingSection() {
             Plans that grow with you
           </h2>
           <p className="text-lg text-white/60 max-w-xl mx-auto">
-            Start free. Upgrade when you&apos;re ready. All prices in AED — no surprises.
+            Start free. Upgrade when you&apos;re ready. All prices in AED — no
+            surprises.
           </p>
 
           {/* Toggle */}
@@ -233,7 +247,7 @@ export default function PricingSection() {
                   "text-sm font-semibold px-5 py-2 rounded-full transition-all duration-300",
                   billing === "monthly"
                     ? "bg-[#1a9e5c] text-white shadow-lg shadow-[#1a9e5c]/40"
-                    : "text-white/50 hover:text-white/80"
+                    : "text-white/50 hover:text-white/80",
                 )}
               >
                 Monthly
@@ -244,7 +258,7 @@ export default function PricingSection() {
                   "relative text-sm font-semibold px-5 py-2 rounded-full transition-all duration-300",
                   billing === "yearly"
                     ? "bg-[#1a9e5c] text-white shadow-lg shadow-[#1a9e5c]/40"
-                    : "text-white/50 hover:text-white/80"
+                    : "text-white/50 hover:text-white/80",
                 )}
               >
                 Yearly
@@ -266,25 +280,35 @@ export default function PricingSection() {
                 <div
                   key={plan.id}
                   className="relative rounded-2xl p-px se-pro-glow-border scale-[1.03] z-10"
-                  style={{ boxShadow: "0 0 80px rgba(26,158,92,0.35), 0 20px 60px rgba(0,0,0,0.5)" }}
+                  style={{
+                    boxShadow:
+                      "0 0 80px rgba(26,158,92,0.35), 0 20px 60px rgba(0,0,0,0.5)",
+                  }}
                 >
                   {/* Most Popular badge */}
                   <div
                     className="absolute -top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 bg-[#1a9e5c] text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg shadow-[#1a9e5c]/40 whitespace-nowrap"
-                    style={{ animation: "se-badge-bounce 3s ease-in-out infinite" }}
+                    style={{
+                      animation: "se-badge-bounce 3s ease-in-out infinite",
+                    }}
                   >
                     <Zap className="w-3 h-3" />
                     {plan.badge}
                   </div>
 
-                  <div className="relative rounded-[calc(1rem-1px)] p-8 flex flex-col h-full overflow-hidden"
-                    style={{ background: "linear-gradient(135deg, #0e2218 0%, #162e1e 50%, #0e2218 100%)" }}
+                  <div
+                    className="relative rounded-[calc(1rem-1px)] p-8 flex flex-col h-full overflow-hidden"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #0e2218 0%, #162e1e 50%, #0e2218 100%)",
+                    }}
                   >
                     {/* Inner shimmer overlay */}
                     <div
                       className="absolute inset-0 pointer-events-none opacity-30"
                       style={{
-                        background: "linear-gradient(135deg, rgba(26,158,92,0.3) 0%, transparent 50%, rgba(26,158,92,0.2) 100%)",
+                        background:
+                          "linear-gradient(135deg, rgba(26,158,92,0.3) 0%, transparent 50%, rgba(26,158,92,0.2) 100%)",
                         animation: "se-gradient-shift 6s ease infinite",
                         backgroundSize: "200% 200%",
                       }}
@@ -292,18 +316,29 @@ export default function PricingSection() {
 
                     <div className="relative mb-6">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-bold text-lg text-white">{plan.name}</h3>
+                        <h3 className="font-bold text-lg text-white">
+                          {plan.name}
+                        </h3>
                       </div>
-                      <p className="text-sm mb-4 text-white/60">{plan.description}</p>
+                      <p className="text-sm mb-4 text-white/60">
+                        {plan.description}
+                      </p>
                       <div className="flex items-end gap-1">
-                        <span className="text-4xl font-extrabold text-white">{plan.price}</span>
-                        <span className="text-sm pb-1 text-white/50">{plan.priceLabel}</span>
+                        <span className="text-4xl font-extrabold text-white">
+                          {plan.price}
+                        </span>
+                        <span className="text-sm pb-1 text-white/50">
+                          {plan.priceLabel}
+                        </span>
                       </div>
                     </div>
 
                     <ul className="space-y-3 mb-8 flex-1 relative">
                       {plan.features.map((feat) => (
-                        <li key={feat} className="flex items-start gap-2.5 text-sm">
+                        <li
+                          key={feat}
+                          className="flex items-start gap-2.5 text-sm"
+                        >
                           <div className="w-4 h-4 mt-0.5 shrink-0 rounded-full bg-[#1a9e5c]/30 flex items-center justify-center">
                             <Check className="w-2.5 h-2.5 text-[#22d47a]" />
                           </div>
@@ -317,7 +352,8 @@ export default function PricingSection() {
                         href={plan.href}
                         className="relative block w-full py-3.5 rounded-xl font-bold text-sm text-center text-[#1a9e5c] overflow-hidden transition-all hover:opacity-90"
                         style={{
-                          background: "linear-gradient(90deg, #ffffff 0%, #f0fdf4 50%, #ffffff 100%)",
+                          background:
+                            "linear-gradient(90deg, #ffffff 0%, #f0fdf4 50%, #ffffff 100%)",
                           backgroundSize: "200% auto",
                           animation: "se-shimmer 3s linear infinite",
                         }}
@@ -331,12 +367,15 @@ export default function PricingSection() {
                         disabled={loadingPlan === plan.id}
                         className="relative flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-bold text-sm text-center text-[#1a9e5c] transition-all hover:opacity-90 disabled:opacity-60 overflow-hidden"
                         style={{
-                          background: "linear-gradient(90deg, #ffffff 0%, #f0fdf4 50%, #ffffff 100%)",
+                          background:
+                            "linear-gradient(90deg, #ffffff 0%, #f0fdf4 50%, #ffffff 100%)",
                           backgroundSize: "200% auto",
                           animation: "se-shimmer 3s linear infinite",
                         }}
                       >
-                        {loadingPlan === plan.id && <Loader2 className="h-4 w-4 animate-spin" />}
+                        {loadingPlan === plan.id && (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        )}
                         {plan.cta}
                         {!loadingPlan && <ArrowRight className="w-4 h-4" />}
                       </button>
@@ -351,7 +390,10 @@ export default function PricingSection() {
               <div
                 key={plan.id}
                 className="relative rounded-2xl border border-white/10 p-8 flex flex-col hover:border-[#1a9e5c]/40 hover:shadow-[0_0_40px_rgba(26,158,92,0.12)] transition-all duration-300"
-                style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(12px)" }}
+                style={{
+                  background: "rgba(255,255,255,0.04)",
+                  backdropFilter: "blur(12px)",
+                }}
               >
                 {/* Badge for premium yearly */}
                 {plan.badge && (
@@ -361,11 +403,19 @@ export default function PricingSection() {
                 )}
 
                 <div className="mb-6">
-                  <h3 className="font-bold text-lg text-white mb-1">{plan.name}</h3>
-                  <p className="text-sm mb-4 text-white/50">{plan.description}</p>
+                  <h3 className="font-bold text-lg text-white mb-1">
+                    {plan.name}
+                  </h3>
+                  <p className="text-sm mb-4 text-white/50">
+                    {plan.description}
+                  </p>
                   <div className="flex items-end gap-1">
-                    <span className="text-4xl font-extrabold text-white">{plan.price}</span>
-                    <span className="text-sm pb-1 text-white/40">{plan.priceLabel}</span>
+                    <span className="text-4xl font-extrabold text-white">
+                      {plan.price}
+                    </span>
+                    <span className="text-sm pb-1 text-white/40">
+                      {plan.priceLabel}
+                    </span>
                   </div>
                 </div>
 
@@ -391,7 +441,9 @@ export default function PricingSection() {
                     disabled={loadingPlan === plan.id}
                     className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-semibold text-sm text-center bg-[#1a9e5c] text-white hover:bg-[#1a9e5c]/90 transition-all hover:shadow-lg hover:shadow-[#1a9e5c]/30 disabled:opacity-70"
                   >
-                    {loadingPlan === plan.id && <Loader2 className="h-4 w-4 animate-spin" />}
+                    {loadingPlan === plan.id && (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    )}
                     {plan.cta}
                   </button>
                 )}
@@ -401,8 +453,8 @@ export default function PricingSection() {
         </div>
 
         <p className="text-center text-sm text-white/35 mt-10">
-          All plans include a 14-day free trial. No credit card required to start.
-          Cancel anytime.
+          All plans include a 14-day free trial. No credit card required to
+          start. Cancel anytime.
         </p>
       </div>
     </section>

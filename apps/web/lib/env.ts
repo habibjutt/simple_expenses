@@ -40,10 +40,7 @@ export const env = createEnv({
       .transform((v) => v === "true"),
     SMTP_USER: z.string().min(1).optional(),
     SMTP_PASS: z.string().min(1).optional(),
-    EMAIL_FROM: z
-      .string()
-      .email()
-      .default("noreply@simple-expenses.com"),
+    EMAIL_FROM: z.string().email().default("noreply@simple-expenses.com"),
 
     // Cron (only required in production deployments)
     CRON_SECRET: z.string().min(1).optional(),
@@ -75,7 +72,8 @@ export const env = createEnv({
     STRIPE_YEARLY_PRICE_ID: process.env.STRIPE_YEARLY_PRICE_ID,
     STRIPE_PRO_MONTHLY_PRICE_ID: process.env.STRIPE_PRO_MONTHLY_PRICE_ID,
     STRIPE_PRO_YEARLY_PRICE_ID: process.env.STRIPE_PRO_YEARLY_PRICE_ID,
-    STRIPE_PREMIUM_MONTHLY_PRICE_ID: process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID,
+    STRIPE_PREMIUM_MONTHLY_PRICE_ID:
+      process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID,
     STRIPE_PREMIUM_YEARLY_PRICE_ID: process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID,
     SMTP_HOST: process.env.SMTP_HOST,
     SMTP_PORT: process.env.SMTP_PORT,

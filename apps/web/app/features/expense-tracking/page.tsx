@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ListOrdered, Filter, Clock, Download, ArrowRight, CheckCircle2 } from "lucide-react";
+import {
+  ListOrdered,
+  Filter,
+  Clock,
+  Download,
+  ArrowRight,
+  CheckCircle2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/LandingFooter";
@@ -86,7 +93,9 @@ export default function ExpenseTrackingPage() {
                 {HIGHLIGHTS.map((item) => (
                   <li key={item} className="flex items-start gap-3">
                     <CheckCircle2 className="w-5 h-5 text-[#1a9e5c] shrink-0 mt-0.5" />
-                    <span className="text-sm text-muted-foreground">{item}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {item}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -119,7 +128,9 @@ export default function ExpenseTrackingPage() {
                     <Icon className="w-5 h-5 text-[#1a9e5c]" />
                   </div>
                   <div>
-                    <p className="font-semibold text-sm text-foreground">{title}</p>
+                    <p className="font-semibold text-sm text-foreground">
+                      {title}
+                    </p>
                     <p className="text-sm text-muted-foreground mt-1">{desc}</p>
                   </div>
                 </div>

@@ -28,8 +28,14 @@ function MetricCard({
         <Icon className="w-4 h-4" style={{ color: accent }} />
       </div>
       <p className="text-2xl font-bold text-white tabular-nums">{value}</p>
-      {sub && <p className="text-xs mt-0.5" style={{ color: accent }}>{sub}</p>}
-      <p className="text-sm mt-1" style={{ color: "#64748b" }}>{label}</p>
+      {sub && (
+        <p className="text-xs mt-0.5" style={{ color: accent }}>
+          {sub}
+        </p>
+      )}
+      <p className="text-sm mt-1" style={{ color: "#64748b" }}>
+        {label}
+      </p>
     </div>
   );
 }
@@ -42,7 +48,10 @@ export default async function AdminMetricsPage() {
       <div>
         <div className="flex items-center gap-2 mb-1">
           <BarChart3 className="w-4 h-4" style={{ color: "#4f6ef7" }} />
-          <span className="text-xs font-medium uppercase tracking-widest" style={{ color: "#4f6ef7" }}>
+          <span
+            className="text-xs font-medium uppercase tracking-widest"
+            style={{ color: "#4f6ef7" }}
+          >
             Metrics
           </span>
         </div>

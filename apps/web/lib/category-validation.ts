@@ -11,15 +11,13 @@ const SYSTEM_CATEGORIES = ["Transfer"];
 export async function validateUserCategory(
   userId: string,
   categoryName: string,
-  transactionType?: string
+  transactionType?: string,
 ): Promise<{ valid: boolean; error?: string }> {
   if (SYSTEM_CATEGORIES.includes(categoryName)) {
     return { valid: true };
   }
 
-  const matchingTypes = transactionType
-    ? [transactionType, "both"]
-    : undefined;
+  const matchingTypes = transactionType ? [transactionType, "both"] : undefined;
 
   const category = await db.category.findFirst({
     where: {

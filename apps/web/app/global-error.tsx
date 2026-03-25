@@ -56,14 +56,26 @@ export default function GlobalErrorPage({
           </div>
 
           <div>
-            <h1 style={{ margin: "0 0 0.5rem", fontSize: "1.5rem", fontWeight: 700 }}>
+            <h1
+              style={{
+                margin: "0 0 0.5rem",
+                fontSize: "1.5rem",
+                fontWeight: 700,
+              }}
+            >
               Something went wrong
             </h1>
             <p style={{ margin: 0, fontSize: "0.875rem", color: "#94a3b8" }}>
               A critical error occurred. Please reload the page.
             </p>
             {error.digest && (
-              <p style={{ margin: "0.5rem 0 0", fontSize: "0.75rem", color: "#64748b" }}>
+              <p
+                style={{
+                  margin: "0.5rem 0 0",
+                  fontSize: "0.75rem",
+                  color: "#64748b",
+                }}
+              >
                 Error ID: {error.digest}
               </p>
             )}

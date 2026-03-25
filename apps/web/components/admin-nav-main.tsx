@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { type Icon } from "@tabler/icons-react"
-import { IconChevronRight } from "@tabler/icons-react"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { type Icon } from "@tabler/icons-react";
+import { IconChevronRight } from "@tabler/icons-react";
 
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+} from "@/components/ui/collapsible";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -20,23 +20,23 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 export function AdminNavMain({
   items,
 }: {
   items: {
-    title: string
-    url: string
-    icon?: Icon
-    exact?: boolean
+    title: string;
+    url: string;
+    icon?: Icon;
+    exact?: boolean;
     items?: {
-      title: string
-      url: string
-    }[]
-  }[]
+      title: string;
+      url: string;
+    }[];
+  }[];
 }) {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   return (
     <SidebarGroup>
@@ -46,7 +46,7 @@ export function AdminNavMain({
           {items.map((item) => {
             const isActive = item.exact
               ? pathname === item.url
-              : pathname.startsWith(item.url)
+              : pathname.startsWith(item.url);
 
             return (
               <Collapsible
@@ -59,7 +59,10 @@ export function AdminNavMain({
                   {item.items && item.items.length > 0 ? (
                     <>
                       <CollapsibleTrigger asChild>
-                        <SidebarMenuButton tooltip={item.title} isActive={isActive}>
+                        <SidebarMenuButton
+                          tooltip={item.title}
+                          isActive={isActive}
+                        >
                           {item.icon && <item.icon />}
                           <span>{item.title}</span>
                           <IconChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
@@ -83,7 +86,11 @@ export function AdminNavMain({
                       </CollapsibleContent>
                     </>
                   ) : (
-                    <SidebarMenuButton tooltip={item.title} asChild isActive={isActive}>
+                    <SidebarMenuButton
+                      tooltip={item.title}
+                      asChild
+                      isActive={isActive}
+                    >
                       <Link href={item.url}>
                         {item.icon && <item.icon />}
                         <span>{item.title}</span>
@@ -92,10 +99,10 @@ export function AdminNavMain({
                   )}
                 </SidebarMenuItem>
               </Collapsible>
-            )
+            );
           })}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
-  )
+  );
 }

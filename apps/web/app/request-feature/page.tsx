@@ -20,7 +20,8 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Request a Feature | Simple Expenses",
-    description: "Share your ideas and help shape the future of Simple Expenses.",
+    description:
+      "Share your ideas and help shape the future of Simple Expenses.",
     url: `${SITE_URL}/request-feature`,
   },
 };
@@ -43,8 +44,8 @@ export default function RequestFeaturePage() {
             </h1>
             <p className="text-lg text-muted-foreground">
               Have an idea that would make Simple Expenses even better? We love
-              hearing from our users. Share your suggestion and help us build the
-              features that matter most to you.
+              hearing from our users. Share your suggestion and help us build
+              the features that matter most to you.
             </p>
           </div>
         </section>
@@ -95,7 +96,9 @@ export default function RequestFeaturePage() {
                     <option value="dashboard">Dashboard &amp; Overview</option>
                     <option value="transactions">Transactions</option>
                     <option value="reports">Reports &amp; Analytics</option>
-                    <option value="budgets">Budgets &amp; Spending Limits</option>
+                    <option value="budgets">
+                      Budgets &amp; Spending Limits
+                    </option>
                     <option value="goals">Goals &amp; Savings</option>
                     <option value="cards">Credit Cards</option>
                     <option value="accounts">Bank Accounts</option>
@@ -120,8 +123,12 @@ export default function RequestFeaturePage() {
                   >
                     <option value="">Select priority…</option>
                     <option value="nice-to-have">Nice to have</option>
-                    <option value="important">Important – would use it often</option>
-                    <option value="critical">Critical – blocking my workflow</option>
+                    <option value="important">
+                      Important – would use it often
+                    </option>
+                    <option value="critical">
+                      Critical – blocking my workflow
+                    </option>
                   </select>
                 </div>
 
@@ -168,7 +175,10 @@ export default function RequestFeaturePage() {
 
                 <p className="text-xs text-center text-muted-foreground">
                   By submitting this form you agree to our{" "}
-                  <Link href="/privacy" className="text-primary hover:underline">
+                  <Link
+                    href="/privacy"
+                    className="text-primary hover:underline"
+                  >
                     Privacy Policy
                   </Link>
                   .
@@ -224,8 +234,8 @@ export default function RequestFeaturePage() {
                       Early access
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Leave your email and we'll reach out when your requested
-                      feature is live.
+                      Leave your email and we&apos;ll reach out when your
+                      requested feature is live.
                     </p>
                   </div>
                 </div>

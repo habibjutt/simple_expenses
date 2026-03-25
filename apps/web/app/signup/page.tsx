@@ -52,7 +52,6 @@ export default function Page() {
 
         {/* ── Contained card ─────────────────────────────────── */}
         <div className="relative w-full max-w-4xl flex flex-col lg:flex-row rounded-2xl overflow-hidden shadow-2xl border border-border/50">
-
           {/* Left: green branding panel */}
           <div className="relative hidden lg:flex lg:w-[380px] xl:w-[420px] bg-[#1a9e5c] flex-col items-center justify-center p-10 overflow-hidden shrink-0">
             <div className="absolute -top-24 -right-24 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
@@ -71,7 +70,8 @@ export default function Page() {
                   Take control of every dirham
                 </h2>
                 <p className="text-white/70 mt-2 text-sm leading-relaxed">
-                  Join UAE residents who finally know exactly where their money goes.
+                  Join UAE residents who finally know exactly where their money
+                  goes.
                 </p>
               </div>
 
@@ -81,21 +81,25 @@ export default function Page() {
                     <div className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center shrink-0">
                       <Icon className="w-4 h-4 text-white" />
                     </div>
-                    <span className="text-white/90 text-sm font-medium">{text}</span>
+                    <span className="text-white/90 text-sm font-medium">
+                      {text}
+                    </span>
                   </li>
                 ))}
               </ul>
 
               <div className="flex flex-wrap gap-2">
-                {["Free forever", "No credit card", "100% private"].map((badge) => (
-                  <span
-                    key={badge}
-                    className="flex items-center gap-1.5 bg-white/10 text-white/80 text-xs px-3 py-1.5 rounded-full border border-white/15"
-                  >
-                    <CheckCircle2 className="w-3 h-3" />
-                    {badge}
-                  </span>
-                ))}
+                {["Free forever", "No credit card", "100% private"].map(
+                  (badge) => (
+                    <span
+                      key={badge}
+                      className="flex items-center gap-1.5 bg-white/10 text-white/80 text-xs px-3 py-1.5 rounded-full border border-white/15"
+                    >
+                      <CheckCircle2 className="w-3 h-3" />
+                      {badge}
+                    </span>
+                  ),
+                )}
               </div>
             </div>
           </div>
@@ -107,7 +111,9 @@ export default function Page() {
               <div className="w-8 h-8 rounded-full bg-[#1a9e5c] flex items-center justify-center">
                 <CreditCard className="w-4 h-4 text-white" />
               </div>
-              <span className="font-bold text-base text-foreground">Simple Expenses</span>
+              <span className="font-bold text-base text-foreground">
+                Simple Expenses
+              </span>
             </div>
 
             <div className="w-full max-w-sm">

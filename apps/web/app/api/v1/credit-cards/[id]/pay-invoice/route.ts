@@ -4,14 +4,16 @@ import { db } from "@/lib/db";
 // POST /api/v1/credit-cards/:id/pay-invoice
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const user = await getApiUser(request);
   if (!user) return api.unauthorized();
 
   const { id } = await params;
 
-  const card = await db.credit_card.findFirst({ where: { id, userId: user.id } });
+  const card = await db.credit_card.findFirst({
+    where: { id, userId: user.id },
+  });
   if (!card) return api.notFound("Credit card not found");
 
   let body: unknown;
@@ -21,12 +23,24 @@ export async function POST(
     return api.badRequest("Invalid JSON body");
   }
 
-  const { bankAccountId, billStartDate, billEndDate, paymentDueDate, totalAmount, paidAmount } =
-    body as Record<string, unknown>;
+  const {
+    bankAccountId,
+    billStartDate,
+    billEndDate,
+    paymentDueDate,
+    totalAmount,
+    paidAmount,
+  } = body as Record<string, unknown>;
 
-  if (!bankAccountId || !billStartDate || !billEndDate || !paymentDueDate || totalAmount == null)
+  if (
+    !bankAccountId ||
+    !billStartDate ||
+    !billEndDate ||
+    !paymentDueDate ||
+    totalAmount == null
+  )
     return api.badRequest(
-      "bankAccountId, billStartDate, billEndDate, paymentDueDate, and totalAmount are required"
+      "bankAccountId, billStartDate, billEndDate, paymentDueDate, and totalAmount are required",
     );
 
   const bankAccount = await db.bank_account.findFirst({
@@ -40,7 +54,7 @@ export async function POST(
   if (paid <= 0) return api.badRequest("paidAmount must be greater than 0");
   if (paid > bankAccount.currentBalance)
     return api.badRequest(
-      `Insufficient funds. Available: ${bankAccount.currentBalance}, Requested: ${paid}`
+      `Insufficient funds. Available: ${bankAccount.currentBalance}, Requested: ${paid}`,
     );
 
   const start = new Date(String(billStartDate));
@@ -98,7 +112,11 @@ export async function POST(
 
     if (overpayment > 0) {
       const nextInvoice = await prisma.invoice.findFirst({
-        where: { creditCardId: id, billStartDate: nextBillStart, billEndDate: nextBillEnd },
+        where: {
+          creditCardId: id,
+          billStartDate: nextBillStart,
+          billEndDate: nextBillEnd,
+        },
       });
       if (nextInvoice) {
         await prisma.invoice.update({
@@ -111,7 +129,11 @@ export async function POST(
             creditCardId: id,
             billStartDate: nextBillStart,
             billEndDate: nextBillEnd,
-            paymentDueDate: new Date(due.getFullYear(), due.getMonth() + 1, due.getDate()),
+            paymentDueDate: new Date(
+              due.getFullYear(),
+              due.getMonth() + 1,
+              due.getDate(),
+            ),
             totalAmount: 0,
             creditFromPreviousMonth: overpayment,
           },

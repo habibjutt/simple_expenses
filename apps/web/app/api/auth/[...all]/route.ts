@@ -28,7 +28,7 @@ export async function POST(request: Request): Promise<Response> {
 
   const subpath = new URL(request.url).pathname.replace(/^\/api\/auth\//, "");
   const matchedKey = Object.keys(RATE_LIMIT_WINDOWS).find((key) =>
-    subpath.startsWith(key)
+    subpath.startsWith(key),
   );
   const retryAfter = matchedKey ? RATE_LIMIT_WINDOWS[matchedKey] : 60;
 

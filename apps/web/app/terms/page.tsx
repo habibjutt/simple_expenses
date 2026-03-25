@@ -19,16 +19,25 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Terms of Service | Simple Expenses",
-    description: "The rules and conditions governing your use of Simple Expenses.",
+    description:
+      "The rules and conditions governing your use of Simple Expenses.",
     url: `${SITE_URL}/terms`,
   },
 };
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <section className="space-y-3">
       <h2 className="text-xl font-bold text-foreground">{title}</h2>
-      <div className="text-sm text-muted-foreground space-y-3 leading-relaxed">{children}</div>
+      <div className="text-sm text-muted-foreground space-y-3 leading-relaxed">
+        {children}
+      </div>
     </section>
   );
 }
@@ -49,7 +58,8 @@ export default function TermsPage() {
               Terms of Service
             </h1>
             <p className="text-sm text-muted-foreground">
-              Last updated: <strong className="text-foreground">1 March 2025</strong>
+              Last updated:{" "}
+              <strong className="text-foreground">1 March 2025</strong>
             </p>
             <p className="text-muted-foreground leading-relaxed">
               Please read these Terms of Service carefully before using Simple
@@ -65,7 +75,10 @@ export default function TermsPage() {
                 and Simple Expenses (operated from Dubai, UAE) governing your
                 use of the web application and related services. These Terms are
                 governed by the laws of the{" "}
-                <strong className="text-foreground">United Arab Emirates</strong>.
+                <strong className="text-foreground">
+                  United Arab Emirates
+                </strong>
+                .
               </p>
             </Section>
 
@@ -90,7 +103,8 @@ export default function TermsPage() {
 
             <Section title="3. Eligibility">
               <p>
-                You must be at least <strong className="text-foreground">18 years old</strong> to use
+                You must be at least{" "}
+                <strong className="text-foreground">18 years old</strong> to use
                 Simple Expenses. By using the Service, you represent that you
                 meet this requirement. The Service is intended primarily for
                 residents of the United Arab Emirates.
@@ -99,11 +113,26 @@ export default function TermsPage() {
 
             <Section title="4. Account Registration">
               <ul className="list-disc pl-5 space-y-1">
-                <li>You must provide accurate and complete registration information.</li>
-                <li>You are responsible for maintaining the security of your account credentials.</li>
-                <li>You must notify us immediately of any unauthorised account access.</li>
-                <li>Each account is for personal use only; sharing accounts is not permitted.</li>
-                <li>You may not create multiple accounts to circumvent plan limits.</li>
+                <li>
+                  You must provide accurate and complete registration
+                  information.
+                </li>
+                <li>
+                  You are responsible for maintaining the security of your
+                  account credentials.
+                </li>
+                <li>
+                  You must notify us immediately of any unauthorised account
+                  access.
+                </li>
+                <li>
+                  Each account is for personal use only; sharing accounts is not
+                  permitted.
+                </li>
+                <li>
+                  You may not create multiple accounts to circumvent plan
+                  limits.
+                </li>
               </ul>
             </Section>
 
@@ -114,26 +143,27 @@ export default function TermsPage() {
               </p>
               <ul className="list-disc pl-5 space-y-1">
                 <li>
-                  <strong className="text-foreground">Free trial:</strong> Paid plans include a 14-day
-                  free trial. No charge until the trial ends.
+                  <strong className="text-foreground">Free trial:</strong> Paid
+                  plans include a 14-day free trial. No charge until the trial
+                  ends.
                 </li>
                 <li>
-                  <strong className="text-foreground">Billing:</strong> Subscriptions are billed monthly
-                  or annually in advance.
+                  <strong className="text-foreground">Billing:</strong>{" "}
+                  Subscriptions are billed monthly or annually in advance.
                 </li>
                 <li>
-                  <strong className="text-foreground">Refunds:</strong> We offer a full refund within 7
-                  days of an initial charge if you are unsatisfied. No refunds
-                  for partial periods after that.
+                  <strong className="text-foreground">Refunds:</strong> We offer
+                  a full refund within 7 days of an initial charge if you are
+                  unsatisfied. No refunds for partial periods after that.
                 </li>
                 <li>
-                  <strong className="text-foreground">Cancellation:</strong> You may cancel your
-                  subscription anytime. Access continues until the end of the
-                  billing period.
+                  <strong className="text-foreground">Cancellation:</strong> You
+                  may cancel your subscription anytime. Access continues until
+                  the end of the billing period.
                 </li>
                 <li>
-                  <strong className="text-foreground">Price changes:</strong> We will notify you at
-                  least 30 days before any pricing change.
+                  <strong className="text-foreground">Price changes:</strong> We
+                  will notify you at least 30 days before any pricing change.
                 </li>
               </ul>
             </Section>
@@ -141,10 +171,22 @@ export default function TermsPage() {
             <Section title="6. Acceptable Use">
               <p>You agree not to:</p>
               <ul className="list-disc pl-5 space-y-1">
-                <li>Use the Service for illegal purposes or in violation of UAE law.</li>
-                <li>Attempt to gain unauthorised access to the Service or other users&apos; accounts.</li>
-                <li>Reverse engineer, decompile, or disassemble any part of the Service.</li>
-                <li>Use automated tools to scrape or extract data from the Service.</li>
+                <li>
+                  Use the Service for illegal purposes or in violation of UAE
+                  law.
+                </li>
+                <li>
+                  Attempt to gain unauthorised access to the Service or other
+                  users&apos; accounts.
+                </li>
+                <li>
+                  Reverse engineer, decompile, or disassemble any part of the
+                  Service.
+                </li>
+                <li>
+                  Use automated tools to scrape or extract data from the
+                  Service.
+                </li>
                 <li>Upload malicious content, viruses, or harmful code.</li>
                 <li>Impersonate other users or misrepresent your identity.</li>
               </ul>
@@ -165,28 +207,29 @@ export default function TermsPage() {
             <Section title="8. Intellectual Property">
               <p>
                 The Service, including its design, code, content, and branding,
-                is owned by Simple Expenses and protected by UAE and international
-                intellectual property laws. You may not reproduce, distribute, or
-                create derivative works without our written permission.
+                is owned by Simple Expenses and protected by UAE and
+                international intellectual property laws. You may not reproduce,
+                distribute, or create derivative works without our written
+                permission.
               </p>
             </Section>
 
             <Section title="9. Disclaimer of Warranties">
               <p>
-                The Service is provided &quot;as is&quot; without warranties of any kind.
-                We do not guarantee that the Service will be uninterrupted,
-                error-free, or completely secure. Simple Expenses does not provide
-                financial, investment, tax, or legal advice.
+                The Service is provided &quot;as is&quot; without warranties of
+                any kind. We do not guarantee that the Service will be
+                uninterrupted, error-free, or completely secure. Simple Expenses
+                does not provide financial, investment, tax, or legal advice.
               </p>
             </Section>
 
             <Section title="10. Limitation of Liability">
               <p>
-                To the maximum extent permitted by UAE law, Simple Expenses shall
-                not be liable for indirect, incidental, consequential, or punitive
-                damages arising from your use of the Service. Our total liability
-                shall not exceed the amount you paid us in the three months
-                preceding the claim.
+                To the maximum extent permitted by UAE law, Simple Expenses
+                shall not be liable for indirect, incidental, consequential, or
+                punitive damages arising from your use of the Service. Our total
+                liability shall not exceed the amount you paid us in the three
+                months preceding the claim.
               </p>
             </Section>
 
@@ -206,15 +249,18 @@ export default function TermsPage() {
               <p>
                 We may update these Terms periodically. We will provide at least
                 14 days notice via email before material changes take effect.
-                Continued use of the Service after changes constitutes acceptance.
+                Continued use of the Service after changes constitutes
+                acceptance.
               </p>
             </Section>
 
             <Section title="13. Governing Law and Disputes">
               <p>
                 These Terms are governed by the laws of the{" "}
-                <strong className="text-foreground">United Arab Emirates</strong>.
-                Any disputes shall be resolved in the courts of Dubai, UAE.
+                <strong className="text-foreground">
+                  United Arab Emirates
+                </strong>
+                . Any disputes shall be resolved in the courts of Dubai, UAE.
                 Before filing a claim, you agree to contact us to seek informal
                 resolution.
               </p>
@@ -223,10 +269,13 @@ export default function TermsPage() {
             <Section title="14. Contact">
               <p>
                 For questions about these Terms:{" "}
-                <a href="mailto:legal@simpleexpenses.ae" className="text-primary hover:underline">
+                <a
+                  href="mailto:legal@simpleexpenses.ae"
+                  className="text-primary hover:underline"
+                >
                   legal@simpleexpenses.ae
-                </a>
-                {" "}· Dubai, United Arab Emirates.
+                </a>{" "}
+                · Dubai, United Arab Emirates.
               </p>
             </Section>
           </div>

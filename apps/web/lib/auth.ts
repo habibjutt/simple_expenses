@@ -15,8 +15,8 @@ export const auth = betterAuth({
 
   // ── Session ──────────────────────────────────────────────────────
   session: {
-    expiresIn: 60 * 60 * 24 * 7,  // 7 days
-    updateAge: 60 * 60 * 24,       // refresh token once per day
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24, // refresh token once per day
     cookieCache: {
       enabled: true,
       maxAge: 60 * 5, // 5-minute client-side cache to cut DB round-trips
@@ -39,12 +39,18 @@ export const auth = betterAuth({
     storage: "database",
     customRules: {
       // 5 attempts per 15 min in production; relaxed in development/test
-      "/sign-in/email":            { window: 900,  max: process.env.NODE_ENV === "production" ? 5  : 100 },
+      "/sign-in/email": {
+        window: 900,
+        max: process.env.NODE_ENV === "production" ? 5 : 100,
+      },
       // 10 sign-ups per hour in production; relaxed in development/test
-      "/sign-up/email":            { window: 3600, max: process.env.NODE_ENV === "production" ? 10 : 100 },
-      "/forget-password":          { window: 3600, max: 5  },
-      "/reset-password":           { window: 3600, max: 5  },
-      "/send-verification-email":  { window: 3600, max: 5  },
+      "/sign-up/email": {
+        window: 3600,
+        max: process.env.NODE_ENV === "production" ? 10 : 100,
+      },
+      "/forget-password": { window: 3600, max: 5 },
+      "/reset-password": { window: 3600, max: 5 },
+      "/send-verification-email": { window: 3600, max: 5 },
     },
   },
 

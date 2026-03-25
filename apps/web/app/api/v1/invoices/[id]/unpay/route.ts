@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 // POST /api/v1/invoices/:id/unpay
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const user = await getApiUser(request);
   if (!user) return api.unauthorized();

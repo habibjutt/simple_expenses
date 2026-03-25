@@ -7,11 +7,15 @@ const db = new PrismaClient({ adapter });
 
 async function main() {
   // Find first user
-  const users = await db.user.findMany({ select: { id: true, name: true, email: true } });
+  const users = await db.user.findMany({
+    select: { id: true, name: true, email: true },
+  });
   console.log("Users found:", users);
 
   if (users.length === 0) {
-    console.log("No users found. Please sign up first at http://localhost:3000/signup");
+    console.log(
+      "No users found. Please sign up first at http://localhost:3000/signup",
+    );
     return;
   }
 
@@ -20,23 +24,43 @@ async function main() {
 
   // Check existing data
   const existingCards = await db.credit_card.findMany({ where: { userId } });
-  const existingAccounts = await db.bank_account.findMany({ where: { userId } });
-  const existingTxns = await db.transaction.findMany({ where: { OR: [{ creditCard: { userId } }, { bankAccount: { userId } }] } });
+  const existingAccounts = await db.bank_account.findMany({
+    where: { userId },
+  });
+  const existingTxns = await db.transaction.findMany({
+    where: { OR: [{ creditCard: { userId } }, { bankAccount: { userId } }] },
+  });
 
-  console.log(`\nExisting: ${existingCards.length} cards, ${existingAccounts.length} accounts, ${existingTxns.length} transactions`);
+  console.log(
+    `\nExisting: ${existingCards.length} cards, ${existingAccounts.length} accounts, ${existingTxns.length} transactions`,
+  );
 
   // --- Bank Accounts ---
   let savingsAccount, currentAccount;
   if (existingAccounts.length === 0) {
     console.log("\nCreating bank accounts...");
     savingsAccount = await db.bank_account.create({
-      data: { name: "Emirates NBD Savings", initialBalance: 15000, currentBalance: 15000, userId },
+      data: {
+        name: "Emirates NBD Savings",
+        initialBalance: 15000,
+        currentBalance: 15000,
+        userId,
+      },
     });
     currentAccount = await db.bank_account.create({
-      data: { name: "ADCB Current Account", initialBalance: 8500, currentBalance: 8500, userId },
+      data: {
+        name: "ADCB Current Account",
+        initialBalance: 8500,
+        currentBalance: 8500,
+        userId,
+      },
     });
-    console.log(`  ✓ Created: ${savingsAccount.name} (AED ${savingsAccount.currentBalance})`);
-    console.log(`  ✓ Created: ${currentAccount.name} (AED ${currentAccount.currentBalance})`);
+    console.log(
+      `  ✓ Created: ${savingsAccount.name} (AED ${savingsAccount.currentBalance})`,
+    );
+    console.log(
+      `  ✓ Created: ${currentAccount.name} (AED ${currentAccount.currentBalance})`,
+    );
   } else {
     savingsAccount = existingAccounts[0];
     currentAccount = existingAccounts[1] || existingAccounts[0];
@@ -67,8 +91,12 @@ async function main() {
         userId,
       },
     });
-    console.log(`  ✓ Created: ${visaCard.name} (Limit: AED ${visaCard.cardLimit})`);
-    console.log(`  ✓ Created: ${mastercardCard.name} (Limit: AED ${mastercardCard.cardLimit})`);
+    console.log(
+      `  ✓ Created: ${visaCard.name} (Limit: AED ${visaCard.cardLimit})`,
+    );
+    console.log(
+      `  ✓ Created: ${mastercardCard.name} (Limit: AED ${mastercardCard.cardLimit})`,
+    );
   } else {
     visaCard = existingCards[0];
     mastercardCard = existingCards[1] || existingCards[0];
@@ -84,22 +112,120 @@ async function main() {
 
     const txns = [
       // Credit card transactions (Visa)
-      { name: "Carrefour Grocery", amount: 342.50, category: "Groceries", date: new Date(thisYear, thisMonth, 3), creditCardId: visaCard.id, type: "expense" },
-      { name: "Noon.com Purchase", amount: 189.00, category: "Shopping", date: new Date(thisYear, thisMonth, 5), creditCardId: visaCard.id, type: "expense" },
-      { name: "Zomato Delivery", amount: 67.00, category: "Food & Dining", date: new Date(thisYear, thisMonth, 7), creditCardId: visaCard.id, type: "expense" },
-      { name: "DEWA Bill", amount: 520.00, category: "Utilities", date: new Date(thisYear, thisMonth, 2), creditCardId: visaCard.id, type: "expense" },
-      { name: "Etisalat Mobile", amount: 199.00, category: "Phone & Internet", date: new Date(thisYear, thisMonth, 1), creditCardId: visaCard.id, type: "expense" },
+      {
+        name: "Carrefour Grocery",
+        amount: 342.5,
+        category: "Groceries",
+        date: new Date(thisYear, thisMonth, 3),
+        creditCardId: visaCard.id,
+        type: "expense",
+      },
+      {
+        name: "Noon.com Purchase",
+        amount: 189.0,
+        category: "Shopping",
+        date: new Date(thisYear, thisMonth, 5),
+        creditCardId: visaCard.id,
+        type: "expense",
+      },
+      {
+        name: "Zomato Delivery",
+        amount: 67.0,
+        category: "Food & Dining",
+        date: new Date(thisYear, thisMonth, 7),
+        creditCardId: visaCard.id,
+        type: "expense",
+      },
+      {
+        name: "DEWA Bill",
+        amount: 520.0,
+        category: "Utilities",
+        date: new Date(thisYear, thisMonth, 2),
+        creditCardId: visaCard.id,
+        type: "expense",
+      },
+      {
+        name: "Etisalat Mobile",
+        amount: 199.0,
+        category: "Phone & Internet",
+        date: new Date(thisYear, thisMonth, 1),
+        creditCardId: visaCard.id,
+        type: "expense",
+      },
       // Mastercard transactions
-      { name: "Emirates Flight Booking", amount: 1250.00, category: "Travel", date: new Date(thisYear, thisMonth, 8), creditCardId: mastercardCard.id, type: "expense" },
-      { name: "Fitness First Gym", amount: 450.00, category: "Health & Fitness", date: new Date(thisYear, thisMonth, 1), creditCardId: mastercardCard.id, type: "expense" },
-      { name: "VOX Cinemas", amount: 95.00, category: "Entertainment", date: new Date(thisYear, thisMonth, 6), creditCardId: mastercardCard.id, type: "expense" },
+      {
+        name: "Emirates Flight Booking",
+        amount: 1250.0,
+        category: "Travel",
+        date: new Date(thisYear, thisMonth, 8),
+        creditCardId: mastercardCard.id,
+        type: "expense",
+      },
+      {
+        name: "Fitness First Gym",
+        amount: 450.0,
+        category: "Health & Fitness",
+        date: new Date(thisYear, thisMonth, 1),
+        creditCardId: mastercardCard.id,
+        type: "expense",
+      },
+      {
+        name: "VOX Cinemas",
+        amount: 95.0,
+        category: "Entertainment",
+        date: new Date(thisYear, thisMonth, 6),
+        creditCardId: mastercardCard.id,
+        type: "expense",
+      },
       // Bank account transactions
-      { name: "Monthly Salary", amount: 18000.00, category: "Income", date: new Date(thisYear, thisMonth, 1), bankAccountId: savingsAccount.id, type: "income" },
-      { name: "Rent Payment", amount: 7500.00, category: "Rent & Housing", date: new Date(thisYear, thisMonth, 2), bankAccountId: savingsAccount.id, type: "expense" },
-      { name: "Transfer to Current", amount: 2000.00, category: "Transfer", date: new Date(thisYear, thisMonth, 3), bankAccountId: savingsAccount.id, type: "transfer" },
-      { name: "Supermarket", amount: 215.75, category: "Groceries", date: new Date(thisYear, thisMonth, 5), bankAccountId: currentAccount.id, type: "expense" },
-      { name: "Petrol Station", amount: 180.00, category: "Transport", date: new Date(thisYear, thisMonth, 4), bankAccountId: currentAccount.id, type: "expense" },
-      { name: "Freelance Income", amount: 3500.00, category: "Income", date: new Date(thisYear, thisMonth, 7), bankAccountId: currentAccount.id, type: "income" },
+      {
+        name: "Monthly Salary",
+        amount: 18000.0,
+        category: "Income",
+        date: new Date(thisYear, thisMonth, 1),
+        bankAccountId: savingsAccount.id,
+        type: "income",
+      },
+      {
+        name: "Rent Payment",
+        amount: 7500.0,
+        category: "Rent & Housing",
+        date: new Date(thisYear, thisMonth, 2),
+        bankAccountId: savingsAccount.id,
+        type: "expense",
+      },
+      {
+        name: "Transfer to Current",
+        amount: 2000.0,
+        category: "Transfer",
+        date: new Date(thisYear, thisMonth, 3),
+        bankAccountId: savingsAccount.id,
+        type: "transfer",
+      },
+      {
+        name: "Supermarket",
+        amount: 215.75,
+        category: "Groceries",
+        date: new Date(thisYear, thisMonth, 5),
+        bankAccountId: currentAccount.id,
+        type: "expense",
+      },
+      {
+        name: "Petrol Station",
+        amount: 180.0,
+        category: "Transport",
+        date: new Date(thisYear, thisMonth, 4),
+        bankAccountId: currentAccount.id,
+        type: "expense",
+      },
+      {
+        name: "Freelance Income",
+        amount: 3500.0,
+        category: "Income",
+        date: new Date(thisYear, thisMonth, 7),
+        bankAccountId: currentAccount.id,
+        type: "income",
+      },
     ];
 
     let count = 0;
@@ -117,7 +243,9 @@ async function main() {
         },
       });
       count++;
-      process.stdout.write(`\r  ✓ ${count}/${txns.length} transactions created`);
+      process.stdout.write(
+        `\r  ✓ ${count}/${txns.length} transactions created`,
+      );
     }
     console.log(`\n  Done!`);
 
@@ -131,7 +259,7 @@ async function main() {
       data: { currentBalance: { decrement: 215.75 + 180, increment: 3500 } },
     });
     // Update credit card available balances
-    const visaSpend = 342.50 + 189 + 67 + 520 + 199;
+    const visaSpend = 342.5 + 189 + 67 + 520 + 199;
     const mastercardSpend = 1250 + 450 + 95;
     await db.credit_card.update({
       where: { id: visaCard.id },
@@ -143,7 +271,9 @@ async function main() {
     });
     console.log("  ✓ Account balances updated");
   } else {
-    console.log(`  Transactions already exist (${existingTxns.length}), skipping.`);
+    console.log(
+      `  Transactions already exist (${existingTxns.length}), skipping.`,
+    );
   }
 
   // --- Categories ---
@@ -172,10 +302,14 @@ async function main() {
     }
     console.log(`  ✓ ${cats.length} categories created`);
   } else {
-    console.log(`  Categories already exist (${existingCats.length}), skipping.`);
+    console.log(
+      `  Categories already exist (${existingCats.length}), skipping.`,
+    );
   }
 
   console.log("\n✅ Seed complete! Refresh http://localhost:3000/dashboard");
 }
 
-main().catch(console.error).finally(() => db.$disconnect());
+main()
+  .catch(console.error)
+  .finally(() => db.$disconnect());

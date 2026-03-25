@@ -8,7 +8,9 @@ import { BankAccountSchema } from "@/lib/validations/bank-account";
 import type { ActionResult } from "@/lib/validations";
 import { checkCanAddBankAccount } from "@/lib/plan-guards";
 
-export async function createBankAccount(formData: FormData): Promise<ActionResult> {
+export async function createBankAccount(
+  formData: FormData,
+): Promise<ActionResult> {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -20,7 +22,11 @@ export async function createBankAccount(formData: FormData): Promise<ActionResul
   // Plan limit check
   const guard = await checkCanAddBankAccount(session.user.id);
   if (!guard.allowed) {
-    return { error: guard.reason ?? "Plan limit reached.", planLimitReached: true, requiredPlan: guard.requiredPlan };
+    return {
+      error: guard.reason ?? "Plan limit reached.",
+      planLimitReached: true,
+      requiredPlan: guard.requiredPlan,
+    };
   }
 
   const parse = BankAccountSchema.safeParse({
@@ -46,7 +52,10 @@ export async function createBankAccount(formData: FormData): Promise<ActionResul
   revalidatePath("/");
 }
 
-export async function updateBankAccount(accountId: string, formData: FormData): Promise<ActionResult> {
+export async function updateBankAccount(
+  accountId: string,
+  formData: FormData,
+): Promise<ActionResult> {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -138,7 +147,7 @@ export async function deleteBankAccount(accountId: string) {
 export async function getBankAccountTransactions(
   accountId: string,
   month?: number,
-  year?: number
+  year?: number,
 ) {
   const session = await auth.api.getSession({
     headers: await headers(),

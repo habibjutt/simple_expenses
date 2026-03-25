@@ -40,10 +40,7 @@ export async function getReportData(month: number, year: number) {
 
   const transactions = await prisma.transaction.findMany({
     where: {
-      OR: [
-        { creditCard: { userId } },
-        { bankAccount: { userId } },
-      ],
+      OR: [{ creditCard: { userId } }, { bankAccount: { userId } }],
       date: { gte: start, lte: end },
     },
     include: { creditCard: true, bankAccount: true },
@@ -59,10 +56,16 @@ export async function getReportData(month: number, year: number) {
     const amt = Number(t.amount);
     if (t.type === "income") {
       totalIncome += amt;
-      incomeMap.set(t.category || "Others", (incomeMap.get(t.category || "Others") || 0) + amt);
+      incomeMap.set(
+        t.category || "Others",
+        (incomeMap.get(t.category || "Others") || 0) + amt,
+      );
     } else {
       totalExpenses += amt;
-      expenseMap.set(t.category || "Others", (expenseMap.get(t.category || "Others") || 0) + amt);
+      expenseMap.set(
+        t.category || "Others",
+        (expenseMap.get(t.category || "Others") || 0) + amt,
+      );
     }
   }
 
@@ -70,7 +73,20 @@ export async function getReportData(month: number, year: number) {
   const colorMap = new Map(categories.map((c) => [c.name, c.color]));
   const iconMap = new Map(categories.map((c) => [c.name, c.icon]));
 
-  const COLORS = ["#f97316","#ef4444","#3b82f6","#a855f7","#22c55e","#ec4899","#06b6d4","#84cc16","#14b8a6","#f59e0b","#8b5cf6","#64748b"];
+  const COLORS = [
+    "#f97316",
+    "#ef4444",
+    "#3b82f6",
+    "#a855f7",
+    "#22c55e",
+    "#ec4899",
+    "#06b6d4",
+    "#84cc16",
+    "#14b8a6",
+    "#f59e0b",
+    "#8b5cf6",
+    "#64748b",
+  ];
   let colorIdx = 0;
 
   const expenseStats: CategoryStat[] = Array.from(expenseMap.entries())
@@ -97,7 +113,20 @@ export async function getReportData(month: number, year: number) {
 export async function getMonthlyTrend(year: number): Promise<MonthlyData[]> {
   const session = await getSession();
   const userId = session.user.id;
-  const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const MONTH_NAMES = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
 
   const result: MonthlyData[] = [];
 
@@ -107,10 +136,7 @@ export async function getMonthlyTrend(year: number): Promise<MonthlyData[]> {
 
     const txns = await prisma.transaction.findMany({
       where: {
-        OR: [
-          { creditCard: { userId } },
-          { bankAccount: { userId } },
-        ],
+        OR: [{ creditCard: { userId } }, { bankAccount: { userId } }],
         date: { gte: start, lte: end },
       },
     });
@@ -128,7 +154,10 @@ export async function getMonthlyTrend(year: number): Promise<MonthlyData[]> {
   return result;
 }
 
-export async function getBudgetVsActual(month: number, year: number): Promise<BudgetVsActual[]> {
+export async function getBudgetVsActual(
+  month: number,
+  year: number,
+): Promise<BudgetVsActual[]> {
   const session = await getSession();
   const userId = session.user.id;
 
@@ -145,10 +174,7 @@ export async function getBudgetVsActual(month: number, year: number): Promise<Bu
   // Get actual spending for this month (expenses only)
   const transactions = await prisma.transaction.findMany({
     where: {
-      OR: [
-        { creditCard: { userId } },
-        { bankAccount: { userId } },
-      ],
+      OR: [{ creditCard: { userId } }, { bankAccount: { userId } }],
       date: { gte: start, lte: end },
       NOT: { type: "income" },
     },
@@ -163,14 +189,30 @@ export async function getBudgetVsActual(month: number, year: number): Promise<Bu
   const categories = await prisma.category.findMany({ where: { userId } });
   const colorMap = new Map(categories.map((c) => [c.name, c.color]));
   const iconMap = new Map(categories.map((c) => [c.name, c.icon]));
-  const COLORS = ["#f97316","#ef4444","#3b82f6","#a855f7","#22c55e","#ec4899","#06b6d4","#84cc16","#14b8a6","#f59e0b","#8b5cf6","#64748b"];
+  const COLORS = [
+    "#f97316",
+    "#ef4444",
+    "#3b82f6",
+    "#a855f7",
+    "#22c55e",
+    "#ec4899",
+    "#06b6d4",
+    "#84cc16",
+    "#14b8a6",
+    "#f59e0b",
+    "#8b5cf6",
+    "#64748b",
+  ];
   let colorIdx = 0;
 
-  return limits.map((limit) => ({
-    category: limit.categoryName,
-    budget: limit.amount,
-    actual: actualMap.get(limit.categoryName) || 0,
-    color: colorMap.get(limit.categoryName) ?? COLORS[colorIdx++ % COLORS.length],
-    icon: iconMap.get(limit.categoryName) ?? "tag",
-  })).sort((a, b) => b.budget - a.budget);
+  return limits
+    .map((limit) => ({
+      category: limit.categoryName,
+      budget: limit.amount,
+      actual: actualMap.get(limit.categoryName) || 0,
+      color:
+        colorMap.get(limit.categoryName) ?? COLORS[colorIdx++ % COLORS.length],
+      icon: iconMap.get(limit.categoryName) ?? "tag",
+    }))
+    .sort((a, b) => b.budget - a.budget);
 }

@@ -1,7 +1,13 @@
 "use client";
 
 import React from "react";
-import { LayoutDashboard, ListOrdered, BarChart2, Target, CreditCard } from "lucide-react";
+import {
+  LayoutDashboard,
+  ListOrdered,
+  BarChart2,
+  Target,
+  CreditCard,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -28,11 +34,18 @@ const Footer = () => {
               href={href}
               className={cn(
                 "flex flex-col items-center justify-center gap-0.5 transition-colors",
-                isActive ? "text-[#1a9e5c]" : "text-slate-400 hover:text-slate-600"
+                isActive
+                  ? "text-[#1a9e5c]"
+                  : "text-slate-400 hover:text-slate-600",
               )}
             >
               <Icon className={cn("h-5 w-5", isActive && "stroke-[2.5]")} />
-              <span className={cn("text-[9px] font-semibold tracking-wide uppercase", isActive && "text-[#1a9e5c]")}>
+              <span
+                className={cn(
+                  "text-[9px] font-semibold tracking-wide uppercase",
+                  isActive && "text-[#1a9e5c]",
+                )}
+              >
                 {label}
               </span>
               {isActive && (

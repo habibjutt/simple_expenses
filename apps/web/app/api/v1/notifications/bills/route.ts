@@ -32,7 +32,8 @@ export async function GET(request: Request) {
       totalAmount: inv.totalAmount,
       paymentDueDate: inv.paymentDueDate,
       daysUntilDue: Math.ceil(
-        (inv.paymentDueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+        (inv.paymentDueDate.getTime() - today.getTime()) /
+          (1000 * 60 * 60 * 24),
       ),
     })),
   });

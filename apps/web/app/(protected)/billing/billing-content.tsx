@@ -37,16 +37,46 @@ const FEATURES = [
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; className: string }> = {
-    active: { label: "Active", className: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" },
-    trialing: { label: "Free Trial", className: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" },
-    past_due: { label: "Past Due", className: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400" },
-    canceled: { label: "Canceled", className: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400" },
-    expired: { label: "Expired", className: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" },
-    incomplete: { label: "Incomplete", className: "bg-orange-100 text-orange-700" },
+    active: {
+      label: "Active",
+      className:
+        "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+    },
+    trialing: {
+      label: "Free Trial",
+      className:
+        "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+    },
+    past_due: {
+      label: "Past Due",
+      className:
+        "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
+    },
+    canceled: {
+      label: "Canceled",
+      className:
+        "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400",
+    },
+    expired: {
+      label: "Expired",
+      className: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+    },
+    incomplete: {
+      label: "Incomplete",
+      className: "bg-orange-100 text-orange-700",
+    },
   };
-  const { label, className } = map[status] ?? { label: status, className: "bg-gray-100 text-gray-600" };
+  const { label, className } = map[status] ?? {
+    label: status,
+    className: "bg-gray-100 text-gray-600",
+  };
   return (
-    <span className={cn("inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold", className)}>
+    <span
+      className={cn(
+        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold",
+        className,
+      )}
+    >
       {label}
     </span>
   );
@@ -57,11 +87,15 @@ export default function BillingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null);
+  const [subscription, setSubscription] = useState<SubscriptionInfo | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
-  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
+  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">(
+    "monthly",
+  );
 
   const successParam = searchParams.get("success");
   const canceledParam = searchParams.get("canceled");
@@ -128,22 +162,30 @@ export default function BillingContent() {
 
         <div className="mb-8">
           <h1 className="text-2xl font-bold tracking-tight">Billing</h1>
-          <p className="text-muted-foreground mt-1">Manage your Simple Expenses subscription.</p>
+          <p className="text-muted-foreground mt-1">
+            Manage your Simple Expenses subscription.
+          </p>
         </div>
 
         {/* Current Status Card */}
         {loading ? (
           <div className="rounded-2xl border bg-card p-6 mb-8 flex items-center gap-3">
             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-            <span className="text-muted-foreground text-sm">Loading subscription status…</span>
+            <span className="text-muted-foreground text-sm">
+              Loading subscription status…
+            </span>
           </div>
         ) : subscription ? (
           <div className="rounded-2xl border bg-card p-6 mb-8">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Current plan</p>
+                <p className="text-sm text-muted-foreground mb-1">
+                  Current plan
+                </p>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg font-semibold">Simple Expenses Pro</span>
+                  <span className="text-lg font-semibold">
+                    Simple Expenses Pro
+                  </span>
                   <StatusBadge status={subscription.status} />
                 </div>
               </div>
@@ -155,9 +197,11 @@ export default function BillingContent() {
                   disabled={portalLoading}
                   className="shrink-0"
                 >
-                  {portalLoading
-                    ? <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    : <ExternalLink className="h-4 w-4 mr-2" />}
+                  {portalLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                  )}
                   Manage Billing
                 </Button>
               )}
@@ -166,41 +210,57 @@ export default function BillingContent() {
             {subscription.status === "trialing" && !hasStripeSubscription && (
               <div className="mt-4 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
                 <p className="text-sm text-blue-800 dark:text-blue-300">
-                  <span className="font-semibold">{subscription.daysLeftInTrial} days</span> remaining
-                  in your free trial. Subscribe now to keep access after it ends.
-                </p>
-              </div>
-            )}
-            {subscription.status === "trialing" && hasStripeSubscription && subscription.trialEndsAt && (
-              <div className="mt-4 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-                <p className="text-sm text-blue-800 dark:text-blue-300">
-                  Trial ends on{" "}
                   <span className="font-semibold">
-                    {subscription.trialEndsAt.toLocaleDateString("en-AE", { day: "numeric", month: "long", year: "numeric" })}
-                  </span>
-                  . You won&apos;t be charged until then.
+                    {subscription.daysLeftInTrial} days
+                  </span>{" "}
+                  remaining in your free trial. Subscribe now to keep access
+                  after it ends.
                 </p>
               </div>
             )}
-            {subscription.status === "active" && subscription.currentPeriodEnd && (
-              <p className="mt-3 text-sm text-muted-foreground">
-                Next billing date:{" "}
-                <span className="font-medium text-foreground">
-                  {subscription.currentPeriodEnd.toLocaleDateString("en-AE", { day: "numeric", month: "long", year: "numeric" })}
-                </span>
-              </p>
-            )}
+            {subscription.status === "trialing" &&
+              hasStripeSubscription &&
+              subscription.trialEndsAt && (
+                <div className="mt-4 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                  <p className="text-sm text-blue-800 dark:text-blue-300">
+                    Trial ends on{" "}
+                    <span className="font-semibold">
+                      {subscription.trialEndsAt.toLocaleDateString("en-AE", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </span>
+                    . You won&apos;t be charged until then.
+                  </p>
+                </div>
+              )}
+            {subscription.status === "active" &&
+              subscription.currentPeriodEnd && (
+                <p className="mt-3 text-sm text-muted-foreground">
+                  Next billing date:{" "}
+                  <span className="font-medium text-foreground">
+                    {subscription.currentPeriodEnd.toLocaleDateString("en-AE", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </span>
+                </p>
+              )}
             {subscription.status === "past_due" && (
               <div className="mt-4 p-3 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
                 <p className="text-sm text-yellow-800 dark:text-yellow-300">
-                  Your last payment failed. Please update your payment method to keep access.
+                  Your last payment failed. Please update your payment method to
+                  keep access.
                 </p>
               </div>
             )}
             {subscription.status === "expired" && (
               <div className="mt-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
                 <p className="text-sm text-red-800 dark:text-red-300">
-                  Your free trial has ended. Subscribe below to regain full access.
+                  Your free trial has ended. Subscribe below to regain full
+                  access.
                 </p>
               </div>
             )}
@@ -214,7 +274,9 @@ export default function BillingContent() {
 
             <div className="mb-6">
               <h2 className="text-xl font-semibold mb-1">Choose a plan</h2>
-              <p className="text-muted-foreground text-sm">Full access to every feature. No hidden fees.</p>
+              <p className="text-muted-foreground text-sm">
+                Full access to every feature. No hidden fees.
+              </p>
             </div>
 
             {/* Billing period toggle */}
@@ -225,7 +287,7 @@ export default function BillingContent() {
                   "px-4 py-1.5 rounded-full text-sm font-medium transition-all",
                   billingPeriod === "monthly"
                     ? "bg-white dark:bg-zinc-800 shadow text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 Monthly
@@ -236,31 +298,39 @@ export default function BillingContent() {
                   "px-4 py-1.5 rounded-full text-sm font-medium transition-all flex items-center gap-2",
                   billingPeriod === "yearly"
                     ? "bg-white dark:bg-zinc-800 shadow text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 Yearly
-                <Badge className="bg-[#1a9e5c] text-white text-[10px] px-1.5 py-0 h-4">Save 28%</Badge>
+                <Badge className="bg-[#1a9e5c] text-white text-[10px] px-1.5 py-0 h-4">
+                  Save 28%
+                </Badge>
               </button>
             </div>
 
             {/* Plan card */}
             <div className="rounded-2xl border-2 border-[#1a9e5c] bg-card p-6 relative">
               <div className="absolute -top-3 left-6">
-                <Badge className="bg-[#1a9e5c] text-white px-3 py-1">Most Popular</Badge>
+                <Badge className="bg-[#1a9e5c] text-white px-3 py-1">
+                  Most Popular
+                </Badge>
               </div>
 
               <div className="flex items-start justify-between gap-4 mb-6">
                 <div>
                   <h3 className="text-lg font-bold">Simple Expenses Pro</h3>
-                  <p className="text-muted-foreground text-sm mt-0.5">Everything you need to track your finances</p>
+                  <p className="text-muted-foreground text-sm mt-0.5">
+                    Everything you need to track your finances
+                  </p>
                 </div>
                 <div className="text-right shrink-0">
                   <div className="text-3xl font-bold">
                     {billingPeriod === "monthly" ? "AED 29" : "AED 249"}
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {billingPeriod === "monthly" ? "per month" : "per year (AED 20.75/mo)"}
+                    {billingPeriod === "monthly"
+                      ? "per month"
+                      : "per year (AED 20.75/mo)"}
                   </div>
                 </div>
               </div>
@@ -276,23 +346,28 @@ export default function BillingContent() {
                 ))}
               </ul>
 
-              {subscription?.status === "trialing" && !hasStripeSubscription && (
-                <p className="text-xs text-muted-foreground mb-3 text-center">
-                  Your remaining {subscription.daysLeftInTrial}-day trial carries over — you won&apos;t
-                  be charged until it ends.
-                </p>
-              )}
+              {subscription?.status === "trialing" &&
+                !hasStripeSubscription && (
+                  <p className="text-xs text-muted-foreground mb-3 text-center">
+                    Your remaining {subscription.daysLeftInTrial}-day trial
+                    carries over — you won&apos;t be charged until it ends.
+                  </p>
+                )}
 
               <Button
                 className="w-full bg-[#1a9e5c] hover:bg-[#158a4f] text-white font-semibold h-11"
                 onClick={() =>
                   handleSubscribe(
-                    billingPeriod === "monthly" ? STRIPE_PRICES.pro.monthly : STRIPE_PRICES.pro.yearly
+                    billingPeriod === "monthly"
+                      ? STRIPE_PRICES.pro.monthly
+                      : STRIPE_PRICES.pro.yearly,
                   )
                 }
                 disabled={!!checkoutLoading}
               >
-                {checkoutLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                {checkoutLoading && (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                )}
                 {subscription?.status === "trialing" && !hasStripeSubscription
                   ? "Subscribe with Free Trial"
                   : "Subscribe Now"}

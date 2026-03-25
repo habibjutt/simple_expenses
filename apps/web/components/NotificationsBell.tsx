@@ -8,7 +8,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { getUpcomingBills, type UpcomingBill } from "@/app/api/notification-action";
+import {
+  getUpcomingBills,
+  type UpcomingBill,
+} from "@/app/api/notification-action";
 import { formatCurrency } from "@/lib/utils";
 import Link from "next/link";
 
@@ -26,6 +29,7 @@ export function NotificationsBell() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetching data on mount is a valid pattern
     fetchBills();
   }, [fetchBills]);
 
@@ -74,7 +78,9 @@ export function NotificationsBell() {
           <div className="p-6 text-center">
             <Bell className="h-8 w-8 text-slate-300 mx-auto mb-2" />
             <p className="text-sm text-slate-500">No bills due soon</p>
-            <p className="text-xs text-slate-400 mt-1">You&apos;re all caught up!</p>
+            <p className="text-xs text-slate-400 mt-1">
+              You&apos;re all caught up!
+            </p>
           </div>
         ) : (
           <div className="max-h-72 overflow-y-auto">

@@ -78,7 +78,9 @@ export default function LandingPage() {
           />
           <div
             className="absolute -bottom-32 -left-32 w-[500px] h-[500px] bg-[#1a9e5c]/7 rounded-full blur-3xl pointer-events-none"
-            style={{ animation: "se-orb-drift 16s ease-in-out 4s infinite reverse" }}
+            style={{
+              animation: "se-orb-drift 16s ease-in-out 4s infinite reverse",
+            }}
           />
           <div
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-[#1a9e5c]/5 rounded-full blur-3xl pointer-events-none"
@@ -90,7 +92,8 @@ export default function LandingPage() {
               {/* Left: Content */}
               <div className="space-y-6 sm:space-y-8 text-center lg:text-left">
                 <div className="se-hero-badge inline-flex items-center gap-2 bg-[#1a9e5c]/10 text-[#1a9e5c] px-4 py-1.5 rounded-full text-sm font-semibold border border-[#1a9e5c]/20">
-                  <Globe className="w-3.5 h-3.5" /> Built exclusively for UAE residents
+                  <Globe className="w-3.5 h-3.5" /> Built exclusively for UAE
+                  residents
                 </div>
                 <h1 className="se-hero-title text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1]">
                   Take control of{" "}
@@ -153,7 +156,9 @@ export default function LandingPage() {
                         <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
                           <CreditCard className="w-3 h-3 text-white" />
                         </div>
-                        <span className="text-white text-xs font-semibold">Simple Expenses</span>
+                        <span className="text-white text-xs font-semibold">
+                          Simple Expenses
+                        </span>
                       </div>
                       <div className="flex gap-1">
                         <div className="w-2 h-2 rounded-full bg-white/30" />
@@ -165,16 +170,24 @@ export default function LandingPage() {
                       {/* Balance overview */}
                       <div className="grid grid-cols-2 gap-3">
                         <div className="bg-[#1a9e5c] rounded-xl p-4 text-white">
-                          <p className="text-xs text-white/70 mb-1">Total Balance</p>
+                          <p className="text-xs text-white/70 mb-1">
+                            Total Balance
+                          </p>
                           <p className="text-xl font-bold">AED 24,580</p>
                           <p className="text-xs text-white/60 mt-1 flex items-center gap-1">
                             <TrendingUp className="w-3 h-3" /> +12% this month
                           </p>
                         </div>
                         <div className="bg-muted rounded-xl p-4">
-                          <p className="text-xs text-muted-foreground mb-1">Monthly Spend</p>
-                          <p className="text-xl font-bold text-foreground">AED 8,230</p>
-                          <p className="text-xs text-muted-foreground mt-1">Budget: 10,000</p>
+                          <p className="text-xs text-muted-foreground mb-1">
+                            Monthly Spend
+                          </p>
+                          <p className="text-xl font-bold text-foreground">
+                            AED 8,230
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Budget: 10,000
+                          </p>
                         </div>
                       </div>
                       {/* Recent transactions */}
@@ -184,21 +197,40 @@ export default function LandingPage() {
                         </p>
                         <div className="space-y-2">
                           {[
-                            { name: "Carrefour Mall", amount: "-AED 156", cat: "Groceries" },
-                            { name: "DEWA Bill", amount: "-AED 380", cat: "Utilities" },
-                            { name: "Salary Credit", amount: "+AED 18,000", cat: "Income", income: true },
+                            {
+                              name: "Carrefour Mall",
+                              amount: "-AED 156",
+                              cat: "Groceries",
+                            },
+                            {
+                              name: "DEWA Bill",
+                              amount: "-AED 380",
+                              cat: "Utilities",
+                            },
+                            {
+                              name: "Salary Credit",
+                              amount: "+AED 18,000",
+                              cat: "Income",
+                              income: true,
+                            },
                           ].map((tx) => (
                             <div
                               key={tx.name}
                               className="flex items-center justify-between py-2 border-b border-border last:border-0"
                             >
                               <div>
-                                <p className="text-xs font-medium text-foreground">{tx.name}</p>
-                                <p className="text-[10px] text-muted-foreground">{tx.cat}</p>
+                                <p className="text-xs font-medium text-foreground">
+                                  {tx.name}
+                                </p>
+                                <p className="text-[10px] text-muted-foreground">
+                                  {tx.cat}
+                                </p>
                               </div>
                               <span
                                 className={`text-xs font-semibold ${
-                                  tx.income ? "text-[#1a9e5c]" : "text-foreground"
+                                  tx.income
+                                    ? "text-[#1a9e5c]"
+                                    : "text-foreground"
                                 }`}
                               >
                                 {tx.amount}
@@ -215,7 +247,9 @@ export default function LandingPage() {
                             className="flex-1 bg-muted rounded-lg p-2 text-center"
                           >
                             <CreditCard className="w-4 h-4 mx-auto text-muted-foreground mb-1" />
-                            <p className="text-[10px] font-medium text-muted-foreground">{bank}</p>
+                            <p className="text-[10px] font-medium text-muted-foreground">
+                              {bank}
+                            </p>
                           </div>
                         ))}
                       </div>
@@ -230,10 +264,17 @@ export default function LandingPage() {
         {/* ─── Stats bar ───────────────────────────────────────── */}
         <section className="border-y border-border bg-gradient-to-r from-[#1a9e5c]/5 via-muted/40 to-[#1a9e5c]/5">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-            <AnimateOnScroll type="stagger" className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <AnimateOnScroll
+              type="stagger"
+              className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center"
+            >
               {[
                 { value: "500+", label: "UAE users", icon: Users },
-                { value: "AED 10M+", label: "Tracked to date", icon: TrendingUp },
+                {
+                  value: "AED 10M+",
+                  label: "Tracked to date",
+                  icon: TrendingUp,
+                },
                 { value: "4.9 ★", label: "Average rating", icon: Award },
                 { value: "100%", label: "Data encrypted", icon: Lock },
               ].map(({ value, label, icon: Icon }) => (
@@ -254,11 +295,17 @@ export default function LandingPage() {
         </section>
 
         {/* ─── Features ────────────────────────────────────────── */}
-        <section id="features" className="relative px-4 sm:px-6 py-20 sm:py-24 overflow-hidden">
+        <section
+          id="features"
+          className="relative px-4 sm:px-6 py-20 sm:py-24 overflow-hidden"
+        >
           {/* Subtle background accent */}
           <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#1a9e5c]/5 rounded-full blur-3xl pointer-events-none" />
           <div className="max-w-7xl mx-auto relative">
-            <AnimateOnScroll type="fade-up" className="text-center space-y-4 mb-14">
+            <AnimateOnScroll
+              type="fade-up"
+              className="text-center space-y-4 mb-14"
+            >
               <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-semibold border border-primary/20">
                 <Zap className="w-4 h-4" />
                 Everything you need
@@ -272,7 +319,10 @@ export default function LandingPage() {
               </p>
             </AnimateOnScroll>
 
-            <AnimateOnScroll type="stagger" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <AnimateOnScroll
+              type="stagger"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+            >
               {[
                 {
                   icon: CreditCard,
@@ -342,7 +392,9 @@ export default function LandingPage() {
                     <Icon className="w-5 h-5 text-primary" />
                   </div>
                   <h3 className="font-bold text-foreground">{title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {desc}
+                  </p>
                 </div>
               ))}
             </AnimateOnScroll>
@@ -357,7 +409,10 @@ export default function LandingPage() {
           {/* Background orb */}
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[#1a9e5c]/6 rounded-full blur-3xl pointer-events-none" />
           <div className="max-w-5xl mx-auto relative">
-            <AnimateOnScroll type="fade-up" className="text-center space-y-4 mb-14">
+            <AnimateOnScroll
+              type="fade-up"
+              className="text-center space-y-4 mb-14"
+            >
               <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-semibold border border-primary/20">
                 <Clock className="w-4 h-4" />
                 Up and running in minutes
@@ -367,7 +422,10 @@ export default function LandingPage() {
               </h2>
             </AnimateOnScroll>
 
-            <AnimateOnScroll type="stagger" className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+            <AnimateOnScroll
+              type="stagger"
+              className="grid grid-cols-1 md:grid-cols-3 gap-8 relative"
+            >
               {/* Animated connector line - desktop only */}
               <div className="hidden md:block absolute top-8 left-[calc(16.67%+1rem)] right-[calc(16.67%+1rem)] h-px z-0 overflow-hidden">
                 <div className="absolute inset-0 bg-border" />
@@ -397,7 +455,10 @@ export default function LandingPage() {
                   desc: "Log transactions, view reports, and see your complete financial picture in one dashboard.",
                 },
               ].map(({ step, title, desc }) => (
-                <div key={step} className="relative flex flex-col items-center text-center space-y-4 z-10">
+                <div
+                  key={step}
+                  className="relative flex flex-col items-center text-center space-y-4 z-10"
+                >
                   <div className="relative">
                     <div className="absolute inset-0 bg-[#1a9e5c]/30 rounded-2xl blur-xl scale-150 se-animate-pulse-glow" />
                     <div className="relative w-16 h-16 rounded-2xl bg-[#1a9e5c] text-white flex items-center justify-center shadow-lg shadow-[#1a9e5c]/30 text-xl font-extrabold hover:scale-105 transition-transform">
@@ -405,19 +466,26 @@ export default function LandingPage() {
                     </div>
                   </div>
                   <h3 className="font-bold text-lg text-foreground">{title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">{desc}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
+                    {desc}
+                  </p>
                 </div>
               ))}
             </AnimateOnScroll>
 
-            <AnimateOnScroll type="fade-up" delay={200} className="text-center mt-12">
+            <AnimateOnScroll
+              type="fade-up"
+              delay={200}
+              className="text-center mt-12"
+            >
               <Button
                 size="lg"
                 className="h-12 px-8 text-base text-white shadow-lg shadow-[#1a9e5c]/30 se-animate-shimmer-btn border-0 hover:opacity-90 transition-opacity"
                 asChild
               >
                 <Link href="/signup">
-                  Create your free account <ArrowRight className="ml-2 h-4 w-4" />
+                  Create your free account{" "}
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </AnimateOnScroll>
@@ -428,10 +496,16 @@ export default function LandingPage() {
         <PricingSection />
 
         {/* ─── Testimonials ─────────────────────────────────────── */}
-        <section id="testimonials" className="relative px-4 sm:px-6 py-20 sm:py-24 border-t border-border overflow-hidden">
+        <section
+          id="testimonials"
+          className="relative px-4 sm:px-6 py-20 sm:py-24 border-t border-border overflow-hidden"
+        >
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[200px] bg-[#1a9e5c]/5 rounded-full blur-3xl pointer-events-none" />
           <div className="max-w-7xl mx-auto relative">
-            <AnimateOnScroll type="fade-up" className="text-center space-y-4 mb-14">
+            <AnimateOnScroll
+              type="fade-up"
+              className="text-center space-y-4 mb-14"
+            >
               <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-semibold border border-primary/20">
                 <Star className="w-4 h-4 fill-primary" />
                 Loved by UAE users
@@ -444,7 +518,10 @@ export default function LandingPage() {
               </p>
             </AnimateOnScroll>
 
-            <AnimateOnScroll type="stagger" className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <AnimateOnScroll
+              type="stagger"
+              className="grid grid-cols-1 md:grid-cols-3 gap-6"
+            >
               {[
                 {
                   name: "Ahmad Al-Mansoori",
@@ -506,35 +583,41 @@ export default function LandingPage() {
                     "I used to use Excel spreadsheets. Now with Simple Expenses I spend 5 minutes a week on my finances instead of an hour. The free plan has everything I need.",
                   rating: 5,
                 },
-              ].map(({ name, role, location, initials, color, quote, rating }) => (
-                <div
-                  key={name}
-                  className="bg-background border border-border rounded-2xl p-6 space-y-4 hover:shadow-[0_8px_32px_rgba(26,158,92,0.1)] hover:border-primary/25 hover:-translate-y-0.5 transition-all duration-300 flex flex-col"
-                >
-                  <div className="flex gap-1">
-                    {Array.from({ length: rating }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className="w-4 h-4 fill-amber-400 text-amber-400"
-                      />
-                    ))}
-                  </div>
-                  <p className="text-sm text-foreground leading-relaxed flex-1">&ldquo;{quote}&rdquo;</p>
-                  <div className="flex items-center gap-3 pt-2 border-t border-border">
-                    <div
-                      className={`w-10 h-10 rounded-full ${color} flex items-center justify-center text-white font-bold text-sm shrink-0 ring-2 ring-offset-2 ring-offset-background ring-transparent hover:ring-primary/30 transition-all`}
-                    >
-                      {initials}
+              ].map(
+                ({ name, role, location, initials, color, quote, rating }) => (
+                  <div
+                    key={name}
+                    className="bg-background border border-border rounded-2xl p-6 space-y-4 hover:shadow-[0_8px_32px_rgba(26,158,92,0.1)] hover:border-primary/25 hover:-translate-y-0.5 transition-all duration-300 flex flex-col"
+                  >
+                    <div className="flex gap-1">
+                      {Array.from({ length: rating }).map((_, i) => (
+                        <Star
+                          key={i}
+                          className="w-4 h-4 fill-amber-400 text-amber-400"
+                        />
+                      ))}
                     </div>
-                    <div>
-                      <p className="font-semibold text-sm text-foreground">{name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {role} · {location}
-                      </p>
+                    <p className="text-sm text-foreground leading-relaxed flex-1">
+                      &ldquo;{quote}&rdquo;
+                    </p>
+                    <div className="flex items-center gap-3 pt-2 border-t border-border">
+                      <div
+                        className={`w-10 h-10 rounded-full ${color} flex items-center justify-center text-white font-bold text-sm shrink-0 ring-2 ring-offset-2 ring-offset-background ring-transparent hover:ring-primary/30 transition-all`}
+                      >
+                        {initials}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-sm text-foreground">
+                          {name}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {role} · {location}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ),
+              )}
             </AnimateOnScroll>
           </div>
         </section>
@@ -546,7 +629,10 @@ export default function LandingPage() {
         >
           <div className="absolute -bottom-20 -right-20 w-[400px] h-[400px] bg-[#1a9e5c]/6 rounded-full blur-3xl pointer-events-none" />
           <div className="max-w-3xl mx-auto relative">
-            <AnimateOnScroll type="fade-up" className="text-center space-y-4 mb-14">
+            <AnimateOnScroll
+              type="fade-up"
+              className="text-center space-y-4 mb-14"
+            >
               <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-semibold border border-primary/20">
                 Frequently Asked Questions
               </div>
@@ -583,12 +669,17 @@ export default function LandingPage() {
                     a: "Data export (CSV and PDF) is available on the Premium plan. This lets you download all your transactions, reports, and invoice history for your own records or to share with an accountant.",
                   },
                 ].map(({ q, a }) => (
-                  <details key={q} className="group px-6 py-5 cursor-pointer hover:bg-muted/30 transition-colors">
+                  <details
+                    key={q}
+                    className="group px-6 py-5 cursor-pointer hover:bg-muted/30 transition-colors"
+                  >
                     <summary className="flex items-center justify-between font-semibold text-foreground list-none [&::-webkit-details-marker]:hidden gap-4">
                       <span className="text-sm sm:text-base">{q}</span>
                       <ChevronDown className="w-5 h-5 text-muted-foreground shrink-0 group-open:rotate-180 transition-transform duration-300" />
                     </summary>
-                    <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{a}</p>
+                    <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+                      {a}
+                    </p>
                   </details>
                 ))}
               </div>
@@ -596,7 +687,10 @@ export default function LandingPage() {
 
             <p className="text-center text-sm text-muted-foreground mt-8">
               Still have questions?{" "}
-              <Link href="/contact" className="text-primary font-medium hover:underline">
+              <Link
+                href="/contact"
+                className="text-primary font-medium hover:underline"
+              >
                 Contact our team →
               </Link>
             </p>
@@ -612,13 +706,18 @@ export default function LandingPage() {
           />
           <div
             className="absolute -bottom-20 -right-20 w-[350px] h-[350px] bg-black/10 rounded-full blur-3xl pointer-events-none"
-            style={{ animation: "se-orb-drift 10s ease-in-out 3s infinite reverse" }}
+            style={{
+              animation: "se-orb-drift 10s ease-in-out 3s infinite reverse",
+            }}
           />
           {/* Dot grid overlay */}
           <div className="absolute inset-0 se-dot-grid opacity-30 pointer-events-none" />
 
           <div className="max-w-3xl mx-auto text-center space-y-6 relative">
-            <AnimateOnScroll type="scale" className="flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 mx-auto">
+            <AnimateOnScroll
+              type="scale"
+              className="flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 mx-auto"
+            >
               <Globe className="w-8 h-8 text-white" />
             </AnimateOnScroll>
             <AnimateOnScroll type="fade-up" delay={100}>
@@ -630,7 +729,11 @@ export default function LandingPage() {
                 spending. Free forever — upgrade whenever you need more.
               </p>
             </AnimateOnScroll>
-            <AnimateOnScroll type="fade-up" delay={200} className="flex flex-col sm:flex-row gap-4 justify-center">
+            <AnimateOnScroll
+              type="fade-up"
+              delay={200}
+              className="flex flex-col sm:flex-row gap-4 justify-center"
+            >
               <Button
                 size="lg"
                 className="h-12 px-8 text-base bg-white text-[#1a9e5c] hover:bg-white/95 font-bold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
@@ -674,4 +777,3 @@ function PlusCircleIcon({ className }: { className?: string }) {
     </svg>
   );
 }
-

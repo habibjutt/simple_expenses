@@ -17,5 +17,5 @@ export const STRIPE_PRICES = {
 export const ALL_VALID_PRICE_IDS: ReadonlySet<string> = new Set(
   Object.values(STRIPE_PRICES)
     .flatMap((tier) => Object.values(tier))
-    .filter(Boolean)
+    .filter(Boolean),
 );

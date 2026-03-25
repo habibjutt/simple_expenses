@@ -27,10 +27,20 @@ export async function POST(request: Request) {
     return api.badRequest("Invalid JSON body");
   }
 
-  const { name, billGenerationDate, paymentDate, cardLimit } = body as Record<string, unknown>;
+  const { name, billGenerationDate, paymentDate, cardLimit } = body as Record<
+    string,
+    unknown
+  >;
 
-  if (!name || billGenerationDate == null || paymentDate == null || cardLimit == null)
-    return api.badRequest("name, billGenerationDate, paymentDate, and cardLimit are required");
+  if (
+    !name ||
+    billGenerationDate == null ||
+    paymentDate == null ||
+    cardLimit == null
+  )
+    return api.badRequest(
+      "name, billGenerationDate, paymentDate, and cardLimit are required",
+    );
 
   const bgd = Number(billGenerationDate);
   const pd = Number(paymentDate);

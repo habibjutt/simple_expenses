@@ -1,7 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { createCreditCard, updateCreditCard } from "@/app/api/credit-card-action";
+import {
+  createCreditCard,
+  updateCreditCard,
+} from "@/app/api/credit-card-action";
 import {
   Dialog,
   DialogContent,
@@ -77,7 +80,7 @@ export default function CreditCardModal({
       formData.append("paymentDate", paymentDate);
       formData.append("cardLimit", cardLimit);
       formData.append("currency", currency);
-      
+
       let result;
       if (editCard) {
         result = await updateCreditCard(editCard.id, formData);
@@ -87,13 +90,17 @@ export default function CreditCardModal({
       if (result?.error) {
         if (result.planLimitReached) {
           // Show upgrade dialog instead of inline error
-          setPlanAlert({ allowed: false, reason: result.error, requiredPlan: result.requiredPlan });
+          setPlanAlert({
+            allowed: false,
+            reason: result.error,
+            requiredPlan: result.requiredPlan,
+          });
           return;
         }
         setError(result.error);
         return;
       }
-      
+
       setOpen(false);
       setName("");
       setBillGenerationDate("");
@@ -103,7 +110,11 @@ export default function CreditCardModal({
         onSuccess();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : `Failed to ${editCard ? "update" : "create"} credit card`);
+      setError(
+        err instanceof Error
+          ? err.message
+          : `Failed to ${editCard ? "update" : "create"} credit card`,
+      );
     } finally {
       setLoading(false);
     }
@@ -114,7 +125,9 @@ export default function CreditCardModal({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{editCard ? "Edit Credit Card" : "Add Credit Card"}</DialogTitle>
+            <DialogTitle>
+              {editCard ? "Edit Credit Card" : "Add Credit Card"}
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <Field label="Card Name" required>
@@ -163,7 +176,8 @@ export default function CreditCardModal({
               />
             </Field>
             <p className="text-xs text-slate-500">
-              Currency: <span className="font-medium text-slate-700">{currency}</span>
+              Currency:{" "}
+              <span className="font-medium text-slate-700">{currency}</span>
             </p>
             {error && (
               <div className="text-red-500 text-sm" role="alert">
@@ -172,7 +186,13 @@ export default function CreditCardModal({
             )}
             <DialogFooter>
               <Button type="submit" variant="default" disabled={loading}>
-                {loading ? (editCard ? "Updating..." : "Adding...") : (editCard ? "Update Card" : "Add Card")}
+                {loading
+                  ? editCard
+                    ? "Updating..."
+                    : "Adding..."
+                  : editCard
+                    ? "Update Card"
+                    : "Add Card"}
               </Button>
               <Button
                 type="button"
@@ -189,7 +209,10 @@ export default function CreditCardModal({
       {planAlert && (
         <PlanLimitAlert
           open={!!planAlert}
-          onClose={() => { setPlanAlert(null); setOpen(false); }}
+          onClose={() => {
+            setPlanAlert(null);
+            setOpen(false);
+          }}
           limitType="creditCard"
           guardResult={planAlert}
         />

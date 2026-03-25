@@ -12,7 +12,9 @@ export async function GET(request: Request) {
   const creditCardId =
     searchParams.get("creditCardId") ?? searchParams.get("cardId") ?? undefined;
   const bankAccountId =
-    searchParams.get("bankAccountId") ?? searchParams.get("accountId") ?? undefined;
+    searchParams.get("bankAccountId") ??
+    searchParams.get("accountId") ??
+    undefined;
   const month = searchParams.get("month");
   const year = searchParams.get("year");
 
@@ -35,24 +37,29 @@ export async function GET(request: Request) {
           ...dateFilter,
         }
       : bankAccountId
-      ? {
-          bankAccountId,
-          bankAccount: { userId: user.id },
-          OR: [{ installmentNumber: null }, { installmentNumber: { gt: 0 } }],
-          ...dateFilter,
-        }
-      : {
-          AND: [
-            {
-              OR: [
-                { creditCard: { userId: user.id } },
-                { bankAccount: { userId: user.id } },
-              ],
-            },
-            { OR: [{ installmentNumber: null }, { installmentNumber: { gt: 0 } }] },
-          ],
-          ...dateFilter,
-        },
+        ? {
+            bankAccountId,
+            bankAccount: { userId: user.id },
+            OR: [{ installmentNumber: null }, { installmentNumber: { gt: 0 } }],
+            ...dateFilter,
+          }
+        : {
+            AND: [
+              {
+                OR: [
+                  { creditCard: { userId: user.id } },
+                  { bankAccount: { userId: user.id } },
+                ],
+              },
+              {
+                OR: [
+                  { installmentNumber: null },
+                  { installmentNumber: { gt: 0 } },
+                ],
+              },
+            ],
+            ...dateFilter,
+          },
     include: {
       creditCard: { select: { name: true } },
       bankAccount: { select: { name: true } },
@@ -75,8 +82,17 @@ export async function POST(request: Request) {
     return api.badRequest("Invalid JSON body");
   }
 
-  const { name, amount, date, category, notes, creditCardId, bankAccountId, installments, type } =
-    body as Record<string, unknown>;
+  const {
+    name,
+    amount,
+    date,
+    category,
+    notes,
+    creditCardId,
+    bankAccountId,
+    installments,
+    type,
+  } = body as Record<string, unknown>;
 
   if (!name || amount == null || !date || !category)
     return api.badRequest("name, amount, date, and category are required");
@@ -89,7 +105,12 @@ export async function POST(request: Request) {
   if (isNaN(amt) || amt === 0) return api.badRequest("amount cannot be zero");
 
   const validTypes = ["expense", "income", "transfer"];
-  const txType = type && validTypes.includes(String(type)) ? String(type) : amt < 0 ? "income" : "expense";
+  const txType =
+    type && validTypes.includes(String(type))
+      ? String(type)
+      : amt < 0
+        ? "income"
+        : "expense";
 
   const numInstallments = installments ? Number(installments) : 1;
   if (numInstallments < 1 || isNaN(numInstallments))
@@ -98,7 +119,11 @@ export async function POST(request: Request) {
   const parsedDate = parseTransactionDate(date);
   if (typeof parsedDate === "string") return api.badRequest(parsedDate);
 
-  const catCheck = await validateUserCategory(user.id, sanitizeString(String(category)), txType);
+  const catCheck = await validateUserCategory(
+    user.id,
+    sanitizeString(String(category)),
+    txType,
+  );
   if (!catCheck.valid) return api.badRequest(catCheck.error!);
 
   if (creditCardId) {
@@ -110,7 +135,7 @@ export async function POST(request: Request) {
     const newAvailableBalance = creditCard.availableBalance - amt;
     if (amt > 0 && newAvailableBalance < 0)
       return api.badRequest(
-        `Insufficient credit. Available: ${creditCard.availableBalance}, Requested: ${amt}`
+        `Insufficient credit. Available: ${creditCard.availableBalance}, Requested: ${amt}`,
       );
 
     if (numInstallments > 1) {
@@ -161,7 +186,10 @@ export async function POST(request: Request) {
           data: { availableBalance: newAvailableBalance },
         });
       });
-      return api.created({ id: parentTransaction.id, message: "Installment plan created" });
+      return api.created({
+        id: parentTransaction.id,
+        message: "Installment plan created",
+      });
     } else {
       const [newTx] = await db.$transaction([
         db.transaction.create({
@@ -192,7 +220,7 @@ export async function POST(request: Request) {
     const newBalance = bankAccount.currentBalance - amt;
     if (amt > 0 && newBalance < 0)
       return api.badRequest(
-        `Insufficient funds. Available: ${bankAccount.currentBalance}, Requested: ${amt}`
+        `Insufficient funds. Available: ${bankAccount.currentBalance}, Requested: ${amt}`,
       );
 
     const [newTx] = await db.$transaction([

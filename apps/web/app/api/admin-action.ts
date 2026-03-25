@@ -215,7 +215,12 @@ export async function getAuditLogs({
 export async function getAdminSubscriptions() {
   await requireAdmin();
   return db.user.findMany({
-    where: { OR: [{ stripeSubscriptionId: { not: null } }, { subscriptionStatus: { not: null } }] },
+    where: {
+      OR: [
+        { stripeSubscriptionId: { not: null } },
+        { subscriptionStatus: { not: null } },
+      ],
+    },
     select: {
       id: true,
       name: true,

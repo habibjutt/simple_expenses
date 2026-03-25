@@ -43,7 +43,7 @@ function cleanup(now: number, windowMs: number) {
 
 export function rateLimit(
   key: string,
-  config: RateLimitConfig
+  config: RateLimitConfig,
 ): RateLimitResult {
   const now = Date.now();
   const windowMs = config.windowSeconds * 1000;
@@ -55,7 +55,7 @@ export function rateLimit(
   if (timestamps.length >= config.max) {
     const oldestInWindow = timestamps[0];
     const retryAfterSeconds = Math.ceil(
-      (oldestInWindow + windowMs - now) / 1000
+      (oldestInWindow + windowMs - now) / 1000,
     );
     return {
       allowed: false,

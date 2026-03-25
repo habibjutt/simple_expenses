@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { getBankAccountTransactions, getBankAccounts } from "@/app/api/bank-account-action";
+import {
+  getBankAccountTransactions,
+  getBankAccounts,
+} from "@/app/api/bank-account-action";
 import { deleteTransaction } from "@/app/api/transaction-action";
 import { getCreditCards } from "@/app/api/credit-card-action";
 import { getCategories } from "@/app/api/category-action";
@@ -10,7 +13,16 @@ import { type Category as CategoryType } from "@/lib/category-data";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ChevronLeft, ChevronRight, Pencil, Trash2, Filter, X, Plus } from "lucide-react";
+import {
+  ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
+  Pencil,
+  Trash2,
+  Filter,
+  X,
+  Plus,
+} from "lucide-react";
 import TransactionModal from "@/components/transaction-modal";
 import {
   Dialog,
@@ -57,12 +69,12 @@ export default function BankAccountDetailsPage() {
   const [accountData, setAccountData] = useState<BankAccountData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Month navigation state
   const today = new Date();
   const [selectedMonth, setSelectedMonth] = useState(today.getMonth());
   const [selectedYear, setSelectedYear] = useState(today.getFullYear());
-  
+
   // Transaction edit/delete state
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<{
@@ -76,14 +88,24 @@ export default function BankAccountDetailsPage() {
     creditCardId: string | null;
     bankAccountId: string | null;
   } | null>(null);
-  const [isDeleteTransactionConfirmOpen, setIsDeleteTransactionConfirmOpen] = useState(false);
-  const [deletingTransactionId, setDeletingTransactionId] = useState<string | null>(null);
-  const [transactionDeleteLoading, setTransactionDeleteLoading] = useState(false);
-  const [transactionDeleteError, setTransactionDeleteError] = useState<string | null>(null);
-  const [creditCards, setCreditCards] = useState<Array<{ id: string; name: string; availableBalance: number }>>([]);
-  const [bankAccounts, setBankAccounts] = useState<Array<{ id: string; name: string; currentBalance: number }>>([]);
+  const [isDeleteTransactionConfirmOpen, setIsDeleteTransactionConfirmOpen] =
+    useState(false);
+  const [deletingTransactionId, setDeletingTransactionId] = useState<
+    string | null
+  >(null);
+  const [transactionDeleteLoading, setTransactionDeleteLoading] =
+    useState(false);
+  const [transactionDeleteError, setTransactionDeleteError] = useState<
+    string | null
+  >(null);
+  const [creditCards, setCreditCards] = useState<
+    Array<{ id: string; name: string; availableBalance: number }>
+  >([]);
+  const [bankAccounts, setBankAccounts] = useState<
+    Array<{ id: string; name: string; currentBalance: number }>
+  >([]);
   const [categories, setCategories] = useState<CategoryType[]>([]);
-  
+
   // Filter state
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [filterCategory, setFilterCategory] = useState("");
@@ -93,9 +115,13 @@ export default function BankAccountDetailsPage() {
     const fetchAccountData = async () => {
       try {
         setLoading(true);
-        const data = await getBankAccountTransactions(accountId, selectedMonth, selectedYear);
+        const data = await getBankAccountTransactions(
+          accountId,
+          selectedMonth,
+          selectedYear,
+        );
         setAccountData(data);
-        
+
         // Load credit cards and bank accounts for the modal
         const [cards, accounts, cats] = await Promise.all([
           getCreditCards(),
@@ -106,7 +132,11 @@ export default function BankAccountDetailsPage() {
         setBankAccounts(accounts);
         setCategories(cats);
       } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : "Failed to load bank account data");
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Failed to load bank account data",
+        );
       } finally {
         setLoading(false);
       }
@@ -116,7 +146,7 @@ export default function BankAccountDetailsPage() {
       fetchAccountData();
     }
   }, [accountId, selectedMonth, selectedYear]);
-  
+
   const handlePreviousMonth = () => {
     if (selectedMonth === 0) {
       setSelectedMonth(11);
@@ -125,7 +155,7 @@ export default function BankAccountDetailsPage() {
       setSelectedMonth(selectedMonth - 1);
     }
   };
-  
+
   const handleNextMonth = () => {
     if (selectedMonth === 11) {
       setSelectedMonth(0);
@@ -134,13 +164,13 @@ export default function BankAccountDetailsPage() {
       setSelectedMonth(selectedMonth + 1);
     }
   };
-  
+
   const handleCurrentMonth = () => {
     const now = new Date();
     setSelectedMonth(now.getMonth());
     setSelectedYear(now.getFullYear());
   };
-  
+
   const getMonthYearLabel = () => {
     const date = new Date(selectedYear, selectedMonth);
     return date.toLocaleDateString("en-US", {
@@ -148,12 +178,14 @@ export default function BankAccountDetailsPage() {
       month: "long",
     });
   };
-  
+
   const isCurrentMonth = () => {
     const now = new Date();
-    return selectedMonth === now.getMonth() && selectedYear === now.getFullYear();
+    return (
+      selectedMonth === now.getMonth() && selectedYear === now.getFullYear()
+    );
   };
-  
+
   const handleEditTransaction = (transaction: Transaction) => {
     setEditingTransaction({
       id: transaction.id,
@@ -168,32 +200,42 @@ export default function BankAccountDetailsPage() {
     });
     setIsTransactionModalOpen(true);
   };
-  
+
   const handleDeleteTransaction = async () => {
     if (!deletingTransactionId) return;
-    
+
     try {
       setTransactionDeleteLoading(true);
       setTransactionDeleteError(null);
-      
+
       await deleteTransaction(deletingTransactionId);
-      
+
       // Refresh account data
-      const data = await getBankAccountTransactions(accountId, selectedMonth, selectedYear);
+      const data = await getBankAccountTransactions(
+        accountId,
+        selectedMonth,
+        selectedYear,
+      );
       setAccountData(data);
-      
+
       setIsDeleteTransactionConfirmOpen(false);
       setDeletingTransactionId(null);
-    } catch (err: any) {
-      setTransactionDeleteError(err.message || "Failed to delete transaction");
+    } catch (err: unknown) {
+      setTransactionDeleteError(
+        err instanceof Error ? err.message : "Failed to delete transaction",
+      );
     } finally {
       setTransactionDeleteLoading(false);
     }
   };
-  
+
   const handleTransactionSuccess = async () => {
     // Refresh account data after edit
-    const data = await getBankAccountTransactions(accountId, selectedMonth, selectedYear);
+    const data = await getBankAccountTransactions(
+      accountId,
+      selectedMonth,
+      selectedYear,
+    );
     setAccountData(data);
   };
 
@@ -204,7 +246,7 @@ export default function BankAccountDetailsPage() {
       day: "numeric",
     });
   };
-  
+
   const catMap = new Map(categories.map((c) => [c.name, c]));
 
   if (loading) {
@@ -235,7 +277,9 @@ export default function BankAccountDetailsPage() {
             Back to Home
           </Button>
           <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="text-red-500">{error || "Failed to load account data"}</div>
+            <div className="text-red-500">
+              {error || "Failed to load account data"}
+            </div>
           </div>
         </main>
         <Footer />
@@ -249,29 +293,40 @@ export default function BankAccountDetailsPage() {
   const sortedTransactions = [...transactions].sort((a, b) => {
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
-  
+
   // Apply filters
   const filteredTransactions = sortedTransactions.filter((transaction) => {
     // Apply category filter
-    if (filterCategory && transaction.category.toLowerCase() !== filterCategory.toLowerCase()) {
+    if (
+      filterCategory &&
+      transaction.category.toLowerCase() !== filterCategory.toLowerCase()
+    ) {
       return false;
     }
     // Apply name filter (case-insensitive)
-    if (filterName && !transaction.name.toLowerCase().includes(filterName.toLowerCase())) {
+    if (
+      filterName &&
+      !transaction.name.toLowerCase().includes(filterName.toLowerCase())
+    ) {
       return false;
     }
     return true;
   });
-  
+
   // Calculate total of filtered transactions
-  const filteredTotal = filteredTransactions.reduce((sum, transaction) => sum + transaction.amount, 0);
-  
+  const filteredTotal = filteredTransactions.reduce(
+    (sum, transaction) => sum + transaction.amount,
+    0,
+  );
+
   // Get unique categories for filter suggestions
-  const uniqueCategories = Array.from(new Set(transactions.map(t => t.category))).sort();
-  
+  const uniqueCategories = Array.from(
+    new Set(transactions.map((t) => t.category)),
+  ).sort();
+
   // Check if any filters are active
   const hasActiveFilters = filterCategory !== "" || filterName !== "";
-  
+
   // Clear all filters
   const clearFilters = () => {
     setFilterCategory("");
@@ -279,27 +334,30 @@ export default function BankAccountDetailsPage() {
   };
 
   // Group transactions by date
-  const groupedTransactions = filteredTransactions.reduce((groups: Record<string, Transaction[]>, transaction) => {
-    const dateKey = new Date(transaction.date).toLocaleDateString("en-US", {
-      day: "numeric",
-      month: "long",
-    });
-    if (!groups[dateKey]) {
-      groups[dateKey] = [];
-    }
-    groups[dateKey].push(transaction);
-    return groups;
-  }, {});
-  
+  const groupedTransactions = filteredTransactions.reduce(
+    (groups: Record<string, Transaction[]>, transaction) => {
+      const dateKey = new Date(transaction.date).toLocaleDateString("en-US", {
+        day: "numeric",
+        month: "long",
+      });
+      if (!groups[dateKey]) {
+        groups[dateKey] = [];
+      }
+      groups[dateKey].push(transaction);
+      return groups;
+    },
+    {},
+  );
+
   // Calculate income and expenses from filtered transactions
   const totalIncome = filteredTransactions
-    .filter(t => t.amount < 0)
+    .filter((t) => t.amount < 0)
     .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-  
+
   const totalExpenses = filteredTransactions
-    .filter(t => t.amount > 0)
+    .filter((t) => t.amount > 0)
     .reduce((sum, t) => sum + t.amount, 0);
-  
+
   const netBalance = totalIncome - totalExpenses;
 
   return (
@@ -325,13 +383,21 @@ export default function BankAccountDetailsPage() {
                 {/* Stats row */}
                 <div className="flex items-center gap-5 mt-4">
                   <div>
-                    <div className="text-white/50 text-xs font-medium">Current Balance</div>
-                    <div className="text-xl font-bold">{formatCurrency(account.currentBalance, account.currency)}</div>
+                    <div className="text-white/50 text-xs font-medium">
+                      Current Balance
+                    </div>
+                    <div className="text-xl font-bold">
+                      {formatCurrency(account.currentBalance, account.currency)}
+                    </div>
                   </div>
                   <div className="w-px h-8 bg-white/20" />
                   <div>
-                    <div className="text-white/50 text-xs font-medium">Initial Balance</div>
-                    <div className="text-base font-semibold">{formatCurrency(account.initialBalance, account.currency)}</div>
+                    <div className="text-white/50 text-xs font-medium">
+                      Initial Balance
+                    </div>
+                    <div className="text-base font-semibold">
+                      {formatCurrency(account.initialBalance, account.currency)}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -369,10 +435,15 @@ export default function BankAccountDetailsPage() {
             </Button>
 
             <div className="text-center">
-              <span className="text-sm font-semibold text-slate-800">{getMonthYearLabel()}</span>
+              <span className="text-sm font-semibold text-slate-800">
+                {getMonthYearLabel()}
+              </span>
               {!isCurrentMonth() && (
                 <div>
-                  <button onClick={handleCurrentMonth} className="text-[10px] text-[#1a9e5c] hover:underline">
+                  <button
+                    onClick={handleCurrentMonth}
+                    className="text-[10px] text-[#1a9e5c] hover:underline"
+                  >
                     Back to current
                   </button>
                 </div>
@@ -392,16 +463,26 @@ export default function BankAccountDetailsPage() {
           {/* Monthly Summary Cards */}
           <div className="grid grid-cols-3 gap-3 mb-5">
             <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-4">
-              <div className="text-xs text-slate-500 font-medium mb-1">Income</div>
-              <div className="text-lg font-bold text-emerald-600">+{formatCurrency(totalIncome, account.currency)}</div>
+              <div className="text-xs text-slate-500 font-medium mb-1">
+                Income
+              </div>
+              <div className="text-lg font-bold text-emerald-600">
+                +{formatCurrency(totalIncome, account.currency)}
+              </div>
             </div>
             <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-4">
-              <div className="text-xs text-slate-500 font-medium mb-1">Expenses</div>
-              <div className="text-lg font-bold text-red-600">-{formatCurrency(totalExpenses, account.currency)}</div>
+              <div className="text-xs text-slate-500 font-medium mb-1">
+                Expenses
+              </div>
+              <div className="text-lg font-bold text-red-600">
+                -{formatCurrency(totalExpenses, account.currency)}
+              </div>
             </div>
             <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-4">
               <div className="text-xs text-slate-500 font-medium mb-1">Net</div>
-              <div className={`text-lg font-bold ${netBalance >= 0 ? "text-emerald-600" : "text-red-600"}`}>
+              <div
+                className={`text-lg font-bold ${netBalance >= 0 ? "text-emerald-600" : "text-red-600"}`}
+              >
                 {formatCurrency(netBalance, account.currency)}
               </div>
             </div>
@@ -467,10 +548,19 @@ export default function BankAccountDetailsPage() {
             <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="flex items-center justify-between">
                 <div className="text-sm text-blue-900">
-                  <span className="font-medium">{filteredTransactions.length}</span> transaction{filteredTransactions.length !== 1 ? 's' : ''} found
+                  <span className="font-medium">
+                    {filteredTransactions.length}
+                  </span>{" "}
+                  transaction{filteredTransactions.length !== 1 ? "s" : ""}{" "}
+                  found
                 </div>
                 <div className="text-sm font-semibold">
-                  Total: <span className={filteredTotal < 0 ? "text-green-600" : "text-red-600"}>
+                  Total:{" "}
+                  <span
+                    className={
+                      filteredTotal < 0 ? "text-green-600" : "text-red-600"
+                    }
+                  >
                     {formatCurrency(Math.abs(filteredTotal), account.currency)}
                   </span>
                 </div>
@@ -482,83 +572,105 @@ export default function BankAccountDetailsPage() {
           <div className="mb-6">
             {transactions.length === 0 ? (
               <div className="py-12 text-center">
-                <p className="text-gray-500 text-sm">No transactions for this month</p>
+                <p className="text-gray-500 text-sm">
+                  No transactions for this month
+                </p>
               </div>
             ) : (
               <div className="space-y-4">
-                {Object.entries(groupedTransactions).map(([dateKey, dayTransactions]) => (
-                  <div key={dateKey}>
-                    <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
-                      {dateKey}
-                    </div>
-                    <div className="space-y-2">
-                      {dayTransactions.map((transaction) => {
-                        const isIncome = transaction.amount < 0;
-                        return (
-                          <div
-                            key={transaction.id}
-                            className="flex items-center gap-2 p-3 bg-white rounded-xl border border-slate-100 hover:border-slate-200 hover:shadow-sm transition-all"
-                          >
-                            <div className="flex items-center gap-3 flex-1 min-w-0">
-                              {/* Category Icon */}
-                              <div
-                                className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-                                style={{ backgroundColor: (catMap.get(transaction.category)?.color ?? "#64748b") + "22" }}
-                              >
-                                <CategoryIcon
-                                  icon={catMap.get(transaction.category)?.icon ?? "tag"}
-                                  className="h-4 w-4"
-                                  color={catMap.get(transaction.category)?.color ?? "#64748b"}
-                                />
-                              </div>
-
-                              {/* Transaction Info */}
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium text-sm truncate">
-                                  {transaction.name}
+                {Object.entries(groupedTransactions).map(
+                  ([dateKey, dayTransactions]) => (
+                    <div key={dateKey}>
+                      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
+                        {dateKey}
+                      </div>
+                      <div className="space-y-2">
+                        {dayTransactions.map((transaction) => {
+                          const isIncome = transaction.amount < 0;
+                          return (
+                            <div
+                              key={transaction.id}
+                              className="flex items-center gap-2 p-3 bg-white rounded-xl border border-slate-100 hover:border-slate-200 hover:shadow-sm transition-all"
+                            >
+                              <div className="flex items-center gap-3 flex-1 min-w-0">
+                                {/* Category Icon */}
+                                <div
+                                  className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                                  style={{
+                                    backgroundColor:
+                                      (catMap.get(transaction.category)
+                                        ?.color ?? "#64748b") + "22",
+                                  }}
+                                >
+                                  <CategoryIcon
+                                    icon={
+                                      catMap.get(transaction.category)?.icon ??
+                                      "tag"
+                                    }
+                                    className="h-4 w-4"
+                                    color={
+                                      catMap.get(transaction.category)?.color ??
+                                      "#64748b"
+                                    }
+                                  />
                                 </div>
-                                <div className="flex items-center gap-2">
-                                  {transaction.installments > 1 && (
-                                    <div className="text-xs text-gray-500">
-                                      {transaction.installments} installments
+
+                                {/* Transaction Info */}
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-medium text-sm truncate">
+                                    {transaction.name}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    {transaction.installments > 1 && (
+                                      <div className="text-xs text-gray-500">
+                                        {transaction.installments} installments
+                                      </div>
+                                    )}
+                                    {/* Amount */}
+                                    <div
+                                      className={`text-xs font-semibold ${isIncome ? "text-green-600" : "text-red-600"}`}
+                                    >
+                                      {isIncome ? "+" : ""}
+                                      {formatCurrency(
+                                        Math.abs(transaction.amount),
+                                        account.currency,
+                                      )}
                                     </div>
-                                  )}
-                                  {/* Amount */}
-                                  <div className={`text-xs font-semibold ${isIncome ? 'text-green-600' : 'text-red-600'}`}>
-                                    {isIncome ? '+' : ''}{formatCurrency(Math.abs(transaction.amount), account.currency)}
                                   </div>
                                 </div>
                               </div>
-                            </div>
 
-                            {/* Action Buttons */}
-                            <div className="flex items-center gap-1 shrink-0">
-                              <Button
-                                onClick={() => handleEditTransaction(transaction)}
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 w-8 p-0"
-                              >
-                                <Pencil className="h-4 w-4 text-blue-600" />
-                              </Button>
-                              <Button
-                                onClick={() => {
-                                  setDeletingTransactionId(transaction.id);
-                                  setIsDeleteTransactionConfirmOpen(true);
-                                }}
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 w-8 p-0"
-                              >
-                                <Trash2 className="h-4 w-4 text-red-600" />
-                              </Button>
+                              {/* Action Buttons */}
+                              <div className="flex items-center gap-1 shrink-0">
+                                <Button
+                                  onClick={() =>
+                                    handleEditTransaction(transaction)
+                                  }
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                >
+                                  <Pencil className="h-4 w-4 text-blue-600" />
+                                </Button>
+                                <Button
+                                  onClick={() => {
+                                    setDeletingTransactionId(transaction.id);
+                                    setIsDeleteTransactionConfirmOpen(true);
+                                  }}
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                >
+                                  <Trash2 className="h-4 w-4 text-red-600" />
+                                </Button>
+                              </div>
                             </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ),
+                )}
               </div>
             )}
           </div>
@@ -579,12 +691,16 @@ export default function BankAccountDetailsPage() {
       />
 
       {/* Delete Transaction Confirmation Modal */}
-      <Dialog open={isDeleteTransactionConfirmOpen} onOpenChange={setIsDeleteTransactionConfirmOpen}>
+      <Dialog
+        open={isDeleteTransactionConfirmOpen}
+        onOpenChange={setIsDeleteTransactionConfirmOpen}
+      >
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Delete Transaction</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this transaction? This action cannot be undone and will update your bank account balance.
+              Are you sure you want to delete this transaction? This action
+              cannot be undone and will update your bank account balance.
             </DialogDescription>
           </DialogHeader>
 

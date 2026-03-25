@@ -42,11 +42,13 @@ export async function GET(request: Request) {
     byCategory.set(tx.category, entry);
   }
 
-  const summary = Array.from(byCategory.entries()).map(([category, totals]) => ({
-    category,
-    ...totals,
-    net: totals.expense - totals.income,
-  }));
+  const summary = Array.from(byCategory.entries()).map(
+    ([category, totals]) => ({
+      category,
+      ...totals,
+      net: totals.expense - totals.income,
+    }),
+  );
 
   const totals = {
     totalExpense: summary.reduce((s, c) => s + c.expense, 0),

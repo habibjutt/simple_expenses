@@ -17,7 +17,10 @@ export async function GET(request: Request) {
     }),
     db.transaction.findMany({
       where: {
-        date: { gte: new Date(year, month - 1, 1), lte: new Date(year, month, 0, 23, 59, 59) },
+        date: {
+          gte: new Date(year, month - 1, 1),
+          lte: new Date(year, month, 0, 23, 59, 59),
+        },
         amount: { gt: 0 },
         OR: [{ installmentNumber: null }, { installmentNumber: { gt: 0 } }],
         AND: [
@@ -35,7 +38,10 @@ export async function GET(request: Request) {
 
   const actualByCategory = new Map<string, number>();
   for (const tx of transactions) {
-    actualByCategory.set(tx.category, (actualByCategory.get(tx.category) ?? 0) + tx.amount);
+    actualByCategory.set(
+      tx.category,
+      (actualByCategory.get(tx.category) ?? 0) + tx.amount,
+    );
   }
 
   const budget = limits.map((limit) => ({
@@ -44,7 +50,7 @@ export async function GET(request: Request) {
     actual: actualByCategory.get(limit.categoryName) ?? 0,
     remaining: limit.amount - (actualByCategory.get(limit.categoryName) ?? 0),
     percentage: Math.round(
-      ((actualByCategory.get(limit.categoryName) ?? 0) / limit.amount) * 100
+      ((actualByCategory.get(limit.categoryName) ?? 0) / limit.amount) * 100,
     ),
   }));
 

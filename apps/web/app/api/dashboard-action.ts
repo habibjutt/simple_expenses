@@ -74,8 +74,14 @@ export async function getDashboardData(): Promise<DashboardData> {
 
   // ── 1. Cards + accounts in parallel ────────────────────────────────────
   const [creditCards, bankAccounts] = await Promise.all([
-    db.credit_card.findMany({ where: { userId }, orderBy: { createdAt: "desc" } }),
-    db.bank_account.findMany({ where: { userId }, orderBy: { createdAt: "desc" } }),
+    db.credit_card.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    }),
+    db.bank_account.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    }),
   ]);
 
   const cardIds = creditCards.map((c) => c.id);
@@ -113,7 +119,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     utcDue: Date;
     // transaction window for the "next bill" (one billing cycle earlier)
     utcTxnStart: Date; // = utcStart - 1 month
-    utcTxnEnd: Date;   // = utcStart
+    utcTxnEnd: Date; // = utcStart
   };
 
   const cardPeriods: CardPeriod[] = creditCards.map((card) => {
@@ -125,24 +131,35 @@ export async function getDashboardData(): Promise<DashboardData> {
 
     if (currentDay >= g) {
       localStart = new Date(currentYear, currentMonth, g);
-      localEnd   = new Date(currentYear, currentMonth + 1, g);
-      localDue   = new Date(currentYear, currentMonth + 1, p);
-      utcStart   = new Date(Date.UTC(currentYear, currentMonth, g));
-      utcEnd     = new Date(Date.UTC(currentYear, currentMonth + 1, g));
-      utcDue     = new Date(Date.UTC(currentYear, currentMonth + 1, p));
+      localEnd = new Date(currentYear, currentMonth + 1, g);
+      localDue = new Date(currentYear, currentMonth + 1, p);
+      utcStart = new Date(Date.UTC(currentYear, currentMonth, g));
+      utcEnd = new Date(Date.UTC(currentYear, currentMonth + 1, g));
+      utcDue = new Date(Date.UTC(currentYear, currentMonth + 1, p));
     } else {
       localStart = new Date(currentYear, currentMonth - 1, g);
-      localEnd   = new Date(currentYear, currentMonth, g);
-      localDue   = new Date(currentYear, currentMonth, p);
-      utcStart   = new Date(Date.UTC(currentYear, currentMonth - 1, g));
-      utcEnd     = new Date(Date.UTC(currentYear, currentMonth, g));
-      utcDue     = new Date(Date.UTC(currentYear, currentMonth, p));
+      localEnd = new Date(currentYear, currentMonth, g);
+      localDue = new Date(currentYear, currentMonth, p);
+      utcStart = new Date(Date.UTC(currentYear, currentMonth - 1, g));
+      utcEnd = new Date(Date.UTC(currentYear, currentMonth, g));
+      utcDue = new Date(Date.UTC(currentYear, currentMonth, p));
     }
 
     const utcTxnStart = new Date(utcStart);
     utcTxnStart.setMonth(utcTxnStart.getMonth() - 1);
 
-    return { cardId: card.id, card, localStart, localEnd, localDue, utcStart, utcEnd, utcDue, utcTxnStart, utcTxnEnd: utcStart };
+    return {
+      cardId: card.id,
+      card,
+      localStart,
+      localEnd,
+      localDue,
+      utcStart,
+      utcEnd,
+      utcDue,
+      utcTxnStart,
+      utcTxnEnd: utcStart,
+    };
   });
 
   // ── 3. Batch invoice fetch (1 query) ────────────────────────────────────
@@ -150,8 +167,10 @@ export async function getDashboardData(): Promise<DashboardData> {
   // (include 1-month extension forward for "already-paid → show next period" case,
   //  and 2-day extension backward for timezone edge cases).
   const allTimestamps = cardPeriods.flatMap((p) => [
-    p.localStart.getTime(), p.localEnd.getTime(),
-    p.utcStart.getTime(),   p.utcEnd.getTime(),
+    p.localStart.getTime(),
+    p.localEnd.getTime(),
+    p.utcStart.getTime(),
+    p.utcEnd.getTime(),
   ]);
   const rangeMin = new Date(Math.min(...allTimestamps) - 2 * 86_400_000); // -2 days
   const rangeMax = new Date(Math.max(...allTimestamps));
@@ -161,7 +180,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     where: {
       creditCardId: { in: cardIds },
       billStartDate: { gte: rangeMin },
-      billEndDate:   { lte: rangeMax },
+      billEndDate: { lte: rangeMax },
     },
   });
 
@@ -175,24 +194,28 @@ export async function getDashboardData(): Promise<DashboardData> {
 
   // Find an invoice matching a specific (cardId, start, end) — tries both local & UTC
   function findInvoice(cardId: string, start: Date, end: Date) {
-    return (invoicesByCard.get(cardId) ?? []).find(
-      (inv) =>
-        inv.billStartDate.getTime() === start.getTime() &&
-        inv.billEndDate.getTime()   === end.getTime(),
-    ) ?? null;
+    return (
+      (invoicesByCard.get(cardId) ?? []).find(
+        (inv) =>
+          inv.billStartDate.getTime() === start.getTime() &&
+          inv.billEndDate.getTime() === end.getTime(),
+      ) ?? null
+    );
   }
 
   function getInvoiceForPeriod(p: CardPeriod) {
     return (
       findInvoice(p.cardId, p.localStart, p.localEnd) ??
-      findInvoice(p.cardId, p.utcStart,   p.utcEnd)
+      findInvoice(p.cardId, p.utcStart, p.utcEnd)
     );
   }
 
   // ── 4. Compute transaction date range (covers all cards, all scenarios) ──
   const txnTimestamps = cardPeriods.flatMap((p) => [
-    p.localStart.getTime(), p.localEnd.getTime(),
-    p.utcTxnStart.getTime(), p.utcEnd.getTime(),
+    p.localStart.getTime(),
+    p.localEnd.getTime(),
+    p.utcTxnStart.getTime(),
+    p.utcEnd.getTime(),
   ]);
   const txnRangeMin = new Date(Math.min(...txnTimestamps));
   const txnRangeMax = new Date(Math.max(...txnTimestamps));
@@ -203,10 +226,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       where: {
         creditCardId: { in: cardIds },
         date: { gte: txnRangeMin, lte: txnRangeMax },
-        OR: [
-          { installmentNumber: null },
-          { installmentNumber: { gt: 0 } },
-        ],
+        OR: [{ installmentNumber: null }, { installmentNumber: { gt: 0 } }],
       },
       select: { creditCardId: true, amount: true, date: true },
     }),
@@ -250,11 +270,15 @@ export async function getDashboardData(): Promise<DashboardData> {
         cardId,
         cardName: card.name,
         billStartDate: localStart,
-        billEndDate:   localEnd,
+        billEndDate: localEnd,
         paymentDueDate: localDue,
         totalAmount,
         invoice: existing
-          ? { id: existing.id, isPaid: existing.isPaid, paidAmount: existing.paidAmount }
+          ? {
+              id: existing.id,
+              isPaid: existing.isPaid,
+              paidAmount: existing.paidAmount,
+            }
           : null,
       });
     }
@@ -271,22 +295,46 @@ export async function getDashboardData(): Promise<DashboardData> {
 
     if (existing?.isPaid) {
       // Current period is paid → shift the "upcoming" view to the next period
-      nextBillStart = new Date(Date.UTC(utcEnd.getUTCFullYear(),   utcEnd.getUTCMonth(),       card.billGenerationDate));
-      nextBillEnd   = new Date(Date.UTC(nextBillStart.getUTCFullYear(), nextBillStart.getUTCMonth() + 1, card.billGenerationDate));
-      nextBillDue   = new Date(Date.UTC(nextBillEnd.getUTCFullYear(),   nextBillEnd.getUTCMonth(),  card.paymentDate));
+      nextBillStart = new Date(
+        Date.UTC(
+          utcEnd.getUTCFullYear(),
+          utcEnd.getUTCMonth(),
+          card.billGenerationDate,
+        ),
+      );
+      nextBillEnd = new Date(
+        Date.UTC(
+          nextBillStart.getUTCFullYear(),
+          nextBillStart.getUTCMonth() + 1,
+          card.billGenerationDate,
+        ),
+      );
+      nextBillDue = new Date(
+        Date.UTC(
+          nextBillEnd.getUTCFullYear(),
+          nextBillEnd.getUTCMonth(),
+          card.paymentDate,
+        ),
+      );
       txnFrom = utcStart;
-      txnTo   = utcEnd;
+      txnTo = utcEnd;
     } else {
       nextBillStart = utcStart;
-      nextBillEnd   = utcEnd;
-      nextBillDue   = utcDue;
+      nextBillEnd = utcEnd;
+      nextBillDue = utcDue;
       txnFrom = utcTxnStart;
-      txnTo   = utcStart; // period.utcTxnEnd
+      txnTo = utcStart; // period.utcTxnEnd
     }
 
     const totalAmount = sumTransactions(cardId, txnFrom, txnTo);
 
-    nextBills.push({ cardId, nextBillStartDate: nextBillStart, nextBillEndDate: nextBillEnd, nextPaymentDueDate: nextBillDue, totalAmount });
+    nextBills.push({
+      cardId,
+      nextBillStartDate: nextBillStart,
+      nextBillEndDate: nextBillEnd,
+      nextPaymentDueDate: nextBillDue,
+      totalAmount,
+    });
   }
 
   return { creditCards, bankAccounts, invoices, nextBills, hasTransactions };

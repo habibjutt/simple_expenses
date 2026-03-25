@@ -5,14 +5,16 @@ import { db } from "@/lib/db";
 // PUT /api/v1/categories/:id
 export async function PUT(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const user = await getApiUser(request);
   if (!user) return api.unauthorized();
 
   const { id } = await params;
 
-  const category = await db.category.findFirst({ where: { id, userId: user.id } });
+  const category = await db.category.findFirst({
+    where: { id, userId: user.id },
+  });
   if (!category) return api.notFound("Category not found");
 
   let body: unknown;
@@ -42,14 +44,16 @@ export async function PUT(
 // DELETE /api/v1/categories/:id
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const user = await getApiUser(request);
   if (!user) return api.unauthorized();
 
   const { id } = await params;
 
-  const category = await db.category.findFirst({ where: { id, userId: user.id } });
+  const category = await db.category.findFirst({
+    where: { id, userId: user.id },
+  });
   if (!category) return api.notFound("Category not found");
 
   await db.category.delete({ where: { id } });

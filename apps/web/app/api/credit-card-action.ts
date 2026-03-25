@@ -9,7 +9,9 @@ import { PayInvoiceSchema } from "@/lib/validations/invoice";
 import type { ActionResult } from "@/lib/validations";
 import { checkCanAddCreditCard } from "@/lib/plan-guards";
 
-export async function createCreditCard(formData: FormData): Promise<ActionResult> {
+export async function createCreditCard(
+  formData: FormData,
+): Promise<ActionResult> {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -21,7 +23,11 @@ export async function createCreditCard(formData: FormData): Promise<ActionResult
   // Plan limit check
   const guard = await checkCanAddCreditCard(session.user.id);
   if (!guard.allowed) {
-    return { error: guard.reason ?? "Plan limit reached.", planLimitReached: true, requiredPlan: guard.requiredPlan };
+    return {
+      error: guard.reason ?? "Plan limit reached.",
+      planLimitReached: true,
+      requiredPlan: guard.requiredPlan,
+    };
   }
 
   const parse = CreditCardSchema.safeParse({
@@ -34,7 +40,8 @@ export async function createCreditCard(formData: FormData): Promise<ActionResult
   if (!parse.success) {
     return { error: parse.error.issues[0].message };
   }
-  const { name, billGenerationDate, paymentDate, cardLimit, currency } = parse.data;
+  const { name, billGenerationDate, paymentDate, cardLimit, currency } =
+    parse.data;
 
   await db.credit_card.create({
     data: {
@@ -51,7 +58,10 @@ export async function createCreditCard(formData: FormData): Promise<ActionResult
   revalidatePath("/");
 }
 
-export async function updateCreditCard(cardId: string, formData: FormData): Promise<ActionResult> {
+export async function updateCreditCard(
+  cardId: string,
+  formData: FormData,
+): Promise<ActionResult> {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -78,7 +88,8 @@ export async function updateCreditCard(cardId: string, formData: FormData): Prom
   if (!parse.success) {
     return { error: parse.error.issues[0].message };
   }
-  const { name, billGenerationDate, paymentDate, cardLimit, currency } = parse.data;
+  const { name, billGenerationDate, paymentDate, cardLimit, currency } =
+    parse.data;
 
   // Calculate the difference in card limit to adjust available balance
   const limitDifference = cardLimit - card.cardLimit;
@@ -171,7 +182,11 @@ export async function getCreditCardDetails(cardId: string) {
   return card;
 }
 
-export async function getUpcomingInvoice(cardId: string, month?: number, year?: number) {
+export async function getUpcomingInvoice(
+  cardId: string,
+  month?: number,
+  year?: number,
+) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -193,12 +208,13 @@ export async function getUpcomingInvoice(cardId: string, month?: number, year?: 
   const targetMonth = month !== undefined ? month : today.getMonth();
   const targetYear = year !== undefined ? year : today.getFullYear();
   const currentDay = today.getDate();
-  
+
   // Check if user is explicitly navigating to a specific month
   const isExplicitNavigation = month !== undefined && year !== undefined;
-  
+
   // For navigation, we need to determine if we're viewing current month or historical
-  const isCurrentMonth = targetMonth === today.getMonth() && targetYear === today.getFullYear();
+  const isCurrentMonth =
+    targetMonth === today.getMonth() && targetYear === today.getFullYear();
 
   // Determine the billing period start and end dates (always use UTC to avoid timezone issues)
   let billStartDate: Date;
@@ -207,12 +223,20 @@ export async function getUpcomingInvoice(cardId: string, month?: number, year?: 
 
   // When explicitly navigating, always show the billing period for that month
   // When auto-detecting (month/year undefined), use current day logic
-  if (!isExplicitNavigation && isCurrentMonth && currentDay >= card.billGenerationDate) {
+  if (
+    !isExplicitNavigation &&
+    isCurrentMonth &&
+    currentDay >= card.billGenerationDate
+  ) {
     // We're in the current billing period (auto-detect mode only)
     // But check if this period's invoice is already paid - if so, show next period
-    const currentPeriodStart = new Date(Date.UTC(targetYear, targetMonth, card.billGenerationDate));
-    const currentPeriodEnd = new Date(Date.UTC(targetYear, targetMonth + 1, card.billGenerationDate));
-    
+    const currentPeriodStart = new Date(
+      Date.UTC(targetYear, targetMonth, card.billGenerationDate),
+    );
+    const currentPeriodEnd = new Date(
+      Date.UTC(targetYear, targetMonth + 1, card.billGenerationDate),
+    );
+
     const currentPeriodInvoice = await db.invoice.findUnique({
       where: {
         creditCardId_billStartDate_billEndDate: {
@@ -222,23 +246,39 @@ export async function getUpcomingInvoice(cardId: string, month?: number, year?: 
         },
       },
     });
-    
+
     // If current period invoice is paid, show next period
     if (currentPeriodInvoice?.isPaid) {
-      billStartDate = new Date(Date.UTC(targetYear, targetMonth + 1, card.billGenerationDate));
-      billEndDate = new Date(Date.UTC(targetYear, targetMonth + 2, card.billGenerationDate));
-      paymentDueDate = new Date(Date.UTC(targetYear, targetMonth + 2, card.paymentDate));
+      billStartDate = new Date(
+        Date.UTC(targetYear, targetMonth + 1, card.billGenerationDate),
+      );
+      billEndDate = new Date(
+        Date.UTC(targetYear, targetMonth + 2, card.billGenerationDate),
+      );
+      paymentDueDate = new Date(
+        Date.UTC(targetYear, targetMonth + 2, card.paymentDate),
+      );
     } else {
       billStartDate = currentPeriodStart;
       billEndDate = currentPeriodEnd;
-      paymentDueDate = new Date(Date.UTC(targetYear, targetMonth + 1, card.paymentDate));
+      paymentDueDate = new Date(
+        Date.UTC(targetYear, targetMonth + 1, card.paymentDate),
+      );
     }
-  } else if (!isExplicitNavigation && isCurrentMonth && currentDay < card.billGenerationDate) {
+  } else if (
+    !isExplicitNavigation &&
+    isCurrentMonth &&
+    currentDay < card.billGenerationDate
+  ) {
     // We're still in the previous billing period (auto-detect mode only)
     // But check if this period's invoice is already paid - if so, show current/next period
-    const previousPeriodStart = new Date(Date.UTC(targetYear, targetMonth - 1, card.billGenerationDate));
-    const previousPeriodEnd = new Date(Date.UTC(targetYear, targetMonth, card.billGenerationDate));
-    
+    const previousPeriodStart = new Date(
+      Date.UTC(targetYear, targetMonth - 1, card.billGenerationDate),
+    );
+    const previousPeriodEnd = new Date(
+      Date.UTC(targetYear, targetMonth, card.billGenerationDate),
+    );
+
     const previousPeriodInvoice = await db.invoice.findUnique({
       where: {
         creditCardId_billStartDate_billEndDate: {
@@ -248,22 +288,36 @@ export async function getUpcomingInvoice(cardId: string, month?: number, year?: 
         },
       },
     });
-    
+
     // If previous period invoice is paid, show current period instead
     if (previousPeriodInvoice?.isPaid) {
-      billStartDate = new Date(Date.UTC(targetYear, targetMonth, card.billGenerationDate));
-      billEndDate = new Date(Date.UTC(targetYear, targetMonth + 1, card.billGenerationDate));
-      paymentDueDate = new Date(Date.UTC(targetYear, targetMonth + 1, card.paymentDate));
+      billStartDate = new Date(
+        Date.UTC(targetYear, targetMonth, card.billGenerationDate),
+      );
+      billEndDate = new Date(
+        Date.UTC(targetYear, targetMonth + 1, card.billGenerationDate),
+      );
+      paymentDueDate = new Date(
+        Date.UTC(targetYear, targetMonth + 1, card.paymentDate),
+      );
     } else {
       billStartDate = previousPeriodStart;
       billEndDate = previousPeriodEnd;
-      paymentDueDate = new Date(Date.UTC(targetYear, targetMonth, card.paymentDate));
+      paymentDueDate = new Date(
+        Date.UTC(targetYear, targetMonth, card.paymentDate),
+      );
     }
   } else {
     // Explicit navigation or historical/future month - use the target month
-    billStartDate = new Date(Date.UTC(targetYear, targetMonth, card.billGenerationDate));
-    billEndDate = new Date(Date.UTC(targetYear, targetMonth + 1, card.billGenerationDate));
-    paymentDueDate = new Date(Date.UTC(targetYear, targetMonth + 1, card.paymentDate));
+    billStartDate = new Date(
+      Date.UTC(targetYear, targetMonth, card.billGenerationDate),
+    );
+    billEndDate = new Date(
+      Date.UTC(targetYear, targetMonth + 1, card.billGenerationDate),
+    );
+    paymentDueDate = new Date(
+      Date.UTC(targetYear, targetMonth + 1, card.paymentDate),
+    );
   }
 
   // For credit cards, transactions appear on the NEXT billing cycle
@@ -271,7 +325,7 @@ export async function getUpcomingInvoice(cardId: string, month?: number, year?: 
   // Calculate the previous billing period start date (one month before billStartDate)
   const transactionStartDate = new Date(billStartDate);
   transactionStartDate.setMonth(transactionStartDate.getMonth() - 1);
-  
+
   // The transaction end date is the billStartDate (inclusive: transactions ON the bill gen date
   // belong to this cycle, matching real-world credit card billing where the cut-off date is inclusive)
   const transactionEndDate = billStartDate;
@@ -287,10 +341,7 @@ export async function getUpcomingInvoice(cardId: string, month?: number, year?: 
         gt: transactionStartDate,
         lte: transactionEndDate,
       },
-      OR: [
-        { installmentNumber: null },
-        { installmentNumber: { gt: 0 } },
-      ],
+      OR: [{ installmentNumber: null }, { installmentNumber: { gt: 0 } }],
     },
     orderBy: {
       date: "desc",
@@ -330,7 +381,7 @@ export async function payInvoice(
   billStartDate: Date,
   billEndDate: Date,
   paymentDueDate: Date,
-  totalAmount: number
+  totalAmount: number,
 ): Promise<ActionResult> {
   const parse = PayInvoiceSchema.safeParse({
     cardId,
@@ -394,13 +445,13 @@ export async function payInvoice(
   const currentPaidAmount = existingInvoice?.paidAmount || 0;
   const creditFromPreviousMonth = existingInvoice?.creditFromPreviousMonth || 0;
   const invoiceTotal = existingInvoice?.totalAmount || totalAmount;
-  
+
   // Actual amount owed is invoice total minus any credit from previous month
   const amountOwed = invoiceTotal - creditFromPreviousMonth;
   const totalPaidSoFar = currentPaidAmount;
   const remainingAmount = amountOwed - totalPaidSoFar;
   const newPaidAmount = currentPaidAmount + totalAmount;
-  
+
   // Invoice is fully paid if total paid (including new payment) >= amount owed
   const isFullyPaid = newPaidAmount >= amountOwed;
   const overpaymentAmount = Math.max(0, newPaidAmount - amountOwed);
@@ -461,7 +512,7 @@ export async function payInvoice(
       const nextBillStartDate = new Date(billEndDate);
       const nextBillEndDate = new Date(billEndDate);
       nextBillEndDate.setMonth(nextBillEndDate.getMonth() + 1);
-      
+
       const nextPaymentDueDate = new Date(paymentDueDate);
       nextPaymentDueDate.setMonth(nextPaymentDueDate.getMonth() + 1);
 
@@ -478,10 +529,13 @@ export async function payInvoice(
 
       if (nextInvoice) {
         // Update existing next invoice with the overpayment credit
-        const nextInvoiceCreditFromPrevious = nextInvoice.creditFromPreviousMonth + overpaymentAmount;
-        const nextInvoiceAmountOwed = nextInvoice.totalAmount - nextInvoiceCreditFromPrevious;
-        const nextInvoiceIsFullyPaid = nextInvoice.paidAmount >= nextInvoiceAmountOwed;
-        
+        const nextInvoiceCreditFromPrevious =
+          nextInvoice.creditFromPreviousMonth + overpaymentAmount;
+        const nextInvoiceAmountOwed =
+          nextInvoice.totalAmount - nextInvoiceCreditFromPrevious;
+        const nextInvoiceIsFullyPaid =
+          nextInvoice.paidAmount >= nextInvoiceAmountOwed;
+
         await tx.invoice.update({
           where: { id: nextInvoice.id },
           data: {
@@ -500,17 +554,17 @@ export async function payInvoice(
               gte: nextBillStartDate,
               lt: nextBillEndDate,
             },
-            OR: [
-              { installmentNumber: null },
-              { installmentNumber: { gt: 0 } },
-            ],
+            OR: [{ installmentNumber: null }, { installmentNumber: { gt: 0 } }],
           },
         });
-        
-        const nextPeriodTotal = nextPeriodTransactions.reduce((sum, txn) => sum + txn.amount, 0);
+
+        const nextPeriodTotal = nextPeriodTransactions.reduce(
+          (sum, txn) => sum + txn.amount,
+          0,
+        );
         const nextInvoiceAmountOwed = nextPeriodTotal - overpaymentAmount;
         const nextInvoiceIsFullyPaid = overpaymentAmount >= nextPeriodTotal;
-        
+
         await tx.invoice.create({
           data: {
             creditCardId: cardId,

@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BarChart2, PieChart, TrendingUp, ArrowRight, CheckCircle2 } from "lucide-react";
+import {
+  BarChart2,
+  PieChart,
+  TrendingUp,
+  ArrowRight,
+  CheckCircle2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/LandingFooter";
@@ -57,8 +63,8 @@ export default function ReportsPage() {
               Reports &amp; Analytics
             </h1>
             <p className="text-lg text-muted-foreground">
-              Your spending data tells a story. Our reports turn raw numbers into
-              beautiful, easy-to-understand charts so you can make smarter
+              Your spending data tells a story. Our reports turn raw numbers
+              into beautiful, easy-to-understand charts so you can make smarter
               financial decisions.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
@@ -85,7 +91,9 @@ export default function ReportsPage() {
                 {HIGHLIGHTS.map((item) => (
                   <li key={item} className="flex items-start gap-3">
                     <CheckCircle2 className="w-5 h-5 text-[#1a9e5c] shrink-0 mt-0.5" />
-                    <span className="text-sm text-muted-foreground">{item}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {item}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -117,7 +125,9 @@ export default function ReportsPage() {
                     <Icon className="w-5 h-5 text-[#1a9e5c]" />
                   </div>
                   <div>
-                    <p className="font-semibold text-sm text-foreground">{title}</p>
+                    <p className="font-semibold text-sm text-foreground">
+                      {title}
+                    </p>
                     <p className="text-sm text-muted-foreground mt-1">{desc}</p>
                   </div>
                 </div>

@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { CheckIcon, ChevronsUpDownIcon } from "lucide-react"
+import * as React from "react";
+import { CheckIcon, ChevronsUpDownIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -12,28 +12,28 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command"
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
+} from "@/components/ui/popover";
 
 export interface FormComboboxOption {
-  value: string
-  label: string
-  disabled?: boolean
+  value: string;
+  label: string;
+  disabled?: boolean;
 }
 
 interface FormComboboxProps {
-  value: string
-  onValueChange: (value: string) => void
-  options: FormComboboxOption[]
-  placeholder?: string
-  searchPlaceholder?: string
-  emptyText?: string
-  disabled?: boolean
-  className?: string
+  value: string;
+  onValueChange: (value: string) => void;
+  options: FormComboboxOption[];
+  placeholder?: string;
+  searchPlaceholder?: string;
+  emptyText?: string;
+  disabled?: boolean;
+  className?: string;
 }
 
 export function FormCombobox({
@@ -46,8 +46,8 @@ export function FormCombobox({
   disabled = false,
   className,
 }: FormComboboxProps) {
-  const [open, setOpen] = React.useState(false)
-  const selectedLabel = options.find((o) => o.value === value)?.label
+  const [open, setOpen] = React.useState(false);
+  const selectedLabel = options.find((o) => o.value === value)?.label;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -61,7 +61,7 @@ export function FormCombobox({
           className={cn(
             "w-full justify-between font-normal",
             !selectedLabel && "text-muted-foreground",
-            className
+            className,
           )}
         >
           <span className="truncate">{selectedLabel ?? placeholder}</span>
@@ -84,14 +84,14 @@ export function FormCombobox({
                   value={option.label}
                   disabled={option.disabled}
                   onSelect={() => {
-                    onValueChange(option.value === value ? "" : option.value)
-                    setOpen(false)
+                    onValueChange(option.value === value ? "" : option.value);
+                    setOpen(false);
                   }}
                 >
                   <CheckIcon
                     className={cn(
                       "mr-2 size-4",
-                      value === option.value ? "opacity-100" : "opacity-0"
+                      value === option.value ? "opacity-100" : "opacity-0",
                     )}
                   />
                   {option.label}
@@ -102,5 +102,5 @@ export function FormCombobox({
         </Command>
       </PopoverContent>
     </Popover>
-  )
+  );
 }

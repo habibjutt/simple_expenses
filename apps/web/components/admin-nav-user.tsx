@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
 import {
   IconDotsVertical,
   IconLayoutDashboard,
   IconLogout,
-} from "@tabler/icons-react"
+} from "@tabler/icons-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,33 +15,33 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar"
-import { signOut } from "@/lib/auth-client"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
+} from "@/components/ui/sidebar";
+import { signOut } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export function AdminNavUser({
   user,
 }: {
   user: {
-    name: string
-    email: string
-    avatar?: string
-    initials?: string
-  }
+    name: string;
+    email: string;
+    avatar?: string;
+    initials?: string;
+  };
 }) {
-  const { isMobile } = useSidebar()
-  const router = useRouter()
+  const { isMobile } = useSidebar();
+  const router = useRouter();
 
   async function handleSignOut() {
-    await signOut()
-    router.push("/login")
+    await signOut();
+    router.push("/login");
   }
 
   return (
@@ -61,7 +61,9 @@ export function AdminNavUser({
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
-                <span className="text-muted-foreground truncate text-xs">{user.email}</span>
+                <span className="text-muted-foreground truncate text-xs">
+                  {user.email}
+                </span>
               </div>
               <IconDotsVertical className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -82,7 +84,9 @@ export function AdminNavUser({
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user.name}</span>
-                  <span className="text-muted-foreground truncate text-xs">{user.email}</span>
+                  <span className="text-muted-foreground truncate text-xs">
+                    {user.email}
+                  </span>
                 </div>
               </div>
             </DropdownMenuLabel>
@@ -96,7 +100,10 @@ export function AdminNavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-500 focus:text-red-500">
+            <DropdownMenuItem
+              onClick={handleSignOut}
+              className="cursor-pointer text-red-500 focus:text-red-500"
+            >
               <IconLogout />
               Sign out
             </DropdownMenuItem>
@@ -104,5 +111,5 @@ export function AdminNavUser({
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  )
+  );
 }

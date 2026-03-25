@@ -73,8 +73,10 @@ export const STRIPE_PRICE_TO_PLAN: Record<string, PlanTier> = {
   [process.env.STRIPE_PRO_MONTHLY_PRICE_ID ?? "price_pro_monthly"]: "pro",
   [process.env.STRIPE_PRO_YEARLY_PRICE_ID ?? "price_pro_yearly"]: "pro",
   // Premium monthly/yearly
-  [process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID ?? "price_premium_monthly"]: "premium",
-  [process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID ?? "price_premium_yearly"]: "premium",
+  [process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID ?? "price_premium_monthly"]:
+    "premium",
+  [process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID ?? "price_premium_yearly"]:
+    "premium",
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -88,10 +90,14 @@ export function getPlanLimits(plan: EffectivePlan): PlanLimits {
 /** Human-readable plan name for display in UI. */
 export function getPlanDisplayName(plan: EffectivePlan): string {
   switch (plan) {
-    case "trial":   return "Free Trial";
-    case "free":    return "Free";
-    case "pro":     return "Pro";
-    case "premium": return "Premium";
+    case "trial":
+      return "Free Trial";
+    case "free":
+      return "Free";
+    case "pro":
+      return "Pro";
+    case "premium":
+      return "Premium";
   }
 }
 
@@ -101,7 +107,7 @@ export function getPlanDisplayName(plan: EffectivePlan): string {
  */
 export function getRequiredPlanForFeature(
   feature: keyof PlanLimits,
-  currentPlan: EffectivePlan
+  currentPlan: EffectivePlan,
 ): PlanTier | null {
   const limits = getPlanLimits(currentPlan);
   const featureValue = limits[feature];
@@ -110,8 +116,8 @@ export function getRequiredPlanForFeature(
     featureValue === null
       ? false // null = unlimited, not blocked
       : typeof featureValue === "boolean"
-      ? !featureValue
-      : false; // numeric limits are checked at guard time with actual counts
+        ? !featureValue
+        : false; // numeric limits are checked at guard time with actual counts
 
   if (!isBlocked) return null;
 

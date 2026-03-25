@@ -4,7 +4,11 @@ import { sanitizeString } from "@/lib/sanitize";
 const RECURRING_FREQUENCIES = ["daily", "weekly", "monthly", "yearly"] as const;
 
 export const CreateTransactionSchema = z.object({
-  name: z.string().min(1, "Name is required").max(255, "Name is too long").transform(sanitizeString),
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .max(255, "Name is too long")
+    .transform(sanitizeString),
   amount: z.coerce
     .number()
     .refine((v) => v !== 0, { message: "Amount cannot be zero" }),
@@ -12,7 +16,12 @@ export const CreateTransactionSchema = z.object({
     .string()
     .refine((v) => !isNaN(Date.parse(v)), { message: "Invalid date" }),
   category: z.string().min(1, "Category is required").transform(sanitizeString),
-  notes: z.string().max(500, "Notes are too long").transform(sanitizeString).optional().nullable(),
+  notes: z
+    .string()
+    .max(500, "Notes are too long")
+    .transform(sanitizeString)
+    .optional()
+    .nullable(),
   creditCardId: z.string().optional().nullable(),
   bankAccountId: z.string().optional().nullable(),
   installments: z.coerce
@@ -30,10 +39,12 @@ export const CreateTransactionSchema = z.object({
 });
 
 export const CreateTransferSchema = z.object({
-  name: z.string().max(255, "Name is too long").transform(sanitizeString).optional(),
-  amount: z.coerce
-    .number()
-    .positive("Transfer amount must be greater than 0"),
+  name: z
+    .string()
+    .max(255, "Name is too long")
+    .transform(sanitizeString)
+    .optional(),
+  amount: z.coerce.number().positive("Transfer amount must be greater than 0"),
   date: z
     .string()
     .refine((v) => !isNaN(Date.parse(v)), { message: "Invalid date" }),
@@ -42,7 +53,11 @@ export const CreateTransferSchema = z.object({
 });
 
 export const UpdateTransactionSchema = z.object({
-  name: z.string().min(1, "Name is required").max(255, "Name is too long").transform(sanitizeString),
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .max(255, "Name is too long")
+    .transform(sanitizeString),
   amount: z.coerce
     .number()
     .refine((v) => v !== 0, { message: "Amount cannot be zero" }),
@@ -50,7 +65,12 @@ export const UpdateTransactionSchema = z.object({
     .string()
     .refine((v) => !isNaN(Date.parse(v)), { message: "Invalid date" }),
   category: z.string().min(1, "Category is required").transform(sanitizeString),
-  notes: z.string().max(500, "Notes are too long").transform(sanitizeString).optional().nullable(),
+  notes: z
+    .string()
+    .max(500, "Notes are too long")
+    .transform(sanitizeString)
+    .optional()
+    .nullable(),
   installments: z.coerce
     .number()
     .int()
@@ -68,4 +88,4 @@ export const UpdateTransactionSchema = z.object({
 export type CreateTransactionInput = z.infer<typeof CreateTransactionSchema>;
 export type CreateTransferInput = z.infer<typeof CreateTransferSchema>;
 export type UpdateTransactionInput = z.infer<typeof UpdateTransactionSchema>;
-export type RecurringFrequency = typeof RECURRING_FREQUENCIES[number];
+export type RecurringFrequency = (typeof RECURRING_FREQUENCIES)[number];

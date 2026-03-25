@@ -11,7 +11,8 @@ export async function POST(request: Request) {
   }
 
   const { email, password } = body as Record<string, unknown>;
-  if (!email || !password) return api.badRequest("email and password are required");
+  if (!email || !password)
+    return api.badRequest("email and password are required");
 
   try {
     const response = await auth.api.signInEmail({

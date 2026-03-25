@@ -8,7 +8,10 @@ export const metadata: Metadata = {
   title: "Forgot Password",
   description:
     "Reset your Simple Expenses password. Enter your email and we'll send you a secure link to get back into your account.",
-  keywords: ["forgot password Simple Expenses", "reset password UAE finance app"],
+  keywords: [
+    "forgot password Simple Expenses",
+    "reset password UAE finance app",
+  ],
   alternates: {
     canonical: `${SITE_URL}/forgot-password`,
   },

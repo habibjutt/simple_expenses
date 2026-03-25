@@ -3,13 +3,24 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
-import { getBankAccounts, deleteBankAccount } from "@/app/api/bank-account-action";
+import {
+  getBankAccounts,
+  deleteBankAccount,
+} from "@/app/api/bank-account-action";
 import { getUserProfile } from "@/app/api/user-action";
 import { formatCurrency, cn } from "@/lib/utils";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BankAccountModal from "@/components/bank-account-modal";
-import { Wallet, Edit2, Trash2, Plus, TrendingUp, TrendingDown, ChevronRight } from "lucide-react";
+import {
+  Wallet,
+  Edit2,
+  Trash2,
+  Plus,
+  TrendingUp,
+  TrendingDown,
+  ChevronRight,
+} from "lucide-react";
 import EmptyState from "@/components/EmptyState";
 import {
   AlertDialog,
@@ -24,13 +35,13 @@ import {
 
 const ACCOUNT_COLOR_CONFIGS = [
   { bgClass: "bg-emerald-500", shadow: "shadow-emerald-200" },
-  { bgClass: "bg-blue-500",    shadow: "shadow-blue-200"    },
-  { bgClass: "bg-violet-500",  shadow: "shadow-violet-200"  },
-  { bgClass: "bg-amber-500",   shadow: "shadow-amber-200"   },
-  { bgClass: "bg-rose-500",    shadow: "shadow-rose-200"    },
-  { bgClass: "bg-teal-500",    shadow: "shadow-teal-200"    },
-  { bgClass: "bg-indigo-500",  shadow: "shadow-indigo-200"  },
-  { bgClass: "bg-orange-500",  shadow: "shadow-orange-200"  },
+  { bgClass: "bg-blue-500", shadow: "shadow-blue-200" },
+  { bgClass: "bg-violet-500", shadow: "shadow-violet-200" },
+  { bgClass: "bg-amber-500", shadow: "shadow-amber-200" },
+  { bgClass: "bg-rose-500", shadow: "shadow-rose-200" },
+  { bgClass: "bg-teal-500", shadow: "shadow-teal-200" },
+  { bgClass: "bg-indigo-500", shadow: "shadow-indigo-200" },
+  { bgClass: "bg-orange-500", shadow: "shadow-orange-200" },
 ];
 
 type BankAccount = {
@@ -49,8 +60,12 @@ export default function ManageAccountsPage() {
   const [accounts, setAccounts] = useState<BankAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
-  const [editingAccount, setEditingAccount] = useState<BankAccount | null>(null);
-  const [deletingAccount, setDeletingAccount] = useState<BankAccount | null>(null);
+  const [editingAccount, setEditingAccount] = useState<BankAccount | null>(
+    null,
+  );
+  const [deletingAccount, setDeletingAccount] = useState<BankAccount | null>(
+    null,
+  );
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [preferredCurrency, setPreferredCurrency] = useState("AED");
 
@@ -68,7 +83,8 @@ export default function ManageAccountsPage() {
         getUserProfile(),
       ]);
       setAccounts(fetchedAccounts);
-      if (profile?.preferredCurrency) setPreferredCurrency(profile.preferredCurrency);
+      if (profile?.preferredCurrency)
+        setPreferredCurrency(profile.preferredCurrency);
     } catch (error) {
       console.error("Failed to fetch bank accounts:", error);
     } finally {
@@ -100,11 +116,17 @@ export default function ManageAccountsPage() {
         <Header />
         <div
           className="h-44 animate-pulse"
-          style={{ background: "linear-gradient(135deg, #0b6e3a 0%, #1a9e5c 55%, #22c068 100%)" }}
+          style={{
+            background:
+              "linear-gradient(135deg, #0b6e3a 0%, #1a9e5c 55%, #22c068 100%)",
+          }}
         />
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 grid gap-4 md:grid-cols-2">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-44 rounded-2xl bg-white animate-pulse shadow-sm" />
+            <div
+              key={i}
+              className="h-44 rounded-2xl bg-white animate-pulse shadow-sm"
+            />
           ))}
         </div>
       </div>
@@ -113,8 +135,12 @@ export default function ManageAccountsPage() {
 
   if (!session) return null;
 
-  const totalBalance = accounts.reduce((sum, acc) => sum + acc.currentBalance, 0);
-  const balanceChange = (account: BankAccount) => account.currentBalance - account.initialBalance;
+  const totalBalance = accounts.reduce(
+    (sum, acc) => sum + acc.currentBalance,
+    0,
+  );
+  const balanceChange = (account: BankAccount) =>
+    account.currentBalance - account.initialBalance;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -123,13 +149,17 @@ export default function ManageAccountsPage() {
       {/* Hero */}
       <div
         className="relative overflow-hidden text-white"
-        style={{ background: "linear-gradient(135deg, #0b6e3a 0%, #1a9e5c 55%, #22c068 100%)" }}
+        style={{
+          background:
+            "linear-gradient(135deg, #0b6e3a 0%, #1a9e5c 55%, #22c068 100%)",
+        }}
       >
         {/* Dot grid pattern */}
         <div
           className="absolute inset-0 opacity-[0.07]"
           style={{
-            backgroundImage: "radial-gradient(circle, white 1.5px, transparent 1.5px)",
+            backgroundImage:
+              "radial-gradient(circle, white 1.5px, transparent 1.5px)",
             backgroundSize: "22px 22px",
           }}
         />
@@ -143,9 +173,12 @@ export default function ManageAccountsPage() {
               <p className="text-white/50 text-[10px] font-semibold uppercase tracking-[0.15em] mb-1.5">
                 Manage
               </p>
-              <h1 className="text-2xl font-bold leading-tight">Bank Accounts</h1>
+              <h1 className="text-2xl font-bold leading-tight">
+                Bank Accounts
+              </h1>
               <p className="text-white/60 text-sm mt-1">
-                {accounts.length} account{accounts.length !== 1 ? "s" : ""} on file
+                {accounts.length} account{accounts.length !== 1 ? "s" : ""} on
+                file
               </p>
             </div>
             <button
@@ -167,13 +200,17 @@ export default function ManageAccountsPage() {
                 <p className="text-white/50 text-[10px] font-semibold uppercase tracking-widest mb-2">
                   Total Balance
                 </p>
-                <p className="text-white font-bold text-xl leading-none">{formatCurrency(totalBalance)}</p>
+                <p className="text-white font-bold text-xl leading-none">
+                  {formatCurrency(totalBalance)}
+                </p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl p-4">
                 <p className="text-white/50 text-[10px] font-semibold uppercase tracking-widest mb-2">
                   Accounts
                 </p>
-                <p className="text-white font-bold text-xl leading-none">{accounts.length}</p>
+                <p className="text-white font-bold text-xl leading-none">
+                  {accounts.length}
+                </p>
               </div>
             </div>
           )}
@@ -197,7 +234,8 @@ export default function ManageAccountsPage() {
             {accounts.map((account, i) => {
               const change = balanceChange(account);
               const isPositive = change >= 0;
-              const config = ACCOUNT_COLOR_CONFIGS[i % ACCOUNT_COLOR_CONFIGS.length];
+              const config =
+                ACCOUNT_COLOR_CONFIGS[i % ACCOUNT_COLOR_CONFIGS.length];
               const initial = account.name.charAt(0).toUpperCase();
 
               return (
@@ -218,7 +256,9 @@ export default function ManageAccountsPage() {
                           {initial}
                         </div>
                         <div>
-                          <h3 className="font-bold text-slate-900 leading-tight">{account.name}</h3>
+                          <h3 className="font-bold text-slate-900 leading-tight">
+                            {account.name}
+                          </h3>
                           <span className="inline-block text-[10px] font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full mt-0.5">
                             Bank Account
                           </span>
@@ -246,7 +286,9 @@ export default function ManageAccountsPage() {
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
                         <button
-                          onClick={() => router.push(`/bank-account/${account.id}`)}
+                          onClick={() =>
+                            router.push(`/bank-account/${account.id}`)
+                          }
                           className="p-2 text-slate-300 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all"
                           title="View details"
                         >
@@ -282,7 +324,7 @@ export default function ManageAccountsPage() {
                         <div
                           className={cn(
                             "flex items-center gap-1 text-sm font-bold",
-                            isPositive ? "text-emerald-600" : "text-red-500"
+                            isPositive ? "text-emerald-600" : "text-red-500",
                           )}
                         >
                           {isPositive ? (
@@ -317,13 +359,16 @@ export default function ManageAccountsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Bank Account</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete &quot;{deletingAccount?.name}&quot;? This action
-              cannot be undone.
+              Are you sure you want to delete &quot;{deletingAccount?.name}
+              &quot;? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-red-600 hover:bg-red-700"
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -332,4 +377,3 @@ export default function ManageAccountsPage() {
     </div>
   );
 }
-

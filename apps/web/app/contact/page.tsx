@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Mail, MapPin, Clock, MessageCircle, ArrowRight, Phone } from "lucide-react";
+import {
+  Mail,
+  MapPin,
+  Clock,
+  MessageCircle,
+  ArrowRight,
+  Phone,
+} from "lucide-react";
 import LandingFooter from "@/components/LandingFooter";
 import LandingNav from "@/components/LandingNav";
 import { SITE_URL } from "@/lib/seo";
@@ -54,7 +61,9 @@ export default function ContactPage() {
           {/* Contact form */}
           <div className="lg:col-span-3">
             <div className="bg-background border border-border rounded-2xl p-6 sm:p-8 shadow-sm">
-              <h2 className="text-xl font-bold text-foreground mb-6">Send us a message</h2>
+              <h2 className="text-xl font-bold text-foreground mb-6">
+                Send us a message
+              </h2>
               <form
                 action="mailto:hello@simpleexpenses.ae"
                 method="GET"
@@ -62,7 +71,10 @@ export default function ContactPage() {
               >
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label htmlFor="fname" className="text-sm font-medium text-foreground">
+                    <label
+                      htmlFor="fname"
+                      className="text-sm font-medium text-foreground"
+                    >
                       First name
                     </label>
                     <input
@@ -74,7 +86,10 @@ export default function ContactPage() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label htmlFor="lname" className="text-sm font-medium text-foreground">
+                    <label
+                      htmlFor="lname"
+                      className="text-sm font-medium text-foreground"
+                    >
                       Last name
                     </label>
                     <input
@@ -88,7 +103,10 @@ export default function ContactPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label htmlFor="email" className="text-sm font-medium text-foreground">
+                  <label
+                    htmlFor="email"
+                    className="text-sm font-medium text-foreground"
+                  >
                     Email address
                   </label>
                   <input
@@ -101,7 +119,10 @@ export default function ContactPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label htmlFor="subject" className="text-sm font-medium text-foreground">
+                  <label
+                    htmlFor="subject"
+                    className="text-sm font-medium text-foreground"
+                  >
                     Subject
                   </label>
                   <select
@@ -120,7 +141,10 @@ export default function ContactPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label htmlFor="message" className="text-sm font-medium text-foreground">
+                  <label
+                    htmlFor="message"
+                    className="text-sm font-medium text-foreground"
+                  >
                     Message
                   </label>
                   <textarea
@@ -142,7 +166,10 @@ export default function ContactPage() {
 
                 <p className="text-xs text-center text-muted-foreground">
                   By submitting this form you agree to our{" "}
-                  <Link href="/privacy" className="text-primary hover:underline">
+                  <Link
+                    href="/privacy"
+                    className="text-primary hover:underline"
+                  >
                     Privacy Policy
                   </Link>
                   .
@@ -154,14 +181,18 @@ export default function ContactPage() {
           {/* Contact info */}
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-background border border-border rounded-2xl p-6 space-y-5">
-              <h2 className="text-lg font-bold text-foreground">Contact information</h2>
+              <h2 className="text-lg font-bold text-foreground">
+                Contact information
+              </h2>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                     <Mail className="w-4 h-4 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-foreground">Email</p>
+                    <p className="text-sm font-semibold text-foreground">
+                      Email
+                    </p>
                     <a
                       href="mailto:hello@simpleexpenses.ae"
                       className="text-sm text-primary hover:underline"
@@ -179,7 +210,9 @@ export default function ContactPage() {
                     <Phone className="w-4 h-4 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-foreground">WhatsApp Support</p>
+                    <p className="text-sm font-semibold text-foreground">
+                      WhatsApp Support
+                    </p>
                     <a
                       href="https://wa.me/97150000000"
                       className="text-sm text-primary hover:underline"
@@ -188,7 +221,9 @@ export default function ContactPage() {
                     >
                       +971 50 000 0000
                     </a>
-                    <p className="text-xs text-muted-foreground mt-0.5">Premium &amp; Business plans only</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Premium &amp; Business plans only
+                    </p>
                   </div>
                 </div>
 
@@ -197,9 +232,15 @@ export default function ContactPage() {
                     <MapPin className="w-4 h-4 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-foreground">Location</p>
-                    <p className="text-sm text-muted-foreground">Dubai Internet City</p>
-                    <p className="text-sm text-muted-foreground">Dubai, United Arab Emirates 🇦🇪</p>
+                    <p className="text-sm font-semibold text-foreground">
+                      Location
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Dubai Internet City
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Dubai, United Arab Emirates 🇦🇪
+                    </p>
                   </div>
                 </div>
 
@@ -208,9 +249,15 @@ export default function ContactPage() {
                     <Clock className="w-4 h-4 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-foreground">Business hours</p>
-                    <p className="text-sm text-muted-foreground">Mon – Fri: 9 AM – 6 PM GST</p>
-                    <p className="text-sm text-muted-foreground">Sat: 10 AM – 2 PM GST</p>
+                    <p className="text-sm font-semibold text-foreground">
+                      Business hours
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Mon – Fri: 9 AM – 6 PM GST
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Sat: 10 AM – 2 PM GST
+                    </p>
                   </div>
                 </div>
               </div>

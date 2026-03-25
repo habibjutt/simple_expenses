@@ -86,9 +86,13 @@ export async function deleteInvoice(invoiceId: string): Promise<ActionResult> {
         });
 
         if (nextInvoice) {
-          const newCreditFromPrevious = Math.max(0, nextInvoice.creditFromPreviousMonth - overpaymentAmount);
+          const newCreditFromPrevious = Math.max(
+            0,
+            nextInvoice.creditFromPreviousMonth - overpaymentAmount,
+          );
           const newAmountOwed = nextInvoice.totalAmount - newCreditFromPrevious;
-          const newIsPaid = nextInvoice.paidAmount >= newAmountOwed && newAmountOwed > 0;
+          const newIsPaid =
+            nextInvoice.paidAmount >= newAmountOwed && newAmountOwed > 0;
 
           await tx.invoice.update({
             where: { id: nextInvoice.id },
@@ -118,7 +122,7 @@ export async function deleteInvoice(invoiceId: string): Promise<ActionResult> {
 
 export async function editInvoice(
   invoiceId: string,
-  newBankAccountId: string | null
+  newBankAccountId: string | null,
 ): Promise<ActionResult> {
   const parse = EditInvoiceSchema.safeParse({ invoiceId, newBankAccountId });
   if (!parse.success) {
@@ -171,7 +175,10 @@ export async function editInvoice(
   await db.$transaction(async (tx) => {
     // If invoice was paid and we're changing the payment source
     if (invoice.isPaid && invoice.paidFromBankAccountId) {
-      if (newBankAccountId && newBankAccountId !== invoice.paidFromBankAccountId) {
+      if (
+        newBankAccountId &&
+        newBankAccountId !== invoice.paidFromBankAccountId
+      ) {
         // Reverse the original payment
         await tx.bank_account.update({
           where: { id: invoice.paidFromBankAccountId },
@@ -351,9 +358,13 @@ export async function unpayInvoice(invoiceId: string): Promise<ActionResult> {
       });
 
       if (nextInvoice) {
-        const newCreditFromPrevious = Math.max(0, nextInvoice.creditFromPreviousMonth - overpaymentAmount);
+        const newCreditFromPrevious = Math.max(
+          0,
+          nextInvoice.creditFromPreviousMonth - overpaymentAmount,
+        );
         const newAmountOwed = nextInvoice.totalAmount - newCreditFromPrevious;
-        const newIsPaid = nextInvoice.paidAmount >= newAmountOwed && newAmountOwed > 0;
+        const newIsPaid =
+          nextInvoice.paidAmount >= newAmountOwed && newAmountOwed > 0;
 
         await tx.invoice.update({
           where: { id: nextInvoice.id },
@@ -414,15 +425,19 @@ export async function getCurrentMonthInvoices() {
     if (currentDay >= g) {
       return {
         card,
-        billStartDate:  new Date(currentYear, currentMonth, g),
-        billEndDate:    new Date(currentYear, currentMonth + 1, g),
-        paymentDueDate: new Date(currentYear, currentMonth + 1, card.paymentDate),
+        billStartDate: new Date(currentYear, currentMonth, g),
+        billEndDate: new Date(currentYear, currentMonth + 1, g),
+        paymentDueDate: new Date(
+          currentYear,
+          currentMonth + 1,
+          card.paymentDate,
+        ),
       };
     }
     return {
       card,
-      billStartDate:  new Date(currentYear, currentMonth - 1, g),
-      billEndDate:    new Date(currentYear, currentMonth, g),
+      billStartDate: new Date(currentYear, currentMonth - 1, g),
+      billEndDate: new Date(currentYear, currentMonth, g),
       paymentDueDate: new Date(currentYear, currentMonth, card.paymentDate),
     };
   });
@@ -431,13 +446,13 @@ export async function getCurrentMonthInvoices() {
 
   // Batch invoice fetch — one query for all cards
   const allStarts = cardPeriods.map((p) => p.billStartDate.getTime());
-  const allEnds   = cardPeriods.map((p) => p.billEndDate.getTime());
+  const allEnds = cardPeriods.map((p) => p.billEndDate.getTime());
 
   const allInvoices = await db.invoice.findMany({
     where: {
       creditCardId: { in: cardIds },
       billStartDate: { gte: new Date(Math.min(...allStarts) - 86_400_000) },
-      billEndDate:   { lte: new Date(Math.max(...allEnds)   + 86_400_000) },
+      billEndDate: { lte: new Date(Math.max(...allEnds) + 86_400_000) },
     },
   });
 
@@ -449,11 +464,13 @@ export async function getCurrentMonthInvoices() {
   }
 
   function findInvoice(cardId: string, start: Date, end: Date) {
-    return (invoicesByCard.get(cardId) ?? []).find(
-      (inv) =>
-        inv.billStartDate.getTime() === start.getTime() &&
-        inv.billEndDate.getTime()   === end.getTime(),
-    ) ?? null;
+    return (
+      (invoicesByCard.get(cardId) ?? []).find(
+        (inv) =>
+          inv.billStartDate.getTime() === start.getTime() &&
+          inv.billEndDate.getTime() === end.getTime(),
+      ) ?? null
+    );
   }
 
   // Determine which cards need a transaction-based amount (no stored invoice)
@@ -465,7 +482,7 @@ export async function getCurrentMonthInvoices() {
   const txnsByCard = new Map<string, { amount: number; date: Date }[]>();
   if (periodsNeedingTxns.length > 0) {
     const txnStarts = periodsNeedingTxns.map((p) => p.billStartDate.getTime());
-    const txnEnds   = periodsNeedingTxns.map((p) => p.billEndDate.getTime());
+    const txnEnds = periodsNeedingTxns.map((p) => p.billEndDate.getTime());
     const txnCardIds = periodsNeedingTxns.map((p) => p.card.id);
 
     const transactions = await db.transaction.findMany({
@@ -473,12 +490,9 @@ export async function getCurrentMonthInvoices() {
         creditCardId: { in: txnCardIds },
         date: {
           gte: new Date(Math.min(...txnStarts)),
-          lt:  new Date(Math.max(...txnEnds)),
+          lt: new Date(Math.max(...txnEnds)),
         },
-        OR: [
-          { installmentNumber: null },
-          { installmentNumber: { gt: 0 } },
-        ],
+        OR: [{ installmentNumber: null }, { installmentNumber: { gt: 0 } }],
       },
       select: { creditCardId: true, amount: true, date: true },
     });
@@ -513,7 +527,10 @@ export async function getCurrentMonthInvoices() {
   });
 
   return results.filter(
-    (inv) => !inv.invoice?.isPaid && inv.totalAmount > 0 && inv.billEndDate.getMonth() === currentMonth,
+    (inv) =>
+      !inv.invoice?.isPaid &&
+      inv.totalAmount > 0 &&
+      inv.billEndDate.getMonth() === currentMonth,
   );
 }
 
@@ -553,13 +570,17 @@ export async function getNextBillAmounts() {
     let billStartDate: Date, billEndDate: Date, paymentDueDate: Date;
 
     if (currentDay >= g) {
-      billStartDate  = new Date(Date.UTC(currentYear, currentMonth, g));
-      billEndDate    = new Date(Date.UTC(currentYear, currentMonth + 1, g));
-      paymentDueDate = new Date(Date.UTC(currentYear, currentMonth + 1, card.paymentDate));
+      billStartDate = new Date(Date.UTC(currentYear, currentMonth, g));
+      billEndDate = new Date(Date.UTC(currentYear, currentMonth + 1, g));
+      paymentDueDate = new Date(
+        Date.UTC(currentYear, currentMonth + 1, card.paymentDate),
+      );
     } else {
-      billStartDate  = new Date(Date.UTC(currentYear, currentMonth - 1, g));
-      billEndDate    = new Date(Date.UTC(currentYear, currentMonth, g));
-      paymentDueDate = new Date(Date.UTC(currentYear, currentMonth, card.paymentDate));
+      billStartDate = new Date(Date.UTC(currentYear, currentMonth - 1, g));
+      billEndDate = new Date(Date.UTC(currentYear, currentMonth, g));
+      paymentDueDate = new Date(
+        Date.UTC(currentYear, currentMonth, card.paymentDate),
+      );
     }
 
     const txnStart = new Date(billStartDate);
@@ -570,7 +591,7 @@ export async function getNextBillAmounts() {
 
   // Batch invoice fetch — one query covering all cards' billing periods
   const allStarts = cardPeriods.map((p) => p.billStartDate.getTime());
-  const allEnds   = cardPeriods.map((p) => p.billEndDate.getTime());
+  const allEnds = cardPeriods.map((p) => p.billEndDate.getTime());
 
   // Include 1 extra month of invoices in case some are paid → next period shown
   const rangeMax = new Date(Math.max(...allEnds));
@@ -580,7 +601,7 @@ export async function getNextBillAmounts() {
     where: {
       creditCardId: { in: cardIds },
       billStartDate: { gte: new Date(Math.min(...allStarts) - 86_400_000) },
-      billEndDate:   { lte: rangeMax },
+      billEndDate: { lte: rangeMax },
     },
   });
 
@@ -592,11 +613,13 @@ export async function getNextBillAmounts() {
   }
 
   function findInvoice(cardId: string, start: Date, end: Date) {
-    return (invoicesByCard.get(cardId) ?? []).find(
-      (inv) =>
-        inv.billStartDate.getTime() === start.getTime() &&
-        inv.billEndDate.getTime()   === end.getTime(),
-    ) ?? null;
+    return (
+      (invoicesByCard.get(cardId) ?? []).find(
+        (inv) =>
+          inv.billStartDate.getTime() === start.getTime() &&
+          inv.billEndDate.getTime() === end.getTime(),
+      ) ?? null
+    );
   }
 
   // Compute the broadest transaction date range across all cards and scenarios
@@ -613,10 +636,7 @@ export async function getNextBillAmounts() {
     where: {
       creditCardId: { in: cardIds },
       date: { gte: txnRangeMin, lte: txnRangeMax },
-      OR: [
-        { installmentNumber: null },
-        { installmentNumber: { gt: 0 } },
-      ],
+      OR: [{ installmentNumber: null }, { installmentNumber: { gt: 0 } }],
     },
     select: { creditCardId: true, amount: true, date: true },
   });
@@ -630,31 +650,58 @@ export async function getNextBillAmounts() {
   }
 
   return cardPeriods.map((period) => {
-    const { card, billStartDate, billEndDate, paymentDueDate, txnStart } = period;
+    const { card, billStartDate, billEndDate, paymentDueDate, txnStart } =
+      period;
     const existingInvoice = findInvoice(card.id, billStartDate, billEndDate);
 
-    let nextBillStartDate: Date, nextBillEndDate: Date, nextPaymentDueDate: Date;
+    let nextBillStartDate: Date,
+      nextBillEndDate: Date,
+      nextPaymentDueDate: Date;
     let txnFrom: Date, txnTo: Date;
 
     if (existingInvoice?.isPaid) {
       // Current invoice paid → shift view to next billing period
-      nextBillStartDate = new Date(Date.UTC(billEndDate.getUTCFullYear(), billEndDate.getUTCMonth(), card.billGenerationDate));
-      nextBillEndDate   = new Date(Date.UTC(nextBillStartDate.getUTCFullYear(), nextBillStartDate.getUTCMonth() + 1, card.billGenerationDate));
-      nextPaymentDueDate = new Date(Date.UTC(nextBillEndDate.getUTCFullYear(), nextBillEndDate.getUTCMonth(), card.paymentDate));
+      nextBillStartDate = new Date(
+        Date.UTC(
+          billEndDate.getUTCFullYear(),
+          billEndDate.getUTCMonth(),
+          card.billGenerationDate,
+        ),
+      );
+      nextBillEndDate = new Date(
+        Date.UTC(
+          nextBillStartDate.getUTCFullYear(),
+          nextBillStartDate.getUTCMonth() + 1,
+          card.billGenerationDate,
+        ),
+      );
+      nextPaymentDueDate = new Date(
+        Date.UTC(
+          nextBillEndDate.getUTCFullYear(),
+          nextBillEndDate.getUTCMonth(),
+          card.paymentDate,
+        ),
+      );
       txnFrom = billStartDate;
-      txnTo   = billEndDate;
+      txnTo = billEndDate;
     } else {
-      nextBillStartDate  = billStartDate;
-      nextBillEndDate    = billEndDate;
+      nextBillStartDate = billStartDate;
+      nextBillEndDate = billEndDate;
       nextPaymentDueDate = paymentDueDate;
       txnFrom = txnStart;
-      txnTo   = billStartDate;
+      txnTo = billStartDate;
     }
 
     const totalAmount = (txnsByCard.get(card.id) ?? [])
       .filter((t) => t.date >= txnFrom && t.date < txnTo)
       .reduce((sum, t) => sum + t.amount, 0);
 
-    return { cardId: card.id, nextBillStartDate, nextBillEndDate, nextPaymentDueDate, totalAmount };
+    return {
+      cardId: card.id,
+      nextBillStartDate,
+      nextBillEndDate,
+      nextPaymentDueDate,
+      totalAmount,
+    };
   });
 }

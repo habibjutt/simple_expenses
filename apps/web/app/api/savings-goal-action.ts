@@ -71,7 +71,7 @@ export async function updateSavingsGoal(
     color?: string;
     deadline?: Date | null;
     isCompleted?: boolean;
-  }
+  },
 ): Promise<ActionResult> {
   const userId = await requireUser();
   const parse = UpdateSavingsGoalSchema.safeParse(data);
@@ -90,7 +90,10 @@ export async function deleteSavingsGoal(id: string) {
   await db.savings_goal.delete({ where: { id } });
 }
 
-export async function addContribution(id: string, amount: number): Promise<ActionResult> {
+export async function addContribution(
+  id: string,
+  amount: number,
+): Promise<ActionResult> {
   const userId = await requireUser();
   const parse = ContributionSchema.safeParse({ id, amount });
   if (!parse.success) {

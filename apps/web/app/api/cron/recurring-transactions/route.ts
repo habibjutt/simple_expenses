@@ -10,10 +10,18 @@ export const maxDuration = 60;
 function computeNextRecurDate(from: Date, frequency: string): Date {
   const next = new Date(from);
   switch (frequency) {
-    case "daily":   next.setDate(next.getDate() + 1); break;
-    case "weekly":  next.setDate(next.getDate() + 7); break;
-    case "monthly": next.setMonth(next.getMonth() + 1); break;
-    case "yearly":  next.setFullYear(next.getFullYear() + 1); break;
+    case "daily":
+      next.setDate(next.getDate() + 1);
+      break;
+    case "weekly":
+      next.setDate(next.getDate() + 7);
+      break;
+    case "monthly":
+      next.setMonth(next.getMonth() + 1);
+      break;
+    case "yearly":
+      next.setFullYear(next.getFullYear() + 1);
+      break;
   }
   return next;
 }
@@ -60,13 +68,19 @@ export async function GET(request: Request) {
       }
 
       const instanceDate = template.nextRecurDate ?? today;
-      const nextDate = computeNextRecurDate(instanceDate, template.recurringFrequency);
+      const nextDate = computeNextRecurDate(
+        instanceDate,
+        template.recurringFrequency,
+      );
 
       // Deactivate if next date would exceed end date
-      const willExpire = !!(template.recurringEndDate && nextDate > template.recurringEndDate);
+      const willExpire = !!(
+        template.recurringEndDate && nextDate > template.recurringEndDate
+      );
 
       if (template.creditCardId && template.creditCard) {
-        const newAvailableBalance = template.creditCard.availableBalance - template.amount;
+        const newAvailableBalance =
+          template.creditCard.availableBalance - template.amount;
         if (template.amount > 0 && newAvailableBalance < 0) {
           await db.transaction.update({
             where: { id: template.id },
@@ -99,7 +113,8 @@ export async function GET(request: Request) {
           }),
         ]);
       } else if (template.bankAccountId && template.bankAccount) {
-        const newBalance = template.bankAccount.currentBalance - template.amount;
+        const newBalance =
+          template.bankAccount.currentBalance - template.amount;
         if (template.amount > 0 && newBalance < 0) {
           await db.transaction.update({
             where: { id: template.id },
@@ -139,5 +154,9 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.json({ success: true, ...results, processedAt: new Date().toISOString() });
+  return NextResponse.json({
+    success: true,
+    ...results,
+    processedAt: new Date().toISOString(),
+  });
 }

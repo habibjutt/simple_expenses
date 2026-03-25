@@ -72,7 +72,7 @@ export default function InvoiceDetailPage() {
   useEffect(() => {
     fetchData();
     fetchBankAccounts();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [invoiceId]);
 
   const fetchData = async () => {
@@ -108,7 +108,7 @@ export default function InvoiceDetailPage() {
         new Date(inv.billStartDate),
         new Date(inv.billEndDate),
         new Date(inv.paymentDueDate),
-        inv.totalAmount
+        inv.totalAmount,
       );
       if (result?.error) {
         setPayError(result.error);
@@ -157,8 +157,12 @@ export default function InvoiceDetailPage() {
         <Header />
         <div className="min-h-screen bg-[#f0f2f5] flex items-center justify-center">
           <div className="text-center">
-            <p className="text-red-600 font-medium mb-4">{error || "Invoice not found"}</p>
-            <Button onClick={() => router.back()} variant="outline">Go back</Button>
+            <p className="text-red-600 font-medium mb-4">
+              {error || "Invoice not found"}
+            </p>
+            <Button onClick={() => router.back()} variant="outline">
+              Go back
+            </Button>
           </div>
         </div>
         <Footer />
@@ -171,15 +175,20 @@ export default function InvoiceDetailPage() {
   const billEnd = new Date(invoice.billEndDate);
   const dueDate = new Date(invoice.paymentDueDate);
   const today = new Date();
-  const daysUntilDue = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  const daysUntilDue = Math.ceil(
+    (dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+  );
   const isOverdue = !invoice.isPaid && daysUntilDue < 0;
 
   // Group by category
-  const categoryTotals = transactions.reduce((acc, t) => {
-    const key = t.category || "Others";
-    acc[key] = (acc[key] || 0) + t.amount;
-    return acc;
-  }, {} as Record<string, number>);
+  const categoryTotals = transactions.reduce(
+    (acc, t) => {
+      const key = t.category || "Others";
+      acc[key] = (acc[key] || 0) + t.amount;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   const topCategories = Object.entries(categoryTotals)
     .sort((a, b) => b[1] - a[1])
@@ -204,18 +213,30 @@ export default function InvoiceDetailPage() {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <CreditCard className="h-5 w-5 text-white/80" />
-                  <p className="text-white/80 text-sm">{invoice.creditCard.name}</p>
+                  <p className="text-white/80 text-sm">
+                    {invoice.creditCard.name}
+                  </p>
                 </div>
                 <h1 className="text-2xl font-bold">Invoice</h1>
                 <p className="text-white/70 text-sm mt-1">
-                  {billStart.toLocaleDateString("en-AE", { month: "short", day: "numeric" })} –{" "}
-                  {billEnd.toLocaleDateString("en-AE", { month: "short", day: "numeric", year: "numeric" })}
+                  {billStart.toLocaleDateString("en-AE", {
+                    month: "short",
+                    day: "numeric",
+                  })}{" "}
+                  –{" "}
+                  {billEnd.toLocaleDateString("en-AE", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
                 </p>
               </div>
 
               <div className="text-right">
                 <p className="text-white/70 text-sm">Total Amount</p>
-                <p className="text-3xl font-bold">{formatCurrency(invoice.totalAmount)}</p>
+                <p className="text-3xl font-bold">
+                  {formatCurrency(invoice.totalAmount)}
+                </p>
                 <div className="mt-2">
                   {invoice.isPaid ? (
                     <span className="inline-flex items-center gap-1.5 bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">
@@ -230,7 +251,9 @@ export default function InvoiceDetailPage() {
                   ) : (
                     <span className="inline-flex items-center gap-1.5 bg-yellow-400/30 text-white text-xs font-semibold px-3 py-1 rounded-full">
                       <Clock className="h-3.5 w-3.5" />
-                      {daysUntilDue === 0 ? "Due today" : `Due in ${daysUntilDue} days`}
+                      {daysUntilDue === 0
+                        ? "Due today"
+                        : `Due in ${daysUntilDue} days`}
                     </span>
                   )}
                 </div>
@@ -242,24 +265,40 @@ export default function InvoiceDetailPage() {
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 space-y-4">
           {/* Details card */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-5">
-            <h2 className="text-sm font-semibold text-slate-700 mb-4">Payment Details</h2>
+            <h2 className="text-sm font-semibold text-slate-700 mb-4">
+              Payment Details
+            </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
                 <p className="text-xs text-slate-400 mb-1">Bill Period Start</p>
                 <p className="text-sm font-medium text-slate-800">
-                  {billStart.toLocaleDateString("en-AE", { month: "short", day: "numeric", year: "numeric" })}
+                  {billStart.toLocaleDateString("en-AE", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
                 </p>
               </div>
               <div>
                 <p className="text-xs text-slate-400 mb-1">Bill Period End</p>
                 <p className="text-sm font-medium text-slate-800">
-                  {billEnd.toLocaleDateString("en-AE", { month: "short", day: "numeric", year: "numeric" })}
+                  {billEnd.toLocaleDateString("en-AE", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
                 </p>
               </div>
               <div>
                 <p className="text-xs text-slate-400 mb-1">Payment Due</p>
-                <p className={`text-sm font-medium ${isOverdue ? "text-red-600" : "text-slate-800"}`}>
-                  {dueDate.toLocaleDateString("en-AE", { month: "short", day: "numeric", year: "numeric" })}
+                <p
+                  className={`text-sm font-medium ${isOverdue ? "text-red-600" : "text-slate-800"}`}
+                >
+                  {dueDate.toLocaleDateString("en-AE", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
                 </p>
               </div>
               <div>
@@ -268,10 +307,10 @@ export default function InvoiceDetailPage() {
                 </p>
                 <p className="text-sm font-medium text-slate-800">
                   {invoice.isPaid
-                    ? invoice.paidFromBankAccount?.name ?? "—"
+                    ? (invoice.paidFromBankAccount?.name ?? "—")
                     : isOverdue
-                    ? "Overdue"
-                    : "Unpaid"}
+                      ? "Overdue"
+                      : "Unpaid"}
                 </p>
               </div>
             </div>
@@ -309,7 +348,9 @@ export default function InvoiceDetailPage() {
           {/* Spending by category */}
           {topCategories.length > 0 && (
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-5">
-              <h2 className="text-sm font-semibold text-slate-700 mb-4">Spending Breakdown</h2>
+              <h2 className="text-sm font-semibold text-slate-700 mb-4">
+                Spending Breakdown
+              </h2>
               <div className="space-y-3">
                 {topCategories.map(([category, amount]) => {
                   const pct = Math.round((amount / invoice.totalAmount) * 100);
@@ -322,7 +363,9 @@ export default function InvoiceDetailPage() {
                         </span>
                         <span className="text-sm font-semibold text-slate-800">
                           {formatCurrency(amount)}
-                          <span className="text-xs text-slate-400 ml-1">({pct}%)</span>
+                          <span className="text-xs text-slate-400 ml-1">
+                            ({pct}%)
+                          </span>
                         </span>
                       </div>
                       <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
@@ -357,17 +400,24 @@ export default function InvoiceDetailPage() {
             {transactions.length === 0 ? (
               <div className="p-10 text-center">
                 <Receipt className="h-10 w-10 text-slate-200 mx-auto mb-3" />
-                <p className="text-slate-400 text-sm">No transactions in this period</p>
+                <p className="text-slate-400 text-sm">
+                  No transactions in this period
+                </p>
               </div>
             ) : (
               <div className="divide-y divide-slate-50">
                 {transactions.map((txn) => (
-                  <div key={txn.id} className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50/50 transition-colors">
+                  <div
+                    key={txn.id}
+                    className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50/50 transition-colors"
+                  >
                     <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-base shrink-0">
                       {CATEGORY_ICONS[txn.category || "Others"] ?? "💳"}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-slate-800 truncate">{txn.name}</p>
+                      <p className="text-sm font-medium text-slate-800 truncate">
+                        {txn.name}
+                      </p>
                       <div className="flex items-center gap-2 mt-0.5">
                         <span className="text-xs text-slate-400">
                           {new Date(txn.date).toLocaleDateString("en-AE", {
@@ -378,14 +428,17 @@ export default function InvoiceDetailPage() {
                         {txn.category && (
                           <>
                             <span className="text-xs text-slate-300">·</span>
-                            <span className="text-xs text-slate-400">{txn.category}</span>
+                            <span className="text-xs text-slate-400">
+                              {txn.category}
+                            </span>
                           </>
                         )}
                         {txn.installmentNumber && txn.installmentNumber > 0 && (
                           <>
                             <span className="text-xs text-slate-300">·</span>
                             <span className="text-xs text-blue-500">
-                              Installment {txn.installmentNumber}/{txn.installments}
+                              Installment {txn.installmentNumber}/
+                              {txn.installments}
                             </span>
                           </>
                         )}
@@ -410,7 +463,8 @@ export default function InvoiceDetailPage() {
           <DialogHeader>
             <DialogTitle>Pay Invoice</DialogTitle>
             <DialogDescription>
-              Pay {formatCurrency(invoice.totalAmount)} for {invoice.creditCard.name}
+              Pay {formatCurrency(invoice.totalAmount)} for{" "}
+              {invoice.creditCard.name}
             </DialogDescription>
           </DialogHeader>
 
@@ -433,7 +487,9 @@ export default function InvoiceDetailPage() {
             </div>
 
             {payError && (
-              <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">{payError}</p>
+              <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">
+                {payError}
+              </p>
             )}
           </div>
 
