@@ -1,4 +1,5 @@
 import { getApiUser, api } from "@/lib/api-auth";
+import { sanitizeString } from "@/lib/sanitize";
 import { db } from "@/lib/db";
 
 // GET /api/v1/spending-limits?month=3&year=2026
@@ -41,7 +42,7 @@ export async function POST(request: Request) {
     where: {
       userId_categoryName_month_year: {
         userId: user.id,
-        categoryName: String(categoryName),
+        categoryName: sanitizeString(String(categoryName)),
         month: Number(month),
         year: Number(year),
       },
@@ -49,7 +50,7 @@ export async function POST(request: Request) {
     update: { amount: Number(amount) },
     create: {
       userId: user.id,
-      categoryName: String(categoryName),
+      categoryName: sanitizeString(String(categoryName)),
       amount: Number(amount),
       month: Number(month),
       year: Number(year),

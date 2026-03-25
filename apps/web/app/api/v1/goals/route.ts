@@ -1,4 +1,5 @@
 import { getApiUser, api } from "@/lib/api-auth";
+import { sanitizeString } from "@/lib/sanitize";
 import { db } from "@/lib/db";
 
 // GET /api/v1/goals
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
   const goal = await db.savings_goal.create({
     data: {
       userId: user.id,
-      name: String(name),
+      name: sanitizeString(String(name)),
       targetAmount: Number(targetAmount),
       color: String(color),
       deadline: deadline ? new Date(String(deadline)) : null,

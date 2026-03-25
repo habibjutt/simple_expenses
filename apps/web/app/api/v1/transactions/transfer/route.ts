@@ -1,4 +1,5 @@
 import { getApiUser, api, parseTransactionDate } from "@/lib/api-auth";
+import { sanitizeString, sanitizeOptional } from "@/lib/sanitize";
 import { db } from "@/lib/db";
 
 // POST /api/v1/transactions/transfer
@@ -46,22 +47,22 @@ export async function POST(request: Request) {
   await db.$transaction([
     db.transaction.create({
       data: {
-        name: notes ? String(notes) : `Transfer to ${toAccount.name}`,
+        name: notes ? sanitizeString(String(notes)) : `Transfer to ${toAccount.name}`,
         amount: amt,
         date: txDate,
         category: "Transfer",
         bankAccountId: String(fromBankAccountId),
-        notes: notes ? String(notes) : null,
+        notes: sanitizeOptional(notes),
       },
     }),
     db.transaction.create({
       data: {
-        name: notes ? String(notes) : `Transfer from ${fromAccount.name}`,
+        name: notes ? sanitizeString(String(notes)) : `Transfer from ${fromAccount.name}`,
         amount: -amt,
         date: txDate,
         category: "Transfer",
         bankAccountId: String(toBankAccountId),
-        notes: notes ? String(notes) : null,
+        notes: sanitizeOptional(notes),
       },
     }),
     db.bank_account.update({

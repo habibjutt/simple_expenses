@@ -1,5 +1,6 @@
 import { getApiUser, api, parseTransactionDate } from "@/lib/api-auth";
 import { validateUserCategory } from "@/lib/category-validation";
+import { sanitizeString, sanitizeOptional } from "@/lib/sanitize";
 import { db } from "@/lib/db";
 
 // PUT /api/v1/transactions/:id
@@ -36,7 +37,7 @@ export async function PUT(
   const { name, amount, date, category, notes } = body as Record<string, unknown>;
 
   const updates: Record<string, unknown> = {};
-  if (name !== undefined) updates.name = String(name);
+  if (name !== undefined) updates.name = sanitizeString(String(name));
   if (date !== undefined) {
     const parsedDate = parseTransactionDate(date);
     if (typeof parsedDate === "string") return api.badRequest(parsedDate);
@@ -45,9 +46,9 @@ export async function PUT(
   if (category !== undefined) {
     const catCheck = await validateUserCategory(user.id, String(category));
     if (!catCheck.valid) return api.badRequest(catCheck.error!);
-    updates.category = String(category);
+    updates.category = sanitizeString(String(category));
   }
-  if (notes !== undefined) updates.notes = notes ? String(notes) : null;
+  if (notes !== undefined) updates.notes = sanitizeOptional(notes);
 
   let amtDelta: number | undefined;
   if (amount !== undefined) {

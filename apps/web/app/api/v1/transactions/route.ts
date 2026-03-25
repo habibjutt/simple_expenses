@@ -1,5 +1,6 @@
 import { getApiUser, api, parseTransactionDate } from "@/lib/api-auth";
 import { validateUserCategory } from "@/lib/category-validation";
+import { sanitizeString, sanitizeOptional } from "@/lib/sanitize";
 import { db } from "@/lib/db";
 
 // GET /api/v1/transactions?creditCardId=&bankAccountId=
@@ -97,7 +98,7 @@ export async function POST(request: Request) {
   const parsedDate = parseTransactionDate(date);
   if (typeof parsedDate === "string") return api.badRequest(parsedDate);
 
-  const catCheck = await validateUserCategory(user.id, String(category), txType);
+  const catCheck = await validateUserCategory(user.id, sanitizeString(String(category)), txType);
   if (!catCheck.valid) return api.badRequest(catCheck.error!);
 
   if (creditCardId) {
@@ -124,12 +125,12 @@ export async function POST(request: Request) {
 
       const parentTransaction = await db.transaction.create({
         data: {
-          name: `${name} (${numInstallments} installments)`,
+          name: `${sanitizeString(String(name))} (${numInstallments} installments)`,
           amount: amt,
           date: transactionDate,
-          category: String(category),
+          category: sanitizeString(String(category)),
           type: txType,
-          notes: notes ? String(notes) : null,
+          notes: sanitizeOptional(notes),
           installments: numInstallments,
           creditCardId: String(creditCardId),
           installmentNumber: 0,
@@ -142,12 +143,12 @@ export async function POST(request: Request) {
           installmentDate.setMonth(installmentDate.getMonth() + (i - 1));
           await prisma.transaction.create({
             data: {
-              name: `${name} (${i}/${numInstallments})`,
+              name: `${sanitizeString(String(name))} (${i}/${numInstallments})`,
               amount: installmentAmount,
               date: installmentDate,
-              category: String(category),
+              category: sanitizeString(String(category)),
               type: txType,
-              notes: notes ? String(notes) : null,
+              notes: sanitizeOptional(notes),
               installments: numInstallments,
               parentTransactionId: parentTransaction.id,
               installmentNumber: i,
@@ -165,12 +166,12 @@ export async function POST(request: Request) {
       const [newTx] = await db.$transaction([
         db.transaction.create({
           data: {
-            name: String(name),
+            name: sanitizeString(String(name)),
             amount: amt,
             date: parsedDate,
-            category: String(category),
+            category: sanitizeString(String(category)),
             type: txType,
-            notes: notes ? String(notes) : null,
+            notes: sanitizeOptional(notes),
             installments: numInstallments,
             creditCardId: String(creditCardId),
           },
@@ -197,12 +198,12 @@ export async function POST(request: Request) {
     const [newTx] = await db.$transaction([
       db.transaction.create({
         data: {
-          name: String(name),
+          name: sanitizeString(String(name)),
           amount: amt,
           date: parsedDate,
-          category: String(category),
+          category: sanitizeString(String(category)),
           type: txType,
-          notes: notes ? String(notes) : null,
+          notes: sanitizeOptional(notes),
           installments: numInstallments,
           bankAccountId: String(bankAccountId),
         },
