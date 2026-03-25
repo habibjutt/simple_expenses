@@ -3,7 +3,14 @@ import Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
-import { STRIPE_PRICE_TO_PLAN } from "@/lib/plans";
+import { STRIPE_PRICE_TO_PLAN, getPlanDisplayName, type EffectivePlan } from "@/lib/plans";
+import {
+  sendTrialStartedEmail,
+  sendSubscriptionActivatedEmail,
+  sendSubscriptionCancelledEmail,
+  sendSubscriptionRenewedEmail,
+  sendPaymentFailedEmail,
+} from "@/lib/email";
 
 async function getUserIdByCustomerId(customerId: string): Promise<string | null> {
   const user = await db.user.findFirst({
@@ -13,8 +20,22 @@ async function getUserIdByCustomerId(customerId: string): Promise<string | null>
   return user?.id ?? null;
 }
 
+async function getUserByCustomerId(customerId: string) {
+  return db.user.findFirst({
+    where: { stripeCustomerId: customerId },
+    select: { id: true, email: true, name: true },
+  });
+}
+
+async function getUserById(userId: string) {
+  return db.user.findFirst({
+    where: { id: userId },
+    select: { id: true, email: true, name: true },
+  });
+}
+
 /** Resolves the planTier from the first price item on a subscription */
-function resolvePlanTier(subscription: Stripe.Subscription): string {
+function resolvePlanTier(subscription: Stripe.Subscription): EffectivePlan {
   const priceId = subscription.items?.data?.[0]?.price?.id;
   return (priceId && STRIPE_PRICE_TO_PLAN[priceId]) ? STRIPE_PRICE_TO_PLAN[priceId] : "pro";
 }
@@ -73,9 +94,54 @@ export async function POST(req: NextRequest) {
 
   try {
     switch (event.type) {
-      case "customer.subscription.created":
+      case "customer.subscription.created": {
+        const subscription = event.data.object as Stripe.Subscription;
+        await syncSubscription(subscription);
+
+        // Send trial started or subscription activated email
+        const customerId = typeof subscription.customer === "string"
+          ? subscription.customer : subscription.customer.id;
+        const userId = subscription.metadata?.userId ?? (await getUserIdByCustomerId(customerId));
+        const user = userId ? await getUserById(userId) : await getUserByCustomerId(customerId);
+        if (user?.email) {
+          if (subscription.status === "trialing" && subscription.trial_end) {
+            await sendTrialStartedEmail({
+              to: user.email,
+              name: user.name || "there",
+              trialEndsAt: new Date(subscription.trial_end * 1000),
+            });
+          } else if (subscription.status === "active") {
+            const planTier = resolvePlanTier(subscription);
+            await sendSubscriptionActivatedEmail({
+              to: user.email,
+              name: user.name || "there",
+              planName: getPlanDisplayName(planTier),
+            });
+          }
+        }
+        break;
+      }
+
       case "customer.subscription.updated": {
-        await syncSubscription(event.data.object as Stripe.Subscription);
+        const subscription = event.data.object as Stripe.Subscription;
+        const previousAttributes = (event.data as Stripe.Event.Data).previous_attributes as Record<string, unknown> | undefined;
+        await syncSubscription(subscription);
+
+        // Send activation email when transitioning from trialing → active
+        const prevStatus = previousAttributes?.status as string | undefined;
+        if (prevStatus === "trialing" && subscription.status === "active") {
+          const customerId = typeof subscription.customer === "string"
+            ? subscription.customer : subscription.customer.id;
+          const user = await getUserByCustomerId(customerId);
+          if (user?.email) {
+            const planTier = resolvePlanTier(subscription);
+            await sendSubscriptionActivatedEmail({
+              to: user.email,
+              name: user.name || "there",
+              planName: getPlanDisplayName(planTier),
+            });
+          }
+        }
         break;
       }
 
@@ -88,6 +154,9 @@ export async function POST(req: NextRequest) {
         const userId =
           subscription.metadata?.userId ?? (await getUserIdByCustomerId(customerId));
 
+        // Fetch user for email before updating
+        const user = userId ? await getUserById(userId) : await getUserByCustomerId(customerId);
+
         if (userId) {
           await db.user.update({
             where: { id: userId },
@@ -95,6 +164,16 @@ export async function POST(req: NextRequest) {
               stripeSubscriptionId: null,
               subscriptionStatus: "canceled",
             },
+          });
+        }
+
+        if (user?.email) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const rawPeriodEnd = (subscription as any).current_period_end as number | undefined;
+          await sendSubscriptionCancelledEmail({
+            to: user.email,
+            name: user.name || "there",
+            endsAt: rawPeriodEnd ? new Date(rawPeriodEnd * 1000) : null,
           });
         }
         break;
@@ -107,6 +186,47 @@ export async function POST(req: NextRequest) {
             checkoutSession.subscription as string
           );
           await syncSubscription(subscription, checkoutSession.metadata?.userId);
+        }
+        break;
+      }
+
+      case "invoice.payment_succeeded": {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const invoice = event.data.object as any;
+        // Only send renewal emails for recurring payments (not first checkout)
+        if (invoice.billing_reason === "subscription_cycle" && invoice.customer) {
+          const customerId = typeof invoice.customer === "string"
+            ? invoice.customer : invoice.customer.id;
+          const user = await getUserByCustomerId(customerId);
+          const subId = invoice.subscription as string | undefined;
+          if (user?.email && subId) {
+            const subscription = await getStripe().subscriptions.retrieve(subId);
+            const planTier = resolvePlanTier(subscription);
+            const rawPeriodEnd = (subscription as any).current_period_end as number | undefined;
+            await sendSubscriptionRenewedEmail({
+              to: user.email,
+              name: user.name || "there",
+              planName: getPlanDisplayName(planTier),
+              nextBillingDate: rawPeriodEnd ? new Date(rawPeriodEnd * 1000) : null,
+            });
+          }
+        }
+        break;
+      }
+
+      case "invoice.payment_failed": {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const invoice = event.data.object as any;
+        if (invoice.customer) {
+          const customerId = typeof invoice.customer === "string"
+            ? invoice.customer : invoice.customer.id;
+          const user = await getUserByCustomerId(customerId);
+          if (user?.email) {
+            await sendPaymentFailedEmail({
+              to: user.email,
+              name: user.name || "there",
+            });
+          }
         }
         break;
       }
