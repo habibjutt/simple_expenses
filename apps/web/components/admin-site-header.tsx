@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { SidebarTrigger } from "@/components/ui/sidebar"
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export function AdminSiteHeader({ title = "Admin Panel" }: { title?: string }) {
   return (
@@ -19,5 +19,5 @@ export function AdminSiteHeader({ title = "Admin Panel" }: { title?: string }) {
         </div>
       </div>
     </header>
-  )
+  );
 }

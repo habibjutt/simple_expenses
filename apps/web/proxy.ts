@@ -21,7 +21,7 @@ const ALLOWED_ORIGINS = new Set(
     process.env.CORS_ALLOWED_ORIGINS?.split(",").map((o) => o.trim()),
   ]
     .flat()
-    .filter(Boolean) as string[]
+    .filter(Boolean) as string[],
 );
 
 function getAllowedOrigin(request: NextRequest): string | null {
@@ -51,7 +51,10 @@ const protectedRoutes = [
 ];
 
 /** Paths that trigger the stricter "expensive" rate limit. */
-const expensivePaths = ["/api/v1/transactions/export", "/api/v1/reports/export"];
+const expensivePaths = [
+  "/api/v1/transactions/export",
+  "/api/v1/reports/export",
+];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -100,11 +103,12 @@ export function proxy(request: NextRequest) {
         "X-RateLimit-Limit": String(result.limit),
         "X-RateLimit-Remaining": "0",
       };
-      if (allowedOrigin) rlHeaders["Access-Control-Allow-Origin"] = allowedOrigin;
+      if (allowedOrigin)
+        rlHeaders["Access-Control-Allow-Origin"] = allowedOrigin;
 
       return NextResponse.json(
         { error: "Too many requests. Please try again later." },
-        { status: 429, headers: rlHeaders }
+        { status: 429, headers: rlHeaders },
       );
     }
 
@@ -126,7 +130,9 @@ export function proxy(request: NextRequest) {
   // that case. Redirecting based on a possibly-expired cookie was the root
   // cause of ERR_TOO_MANY_REDIRECTS loops.
   const sessionCookie = getSessionCookie(request);
-  const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
+  const isProtectedRoute = protectedRoutes.some((route) =>
+    pathname.startsWith(route),
+  );
 
   if (isProtectedRoute && !sessionCookie) {
     return NextResponse.redirect(new URL("/login", request.url));

@@ -3,7 +3,11 @@ import Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
-import { STRIPE_PRICE_TO_PLAN, getPlanDisplayName, type EffectivePlan } from "@/lib/plans";
+import {
+  STRIPE_PRICE_TO_PLAN,
+  getPlanDisplayName,
+  type EffectivePlan,
+} from "@/lib/plans";
 import {
   sendTrialStartedEmail,
   sendSubscriptionActivatedEmail,
@@ -12,7 +16,9 @@ import {
   sendPaymentFailedEmail,
 } from "@/lib/email";
 
-async function getUserIdByCustomerId(customerId: string): Promise<string | null> {
+async function getUserIdByCustomerId(
+  customerId: string,
+): Promise<string | null> {
   const user = await db.user.findFirst({
     where: { stripeCustomerId: customerId },
     select: { id: true },
@@ -37,10 +43,15 @@ async function getUserById(userId: string) {
 /** Resolves the planTier from the first price item on a subscription */
 function resolvePlanTier(subscription: Stripe.Subscription): EffectivePlan {
   const priceId = subscription.items?.data?.[0]?.price?.id;
-  return (priceId && STRIPE_PRICE_TO_PLAN[priceId]) ? STRIPE_PRICE_TO_PLAN[priceId] : "pro";
+  return priceId && STRIPE_PRICE_TO_PLAN[priceId]
+    ? STRIPE_PRICE_TO_PLAN[priceId]
+    : "pro";
 }
 
-async function syncSubscription(subscription: Stripe.Subscription, overrideUserId?: string) {
+async function syncSubscription(
+  subscription: Stripe.Subscription,
+  overrideUserId?: string,
+) {
   const customerId =
     typeof subscription.customer === "string"
       ? subscription.customer
@@ -59,7 +70,9 @@ async function syncSubscription(subscription: Stripe.Subscription, overrideUserI
 
   // current_period_end lives at the subscription level in all supported API versions
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rawPeriodEnd = (subscription as any).current_period_end as number | undefined;
+  const rawPeriodEnd = (subscription as any).current_period_end as
+    | number
+    | undefined;
   const periodEnd = rawPeriodEnd ? new Date(rawPeriodEnd * 1000) : null;
 
   const planTier = resolvePlanTier(subscription);
@@ -82,14 +95,24 @@ export async function POST(req: NextRequest) {
   const sig = req.headers.get("stripe-signature");
 
   if (!sig) {
-    return NextResponse.json({ error: "Missing stripe-signature header" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Missing stripe-signature header" },
+      { status: 400 },
+    );
   }
 
   let event: Stripe.Event;
   try {
-    event = getStripe().webhooks.constructEvent(body, sig, env.STRIPE_WEBHOOK_SECRET ?? "");
+    event = getStripe().webhooks.constructEvent(
+      body,
+      sig,
+      env.STRIPE_WEBHOOK_SECRET ?? "",
+    );
   } catch {
-    return NextResponse.json({ error: "Webhook signature verification failed" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Webhook signature verification failed" },
+      { status: 400 },
+    );
   }
 
   try {
@@ -99,10 +122,16 @@ export async function POST(req: NextRequest) {
         await syncSubscription(subscription);
 
         // Send trial started or subscription activated email
-        const customerId = typeof subscription.customer === "string"
-          ? subscription.customer : subscription.customer.id;
-        const userId = subscription.metadata?.userId ?? (await getUserIdByCustomerId(customerId));
-        const user = userId ? await getUserById(userId) : await getUserByCustomerId(customerId);
+        const customerId =
+          typeof subscription.customer === "string"
+            ? subscription.customer
+            : subscription.customer.id;
+        const userId =
+          subscription.metadata?.userId ??
+          (await getUserIdByCustomerId(customerId));
+        const user = userId
+          ? await getUserById(userId)
+          : await getUserByCustomerId(customerId);
         if (user?.email) {
           if (subscription.status === "trialing" && subscription.trial_end) {
             await sendTrialStartedEmail({
@@ -124,14 +153,17 @@ export async function POST(req: NextRequest) {
 
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription;
-        const previousAttributes = (event.data as Stripe.Event.Data).previous_attributes as Record<string, unknown> | undefined;
+        const previousAttributes = (event.data as Stripe.Event.Data)
+          .previous_attributes as Record<string, unknown> | undefined;
         await syncSubscription(subscription);
 
         // Send activation email when transitioning from trialing → active
         const prevStatus = previousAttributes?.status as string | undefined;
         if (prevStatus === "trialing" && subscription.status === "active") {
-          const customerId = typeof subscription.customer === "string"
-            ? subscription.customer : subscription.customer.id;
+          const customerId =
+            typeof subscription.customer === "string"
+              ? subscription.customer
+              : subscription.customer.id;
           const user = await getUserByCustomerId(customerId);
           if (user?.email) {
             const planTier = resolvePlanTier(subscription);
@@ -152,10 +184,13 @@ export async function POST(req: NextRequest) {
             ? subscription.customer
             : subscription.customer.id;
         const userId =
-          subscription.metadata?.userId ?? (await getUserIdByCustomerId(customerId));
+          subscription.metadata?.userId ??
+          (await getUserIdByCustomerId(customerId));
 
         // Fetch user for email before updating
-        const user = userId ? await getUserById(userId) : await getUserByCustomerId(customerId);
+        const user = userId
+          ? await getUserById(userId)
+          : await getUserByCustomerId(customerId);
 
         if (userId) {
           await db.user.update({
@@ -169,7 +204,9 @@ export async function POST(req: NextRequest) {
 
         if (user?.email) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const rawPeriodEnd = (subscription as any).current_period_end as number | undefined;
+          const rawPeriodEnd = (subscription as any).current_period_end as
+            | number
+            | undefined;
           await sendSubscriptionCancelledEmail({
             to: user.email,
             name: user.name || "there",
@@ -181,11 +218,17 @@ export async function POST(req: NextRequest) {
 
       case "checkout.session.completed": {
         const checkoutSession = event.data.object as Stripe.Checkout.Session;
-        if (checkoutSession.mode === "subscription" && checkoutSession.subscription) {
+        if (
+          checkoutSession.mode === "subscription" &&
+          checkoutSession.subscription
+        ) {
           const subscription = await getStripe().subscriptions.retrieve(
-            checkoutSession.subscription as string
+            checkoutSession.subscription as string,
           );
-          await syncSubscription(subscription, checkoutSession.metadata?.userId);
+          await syncSubscription(
+            subscription,
+            checkoutSession.metadata?.userId,
+          );
         }
         break;
       }
@@ -194,20 +237,30 @@ export async function POST(req: NextRequest) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const invoice = event.data.object as any;
         // Only send renewal emails for recurring payments (not first checkout)
-        if (invoice.billing_reason === "subscription_cycle" && invoice.customer) {
-          const customerId = typeof invoice.customer === "string"
-            ? invoice.customer : invoice.customer.id;
+        if (
+          invoice.billing_reason === "subscription_cycle" &&
+          invoice.customer
+        ) {
+          const customerId =
+            typeof invoice.customer === "string"
+              ? invoice.customer
+              : invoice.customer.id;
           const user = await getUserByCustomerId(customerId);
           const subId = invoice.subscription as string | undefined;
           if (user?.email && subId) {
-            const subscription = await getStripe().subscriptions.retrieve(subId);
+            const subscription =
+              await getStripe().subscriptions.retrieve(subId);
             const planTier = resolvePlanTier(subscription);
-            const rawPeriodEnd = (subscription as any).current_period_end as number | undefined;
+            const rawPeriodEnd = (
+              subscription as unknown as { current_period_end?: number }
+            ).current_period_end;
             await sendSubscriptionRenewedEmail({
               to: user.email,
               name: user.name || "there",
               planName: getPlanDisplayName(planTier),
-              nextBillingDate: rawPeriodEnd ? new Date(rawPeriodEnd * 1000) : null,
+              nextBillingDate: rawPeriodEnd
+                ? new Date(rawPeriodEnd * 1000)
+                : null,
             });
           }
         }
@@ -218,8 +271,10 @@ export async function POST(req: NextRequest) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const invoice = event.data.object as any;
         if (invoice.customer) {
-          const customerId = typeof invoice.customer === "string"
-            ? invoice.customer : invoice.customer.id;
+          const customerId =
+            typeof invoice.customer === "string"
+              ? invoice.customer
+              : invoice.customer.id;
           const user = await getUserByCustomerId(customerId);
           if (user?.email) {
             await sendPaymentFailedEmail({
@@ -233,7 +288,10 @@ export async function POST(req: NextRequest) {
     }
   } catch (err) {
     console.error("Stripe webhook handler error:", err);
-    return NextResponse.json({ error: "Webhook handler failed" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Webhook handler failed" },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({ received: true });

@@ -15,16 +15,17 @@ export async function POST(request: Request) {
     return api.badRequest("Invalid JSON body");
   }
 
-  const { fromBankAccountId, toBankAccountId, amount, date, notes } = body as Record<
-    string,
-    unknown
-  >;
+  const { fromBankAccountId, toBankAccountId, amount, date, notes } =
+    body as Record<string, unknown>;
 
   if (!fromBankAccountId || !toBankAccountId || amount == null || !date)
-    return api.badRequest("fromBankAccountId, toBankAccountId, amount, and date are required");
+    return api.badRequest(
+      "fromBankAccountId, toBankAccountId, amount, and date are required",
+    );
 
   const amt = Number(amount);
-  if (isNaN(amt) || amt <= 0) return api.badRequest("amount must be greater than 0");
+  if (isNaN(amt) || amt <= 0)
+    return api.badRequest("amount must be greater than 0");
 
   const fromAccount = await db.bank_account.findFirst({
     where: { id: String(fromBankAccountId), userId: user.id },
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
 
   if (fromAccount.currentBalance < amt)
     return api.badRequest(
-      `Insufficient funds. Available: ${fromAccount.currentBalance}, Requested: ${amt}`
+      `Insufficient funds. Available: ${fromAccount.currentBalance}, Requested: ${amt}`,
     );
 
   const txDate = parseTransactionDate(date);
@@ -47,7 +48,9 @@ export async function POST(request: Request) {
   await db.$transaction([
     db.transaction.create({
       data: {
-        name: notes ? sanitizeString(String(notes)) : `Transfer to ${toAccount.name}`,
+        name: notes
+          ? sanitizeString(String(notes))
+          : `Transfer to ${toAccount.name}`,
         amount: amt,
         date: txDate,
         category: "Transfer",
@@ -57,7 +60,9 @@ export async function POST(request: Request) {
     }),
     db.transaction.create({
       data: {
-        name: notes ? sanitizeString(String(notes)) : `Transfer from ${fromAccount.name}`,
+        name: notes
+          ? sanitizeString(String(notes))
+          : `Transfer from ${fromAccount.name}`,
         amount: -amt,
         date: txDate,
         category: "Transfer",

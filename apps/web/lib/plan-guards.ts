@@ -26,7 +26,9 @@ export interface GuardResult {
 
 // ─── Credit Cards ─────────────────────────────────────────────────────────────
 
-export async function checkCanAddCreditCard(userId: string): Promise<GuardResult> {
+export async function checkCanAddCreditCard(
+  userId: string,
+): Promise<GuardResult> {
   const plan = await getEffectivePlan(userId);
   const limits = getPlanLimits(plan);
 
@@ -49,7 +51,9 @@ export async function checkCanAddCreditCard(userId: string): Promise<GuardResult
 
 // ─── Bank Accounts ────────────────────────────────────────────────────────────
 
-export async function checkCanAddBankAccount(userId: string): Promise<GuardResult> {
+export async function checkCanAddBankAccount(
+  userId: string,
+): Promise<GuardResult> {
   const plan = await getEffectivePlan(userId);
   const limits = getPlanLimits(plan);
 
@@ -80,8 +84,12 @@ export async function checkCanAddBankAccount(userId: string): Promise<GuardResul
  */
 async function countMonthlyTransactions(userId: string): Promise<number> {
   const now = new Date();
-  const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-  const monthEnd = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+  const monthStart = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
+  );
+  const monthEnd = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1),
+  );
 
   // Get user's account IDs for join-free counting
   const [cardIds, accountIds] = await Promise.all([
@@ -98,7 +106,9 @@ async function countMonthlyTransactions(userId: string): Promise<number> {
       // Belongs to the user (at least one account matches)
       OR: [
         cardIdList.length > 0 ? { creditCardId: { in: cardIdList } } : {},
-        accountIdList.length > 0 ? { bankAccountId: { in: accountIdList } } : {},
+        accountIdList.length > 0
+          ? { bankAccountId: { in: accountIdList } }
+          : {},
       ],
       // Exclude cron-generated recurring instances
       parentRecurringId: null,
@@ -113,7 +123,9 @@ async function countMonthlyTransactions(userId: string): Promise<number> {
   });
 }
 
-export async function checkCanAddTransaction(userId: string): Promise<GuardResult> {
+export async function checkCanAddTransaction(
+  userId: string,
+): Promise<GuardResult> {
   const plan = await getEffectivePlan(userId);
   const limits = getPlanLimits(plan);
 
@@ -134,14 +146,18 @@ export async function checkCanAddTransaction(userId: string): Promise<GuardResul
     };
   }
 
-  return { allowed: true, currentCount: count, limit: limits.transactionsPerMonth };
+  return {
+    allowed: true,
+    currentCount: count,
+    limit: limits.transactionsPerMonth,
+  };
 }
 
 // ─── Exports ─────────────────────────────────────────────────────────────────
 
 export async function checkCanExport(
   userId: string,
-  format: "csv" | "pdf"
+  format: "csv" | "pdf",
 ): Promise<GuardResult> {
   const plan = await getEffectivePlan(userId);
   const limits = getPlanLimits(plan);
@@ -179,17 +195,21 @@ export async function getUserOverLimitStatus(userId: string): Promise<{
   const plan = await getEffectivePlan(userId);
   const limits = getPlanLimits(plan);
 
-  const [creditCardCount, bankAccountCount, transactionCount] = await Promise.all([
-    db.credit_card.count({ where: { userId } }),
-    db.bank_account.count({ where: { userId } }),
-    countMonthlyTransactions(userId),
-  ]);
+  const [creditCardCount, bankAccountCount, transactionCount] =
+    await Promise.all([
+      db.credit_card.count({ where: { userId } }),
+      db.bank_account.count({ where: { userId } }),
+      countMonthlyTransactions(userId),
+    ]);
 
   return {
-    overCreditCards: limits.creditCards !== null && creditCardCount > limits.creditCards,
-    overBankAccounts: limits.bankAccounts !== null && bankAccountCount > limits.bankAccounts,
+    overCreditCards:
+      limits.creditCards !== null && creditCardCount > limits.creditCards,
+    overBankAccounts:
+      limits.bankAccounts !== null && bankAccountCount > limits.bankAccounts,
     overTransactions:
-      limits.transactionsPerMonth !== null && transactionCount > limits.transactionsPerMonth,
+      limits.transactionsPerMonth !== null &&
+      transactionCount > limits.transactionsPerMonth,
     creditCardCount,
     bankAccountCount,
     transactionCount,

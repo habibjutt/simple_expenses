@@ -1,7 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { createBankAccount, updateBankAccount } from "@/app/api/bank-account-action";
+import {
+  createBankAccount,
+  updateBankAccount,
+} from "@/app/api/bank-account-action";
 import {
   Dialog,
   DialogContent,
@@ -67,7 +70,7 @@ export default function BankAccountModal({
       formData.append("name", name);
       formData.append("initialBalance", initialBalance);
       formData.append("currency", currency);
-      
+
       let result;
       if (editAccount) {
         result = await updateBankAccount(editAccount.id, formData);
@@ -76,13 +79,17 @@ export default function BankAccountModal({
       }
       if (result?.error) {
         if (result.planLimitReached) {
-          setPlanAlert({ allowed: false, reason: result.error, requiredPlan: result.requiredPlan });
+          setPlanAlert({
+            allowed: false,
+            reason: result.error,
+            requiredPlan: result.requiredPlan,
+          });
           return;
         }
         setError(result.error);
         return;
       }
-      
+
       setOpen(false);
       setName("");
       setInitialBalance("");
@@ -90,7 +97,11 @@ export default function BankAccountModal({
         onSuccess();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : `Failed to ${editAccount ? "update" : "create"} bank account`);
+      setError(
+        err instanceof Error
+          ? err.message
+          : `Failed to ${editAccount ? "update" : "create"} bank account`,
+      );
     } finally {
       setLoading(false);
     }
@@ -101,7 +112,9 @@ export default function BankAccountModal({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{editAccount ? "Edit Bank Account" : "Add Bank Account"}</DialogTitle>
+            <DialogTitle>
+              {editAccount ? "Edit Bank Account" : "Add Bank Account"}
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <Field label="Account Name" required>
@@ -126,7 +139,8 @@ export default function BankAccountModal({
               />
             </Field>
             <p className="text-xs text-slate-500">
-              Currency: <span className="font-medium text-slate-700">{currency}</span>
+              Currency:{" "}
+              <span className="font-medium text-slate-700">{currency}</span>
             </p>
             {error && (
               <div className="text-red-500 text-sm" role="alert">
@@ -135,7 +149,13 @@ export default function BankAccountModal({
             )}
             <DialogFooter>
               <Button type="submit" variant="default" disabled={loading}>
-                {loading ? (editAccount ? "Updating..." : "Adding...") : (editAccount ? "Update Account" : "Add Account")}
+                {loading
+                  ? editAccount
+                    ? "Updating..."
+                    : "Adding..."
+                  : editAccount
+                    ? "Update Account"
+                    : "Add Account"}
               </Button>
               <Button
                 type="button"
@@ -152,7 +172,10 @@ export default function BankAccountModal({
       {planAlert && (
         <PlanLimitAlert
           open={!!planAlert}
-          onClose={() => { setPlanAlert(null); setOpen(false); }}
+          onClose={() => {
+            setPlanAlert(null);
+            setOpen(false);
+          }}
           limitType="bankAccount"
           guardResult={planAlert}
         />

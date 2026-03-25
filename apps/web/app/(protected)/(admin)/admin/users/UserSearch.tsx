@@ -35,7 +35,7 @@ export default function UserSearch({
       params.set(key, value);
       router.push(`${pathname}?${params.toString()}`);
     },
-    [router, pathname, defaultSearch, defaultRole, defaultBanned]
+    [router, pathname, defaultSearch, defaultRole, defaultBanned],
   );
 
   return (
@@ -50,7 +50,10 @@ export default function UserSearch({
         />
       </div>
 
-      <Select defaultValue={defaultRole || "all"} onValueChange={(v) => update("role", v === "all" ? "" : v)}>
+      <Select
+        defaultValue={defaultRole || "all"}
+        onValueChange={(v) => update("role", v === "all" ? "" : v)}
+      >
         <SelectTrigger className="w-[140px]">
           <SelectValue placeholder="All roles" />
         </SelectTrigger>
@@ -61,7 +64,10 @@ export default function UserSearch({
         </SelectContent>
       </Select>
 
-      <Select defaultValue={defaultBanned || "all"} onValueChange={(v) => update("banned", v === "all" ? "" : v)}>
+      <Select
+        defaultValue={defaultBanned || "all"}
+        onValueChange={(v) => update("banned", v === "all" ? "" : v)}
+      >
         <SelectTrigger className="w-[150px]">
           <SelectValue placeholder="All statuses" />
         </SelectTrigger>

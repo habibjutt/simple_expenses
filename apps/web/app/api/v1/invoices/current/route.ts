@@ -8,7 +8,14 @@ export async function GET(request: Request) {
 
   const today = new Date();
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59);
+  const endOfMonth = new Date(
+    today.getFullYear(),
+    today.getMonth() + 1,
+    0,
+    23,
+    59,
+    59,
+  );
 
   const invoices = await db.invoice.findMany({
     where: {
@@ -17,7 +24,14 @@ export async function GET(request: Request) {
       billEndDate: { gte: startOfMonth },
     },
     include: {
-      creditCard: { select: { id: true, name: true, paymentDate: true, billGenerationDate: true } },
+      creditCard: {
+        select: {
+          id: true,
+          name: true,
+          paymentDate: true,
+          billGenerationDate: true,
+        },
+      },
     },
     orderBy: { paymentDueDate: "asc" },
   });

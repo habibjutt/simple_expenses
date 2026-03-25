@@ -10,7 +10,9 @@ export default function BackupDownloadButton() {
   const handleDownload = async () => {
     try {
       setDownloading(true);
-      const res = await fetch("/api/v1/admin/backup", { credentials: "include" });
+      const res = await fetch("/api/v1/admin/backup", {
+        credentials: "include",
+      });
       if (!res.ok) {
         let message = "Backup failed";
         try {

@@ -14,4 +14,3 @@ export {
 
 export { SUPPORTED_CURRENCIES } from "@simple-expenses/types";
 export type { CurrencyCode } from "@simple-expenses/types";
-

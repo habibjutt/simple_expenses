@@ -4,7 +4,10 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { db as prisma } from "@/lib/db";
 import { DEFAULT_CATEGORIES, type Category } from "@/lib/category-data";
-import { CategorySchema, UpdateCategorySchema } from "@/lib/validations/category";
+import {
+  CategorySchema,
+  UpdateCategorySchema,
+} from "@/lib/validations/category";
 import type { ActionResult } from "@/lib/validations";
 
 export type { Category } from "@/lib/category-data";
@@ -24,7 +27,9 @@ export async function getCategories(): Promise<Category[]> {
   return cats;
 }
 
-export async function getCategoriesByType(type: "expense" | "income" | "both"): Promise<Category[]> {
+export async function getCategoriesByType(
+  type: "expense" | "income" | "both",
+): Promise<Category[]> {
   const session = await getSession();
   const cats = await prisma.category.findMany({
     where: {
@@ -57,28 +62,34 @@ export async function createCategory(data: {
 
 export async function updateCategory(
   id: string,
-  data: { name?: string; color?: string; icon?: string; type?: string }
+  data: { name?: string; color?: string; icon?: string; type?: string },
 ): Promise<ActionResult> {
   const session = await getSession();
   const parse = UpdateCategorySchema.safeParse(data);
   if (!parse.success) {
     return { error: parse.error.issues[0].message };
   }
-  const existing = await prisma.category.findFirst({ where: { id, userId: session.user.id } });
+  const existing = await prisma.category.findFirst({
+    where: { id, userId: session.user.id },
+  });
   if (!existing) throw new Error("Category not found");
   await prisma.category.update({ where: { id }, data: parse.data });
 }
 
 export async function deleteCategory(id: string): Promise<void> {
   const session = await getSession();
-  const existing = await prisma.category.findFirst({ where: { id, userId: session.user.id } });
+  const existing = await prisma.category.findFirst({
+    where: { id, userId: session.user.id },
+  });
   if (!existing) throw new Error("Category not found");
   await prisma.category.delete({ where: { id } });
 }
 
 export async function seedDefaultCategories(): Promise<void> {
   const session = await getSession();
-  const existing = await prisma.category.count({ where: { userId: session.user.id } });
+  const existing = await prisma.category.count({
+    where: { userId: session.user.id },
+  });
   if (existing > 0) return;
   await prisma.category.createMany({
     data: DEFAULT_CATEGORIES.map((c) => ({ ...c, userId: session.user.id })),

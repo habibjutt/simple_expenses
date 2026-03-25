@@ -1,7 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { toggleFeatureFlag, createFeatureFlag, deleteFeatureFlag } from "@/app/api/admin-action";
+import {
+  toggleFeatureFlag,
+  createFeatureFlag,
+  deleteFeatureFlag,
+} from "@/app/api/admin-action";
 import { Plus, Trash2 } from "lucide-react";
 
 type Flag = {
@@ -50,7 +54,10 @@ export default function FlagsTable({ flags }: { flags: Flag[] }) {
   const handleCreate = () => {
     if (!newKey.trim()) return;
     startTransition(async () => {
-      await createFeatureFlag({ key: newKey.trim(), description: newDesc.trim() || undefined });
+      await createFeatureFlag({
+        key: newKey.trim(),
+        description: newDesc.trim() || undefined,
+      });
       setNewKey("");
       setNewDesc("");
       setShowNew(false);
@@ -131,23 +138,42 @@ export default function FlagsTable({ flags }: { flags: Flag[] }) {
         {/* Mobile card list */}
         <div className="md:hidden divide-y" style={{ borderColor: "#1a2d4a" }}>
           {flags.length === 0 ? (
-            <p className="px-4 py-8 text-center text-sm" style={{ color: "#64748b" }}>
+            <p
+              className="px-4 py-8 text-center text-sm"
+              style={{ color: "#64748b" }}
+            >
               No feature flags yet. Create your first one above.
             </p>
           ) : (
             flags.map((f) => (
-              <div key={f.id} className="p-4 flex items-start justify-between gap-3">
+              <div
+                key={f.id}
+                className="p-4 flex items-start justify-between gap-3"
+              >
                 <div className="flex-1 min-w-0 space-y-1">
-                  <span className="font-mono text-sm" style={{ color: "#a5b4ff" }}>{f.key}</span>
+                  <span
+                    className="font-mono text-sm"
+                    style={{ color: "#a5b4ff" }}
+                  >
+                    {f.key}
+                  </span>
                   {f.description && (
-                    <p className="text-xs truncate" style={{ color: "#64748b" }}>{f.description}</p>
+                    <p
+                      className="text-xs truncate"
+                      style={{ color: "#64748b" }}
+                    >
+                      {f.description}
+                    </p>
                   )}
                   <p className="text-xs" style={{ color: "#3d5a80" }}>
-                    Updated {new Date(f.updatedAt).toLocaleDateString('en-US')}
+                    Updated {new Date(f.updatedAt).toLocaleDateString("en-US")}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <Toggle enabled={f.enabled} onChange={(v) => handleToggle(f.key, v)} />
+                  <Toggle
+                    enabled={f.enabled}
+                    onChange={(v) => handleToggle(f.key, v)}
+                  />
                   <button
                     onClick={() => handleDelete(f.key)}
                     className="p-1.5 rounded-lg border text-red-500 transition-colors hover:bg-red-500/10"
@@ -166,33 +192,48 @@ export default function FlagsTable({ flags }: { flags: Flag[] }) {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b" style={{ borderColor: "#1a2d4a" }}>
-                {["Flag Key", "Description", "Status", "Last Updated", ""].map((h) => (
-                  <th
-                    key={h}
-                    className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider"
-                    style={{ color: "#3d5a80" }}
-                  >
-                    {h}
-                  </th>
-                ))}
+                {["Flag Key", "Description", "Status", "Last Updated", ""].map(
+                  (h) => (
+                    <th
+                      key={h}
+                      className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider"
+                      style={{ color: "#3d5a80" }}
+                    >
+                      {h}
+                    </th>
+                  ),
+                )}
               </tr>
             </thead>
             <tbody className="divide-y" style={{ borderColor: "#1a2d4a" }}>
               {flags.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-sm" style={{ color: "#64748b" }}>
+                  <td
+                    colSpan={5}
+                    className="px-4 py-8 text-center text-sm"
+                    style={{ color: "#64748b" }}
+                  >
                     No feature flags yet. Create your first one above.
                   </td>
                 </tr>
               ) : (
                 flags.map((f) => (
-                  <tr key={f.id} className="transition-colors hover:bg-white/[0.02]">
+                  <tr
+                    key={f.id}
+                    className="transition-colors hover:bg-white/[0.02]"
+                  >
                     <td className="px-4 py-3">
-                      <span className="font-mono text-sm" style={{ color: "#a5b4ff" }}>
+                      <span
+                        className="font-mono text-sm"
+                        style={{ color: "#a5b4ff" }}
+                      >
                         {f.key}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-xs max-w-[200px] truncate" style={{ color: "#64748b" }}>
+                    <td
+                      className="px-4 py-3 text-xs max-w-[200px] truncate"
+                      style={{ color: "#64748b" }}
+                    >
                       {f.description || "—"}
                     </td>
                     <td className="px-4 py-3">
@@ -201,13 +242,19 @@ export default function FlagsTable({ flags }: { flags: Flag[] }) {
                           enabled={f.enabled}
                           onChange={(v) => handleToggle(f.key, v)}
                         />
-                        <span className="text-xs" style={{ color: f.enabled ? "#22c55e" : "#64748b" }}>
+                        <span
+                          className="text-xs"
+                          style={{ color: f.enabled ? "#22c55e" : "#64748b" }}
+                        >
                           {f.enabled ? "Enabled" : "Disabled"}
                         </span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-xs" style={{ color: "#64748b" }}>
-                      {new Date(f.updatedAt).toLocaleDateString('en-US')}
+                    <td
+                      className="px-4 py-3 text-xs"
+                      style={{ color: "#64748b" }}
+                    >
+                      {new Date(f.updatedAt).toLocaleDateString("en-US")}
                     </td>
                     <td className="px-4 py-3">
                       <button

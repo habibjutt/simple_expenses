@@ -13,11 +13,7 @@ export const SpendingLimitSchema = z.object({
     .int()
     .min(1, "Month must be between 1 and 12")
     .max(12, "Month must be between 1 and 12"),
-  year: z
-    .number()
-    .int()
-    .min(2000, "Invalid year")
-    .max(2100, "Invalid year"),
+  year: z.number().int().min(2000, "Invalid year").max(2100, "Invalid year"),
 });
 
 export type SpendingLimitInput = z.infer<typeof SpendingLimitSchema>;

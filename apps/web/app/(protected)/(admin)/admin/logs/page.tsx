@@ -7,10 +7,10 @@ function ActionBadge({ action }: { action: string }) {
     action.includes("deleted") || action.includes("banned")
       ? "#ef4444"
       : action.includes("admin") || action.includes("role")
-      ? "#f59e0b"
-      : action.includes("toggled") || action.includes("created")
-      ? "#22c55e"
-      : "#4f6ef7";
+        ? "#f59e0b"
+        : action.includes("toggled") || action.includes("created")
+          ? "#22c55e"
+          : "#4f6ef7";
   return (
     <span
       className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-mono font-medium whitespace-nowrap"
@@ -37,7 +37,10 @@ export default async function AdminLogsPage({
       <div>
         <div className="flex items-center gap-2 mb-1">
           <ScrollText className="w-4 h-4" style={{ color: "#4f6ef7" }} />
-          <span className="text-xs font-medium uppercase tracking-widest" style={{ color: "#4f6ef7" }}>
+          <span
+            className="text-xs font-medium uppercase tracking-widest"
+            style={{ color: "#4f6ef7" }}
+          >
             Audit Logs
           </span>
         </div>
@@ -54,14 +57,22 @@ export default async function AdminLogsPage({
         {/* Mobile card list */}
         <div className="md:hidden divide-y" style={{ borderColor: "#1a2d4a" }}>
           {logs.length === 0 ? (
-            <p className="px-4 py-8 text-center text-sm" style={{ color: "#64748b" }}>No audit events yet.</p>
+            <p
+              className="px-4 py-8 text-center text-sm"
+              style={{ color: "#64748b" }}
+            >
+              No audit events yet.
+            </p>
           ) : (
             logs.map((log) => (
               <div key={log.id} className="p-4 space-y-1.5">
                 <div className="flex items-start justify-between gap-2">
                   <ActionBadge action={log.action} />
-                  <span className="text-xs shrink-0" style={{ color: "#3d5a80" }}>
-                    {new Date(log.createdAt).toLocaleDateString('en-US')}
+                  <span
+                    className="text-xs shrink-0"
+                    style={{ color: "#3d5a80" }}
+                  >
+                    {new Date(log.createdAt).toLocaleDateString("en-US")}
                   </span>
                 </div>
                 <p className="text-xs" style={{ color: "#64748b" }}>
@@ -96,39 +107,64 @@ export default async function AdminLogsPage({
             <tbody className="divide-y" style={{ borderColor: "#1a2d4a" }}>
               {logs.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-sm" style={{ color: "#64748b" }}>
+                  <td
+                    colSpan={5}
+                    className="px-4 py-8 text-center text-sm"
+                    style={{ color: "#64748b" }}
+                  >
                     No audit events yet.
                   </td>
                 </tr>
               ) : (
                 logs.map((log) => (
-                  <tr key={log.id} className="transition-colors hover:bg-white/[0.02]">
+                  <tr
+                    key={log.id}
+                    className="transition-colors hover:bg-white/[0.02]"
+                  >
                     <td className="px-4 py-3">
                       <ActionBadge action={log.action} />
                     </td>
                     <td className="px-4 py-3">
-                      <p className="text-xs text-white">{log.user.name || "—"}</p>
-                      <p className="text-[11px] mt-0.5 truncate max-w-[140px]" style={{ color: "#64748b" }}>
+                      <p className="text-xs text-white">
+                        {log.user.name || "—"}
+                      </p>
+                      <p
+                        className="text-[11px] mt-0.5 truncate max-w-[140px]"
+                        style={{ color: "#64748b" }}
+                      >
                         {log.user.email}
                       </p>
                     </td>
                     <td className="px-4 py-3">
                       {log.entityType ? (
                         <div>
-                          <p className="text-xs" style={{ color: "#94a3b8" }}>{log.entityType}</p>
-                          <p className="text-[11px] font-mono mt-0.5" style={{ color: "#64748b" }}>
+                          <p className="text-xs" style={{ color: "#94a3b8" }}>
+                            {log.entityType}
+                          </p>
+                          <p
+                            className="text-[11px] font-mono mt-0.5"
+                            style={{ color: "#64748b" }}
+                          >
                             {log.entityId?.slice(0, 10)}
                           </p>
                         </div>
                       ) : (
-                        <span className="text-xs" style={{ color: "#64748b" }}>—</span>
+                        <span className="text-xs" style={{ color: "#64748b" }}>
+                          —
+                        </span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-xs font-mono" style={{ color: "#64748b" }}>
+                    <td
+                      className="px-4 py-3 text-xs font-mono"
+                      style={{ color: "#64748b" }}
+                    >
                       {log.ipAddress || "—"}
                     </td>
-                    <td className="px-4 py-3 text-xs whitespace-nowrap" style={{ color: "#64748b" }}>
-                      {new Date(log.createdAt).toLocaleString('en-US')}
+                    <td
+                      className="px-4 py-3 text-xs whitespace-nowrap"
+                      style={{ color: "#64748b" }}
+                    >
+                      {new Date(log.createdAt).toLocaleString("en-US")}
                     </td>
                   </tr>
                 ))
@@ -149,7 +185,11 @@ export default async function AdminLogsPage({
               <Link
                 href={`?page=${page - 1}&action=${action}`}
                 className="px-4 py-2 rounded-lg border text-sm font-medium"
-                style={{ borderColor: "#1a2d4a", color: "#94a3b8", background: "#0f1e38" }}
+                style={{
+                  borderColor: "#1a2d4a",
+                  color: "#94a3b8",
+                  background: "#0f1e38",
+                }}
               >
                 Previous
               </Link>
@@ -158,7 +198,11 @@ export default async function AdminLogsPage({
               <Link
                 href={`?page=${page + 1}&action=${action}`}
                 className="px-4 py-2 rounded-lg border text-sm font-medium"
-                style={{ borderColor: "#1a2d4a", color: "#94a3b8", background: "#0f1e38" }}
+                style={{
+                  borderColor: "#1a2d4a",
+                  color: "#94a3b8",
+                  background: "#0f1e38",
+                }}
               >
                 Next
               </Link>

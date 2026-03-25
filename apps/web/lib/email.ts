@@ -15,14 +15,17 @@ const transporter = nodemailer.createTransport({
 });
 
 // Verify SMTP connection on module load so misconfiguration surfaces immediately
-transporter.verify().then(() => {
-  console.log("[email] SMTP connection verified ✓");
-}).catch((err: unknown) => {
-  console.error(
-    "[email] SMTP connection FAILED — check SMTP_HOST / SMTP_PORT / credentials:",
-    err,
-  );
-});
+transporter
+  .verify()
+  .then(() => {
+    console.log("[email] SMTP connection verified ✓");
+  })
+  .catch((err: unknown) => {
+    console.error(
+      "[email] SMTP connection FAILED — check SMTP_HOST / SMTP_PORT / credentials:",
+      err,
+    );
+  });
 
 const emailWrapper = (content: string) => `
   <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
@@ -60,7 +63,9 @@ export async function sendPasswordResetEmail({
         </p>
       `),
     });
-    console.log(`[email] Password reset email sent to ${to} — messageId: ${info.messageId}`);
+    console.log(
+      `[email] Password reset email sent to ${to} — messageId: ${info.messageId}`,
+    );
   } catch (err) {
     console.error(`[email] Failed to send password reset email to ${to}:`, err);
     throw err;
@@ -93,7 +98,9 @@ export async function sendVerificationEmail({
         </p>
       `),
     });
-    console.log(`[email] Verification email sent to ${to} — messageId: ${info.messageId}`);
+    console.log(
+      `[email] Verification email sent to ${to} — messageId: ${info.messageId}`,
+    );
   } catch (err) {
     console.error(`[email] Failed to send verification email to ${to}:`, err);
     throw err;
@@ -141,7 +148,9 @@ export async function sendTrialStartedEmail({
         </p>
       `),
     });
-    console.log(`[email] Trial started email sent to ${to} — messageId: ${info.messageId}`);
+    console.log(
+      `[email] Trial started email sent to ${to} — messageId: ${info.messageId}`,
+    );
   } catch (err) {
     console.error(`[email] Failed to send trial started email to ${to}:`, err);
   }
@@ -185,7 +194,9 @@ export async function sendTrialExpiringEmail({
         </p>
       `),
     });
-    console.log(`[email] Trial expiring email sent to ${to} (${daysWord} left) — messageId: ${info.messageId}`);
+    console.log(
+      `[email] Trial expiring email sent to ${to} (${daysWord} left) — messageId: ${info.messageId}`,
+    );
   } catch (err) {
     console.error(`[email] Failed to send trial expiring email to ${to}:`, err);
   }
@@ -217,9 +228,14 @@ export async function sendSubscriptionActivatedEmail({
         </p>
       `),
     });
-    console.log(`[email] Subscription activated email sent to ${to} — messageId: ${info.messageId}`);
+    console.log(
+      `[email] Subscription activated email sent to ${to} — messageId: ${info.messageId}`,
+    );
   } catch (err) {
-    console.error(`[email] Failed to send subscription activated email to ${to}:`, err);
+    console.error(
+      `[email] Failed to send subscription activated email to ${to}:`,
+      err,
+    );
   }
 }
 
@@ -253,9 +269,14 @@ export async function sendSubscriptionCancelledEmail({
         </p>
       `),
     });
-    console.log(`[email] Subscription cancelled email sent to ${to} — messageId: ${info.messageId}`);
+    console.log(
+      `[email] Subscription cancelled email sent to ${to} — messageId: ${info.messageId}`,
+    );
   } catch (err) {
-    console.error(`[email] Failed to send subscription cancelled email to ${to}:`, err);
+    console.error(
+      `[email] Failed to send subscription cancelled email to ${to}:`,
+      err,
+    );
   }
 }
 
@@ -283,7 +304,9 @@ export async function sendPaymentFailedEmail({
         </p>
       `),
     });
-    console.log(`[email] Payment failed email sent to ${to} — messageId: ${info.messageId}`);
+    console.log(
+      `[email] Payment failed email sent to ${to} — messageId: ${info.messageId}`,
+    );
   } catch (err) {
     console.error(`[email] Failed to send payment failed email to ${to}:`, err);
   }
@@ -301,7 +324,11 @@ export async function sendSubscriptionRenewedEmail({
   nextBillingDate: Date | null;
 }) {
   const nextDateStr = nextBillingDate
-    ? nextBillingDate.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
+    ? nextBillingDate.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
     : "your next billing cycle";
   try {
     const info = await transporter.sendMail({
@@ -320,8 +347,13 @@ export async function sendSubscriptionRenewedEmail({
         </p>
       `),
     });
-    console.log(`[email] Subscription renewed email sent to ${to} — messageId: ${info.messageId}`);
+    console.log(
+      `[email] Subscription renewed email sent to ${to} — messageId: ${info.messageId}`,
+    );
   } catch (err) {
-    console.error(`[email] Failed to send subscription renewed email to ${to}:`, err);
+    console.error(
+      `[email] Failed to send subscription renewed email to ${to}:`,
+      err,
+    );
   }
 }

@@ -27,7 +27,10 @@ export async function POST(request: Request) {
     return api.badRequest("Invalid JSON body");
   }
 
-  const { name, targetAmount, color, deadline } = body as Record<string, unknown>;
+  const { name, targetAmount, color, deadline } = body as Record<
+    string,
+    unknown
+  >;
   if (!name || targetAmount == null || !color)
     return api.badRequest("name, targetAmount, and color are required");
 

@@ -11,7 +11,10 @@ export default async function AdminFlagsPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Flag className="w-4 h-4" style={{ color: "#4f6ef7" }} />
-            <span className="text-xs font-medium uppercase tracking-widest" style={{ color: "#4f6ef7" }}>
+            <span
+              className="text-xs font-medium uppercase tracking-widest"
+              style={{ color: "#4f6ef7" }}
+            >
               Feature Flags
             </span>
           </div>

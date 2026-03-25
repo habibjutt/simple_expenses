@@ -4,7 +4,12 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import SubscriptionBanner from "@/components/SubscriptionBanner";
 import { Toaster } from "@/components/ui/sonner";
-import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, BASE_KEYWORDS } from "@/lib/seo";
+import {
+  SITE_URL,
+  SITE_NAME,
+  SITE_DESCRIPTION,
+  BASE_KEYWORDS,
+} from "@/lib/seo";
 
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",

@@ -83,7 +83,9 @@ export default function GoalsPage() {
                 {HIGHLIGHTS.map((item) => (
                   <li key={item} className="flex items-start gap-3">
                     <CheckCircle2 className="w-5 h-5 text-[#1a9e5c] shrink-0 mt-0.5" />
-                    <span className="text-sm text-muted-foreground">{item}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {item}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -115,7 +117,9 @@ export default function GoalsPage() {
                     <Icon className="w-5 h-5 text-[#1a9e5c]" />
                   </div>
                   <div>
-                    <p className="font-semibold text-sm text-foreground">{title}</p>
+                    <p className="font-semibold text-sm text-foreground">
+                      {title}
+                    </p>
                     <p className="text-sm text-muted-foreground mt-1">{desc}</p>
                   </div>
                 </div>

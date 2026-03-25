@@ -5,7 +5,7 @@ import { db } from "@/lib/db";
 // GET /api/v1/credit-cards/:id
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const user = await getApiUser(request);
   if (!user) return api.unauthorized();
@@ -16,7 +16,9 @@ export async function GET(
     where: { id, userId: user.id },
     include: {
       transactions: {
-        where: { OR: [{ installmentNumber: null }, { installmentNumber: { gt: 0 } }] },
+        where: {
+          OR: [{ installmentNumber: null }, { installmentNumber: { gt: 0 } }],
+        },
         orderBy: { date: "desc" },
         take: 50,
       },
@@ -31,14 +33,16 @@ export async function GET(
 // PUT /api/v1/credit-cards/:id
 export async function PUT(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const user = await getApiUser(request);
   if (!user) return api.unauthorized();
 
   const { id } = await params;
 
-  const card = await db.credit_card.findFirst({ where: { id, userId: user.id } });
+  const card = await db.credit_card.findFirst({
+    where: { id, userId: user.id },
+  });
   if (!card) return api.notFound("Credit card not found");
 
   let body: unknown;
@@ -48,7 +52,10 @@ export async function PUT(
     return api.badRequest("Invalid JSON body");
   }
 
-  const { name, billGenerationDate, paymentDate, cardLimit } = body as Record<string, unknown>;
+  const { name, billGenerationDate, paymentDate, cardLimit } = body as Record<
+    string,
+    unknown
+  >;
 
   const updates: Record<string, unknown> = {};
   if (name !== undefined) updates.name = sanitizeString(String(name));
@@ -66,7 +73,8 @@ export async function PUT(
   }
   if (cardLimit !== undefined) {
     const cl = Number(cardLimit);
-    if (isNaN(cl) || cl <= 0) return api.badRequest("cardLimit must be greater than 0");
+    if (isNaN(cl) || cl <= 0)
+      return api.badRequest("cardLimit must be greater than 0");
     const balanceDelta = cl - card.cardLimit;
     updates.cardLimit = cl;
     updates.availableBalance = card.availableBalance + balanceDelta;
@@ -79,14 +87,16 @@ export async function PUT(
 // DELETE /api/v1/credit-cards/:id
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const user = await getApiUser(request);
   if (!user) return api.unauthorized();
 
   const { id } = await params;
 
-  const card = await db.credit_card.findFirst({ where: { id, userId: user.id } });
+  const card = await db.credit_card.findFirst({
+    where: { id, userId: user.id },
+  });
   if (!card) return api.notFound("Credit card not found");
 
   await db.credit_card.delete({ where: { id } });

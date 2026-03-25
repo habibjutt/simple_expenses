@@ -26,7 +26,9 @@ export async function POST(request: Request) {
 
   const existing = await db.category.count({ where: { userId: user.id } });
   if (existing > 0)
-    return api.badRequest("Categories already exist. Delete all before seeding.");
+    return api.badRequest(
+      "Categories already exist. Delete all before seeding.",
+    );
 
   const categories = await db.category.createMany({
     data: DEFAULT_CATEGORIES.map((c) => ({ ...c, userId: user.id })),

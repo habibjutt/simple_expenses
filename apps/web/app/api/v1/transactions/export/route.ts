@@ -21,7 +21,7 @@ export async function GET(request: Request) {
   if (!guard.allowed) {
     return Response.json(
       { error: guard.reason, requiredPlan: guard.requiredPlan },
-      { status: 403 }
+      { status: 403 },
     );
   }
 
@@ -29,7 +29,9 @@ export async function GET(request: Request) {
   const creditCardId =
     searchParams.get("creditCardId") ?? searchParams.get("cardId") ?? undefined;
   const bankAccountId =
-    searchParams.get("bankAccountId") ?? searchParams.get("accountId") ?? undefined;
+    searchParams.get("bankAccountId") ??
+    searchParams.get("accountId") ??
+    undefined;
   const month = searchParams.get("month");
   const year = searchParams.get("year");
 
@@ -72,7 +74,12 @@ export async function GET(request: Request) {
                   { bankAccount: { userId: user.id } },
                 ],
               },
-              { OR: [{ installmentNumber: null }, { installmentNumber: { gt: 0 } }] },
+              {
+                OR: [
+                  { installmentNumber: null },
+                  { installmentNumber: { gt: 0 } },
+                ],
+              },
             ],
             ...dateFilter,
           },
@@ -102,7 +109,11 @@ export async function GET(request: Request) {
     const d = new Date(t.date);
     const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
     const typeLabel =
-      t.type === "income" ? "income" : t.type === "transfer" ? "transfer" : "expense";
+      t.type === "income"
+        ? "income"
+        : t.type === "transfer"
+          ? "transfer"
+          : "expense";
 
     return toCsvRow([
       dateStr,

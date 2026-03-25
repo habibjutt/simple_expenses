@@ -1,6 +1,6 @@
-import { IconTrendingDown, IconTrendingUp } from "@tabler/icons-react"
+import { IconTrendingDown, IconTrendingUp } from "@tabler/icons-react";
 
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardAction,
@@ -8,26 +8,24 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 
 interface AdminSectionCardsProps {
   stats?: {
-    userCount: number
-    activeSubscriptions: number
-    totalTransactions: number
-    bannedCount: number
-  }
+    userCount: number;
+    activeSubscriptions: number;
+    totalTransactions: number;
+    bannedCount: number;
+  };
 }
 
 export function AdminSectionCards({ stats }: AdminSectionCardsProps) {
-  const userCount = stats?.userCount ?? 0
-  const activeSubscriptions = stats?.activeSubscriptions ?? 0
-  const totalTransactions = stats?.totalTransactions ?? 0
-  const bannedCount = stats?.bannedCount ?? 0
+  const userCount = stats?.userCount ?? 0;
+  const activeSubscriptions = stats?.activeSubscriptions ?? 0;
+  const totalTransactions = stats?.totalTransactions ?? 0;
+  const bannedCount = stats?.bannedCount ?? 0;
   const conversionRate =
-    userCount > 0
-      ? ((activeSubscriptions / userCount) * 100).toFixed(1)
-      : null
+    userCount > 0 ? ((activeSubscriptions / userCount) * 100).toFixed(1) : null;
 
   return (
     <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
@@ -128,5 +126,5 @@ export function AdminSectionCards({ stats }: AdminSectionCardsProps) {
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }

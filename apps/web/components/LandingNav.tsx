@@ -31,7 +31,9 @@ export default function LandingNav() {
           <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
             <CreditCard className="w-4 h-4 text-white" />
           </div>
-          <span className="font-bold text-white text-sm sm:text-base">Simple Expenses</span>
+          <span className="font-bold text-white text-sm sm:text-base">
+            Simple Expenses
+          </span>
         </Link>
 
         {/* Desktop nav */}
@@ -47,14 +49,20 @@ export default function LandingNav() {
             <DropdownMenuContent align="start" className="w-56">
               {FEATURE_LINKS.map(({ href, label, icon: Icon }) => (
                 <DropdownMenuItem key={href} asChild>
-                  <Link href={href} className="flex items-center gap-2 cursor-pointer">
+                  <Link
+                    href={href}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
                     <Icon className="h-4 w-4 text-[#1a9e5c]" />
                     {label}
                   </Link>
                 </DropdownMenuItem>
               ))}
               <DropdownMenuItem asChild>
-                <Link href="/features" className="flex items-center gap-2 cursor-pointer font-medium text-[#1a9e5c]">
+                <Link
+                  href="/features"
+                  className="flex items-center gap-2 cursor-pointer font-medium text-[#1a9e5c]"
+                >
                   View all features →
                 </Link>
               </DropdownMenuItem>
@@ -133,7 +141,10 @@ export default function LandingNav() {
                   <Link
                     key={href}
                     href={href}
-                    onClick={() => { setOpen(false); setFeaturesOpen(false); }}
+                    onClick={() => {
+                      setOpen(false);
+                      setFeaturesOpen(false);
+                    }}
                     className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-white/80 hover:bg-white/10 hover:text-white transition-all"
                   >
                     <Icon className="h-4 w-4 shrink-0" />
@@ -142,7 +153,10 @@ export default function LandingNav() {
                 ))}
                 <Link
                   href="/features"
-                  onClick={() => { setOpen(false); setFeaturesOpen(false); }}
+                  onClick={() => {
+                    setOpen(false);
+                    setFeaturesOpen(false);
+                  }}
                   className="px-3 py-2 rounded-lg text-sm font-medium text-white hover:bg-white/10 transition-all"
                 >
                   View all features →

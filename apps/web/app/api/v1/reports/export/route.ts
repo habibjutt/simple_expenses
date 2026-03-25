@@ -15,7 +15,7 @@ export async function GET(request: Request) {
   if (!guard.allowed) {
     return Response.json(
       { error: guard.reason, requiredPlan: guard.requiredPlan },
-      { status: 403 }
+      { status: 403 },
     );
   }
 
@@ -39,16 +39,34 @@ export async function GET(request: Request) {
     if (!yearStr || Number.isNaN(year) || year < 1900 || year > 2100)
       return api.badRequest("year is required for trend export");
 
-    const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const MONTH_NAMES = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
     const lines: string[] = [];
-    lines.push(toCsvRow(["Month", "Income", "Expenses", "Net", "Year", "Currency"]));
+    lines.push(
+      toCsvRow(["Month", "Income", "Expenses", "Net", "Year", "Currency"]),
+    );
 
     for (let m = 1; m <= 12; m++) {
       const start = new Date(year, m - 1, 1);
       const end = new Date(year, m, 0, 23, 59, 59);
       const txns = await db.transaction.findMany({
         where: {
-          OR: [{ creditCard: { userId: user.id } }, { bankAccount: { userId: user.id } }],
+          OR: [
+            { creditCard: { userId: user.id } },
+            { bankAccount: { userId: user.id } },
+          ],
           date: { gte: start, lte: end },
         },
       });
@@ -60,7 +78,7 @@ export async function GET(request: Request) {
       }
       const net = income - expenses;
       lines.push(
-        toCsvRow([MONTH_NAMES[m - 1], income, expenses, net, year, currency])
+        toCsvRow([MONTH_NAMES[m - 1], income, expenses, net, year, currency]),
       );
     }
 
@@ -75,7 +93,14 @@ export async function GET(request: Request) {
     });
   }
 
-  if (!monthStr || !yearStr || Number.isNaN(month) || Number.isNaN(year) || month < 1 || month > 12)
+  if (
+    !monthStr ||
+    !yearStr ||
+    Number.isNaN(month) ||
+    Number.isNaN(year) ||
+    month < 1 ||
+    month > 12
+  )
     return api.badRequest("month and year are required (1–12 and valid year)");
 
   const start = new Date(year, month - 1, 1);
@@ -85,7 +110,10 @@ export async function GET(request: Request) {
   if (tab === "categories") {
     const transactions = await db.transaction.findMany({
       where: {
-        OR: [{ creditCard: { userId: user.id } }, { bankAccount: { userId: user.id } }],
+        OR: [
+          { creditCard: { userId: user.id } },
+          { bankAccount: { userId: user.id } },
+        ],
         date: { gte: start, lte: end },
       },
     });
@@ -99,27 +127,43 @@ export async function GET(request: Request) {
       const amt = Number(t.amount);
       if (t.type === "income") {
         totalIncome += amt;
-        incomeMap.set(t.category || "Others", (incomeMap.get(t.category || "Others") || 0) + amt);
+        incomeMap.set(
+          t.category || "Others",
+          (incomeMap.get(t.category || "Others") || 0) + amt,
+        );
       } else {
         totalExpenses += amt;
-        expenseMap.set(t.category || "Others", (expenseMap.get(t.category || "Others") || 0) + amt);
+        expenseMap.set(
+          t.category || "Others",
+          (expenseMap.get(t.category || "Others") || 0) + amt,
+        );
       }
     }
 
     const lines: string[] = [];
     lines.push(
-      toCsvRow(["RowType", "Category", "Amount", "Percent", "Currency"])
+      toCsvRow(["RowType", "Category", "Amount", "Percent", "Currency"]),
     );
-    lines.push(toCsvRow(["SUMMARY", "Total Income", totalIncome, "", currency]));
-    lines.push(toCsvRow(["SUMMARY", "Total Expenses", totalExpenses, "", currency]));
-    lines.push(toCsvRow(["SUMMARY", "Net", totalIncome - totalExpenses, "", currency]));
+    lines.push(
+      toCsvRow(["SUMMARY", "Total Income", totalIncome, "", currency]),
+    );
+    lines.push(
+      toCsvRow(["SUMMARY", "Total Expenses", totalExpenses, "", currency]),
+    );
+    lines.push(
+      toCsvRow(["SUMMARY", "Net", totalIncome - totalExpenses, "", currency]),
+    );
 
-    for (const [cat, amt] of Array.from(expenseMap.entries()).sort((a, b) => b[1] - a[1])) {
+    for (const [cat, amt] of Array.from(expenseMap.entries()).sort(
+      (a, b) => b[1] - a[1],
+    )) {
       const pct =
         totalExpenses > 0 ? ((amt / totalExpenses) * 100).toFixed(2) : "";
       lines.push(toCsvRow(["EXPENSE", cat, amt, pct, currency]));
     }
-    for (const [cat, amt] of Array.from(incomeMap.entries()).sort((a, b) => b[1] - a[1])) {
+    for (const [cat, amt] of Array.from(incomeMap.entries()).sort(
+      (a, b) => b[1] - a[1],
+    )) {
       const pct = totalIncome > 0 ? ((amt / totalIncome) * 100).toFixed(2) : "";
       lines.push(toCsvRow(["INCOME", cat, amt, pct, currency]));
     }
@@ -154,7 +198,10 @@ export async function GET(request: Request) {
 
   const expenseTx = await db.transaction.findMany({
     where: {
-      OR: [{ creditCard: { userId: user.id } }, { bankAccount: { userId: user.id } }],
+      OR: [
+        { creditCard: { userId: user.id } },
+        { bankAccount: { userId: user.id } },
+      ],
       date: { gte: start, lte: end },
       NOT: { type: "income" },
     },
@@ -168,13 +215,21 @@ export async function GET(request: Request) {
 
   const lines: string[] = [];
   lines.push(
-    toCsvRow(["Category", "Budget", "Actual", "Variance", "PercentUsed", "Currency"])
+    toCsvRow([
+      "Category",
+      "Budget",
+      "Actual",
+      "Variance",
+      "PercentUsed",
+      "Currency",
+    ]),
   );
 
   for (const limit of limits.sort((a, b) => b.amount - a.amount)) {
     const actual = actualMap.get(limit.categoryName) || 0;
     const variance = actual - limit.amount;
-    const pctUsed = limit.amount > 0 ? ((actual / limit.amount) * 100).toFixed(2) : "";
+    const pctUsed =
+      limit.amount > 0 ? ((actual / limit.amount) * 100).toFixed(2) : "";
     lines.push(
       toCsvRow([
         limit.categoryName,
@@ -183,7 +238,7 @@ export async function GET(request: Request) {
         variance,
         pctUsed,
         currency,
-      ])
+      ]),
     );
   }
 

@@ -100,11 +100,7 @@ export function ForgotPasswordForm({
                     </FieldDescription>
                   </Field>
                   <Field>
-                    <Button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full"
-                    >
+                    <Button type="submit" disabled={loading} className="w-full">
                       {loading ? "Sending..." : "Send reset link"}
                     </Button>
                   </Field>

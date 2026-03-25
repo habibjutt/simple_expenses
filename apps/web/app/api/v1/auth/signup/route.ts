@@ -17,7 +17,11 @@ export async function POST(request: Request) {
 
   try {
     const response = await auth.api.signUpEmail({
-      body: { email: String(email), password: String(password), name: sanitizeString(String(name)) },
+      body: {
+        email: String(email),
+        password: String(password),
+        name: sanitizeString(String(name)),
+      },
       asResponse: true,
     });
     return response;

@@ -8,7 +8,12 @@ import Link from "next/link";
 export default async function AdminUsersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; search?: string; role?: string; banned?: string }>;
+  searchParams: Promise<{
+    page?: string;
+    search?: string;
+    role?: string;
+    banned?: string;
+  }>;
 }) {
   const params = await searchParams;
   const page = Number(params.page ?? 1);
@@ -16,7 +21,12 @@ export default async function AdminUsersPage({
   const role = params.role ?? "";
   const banned = params.banned ?? "";
 
-  const { users, total, pages } = await listAdminUsers({ page, search, role, banned });
+  const { users, total, pages } = await listAdminUsers({
+    page,
+    search,
+    role,
+    banned,
+  });
 
   return (
     <div className="py-6 space-y-6">
@@ -35,7 +45,11 @@ export default async function AdminUsersPage({
         </div>
       </div>
 
-      <UserSearch defaultSearch={search} defaultRole={role} defaultBanned={banned} />
+      <UserSearch
+        defaultSearch={search}
+        defaultRole={role}
+        defaultBanned={banned}
+      />
 
       <UsersTable users={users} />
 
@@ -47,14 +61,18 @@ export default async function AdminUsersPage({
           <div className="flex gap-2">
             {page > 1 && (
               <Button variant="outline" size="sm" asChild>
-                <Link href={`?page=${page - 1}&search=${search}&role=${role}&banned=${banned}`}>
+                <Link
+                  href={`?page=${page - 1}&search=${search}&role=${role}&banned=${banned}`}
+                >
                   Previous
                 </Link>
               </Button>
             )}
             {page < pages && (
               <Button variant="outline" size="sm" asChild>
-                <Link href={`?page=${page + 1}&search=${search}&role=${role}&banned=${banned}`}>
+                <Link
+                  href={`?page=${page + 1}&search=${search}&role=${role}&banned=${banned}`}
+                >
                   Next
                 </Link>
               </Button>

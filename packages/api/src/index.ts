@@ -62,7 +62,10 @@ export function configureApiClient(config: ApiClientConfig) {
 }
 
 function getConfig(): ApiClientConfig {
-  if (!_config) throw new Error("API client not configured. Call configureApiClient() first.");
+  if (!_config)
+    throw new Error(
+      "API client not configured. Call configureApiClient() first.",
+    );
   return _config;
 }
 
@@ -77,7 +80,7 @@ interface RequestOptions<T> extends RequestInit {
 async function request<T>(
   path: string,
   options: RequestOptions<T> = {},
-  skipAuth = false
+  skipAuth = false,
 ): Promise<T> {
   const { schema, ...fetchOptions } = options;
   const config = getConfig();
@@ -105,8 +108,8 @@ async function request<T>(
   if (!response.ok) {
     let message = `Request failed: ${response.status}`;
     try {
-      const body = await response.json();
-      message = body?.error ?? message;
+      const body = (await response.json()) as Record<string, unknown>;
+      message = (body?.error as string) ?? message;
     } catch {
       // ignore parse error
     }
@@ -124,7 +127,9 @@ async function request<T>(
     if (!result.success) {
       console.warn(
         `[API] Response validation failed for ${path}:`,
-        result.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join(", ")
+        result.error.issues
+          .map((i) => `${i.path.join(".")}: ${i.message}`)
+          .join(", "),
       );
       // Return raw data as fallback — don't crash the app for validation mismatches
       return data as T;
@@ -138,7 +143,7 @@ async function request<T>(
 export class ApiError extends Error {
   constructor(
     message: string,
-    public readonly status: number
+    public readonly status: number,
   ) {
     super(message);
     this.name = "ApiError";
@@ -164,26 +169,38 @@ export interface SignupResponse {
 
 export const auth = {
   async login(input: LoginInput): Promise<LoginResponse> {
-    return request<LoginResponse>("/api/v1/auth/login", {
-      method: "POST",
-      body: JSON.stringify(input),
-      schema: loginResponseSchema,
-    }, true);
+    return request<LoginResponse>(
+      "/api/v1/auth/login",
+      {
+        method: "POST",
+        body: JSON.stringify(input),
+        schema: loginResponseSchema,
+      },
+      true,
+    );
   },
 
   async signup(input: SignupInput): Promise<SignupResponse> {
-    return request<SignupResponse>("/api/v1/auth/signup", {
-      method: "POST",
-      body: JSON.stringify(input),
-      schema: signupResponseSchema,
-    }, true);
+    return request<SignupResponse>(
+      "/api/v1/auth/signup",
+      {
+        method: "POST",
+        body: JSON.stringify(input),
+        schema: signupResponseSchema,
+      },
+      true,
+    );
   },
 
   async forgotPassword(email: string): Promise<void> {
-    return request<void>("/api/v1/auth/forgot-password", {
-      method: "POST",
-      body: JSON.stringify({ email }),
-    }, true);
+    return request<void>(
+      "/api/v1/auth/forgot-password",
+      {
+        method: "POST",
+        body: JSON.stringify({ email }),
+      },
+      true,
+    );
   },
 
   async me(): Promise<User> {
@@ -198,7 +215,10 @@ export const auth = {
     });
   },
 
-  async changePassword(data: { currentPassword: string; newPassword: string }): Promise<{ success: boolean }> {
+  async changePassword(data: {
+    currentPassword: string;
+    newPassword: string;
+  }): Promise<{ success: boolean }> {
     return request<{ success: boolean }>("/api/v1/auth/change-password", {
       method: "POST",
       body: JSON.stringify(data),
@@ -206,7 +226,9 @@ export const auth = {
     });
   },
 
-  async updateCurrency(currency: string): Promise<{ preferredCurrency: string }> {
+  async updateCurrency(
+    currency: string,
+  ): Promise<{ preferredCurrency: string }> {
     return request<{ preferredCurrency: string }>("/api/v1/auth/currency", {
       method: "PUT",
       body: JSON.stringify({ currency }),
@@ -225,11 +247,15 @@ export const auth = {
 
 export const creditCards = {
   async list(): Promise<CreditCard[]> {
-    return request<CreditCard[]>("/api/v1/credit-cards", { schema: z.array(creditCardSchema) });
+    return request<CreditCard[]>("/api/v1/credit-cards", {
+      schema: z.array(creditCardSchema),
+    });
   },
 
   async get(id: string): Promise<CreditCard> {
-    return request<CreditCard>(`/api/v1/credit-cards/${id}`, { schema: creditCardSchema });
+    return request<CreditCard>(`/api/v1/credit-cards/${id}`, {
+      schema: creditCardSchema,
+    });
   },
 
   async create(input: CreateCreditCardInput): Promise<CreditCard> {
@@ -259,11 +285,15 @@ export const creditCards = {
 
 export const bankAccounts = {
   async list(): Promise<BankAccount[]> {
-    return request<BankAccount[]>("/api/v1/bank-accounts", { schema: z.array(bankAccountSchema) });
+    return request<BankAccount[]>("/api/v1/bank-accounts", {
+      schema: z.array(bankAccountSchema),
+    });
   },
 
   async get(id: string): Promise<BankAccount> {
-    return request<BankAccount>(`/api/v1/bank-accounts/${id}`, { schema: bankAccountSchema });
+    return request<BankAccount>(`/api/v1/bank-accounts/${id}`, {
+      schema: bankAccountSchema,
+    });
   },
 
   async create(input: CreateBankAccountInput): Promise<BankAccount> {
@@ -274,7 +304,10 @@ export const bankAccounts = {
     });
   },
 
-  async update(id: string, input: UpdateBankAccountInput): Promise<BankAccount> {
+  async update(
+    id: string,
+    input: UpdateBankAccountInput,
+  ): Promise<BankAccount> {
     return request<BankAccount>(`/api/v1/bank-accounts/${id}`, {
       method: "PUT",
       body: JSON.stringify(input),
@@ -310,7 +343,8 @@ export const transactions = {
   async list(filters?: TransactionFilters): Promise<Transaction[]> {
     const params = new URLSearchParams();
     if (filters?.creditCardId) params.set("creditCardId", filters.creditCardId);
-    if (filters?.bankAccountId) params.set("bankAccountId", filters.bankAccountId);
+    if (filters?.bankAccountId)
+      params.set("bankAccountId", filters.bankAccountId);
     if (filters?.month) params.set("month", String(filters.month));
     if (filters?.year) params.set("year", String(filters.year));
     const qs = params.toString();
@@ -327,7 +361,10 @@ export const transactions = {
     });
   },
 
-  async update(id: string, input: UpdateTransactionInput): Promise<Transaction> {
+  async update(
+    id: string,
+    input: UpdateTransactionInput,
+  ): Promise<Transaction> {
     return request<Transaction>(`/api/v1/transactions/${id}`, {
       method: "PUT",
       body: JSON.stringify(input),
@@ -335,12 +372,17 @@ export const transactions = {
     });
   },
 
-  async transfer(input: TransferInput): Promise<{ success: boolean; amount: number }> {
-    return request<{ success: boolean; amount: number }>("/api/v1/transactions/transfer", {
-      method: "POST",
-      body: JSON.stringify(input),
-      schema: z.object({ success: z.boolean(), amount: z.number() }),
-    });
+  async transfer(
+    input: TransferInput,
+  ): Promise<{ success: boolean; amount: number }> {
+    return request<{ success: boolean; amount: number }>(
+      "/api/v1/transactions/transfer",
+      {
+        method: "POST",
+        body: JSON.stringify(input),
+        schema: z.object({ success: z.boolean(), amount: z.number() }),
+      },
+    );
   },
 
   async delete(id: string): Promise<void> {
@@ -355,7 +397,9 @@ export const transactions = {
 export const invoices = {
   async list(creditCardId?: string): Promise<Invoice[]> {
     const qs = creditCardId ? `?creditCardId=${creditCardId}` : "";
-    return request<Invoice[]>(`/api/v1/invoices${qs}`, { schema: z.array(invoiceSchema) });
+    return request<Invoice[]>(`/api/v1/invoices${qs}`, {
+      schema: z.array(invoiceSchema),
+    });
   },
 
   async pay(invoiceId: string, bankAccountId: string): Promise<Invoice> {
@@ -367,10 +411,13 @@ export const invoices = {
   },
 
   async unpay(invoiceId: string): Promise<{ success: boolean }> {
-    return request<{ success: boolean }>(`/api/v1/invoices/${invoiceId}/unpay`, {
-      method: "POST",
-      schema: z.object({ success: z.boolean() }),
-    });
+    return request<{ success: boolean }>(
+      `/api/v1/invoices/${invoiceId}/unpay`,
+      {
+        method: "POST",
+        schema: z.object({ success: z.boolean() }),
+      },
+    );
   },
 };
 
@@ -381,7 +428,9 @@ export const invoices = {
 export const categories = {
   async list(type?: string): Promise<Category[]> {
     const qs = type ? `?type=${encodeURIComponent(type)}` : "";
-    return request<Category[]>(`/api/v1/categories${qs}`, { schema: z.array(categorySchema) });
+    return request<Category[]>(`/api/v1/categories${qs}`, {
+      schema: z.array(categorySchema),
+    });
   },
 
   async create(input: CreateCategoryInput): Promise<Category> {
@@ -415,9 +464,12 @@ export const spendingLimits = {
     if (month) params.set("month", String(month));
     if (year) params.set("year", String(year));
     const qs = params.toString();
-    return request<SpendingLimit[]>(`/api/v1/spending-limits${qs ? `?${qs}` : ""}`, {
-      schema: z.array(spendingLimitSchema),
-    });
+    return request<SpendingLimit[]>(
+      `/api/v1/spending-limits${qs ? `?${qs}` : ""}`,
+      {
+        schema: z.array(spendingLimitSchema),
+      },
+    );
   },
 
   async create(input: CreateSpendingLimitInput): Promise<SpendingLimit> {
@@ -439,11 +491,15 @@ export const spendingLimits = {
 
 export const goals = {
   async list(): Promise<SavingsGoal[]> {
-    return request<SavingsGoal[]>("/api/v1/goals", { schema: z.array(savingsGoalSchema) });
+    return request<SavingsGoal[]>("/api/v1/goals", {
+      schema: z.array(savingsGoalSchema),
+    });
   },
 
   async get(id: string): Promise<SavingsGoal> {
-    return request<SavingsGoal>(`/api/v1/goals/${id}`, { schema: savingsGoalSchema });
+    return request<SavingsGoal>(`/api/v1/goals/${id}`, {
+      schema: savingsGoalSchema,
+    });
   },
 
   async create(input: CreateSavingsGoalInput): Promise<SavingsGoal> {
@@ -454,7 +510,10 @@ export const goals = {
     });
   },
 
-  async update(id: string, input: UpdateSavingsGoalInput): Promise<SavingsGoal> {
+  async update(
+    id: string,
+    input: UpdateSavingsGoalInput,
+  ): Promise<SavingsGoal> {
     return request<SavingsGoal>(`/api/v1/goals/${id}`, {
       method: "PUT",
       body: JSON.stringify(input),
@@ -485,14 +544,19 @@ export const reports = {
     if (month) params.set("month", String(month));
     if (year) params.set("year", String(year));
     const qs = params.toString();
-    return request<ReportSummary>(`/api/v1/reports/summary${qs ? `?${qs}` : ""}`, {
-      schema: reportSummarySchema,
-    });
+    return request<ReportSummary>(
+      `/api/v1/reports/summary${qs ? `?${qs}` : ""}`,
+      {
+        schema: reportSummarySchema,
+      },
+    );
   },
 
   async trend(year?: number): Promise<ReportTrend> {
     const qs = year ? `?year=${year}` : "";
-    return request<ReportTrend>(`/api/v1/reports/trend${qs}`, { schema: reportTrendSchema });
+    return request<ReportTrend>(`/api/v1/reports/trend${qs}`, {
+      schema: reportTrendSchema,
+    });
   },
 
   async budget(month?: number, year?: number): Promise<ReportBudget> {
@@ -500,9 +564,12 @@ export const reports = {
     if (month) params.set("month", String(month));
     if (year) params.set("year", String(year));
     const qs = params.toString();
-    return request<ReportBudget>(`/api/v1/reports/budget${qs ? `?${qs}` : ""}`, {
-      schema: reportBudgetSchema,
-    });
+    return request<ReportBudget>(
+      `/api/v1/reports/budget${qs ? `?${qs}` : ""}`,
+      {
+        schema: reportBudgetSchema,
+      },
+    );
   },
 };
 

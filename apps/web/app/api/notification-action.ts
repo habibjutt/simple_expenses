@@ -39,12 +39,32 @@ export async function getUpcomingBills(): Promise<UpcomingBill[]> {
     let paymentDueDate: Date;
 
     if (currentDay >= card.billGenerationDate) {
-      billStartDate = new Date(currentYear, currentMonth, card.billGenerationDate);
-      billEndDate = new Date(currentYear, currentMonth + 1, card.billGenerationDate);
-      paymentDueDate = new Date(currentYear, currentMonth + 1, card.paymentDate);
+      billStartDate = new Date(
+        currentYear,
+        currentMonth,
+        card.billGenerationDate,
+      );
+      billEndDate = new Date(
+        currentYear,
+        currentMonth + 1,
+        card.billGenerationDate,
+      );
+      paymentDueDate = new Date(
+        currentYear,
+        currentMonth + 1,
+        card.paymentDate,
+      );
     } else {
-      billStartDate = new Date(currentYear, currentMonth - 1, card.billGenerationDate);
-      billEndDate = new Date(currentYear, currentMonth, card.billGenerationDate);
+      billStartDate = new Date(
+        currentYear,
+        currentMonth - 1,
+        card.billGenerationDate,
+      );
+      billEndDate = new Date(
+        currentYear,
+        currentMonth,
+        card.billGenerationDate,
+      );
       paymentDueDate = new Date(currentYear, currentMonth, card.paymentDate);
     }
 
@@ -78,7 +98,9 @@ export async function getUpcomingBills(): Promise<UpcomingBill[]> {
     if (totalAmount <= 0) continue;
 
     const msPerDay = 1000 * 60 * 60 * 24;
-    const daysUntilDue = Math.ceil((paymentDueDate.getTime() - today.getTime()) / msPerDay);
+    const daysUntilDue = Math.ceil(
+      (paymentDueDate.getTime() - today.getTime()) / msPerDay,
+    );
 
     bills.push({
       cardId: card.id,

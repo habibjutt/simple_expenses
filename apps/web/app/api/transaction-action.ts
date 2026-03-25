@@ -17,15 +17,25 @@ import { validateUserCategory } from "@/lib/category-validation";
 function computeNextRecurDate(from: Date, frequency: string): Date {
   const next = new Date(from);
   switch (frequency) {
-    case "daily":   next.setDate(next.getDate() + 1); break;
-    case "weekly":  next.setDate(next.getDate() + 7); break;
-    case "monthly": next.setMonth(next.getMonth() + 1); break;
-    case "yearly":  next.setFullYear(next.getFullYear() + 1); break;
+    case "daily":
+      next.setDate(next.getDate() + 1);
+      break;
+    case "weekly":
+      next.setDate(next.getDate() + 7);
+      break;
+    case "monthly":
+      next.setMonth(next.getMonth() + 1);
+      break;
+    case "yearly":
+      next.setFullYear(next.getFullYear() + 1);
+      break;
   }
   return next;
 }
 
-export async function createTransaction(formData: FormData): Promise<ActionResult> {
+export async function createTransaction(
+  formData: FormData,
+): Promise<ActionResult> {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -37,7 +47,11 @@ export async function createTransaction(formData: FormData): Promise<ActionResul
   // Plan limit check
   const guard = await checkCanAddTransaction(session.user.id);
   if (!guard.allowed) {
-    return { error: guard.reason ?? "Plan limit reached.", planLimitReached: true, requiredPlan: guard.requiredPlan };
+    return {
+      error: guard.reason ?? "Plan limit reached.",
+      planLimitReached: true,
+      requiredPlan: guard.requiredPlan,
+    };
   }
 
   const parse = CreateTransactionSchema.safeParse({
@@ -56,11 +70,26 @@ export async function createTransaction(formData: FormData): Promise<ActionResul
   if (!parse.success) {
     return { error: parse.error.issues[0].message };
   }
-  const { name, amount, date, category, notes, creditCardId, bankAccountId, installments, isRecurring, recurringFrequency, recurringEndDate } =
-    parse.data;
+  const {
+    name,
+    amount,
+    date,
+    category,
+    notes,
+    creditCardId,
+    bankAccountId,
+    installments,
+    isRecurring,
+    recurringFrequency,
+    recurringEndDate,
+  } = parse.data;
 
   const txType = amount < 0 ? "income" : "expense";
-  const catCheck = await validateUserCategory(session.user.id, category, txType);
+  const catCheck = await validateUserCategory(
+    session.user.id,
+    category,
+    txType,
+  );
   if (!catCheck.valid) {
     return { error: catCheck.error! };
   }
@@ -74,14 +103,17 @@ export async function createTransaction(formData: FormData): Promise<ActionResul
   }
 
   if (creditCardId && bankAccountId) {
-    throw new Error("Cannot use both credit card and bank account for the same transaction");
+    throw new Error(
+      "Cannot use both credit card and bank account for the same transaction",
+    );
   }
 
   // Compute nextRecurDate for recurring transactions
   const transactionDate = new Date(date);
-  const nextRecurDate = isRecurring && recurringFrequency
-    ? computeNextRecurDate(transactionDate, recurringFrequency)
-    : null;
+  const nextRecurDate =
+    isRecurring && recurringFrequency
+      ? computeNextRecurDate(transactionDate, recurringFrequency)
+      : null;
 
   if (creditCardId) {
     // Verify the credit card belongs to the user
@@ -99,18 +131,18 @@ export async function createTransaction(formData: FormData): Promise<ActionResul
     // For expenses (positive amounts), reduce available balance
     // For income (negative amounts like cashback), increase available balance
     const newAvailableBalance = creditCard.availableBalance - amount;
-    
+
     // Only check credit limit for expenses (positive amounts)
     if (amount > 0 && newAvailableBalance < 0) {
       throw new Error(
-        `Insufficient credit limit. Available: ${creditCard.availableBalance}, Requested: ${amount}`
+        `Insufficient credit limit. Available: ${creditCard.availableBalance}, Requested: ${amount}`,
       );
     }
-    
+
     // Ensure available balance doesn't exceed card limit when receiving income
     if (amount < 0 && newAvailableBalance > creditCard.cardLimit) {
       throw new Error(
-        `Cashback would exceed card limit. Current available: ${creditCard.availableBalance}, Card limit: ${creditCard.cardLimit}`
+        `Cashback would exceed card limit. Current available: ${creditCard.availableBalance}, Card limit: ${creditCard.cardLimit}`,
       );
     }
 
@@ -118,16 +150,16 @@ export async function createTransaction(formData: FormData): Promise<ActionResul
     if (installments > 1) {
       const installmentAmount = amount / installments;
       const txDate = new Date(date);
-      
+
       // Calculate billing cycle start based on billGenerationDate
       const currentDay = txDate.getDate();
       const billGenerationDate = creditCard.billGenerationDate;
-      
+
       // Determine the first billing cycle this transaction belongs to.
       // Transactions AFTER the bill generation date go to the NEXT month's cycle;
       // transactions ON or BEFORE the bill generation date stay in the current cycle
       // (TC-04 boundary: exact match = same cycle, not next cycle).
-      let firstBillingMonth = new Date(txDate);
+      const firstBillingMonth = new Date(txDate);
       if (currentDay > billGenerationDate) {
         // Transaction is after current billing cycle cutoff, first installment next month
         firstBillingMonth.setMonth(firstBillingMonth.getMonth() + 1);
@@ -154,7 +186,7 @@ export async function createTransaction(formData: FormData): Promise<ActionResul
       for (let i = 1; i <= installments; i++) {
         const installmentDate = new Date(firstBillingMonth);
         installmentDate.setMonth(installmentDate.getMonth() + (i - 1));
-        
+
         installmentTransactions.push(
           db.transaction.create({
             data: {
@@ -168,7 +200,7 @@ export async function createTransaction(formData: FormData): Promise<ActionResul
               installmentNumber: i,
               creditCardId,
             },
-          })
+          }),
         );
       }
 
@@ -196,7 +228,9 @@ export async function createTransaction(formData: FormData): Promise<ActionResul
             creditCardId,
             isRecurring: isRecurring ?? false,
             recurringFrequency: recurringFrequency ?? null,
-            recurringEndDate: recurringEndDate ? new Date(recurringEndDate) : null,
+            recurringEndDate: recurringEndDate
+              ? new Date(recurringEndDate)
+              : null,
             isRecurringActive: isRecurring ? true : undefined,
             nextRecurDate,
           },
@@ -225,11 +259,11 @@ export async function createTransaction(formData: FormData): Promise<ActionResul
     // For expenses (positive amounts), reduce balance
     // For income (negative amounts), increase balance
     const newBalance = bankAccount.currentBalance - amount;
-    
+
     // Only check for sufficient funds if it's an expense (positive amount)
     if (amount > 0 && newBalance < 0) {
       throw new Error(
-        `Insufficient funds. Available: ${bankAccount.currentBalance}, Requested: ${amount}`
+        `Insufficient funds. Available: ${bankAccount.currentBalance}, Requested: ${amount}`,
       );
     }
 
@@ -246,7 +280,9 @@ export async function createTransaction(formData: FormData): Promise<ActionResul
           bankAccountId,
           isRecurring: isRecurring ?? false,
           recurringFrequency: recurringFrequency ?? null,
-          recurringEndDate: recurringEndDate ? new Date(recurringEndDate) : null,
+          recurringEndDate: recurringEndDate
+            ? new Date(recurringEndDate)
+            : null,
           isRecurringActive: isRecurring ? true : undefined,
           nextRecurDate,
         },
@@ -263,7 +299,9 @@ export async function createTransaction(formData: FormData): Promise<ActionResul
   revalidatePath("/");
 }
 
-export async function createTransfer(formData: FormData): Promise<ActionResult> {
+export async function createTransfer(
+  formData: FormData,
+): Promise<ActionResult> {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -319,7 +357,7 @@ export async function createTransfer(formData: FormData): Promise<ActionResult> 
   const newFromBalance = fromAccount.currentBalance - amount;
   if (newFromBalance < 0) {
     throw new Error(
-      `Insufficient funds in source account. Available: ${fromAccount.currentBalance}, Requested: ${amount}`
+      `Insufficient funds in source account. Available: ${fromAccount.currentBalance}, Requested: ${amount}`,
     );
   }
 
@@ -364,7 +402,10 @@ export async function createTransfer(formData: FormData): Promise<ActionResult> 
   revalidatePath("/");
 }
 
-export async function getTransactions(creditCardId?: string, bankAccountId?: string) {
+export async function getTransactions(
+  creditCardId?: string,
+  bankAccountId?: string,
+) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -380,46 +421,40 @@ export async function getTransactions(creditCardId?: string, bankAccountId?: str
           creditCard: {
             userId: session.user.id,
           },
-          OR: [
-            { installmentNumber: null },
-            { installmentNumber: { gt: 0 } },
-          ],
+          OR: [{ installmentNumber: null }, { installmentNumber: { gt: 0 } }],
         }
       : bankAccountId
-      ? {
-          bankAccountId,
-          bankAccount: {
-            userId: session.user.id,
+        ? {
+            bankAccountId,
+            bankAccount: {
+              userId: session.user.id,
+            },
+            OR: [{ installmentNumber: null }, { installmentNumber: { gt: 0 } }],
+          }
+        : {
+            AND: [
+              {
+                OR: [
+                  {
+                    creditCard: {
+                      userId: session.user.id,
+                    },
+                  },
+                  {
+                    bankAccount: {
+                      userId: session.user.id,
+                    },
+                  },
+                ],
+              },
+              {
+                OR: [
+                  { installmentNumber: null },
+                  { installmentNumber: { gt: 0 } },
+                ],
+              },
+            ],
           },
-          OR: [
-            { installmentNumber: null },
-            { installmentNumber: { gt: 0 } },
-          ],
-        }
-      : {
-          AND: [
-            {
-              OR: [
-                {
-                  creditCard: {
-                    userId: session.user.id,
-                  },
-                },
-                {
-                  bankAccount: {
-                    userId: session.user.id,
-                  },
-                },
-              ],
-            },
-            {
-              OR: [
-                { installmentNumber: null },
-                { installmentNumber: { gt: 0 } },
-              ],
-            },
-          ],
-        },
     include: {
       creditCard: {
         select: {
@@ -479,7 +514,7 @@ export async function deleteTransaction(transactionId: string) {
 
   // If this is an installment transaction, get the parent to delete all related installments
   const parentId = transaction.parentTransactionId || transaction.id;
-  
+
   // Get the parent transaction with ownership re-verified via the credit card / bank account relation
   const parentTransaction = await db.transaction.findFirst({
     where: {
@@ -506,16 +541,15 @@ export async function deleteTransaction(transactionId: string) {
       db.credit_card.update({
         where: { id: parentTransaction.creditCardId },
         data: {
-          availableBalance: parentTransaction.creditCard.availableBalance + parentTransaction.amount,
+          availableBalance:
+            parentTransaction.creditCard.availableBalance +
+            parentTransaction.amount,
         },
       }),
       // Delete all child installments and the parent
       db.transaction.deleteMany({
         where: {
-          OR: [
-            { id: parentId },
-            { parentTransactionId: parentId },
-          ],
+          OR: [{ id: parentId }, { parentTransactionId: parentId }],
         },
       }),
     ]);
@@ -527,7 +561,9 @@ export async function deleteTransaction(transactionId: string) {
       db.bank_account.update({
         where: { id: parentTransaction.bankAccountId },
         data: {
-          currentBalance: parentTransaction.bankAccount.currentBalance + parentTransaction.amount,
+          currentBalance:
+            parentTransaction.bankAccount.currentBalance +
+            parentTransaction.amount,
         },
       }),
       db.transaction.delete({
@@ -539,7 +575,10 @@ export async function deleteTransaction(transactionId: string) {
   revalidatePath("/");
 }
 
-export async function updateTransaction(transactionId: string, formData: FormData): Promise<ActionResult> {
+export async function updateTransaction(
+  transactionId: string,
+  formData: FormData,
+): Promise<ActionResult> {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -559,8 +598,14 @@ export async function updateTransaction(transactionId: string, formData: FormDat
   if (!parse.success) {
     return { error: parse.error.issues[0].message };
   }
-  const { name, amount: newAmount, date, category, notes, installments: newInstallments } =
-    parse.data;
+  const {
+    name,
+    amount: newAmount,
+    date,
+    category,
+    notes,
+    installments: newInstallments,
+  } = parse.data;
 
   const catCheck = await validateUserCategory(session.user.id, category);
   if (!catCheck.valid) {
@@ -603,11 +648,12 @@ export async function updateTransaction(transactionId: string, formData: FormDat
       throw new Error("Credit cards cannot receive income");
     }
 
-    const newAvailableBalance = existingTransaction.creditCard.availableBalance - amountDifference;
-    
+    const newAvailableBalance =
+      existingTransaction.creditCard.availableBalance - amountDifference;
+
     if (newAvailableBalance < 0) {
       throw new Error(
-        `Insufficient credit limit. Available: ${existingTransaction.creditCard.availableBalance}, Additional needed: ${amountDifference}`
+        `Insufficient credit limit. Available: ${existingTransaction.creditCard.availableBalance}, Additional needed: ${amountDifference}`,
       );
     }
 
@@ -630,13 +676,17 @@ export async function updateTransaction(transactionId: string, formData: FormDat
         },
       }),
     ]);
-  } else if (existingTransaction.bankAccountId && existingTransaction.bankAccount) {
-    const newBalance = existingTransaction.bankAccount.currentBalance - amountDifference;
-    
+  } else if (
+    existingTransaction.bankAccountId &&
+    existingTransaction.bankAccount
+  ) {
+    const newBalance =
+      existingTransaction.bankAccount.currentBalance - amountDifference;
+
     // Only check for sufficient funds if the new amount increases the expense
     if (amountDifference > 0 && newBalance < 0) {
       throw new Error(
-        `Insufficient funds. Available: ${existingTransaction.bankAccount.currentBalance}, Additional needed: ${amountDifference}`
+        `Insufficient funds. Available: ${existingTransaction.bankAccount.currentBalance}, Additional needed: ${amountDifference}`,
       );
     }
 
@@ -664,8 +714,9 @@ export async function updateTransaction(transactionId: string, formData: FormDat
   revalidatePath("/");
 }
 
-
-export async function toggleRecurringStatus(transactionId: string): Promise<{ error?: string }> {
+export async function toggleRecurringStatus(
+  transactionId: string,
+): Promise<{ error?: string }> {
   const session = await auth.api.getSession({
     headers: await headers(),
   });

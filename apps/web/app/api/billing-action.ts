@@ -59,7 +59,8 @@ export async function createCheckoutSession(priceId: string) {
     mode: "subscription",
     payment_method_types: ["card"],
     line_items: [{ price: priceId, quantity: 1 }],
-    subscription_data: trialDays > 0 ? { trial_period_days: trialDays } : undefined,
+    subscription_data:
+      trialDays > 0 ? { trial_period_days: trialDays } : undefined,
     success_url: `${BASE_URL}/billing?success=true`,
     cancel_url: `${BASE_URL}/billing?canceled=true`,
     metadata: { userId: session.user.id, planTier },

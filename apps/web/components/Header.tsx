@@ -57,7 +57,7 @@ const Header = () => {
 
   const userInitial = session?.user.name
     ? session.user.name.charAt(0).toUpperCase()
-    : session?.user.email?.charAt(0).toUpperCase() ?? "U";
+    : (session?.user.email?.charAt(0).toUpperCase() ?? "U");
 
   return (
     <>
@@ -65,7 +65,10 @@ const Header = () => {
         <div className="max-w-7xl mx-auto flex justify-between items-center py-0 px-4 md:px-6 h-14">
           {/* Logo + desktop nav */}
           <div className="flex items-center gap-1 md:gap-2">
-            <Link href="/dashboard" className="flex items-center gap-2 shrink-0 mr-3">
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-2 shrink-0 mr-3"
+            >
               <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
                 <CreditCard className="w-4 h-4 text-white" />
               </div>
@@ -77,7 +80,8 @@ const Header = () => {
             {session && (
               <nav className="hidden lg:flex items-center gap-0.5">
                 {NAV_LINKS.map(({ href, label }) => {
-                  const isActive = pathname === href || pathname.startsWith(href + "/");
+                  const isActive =
+                    pathname === href || pathname.startsWith(href + "/");
                   return (
                     <Link
                       key={href}
@@ -86,14 +90,13 @@ const Header = () => {
                         "px-3 py-1.5 rounded-lg text-sm font-medium transition-all",
                         isActive
                           ? "bg-white/20 text-white"
-                          : "text-white/75 hover:bg-white/10 hover:text-white"
+                          : "text-white/75 hover:bg-white/10 hover:text-white",
                       )}
                     >
                       {label}
                     </Link>
                   );
                 })}
-
               </nav>
             )}
           </div>
@@ -115,7 +118,8 @@ const Header = () => {
                           {userInitial}
                         </div>
                         <span className="text-white/90 text-sm font-medium max-w-[120px] truncate hidden lg:block">
-                          {session.user.name || session.user.email?.split("@")[0]}
+                          {session.user.name ||
+                            session.user.email?.split("@")[0]}
                         </span>
                         <ChevronDown className="h-3.5 w-3.5 text-white/60 group-hover:text-white/90 transition-colors" />
                       </button>
@@ -128,19 +132,28 @@ const Header = () => {
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
-                        <Link href="/settings" className="flex items-center gap-2 cursor-pointer">
+                        <Link
+                          href="/settings"
+                          className="flex items-center gap-2 cursor-pointer"
+                        >
                           <Settings className="h-4 w-4" />
                           Settings
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href="/billing" className="flex items-center gap-2 cursor-pointer">
+                        <Link
+                          href="/billing"
+                          className="flex items-center gap-2 cursor-pointer"
+                        >
                           <Receipt className="h-4 w-4" />
                           Billing
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href="/request-feature" className="flex items-center gap-2 cursor-pointer">
+                        <Link
+                          href="/request-feature"
+                          className="flex items-center gap-2 cursor-pointer"
+                        >
                           <Lightbulb className="h-4 w-4" />
                           Request a Feature
                         </Link>
@@ -149,7 +162,10 @@ const Header = () => {
                         <>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem asChild>
-                            <Link href="/admin" className="flex items-center gap-2 cursor-pointer text-[#4f6ef7] focus:text-[#4f6ef7]">
+                            <Link
+                              href="/admin"
+                              className="flex items-center gap-2 cursor-pointer text-[#4f6ef7] focus:text-[#4f6ef7]"
+                            >
                               <Shield className="h-4 w-4" />
                               Admin Panel
                             </Link>
@@ -174,16 +190,31 @@ const Header = () => {
                   className="lg:hidden p-2 rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-colors"
                   aria-label="Toggle menu"
                 >
-                  {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                  {mobileMenuOpen ? (
+                    <X className="h-5 w-5" />
+                  ) : (
+                    <Menu className="h-5 w-5" />
+                  )}
                 </button>
               </>
             ) : (
               <div className="flex gap-2">
                 <Link href="/login">
-                  <Button variant="ghost" size="sm" className="text-white border-white/30 hover:bg-white/10">Login</Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-white border-white/30 hover:bg-white/10"
+                  >
+                    Login
+                  </Button>
                 </Link>
                 <Link href="/signup">
-                  <Button size="sm" className="bg-white text-[#1a9e5c] hover:bg-white/90 font-semibold">Sign Up</Button>
+                  <Button
+                    size="sm"
+                    className="bg-white text-[#1a9e5c] hover:bg-white/90 font-semibold"
+                  >
+                    Sign Up
+                  </Button>
                 </Link>
               </div>
             )}
@@ -195,7 +226,8 @@ const Header = () => {
           <div className="lg:hidden border-t border-white/10 bg-[#158a4f]">
             <div className="max-w-7xl mx-auto px-4 py-2 space-y-0.5">
               {NAV_LINKS.map(({ href, label, icon: Icon }) => {
-                const isActive = pathname === href || pathname.startsWith(href + "/");
+                const isActive =
+                  pathname === href || pathname.startsWith(href + "/");
                 return (
                   <Link
                     key={href}
@@ -205,7 +237,7 @@ const Header = () => {
                       "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors",
                       isActive
                         ? "bg-white/20 text-white"
-                        : "text-white/70 hover:bg-white/10 hover:text-white"
+                        : "text-white/70 hover:bg-white/10 hover:text-white",
                     )}
                   >
                     <Icon className="h-4 w-4 shrink-0" />
@@ -215,7 +247,9 @@ const Header = () => {
               })}
 
               <div className="border-t border-white/10 pt-2 mt-1 pb-1">
-                <p className="px-3 text-xs mb-1 text-white/40 truncate">{session.user.email}</p>
+                <p className="px-3 text-xs mb-1 text-white/40 truncate">
+                  {session.user.email}
+                </p>
                 <Link
                   href="/settings"
                   onClick={() => setMobileMenuOpen(false)}
@@ -254,7 +288,10 @@ const Header = () => {
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors"
                     style={{ color: "#a5b4ff" }}
                   >
-                    <Shield className="h-4 w-4 shrink-0" style={{ color: "#4f6ef7" }} />
+                    <Shield
+                      className="h-4 w-4 shrink-0"
+                      style={{ color: "#4f6ef7" }}
+                    />
                     Admin Panel
                   </Link>
                 )}
@@ -263,7 +300,6 @@ const Header = () => {
           </div>
         )}
       </header>
-
     </>
   );
 };

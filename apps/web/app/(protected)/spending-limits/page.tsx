@@ -6,7 +6,9 @@ import Footer from "@/components/Footer";
 import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import {
-  getSpendingLimits, upsertSpendingLimit, deleteSpendingLimit,
+  getSpendingLimits,
+  upsertSpendingLimit,
+  deleteSpendingLimit,
   type SpendingLimit,
 } from "@/app/api/spending-limit-action";
 import { getCategories, type Category } from "@/app/api/category-action";
@@ -17,8 +19,14 @@ import EmptyState from "@/components/EmptyState";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { FormCombobox } from "@/components/ui/form-combobox";
 
@@ -63,18 +71,37 @@ export default function SpendingLimitsPage() {
     }
   }, [session, month, year]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const prevMonth = () => {
-    if (month === 1) { setMonth(12); setYear(y => y - 1); }
-    else setMonth(m => m - 1);
+    if (month === 1) {
+      setMonth(12);
+      setYear((y) => y - 1);
+    } else setMonth((m) => m - 1);
   };
   const nextMonth = () => {
-    if (month === 12) { setMonth(1); setYear(y => y + 1); }
-    else setMonth(m => m + 1);
+    if (month === 12) {
+      setMonth(1);
+      setYear((y) => y + 1);
+    } else setMonth((m) => m + 1);
   };
 
-  const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const MONTH_NAMES = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
   const monthLabel = `${MONTH_NAMES[month - 1]} ${year}`;
 
   const handleAdd = async () => {
@@ -82,8 +109,16 @@ export default function SpendingLimitsPage() {
     const amount = parseFloat(newAmount);
     if (isNaN(amount) || amount <= 0) return;
     setFormError("");
-    const result = await upsertSpendingLimit({ categoryName: newCat, amount, month, year });
-    if (result?.error) { setFormError(result.error); return; }
+    const result = await upsertSpendingLimit({
+      categoryName: newCat,
+      amount,
+      month,
+      year,
+    });
+    if (result?.error) {
+      setFormError(result.error);
+      return;
+    }
     setShowAdd(false);
     setNewCat("");
     setNewAmount("");
@@ -93,11 +128,19 @@ export default function SpendingLimitsPage() {
   const handleEdit = async (id: string) => {
     const amount = parseFloat(editAmount);
     if (isNaN(amount) || amount <= 0) return;
-    const limit = limits.find(l => l.id === id);
+    const limit = limits.find((l) => l.id === id);
     if (!limit) return;
     setFormError("");
-    const result = await upsertSpendingLimit({ categoryName: limit.categoryName, amount, month, year });
-    if (result?.error) { setFormError(result.error); return; }
+    const result = await upsertSpendingLimit({
+      categoryName: limit.categoryName,
+      amount,
+      month,
+      year,
+    });
+    if (result?.error) {
+      setFormError(result.error);
+      return;
+    }
     setEditingId(null);
     setEditAmount("");
     load();
@@ -115,18 +158,18 @@ export default function SpendingLimitsPage() {
   };
 
   const getSpent = (categoryName: string) => {
-    const stat = expenseStats.find(s => s.category === categoryName);
+    const stat = expenseStats.find((s) => s.category === categoryName);
     return stat?.amount ?? 0;
   };
 
   const getCategoryColor = (name: string) => {
-    const cat = categories.find(c => c.name === name);
+    const cat = categories.find((c) => c.name === name);
     return cat?.color ?? "#64748b";
   };
 
   const categoriesWithoutLimit = categories
-    .filter(c => c.type === "expense" || c.type === "both")
-    .filter(c => !limits.find(l => l.categoryName === c.name));
+    .filter((c) => c.type === "expense" || c.type === "both")
+    .filter((c) => !limits.find((l) => l.categoryName === c.name));
 
   if (isPending || !session) {
     return (
@@ -149,7 +192,9 @@ export default function SpendingLimitsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-lg font-bold">Spending Limits</h1>
-                <p className="text-white/60 text-sm mt-0.5">Set and track monthly budgets per category</p>
+                <p className="text-white/60 text-sm mt-0.5">
+                  Set and track monthly budgets per category
+                </p>
               </div>
               {!showAdd && (
                 <button
@@ -167,11 +212,17 @@ export default function SpendingLimitsPage() {
         <div className="max-w-7xl mx-auto px-4 md:px-6 mt-5 space-y-4">
           {/* Month nav */}
           <div className="flex items-center justify-between bg-white rounded-2xl p-3 shadow-sm border border-slate-200/60">
-            <button onClick={prevMonth} className="p-2 rounded-xl hover:bg-slate-100 transition-colors">
+            <button
+              onClick={prevMonth}
+              className="p-2 rounded-xl hover:bg-slate-100 transition-colors"
+            >
               <ChevronLeft className="h-5 w-5 text-slate-600" />
             </button>
             <span className="font-semibold text-slate-800">{monthLabel}</span>
-            <button onClick={nextMonth} className="p-2 rounded-xl hover:bg-slate-100 transition-colors">
+            <button
+              onClick={nextMonth}
+              className="p-2 rounded-xl hover:bg-slate-100 transition-colors"
+            >
               <ChevronRight className="h-5 w-5 text-slate-600" />
             </button>
           </div>
@@ -181,12 +232,18 @@ export default function SpendingLimitsPage() {
             <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/60">
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <p className="text-xs text-slate-500 font-medium">Total Budget</p>
-                  <p className="text-lg font-bold text-slate-800 tabular-nums">{formatCurrency(totalBudget)}</p>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Total Budget
+                  </p>
+                  <p className="text-lg font-bold text-slate-800 tabular-nums">
+                    {formatCurrency(totalBudget)}
+                  </p>
                 </div>
                 <div className="text-right">
                   <p className="text-xs text-slate-500 font-medium">Spent</p>
-                  <p className={`text-lg font-bold tabular-nums ${totalSpent > totalBudget ? "text-red-600" : "text-slate-800"}`}>
+                  <p
+                    className={`text-lg font-bold tabular-nums ${totalSpent > totalBudget ? "text-red-600" : "text-slate-800"}`}
+                  >
                     {formatCurrency(totalSpent)}
                   </p>
                 </div>
@@ -194,12 +251,18 @@ export default function SpendingLimitsPage() {
               <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${totalSpent > totalBudget ? "bg-red-500" : totalSpent / totalBudget > 0.8 ? "bg-amber-500" : "bg-[#1a9e5c]"}`}
-                  style={{ width: `${Math.min((totalSpent / totalBudget) * 100, 100)}%` }}
+                  style={{
+                    width: `${Math.min((totalSpent / totalBudget) * 100, 100)}%`,
+                  }}
                 />
               </div>
               <p className="text-xs text-slate-400 mt-1.5 text-right">
-                {totalBudget > 0 ? `${Math.round((totalSpent / totalBudget) * 100)}% used` : ""}
-                {totalSpent < totalBudget ? ` · ${formatCurrency(totalBudget - totalSpent)} remaining` : " · Over budget"}
+                {totalBudget > 0
+                  ? `${Math.round((totalSpent / totalBudget) * 100)}% used`
+                  : ""}
+                {totalSpent < totalBudget
+                  ? ` · ${formatCurrency(totalBudget - totalSpent)} remaining`
+                  : " · Over budget"}
               </p>
             </div>
           )}
@@ -207,32 +270,56 @@ export default function SpendingLimitsPage() {
           {/* Add form */}
           {showAdd && (
             <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-4">
-              <h3 className="text-sm font-bold text-slate-800">Add Budget Limit</h3>
+              <h3 className="text-sm font-bold text-slate-800">
+                Add Budget Limit
+              </h3>
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Category</label>
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                  Category
+                </label>
                 <FormCombobox
                   value={newCat}
                   onValueChange={(v) => setNewCat(v)}
-                  options={categoriesWithoutLimit.map((c) => ({ value: c.name, label: c.name }))}
+                  options={categoriesWithoutLimit.map((c) => ({
+                    value: c.name,
+                    label: c.name,
+                  }))}
                   placeholder="Select category…"
                   searchPlaceholder="Search category…"
                   emptyText="No categories available."
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Monthly Budget (AED)</label>
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                  Monthly Budget (AED)
+                </label>
                 <Input
                   type="number"
                   min="1"
                   step="0.01"
                   value={newAmount}
-                  onChange={e => setNewAmount(e.target.value)}
+                  onChange={(e) => setNewAmount(e.target.value)}
                   placeholder="e.g. 500"
                 />
               </div>
               <div className="flex gap-2">
-                <Button onClick={handleAdd} className="bg-[#1a9e5c] hover:bg-[#158a4f]">Save</Button>
-                <Button variant="outline" onClick={() => { setShowAdd(false); setNewCat(""); setNewAmount(""); setFormError(""); }}>Cancel</Button>
+                <Button
+                  onClick={handleAdd}
+                  className="bg-[#1a9e5c] hover:bg-[#158a4f]"
+                >
+                  Save
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowAdd(false);
+                    setNewCat("");
+                    setNewAmount("");
+                    setFormError("");
+                  }}
+                >
+                  Cancel
+                </Button>
               </div>
               {formError && <p className="text-sm text-red-600">{formError}</p>}
             </div>
@@ -241,7 +328,12 @@ export default function SpendingLimitsPage() {
           {/* Limits list */}
           {loading ? (
             <div className="space-y-2">
-              {[1,2,3].map(i => <div key={i} className="h-20 bg-white rounded-2xl animate-pulse border border-slate-200" />)}
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="h-20 bg-white rounded-2xl animate-pulse border border-slate-200"
+                />
+              ))}
             </div>
           ) : limits.length === 0 && !showAdd ? (
             <EmptyState
@@ -254,29 +346,54 @@ export default function SpendingLimitsPage() {
             />
           ) : (
             <div className="space-y-3">
-              {limits.map(limit => {
+              {limits.map((limit) => {
                 const spent = getSpent(limit.categoryName);
                 const color = getCategoryColor(limit.categoryName);
-                const pct = limit.amount > 0 ? Math.min((spent / limit.amount) * 100, 100) : 0;
+                const pct =
+                  limit.amount > 0
+                    ? Math.min((spent / limit.amount) * 100, 100)
+                    : 0;
                 const over = spent > limit.amount;
                 const warn = !over && pct >= 80;
 
                 return (
-                  <div key={limit.id} className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-5">
+                  <div
+                    key={limit.id}
+                    className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-5"
+                  >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: color + "22" }}>
-                          <div className="w-4 h-4 rounded-full" style={{ backgroundColor: color }} />
+                        <div
+                          className="w-9 h-9 rounded-xl flex items-center justify-center"
+                          style={{ backgroundColor: color + "22" }}
+                        >
+                          <div
+                            className="w-4 h-4 rounded-full"
+                            style={{ backgroundColor: color }}
+                          />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-slate-800">{limit.categoryName}</p>
-                          {over && <p className="text-xs text-red-500 font-medium">Over budget!</p>}
-                          {warn && <p className="text-xs text-amber-500 font-medium">Almost at limit</p>}
+                          <p className="text-sm font-semibold text-slate-800">
+                            {limit.categoryName}
+                          </p>
+                          {over && (
+                            <p className="text-xs text-red-500 font-medium">
+                              Over budget!
+                            </p>
+                          )}
+                          {warn && (
+                            <p className="text-xs text-amber-500 font-medium">
+                              Almost at limit
+                            </p>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
                         <button
-                          onClick={() => { setEditingId(limit.id); setEditAmount(String(limit.amount)); }}
+                          onClick={() => {
+                            setEditingId(limit.id);
+                            setEditAmount(String(limit.amount));
+                          }}
                           className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
                         >
                           ✏️
@@ -297,23 +414,43 @@ export default function SpendingLimitsPage() {
                           min="1"
                           step="0.01"
                           value={editAmount}
-                          onChange={e => setEditAmount(e.target.value)}
+                          onChange={(e) => setEditAmount(e.target.value)}
                           className="h-8 text-sm"
                           autoFocus
                         />
-                        <Button size="sm" onClick={() => handleEdit(limit.id)} className="bg-[#1a9e5c] hover:bg-[#158a4f] h-8 px-3">Save</Button>
-                        <Button size="sm" variant="outline" onClick={() => setEditingId(null)} className="h-8 px-3">✕</Button>
+                        <Button
+                          size="sm"
+                          onClick={() => handleEdit(limit.id)}
+                          className="bg-[#1a9e5c] hover:bg-[#158a4f] h-8 px-3"
+                        >
+                          Save
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setEditingId(null)}
+                          className="h-8 px-3"
+                        >
+                          ✕
+                        </Button>
                       </div>
                     ) : null}
 
                     <div className="h-2 bg-slate-100 rounded-full overflow-hidden mb-2">
                       <div
                         className={`h-full rounded-full transition-all ${over ? "bg-red-500" : warn ? "bg-amber-500" : "bg-[#1a9e5c]"}`}
-                        style={{ width: `${pct}%`, backgroundColor: over ? undefined : color }}
+                        style={{
+                          width: `${pct}%`,
+                          backgroundColor: over ? undefined : color,
+                        }}
                       />
                     </div>
                     <div className="flex items-center justify-between text-xs">
-                      <span className={over ? "text-red-600 font-semibold" : "text-slate-500"}>
+                      <span
+                        className={
+                          over ? "text-red-600 font-semibold" : "text-slate-500"
+                        }
+                      >
                         Spent: {formatCurrency(spent)}
                       </span>
                       <span className="text-slate-400">
@@ -339,7 +476,12 @@ export default function SpendingLimitsPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Remove</AlertDialogAction>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Remove
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

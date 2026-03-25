@@ -1,5 +1,12 @@
 import Link from "next/link";
-import { CreditCard, Mail, MapPin, Twitter, Linkedin, Instagram } from "lucide-react";
+import {
+  CreditCard,
+  Mail,
+  MapPin,
+  Twitter,
+  Linkedin,
+  Instagram,
+} from "lucide-react";
 
 const FOOTER_LINKS = {
   product: [
@@ -140,19 +147,32 @@ export default function LandingFooter() {
         {/* Bottom bar */}
         <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-white/35">
-            © {new Date().getFullYear()} Simple Expenses. All rights reserved. Made with ❤️ in UAE.
+            © {new Date().getFullYear()} Simple Expenses. All rights reserved.
+            Made with ❤️ in UAE.
           </p>
           <div className="flex items-center gap-6">
-            <Link href="/privacy" className="text-xs text-white/35 hover:text-white/70 transition-colors">
+            <Link
+              href="/privacy"
+              className="text-xs text-white/35 hover:text-white/70 transition-colors"
+            >
               Privacy
             </Link>
-            <Link href="/terms" className="text-xs text-white/35 hover:text-white/70 transition-colors">
+            <Link
+              href="/terms"
+              className="text-xs text-white/35 hover:text-white/70 transition-colors"
+            >
               Terms
             </Link>
-            <Link href="/contact" className="text-xs text-white/35 hover:text-white/70 transition-colors">
+            <Link
+              href="/contact"
+              className="text-xs text-white/35 hover:text-white/70 transition-colors"
+            >
               Contact
             </Link>
-            <Link href="/request-feature" className="text-xs text-white/35 hover:text-white/70 transition-colors">
+            <Link
+              href="/request-feature"
+              className="text-xs text-white/35 hover:text-white/70 transition-colors"
+            >
               Request a Feature
             </Link>
           </div>

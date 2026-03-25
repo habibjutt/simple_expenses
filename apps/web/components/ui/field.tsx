@@ -85,10 +85,11 @@ function Field({
   required,
   children,
   ...props
-}: React.ComponentProps<"div"> & VariantProps<typeof fieldVariants> & {
-  label?: string;
-  required?: boolean;
-}) {
+}: React.ComponentProps<"div"> &
+  VariantProps<typeof fieldVariants> & {
+    label?: string;
+    required?: boolean;
+  }) {
   if (label) {
     return (
       <div
@@ -106,7 +107,7 @@ function Field({
       </div>
     );
   }
-  
+
   return (
     <div
       role="group"

@@ -23,7 +23,9 @@ export interface SubscriptionInfo {
   daysLeftInTrial: number | null;
 }
 
-export async function getSubscriptionInfo(userId: string): Promise<SubscriptionInfo | null> {
+export async function getSubscriptionInfo(
+  userId: string,
+): Promise<SubscriptionInfo | null> {
   const user = await db.user.findUnique({
     where: { id: userId },
     select: {
@@ -43,7 +45,8 @@ export async function getSubscriptionInfo(userId: string): Promise<SubscriptionI
   // Active Stripe subscription takes precedence
   if (
     user.stripeSubscriptionId &&
-    (user.subscriptionStatus === "active" || user.subscriptionStatus === "trialing")
+    (user.subscriptionStatus === "active" ||
+      user.subscriptionStatus === "trialing")
   ) {
     return {
       status: user.subscriptionStatus as SubscriptionStatus,
@@ -53,7 +56,12 @@ export async function getSubscriptionInfo(userId: string): Promise<SubscriptionI
       currentPeriodEnd: user.currentPeriodEnd,
       daysLeftInTrial:
         user.subscriptionStatus === "trialing" && user.trialEndsAt
-          ? Math.max(0, Math.ceil((user.trialEndsAt.getTime() - now.getTime()) / 86_400_000))
+          ? Math.max(
+              0,
+              Math.ceil(
+                (user.trialEndsAt.getTime() - now.getTime()) / 86_400_000,
+              ),
+            )
           : null,
     };
   }
@@ -76,7 +84,10 @@ export async function getSubscriptionInfo(userId: string): Promise<SubscriptionI
     new Date(user.createdAt.getTime() + TRIAL_DAYS * 86_400_000);
 
   if (now < trialEnd) {
-    const daysLeft = Math.max(0, Math.ceil((trialEnd.getTime() - now.getTime()) / 86_400_000));
+    const daysLeft = Math.max(
+      0,
+      Math.ceil((trialEnd.getTime() - now.getTime()) / 86_400_000),
+    );
     return {
       status: "trialing",
       isActive: true,

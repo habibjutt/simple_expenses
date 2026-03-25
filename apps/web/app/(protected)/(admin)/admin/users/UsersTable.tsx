@@ -1,8 +1,19 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { setUserRole, banUser, unbanUser, adminDeleteUser } from "@/app/api/admin-action";
-import { Shield, ShieldOff, Trash2, MoreHorizontal, UserCheck } from "lucide-react";
+import {
+  setUserRole,
+  banUser,
+  unbanUser,
+  adminDeleteUser,
+} from "@/app/api/admin-action";
+import {
+  Shield,
+  ShieldOff,
+  Trash2,
+  MoreHorizontal,
+  UserCheck,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,7 +45,10 @@ type User = {
 
 function RoleBadge({ role }: { role: string }) {
   return role === "admin" ? (
-    <Badge variant="outline" className="text-[#a5b4ff] border-[#4f6ef7]/40 bg-[#4f6ef7]/10 text-[11px]">
+    <Badge
+      variant="outline"
+      className="text-[#a5b4ff] border-[#4f6ef7]/40 bg-[#4f6ef7]/10 text-[11px]"
+    >
       admin
     </Badge>
   ) : (
@@ -47,7 +61,10 @@ function RoleBadge({ role }: { role: string }) {
 function StatusBadge({ user }: { user: User }) {
   if (user.banned) {
     return (
-      <Badge variant="outline" className="text-red-400 border-red-500/30 bg-red-500/10 text-[11px]">
+      <Badge
+        variant="outline"
+        className="text-red-400 border-red-500/30 bg-red-500/10 text-[11px]"
+      >
         banned
       </Badge>
     );
@@ -97,7 +114,12 @@ export function UsersTable({ users }: { users: User[] }) {
   };
 
   const handleDelete = (userId: string) => {
-    if (!confirm("Permanently delete this user and all their data? This cannot be undone.")) return;
+    if (
+      !confirm(
+        "Permanently delete this user and all their data? This cannot be undone.",
+      )
+    )
+      return;
     startTransition(async () => {
       await adminDeleteUser(userId);
     });
@@ -110,7 +132,9 @@ export function UsersTable({ users }: { users: User[] }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="w-full max-w-md mx-4 rounded-2xl p-6 border bg-card">
             <h3 className="font-semibold mb-3">Ban User</h3>
-            <p className="text-sm text-muted-foreground mb-4">Provide a reason for the ban:</p>
+            <p className="text-sm text-muted-foreground mb-4">
+              Provide a reason for the ban:
+            </p>
             <input
               value={banReason}
               onChange={(e) => setBanReason(e.target.value)}
@@ -121,7 +145,10 @@ export function UsersTable({ users }: { users: User[] }) {
               <Button
                 variant="outline"
                 className="flex-1"
-                onClick={() => { setBanTarget(null); setBanReason(""); }}
+                onClick={() => {
+                  setBanTarget(null);
+                  setBanReason("");
+                }}
               >
                 Cancel
               </Button>
@@ -142,7 +169,9 @@ export function UsersTable({ users }: { users: User[] }) {
         {/* Mobile card list */}
         <div className="md:hidden divide-y">
           {users.length === 0 ? (
-            <p className="px-4 py-8 text-center text-sm text-muted-foreground">No users found.</p>
+            <p className="px-4 py-8 text-center text-sm text-muted-foreground">
+              No users found.
+            </p>
           ) : (
             users.map((u) => (
               <div key={u.id} className="p-4 flex items-start gap-3">
@@ -151,7 +180,9 @@ export function UsersTable({ users }: { users: User[] }) {
                     <p className="font-medium text-sm">{u.name || "—"}</p>
                     <RoleBadge role={u.role} />
                   </div>
-                  <p className="text-xs mt-0.5 text-muted-foreground truncate">{u.email}</p>
+                  <p className="text-xs mt-0.5 text-muted-foreground truncate">
+                    {u.email}
+                  </p>
                   <div className="flex items-center gap-2 mt-2">
                     <StatusBadge user={u} />
                     <span className="text-xs text-muted-foreground">
@@ -159,7 +190,13 @@ export function UsersTable({ users }: { users: User[] }) {
                     </span>
                   </div>
                 </div>
-                <ActionMenu u={u} onSetRole={handleSetRole} onBan={setBanTarget} onUnban={handleUnban} onDelete={handleDelete} />
+                <ActionMenu
+                  u={u}
+                  onSetRole={handleSetRole}
+                  onBan={setBanTarget}
+                  onUnban={handleUnban}
+                  onDelete={handleDelete}
+                />
               </div>
             ))
           )}
@@ -180,7 +217,10 @@ export function UsersTable({ users }: { users: User[] }) {
             <TableBody>
               {users.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center text-sm text-muted-foreground py-8">
+                  <TableCell
+                    colSpan={5}
+                    className="text-center text-sm text-muted-foreground py-8"
+                  >
                     No users found.
                   </TableCell>
                 </TableRow>
@@ -189,17 +229,31 @@ export function UsersTable({ users }: { users: User[] }) {
                   <TableRow key={u.id}>
                     <TableCell>
                       <div>
-                        <p className="font-medium truncate max-w-[180px]">{u.name || "—"}</p>
-                        <p className="text-xs text-muted-foreground truncate max-w-[180px]">{u.email}</p>
+                        <p className="font-medium truncate max-w-[180px]">
+                          {u.name || "—"}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate max-w-[180px]">
+                          {u.email}
+                        </p>
                       </div>
                     </TableCell>
-                    <TableCell><RoleBadge role={u.role} /></TableCell>
-                    <TableCell><StatusBadge user={u} /></TableCell>
+                    <TableCell>
+                      <RoleBadge role={u.role} />
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge user={u} />
+                    </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
                       {new Date(u.createdAt).toLocaleDateString("en-US")}
                     </TableCell>
                     <TableCell>
-                      <ActionMenu u={u} onSetRole={handleSetRole} onBan={setBanTarget} onUnban={handleUnban} onDelete={handleDelete} />
+                      <ActionMenu
+                        u={u}
+                        onSetRole={handleSetRole}
+                        onBan={setBanTarget}
+                        onUnban={handleUnban}
+                        onDelete={handleDelete}
+                      />
                     </TableCell>
                   </TableRow>
                 ))
@@ -235,21 +289,33 @@ function ActionMenu({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
         {u.role !== "admin" ? (
-          <DropdownMenuItem className="cursor-pointer gap-2" onClick={() => onSetRole(u.id, "admin")}>
+          <DropdownMenuItem
+            className="cursor-pointer gap-2"
+            onClick={() => onSetRole(u.id, "admin")}
+          >
             <Shield className="size-4 text-[#4f6ef7]" /> Make Admin
           </DropdownMenuItem>
         ) : (
-          <DropdownMenuItem className="cursor-pointer gap-2" onClick={() => onSetRole(u.id, "user")}>
+          <DropdownMenuItem
+            className="cursor-pointer gap-2"
+            onClick={() => onSetRole(u.id, "user")}
+          >
             <UserCheck className="size-4" /> Remove Admin
           </DropdownMenuItem>
         )}
         <DropdownMenuSeparator />
         {u.banned ? (
-          <DropdownMenuItem className="cursor-pointer gap-2" onClick={() => onUnban(u.id)}>
+          <DropdownMenuItem
+            className="cursor-pointer gap-2"
+            onClick={() => onUnban(u.id)}
+          >
             <ShieldOff className="size-4 text-green-500" /> Unban User
           </DropdownMenuItem>
         ) : (
-          <DropdownMenuItem className="cursor-pointer gap-2 text-amber-500 focus:text-amber-500" onClick={() => onBan(u.id)}>
+          <DropdownMenuItem
+            className="cursor-pointer gap-2 text-amber-500 focus:text-amber-500"
+            onClick={() => onBan(u.id)}
+          >
             <ShieldOff className="size-4" /> Ban User
           </DropdownMenuItem>
         )}

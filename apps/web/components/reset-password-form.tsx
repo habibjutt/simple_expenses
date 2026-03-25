@@ -163,11 +163,7 @@ export function ResetPasswordForm({
                     />
                   </Field>
                   <Field>
-                    <Button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full"
-                    >
+                    <Button type="submit" disabled={loading} className="w-full">
                       {loading ? "Resetting..." : "Reset password"}
                     </Button>
                   </Field>

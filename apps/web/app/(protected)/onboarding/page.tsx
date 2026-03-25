@@ -3,7 +3,11 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
-import { getUserProfile, completeOnboarding, updatePreferredCurrency } from "@/app/api/user-action";
+import {
+  getUserProfile,
+  completeOnboarding,
+  updatePreferredCurrency,
+} from "@/app/api/user-action";
 import { createBankAccount } from "@/app/api/bank-account-action";
 import { createCreditCard } from "@/app/api/credit-card-action";
 import { SUPPORTED_CURRENCIES } from "@/lib/utils";
@@ -19,7 +23,15 @@ import {
   Loader2,
 } from "lucide-react";
 
-const QUICK_CURRENCIES = ["AED", "USD", "EUR", "GBP", "SAR", "INR", "PKR"] as const;
+const QUICK_CURRENCIES = [
+  "AED",
+  "USD",
+  "EUR",
+  "GBP",
+  "SAR",
+  "INR",
+  "PKR",
+] as const;
 
 const STEPS = [
   { id: 0, label: "Welcome" },
@@ -41,16 +53,20 @@ function ProgressBar({ step }: { step: number }) {
                 s.id < step
                   ? "bg-[#1a9e5c] border-[#1a9e5c] text-white"
                   : s.id === step
-                  ? "bg-white border-[#1a9e5c] text-[#1a9e5c]"
-                  : "bg-white border-slate-200 text-slate-300"
+                    ? "bg-white border-[#1a9e5c] text-[#1a9e5c]"
+                    : "bg-white border-slate-200 text-slate-300",
               )}
             >
-              {s.id < step ? <CheckCircle2 className="w-3.5 h-3.5" /> : s.id + 1}
+              {s.id < step ? (
+                <CheckCircle2 className="w-3.5 h-3.5" />
+              ) : (
+                s.id + 1
+              )}
             </div>
             <span
               className={cn(
                 "text-[10px] font-medium hidden sm:block",
-                s.id <= step ? "text-[#1a9e5c]" : "text-slate-300"
+                s.id <= step ? "text-[#1a9e5c]" : "text-slate-300",
               )}
             >
               {s.label}
@@ -119,7 +135,7 @@ function WelcomeStep({
                   "px-4 py-2 rounded-xl text-sm font-semibold border-2 transition-all duration-150",
                   currency === c
                     ? "bg-[#1a9e5c] border-[#1a9e5c] text-white shadow-sm"
-                    : "bg-white border-slate-200 text-slate-600 hover:border-[#1a9e5c]/40"
+                    : "bg-white border-slate-200 text-slate-600 hover:border-[#1a9e5c]/40",
                 )}
               >
                 {c}
@@ -127,13 +143,24 @@ function WelcomeStep({
             ))}
           </div>
           <select
-            value={QUICK_CURRENCIES.includes(currency as (typeof QUICK_CURRENCIES)[number]) ? "" : currency}
-            onChange={(e) => { if (e.target.value) setCurrency(e.target.value); }}
+            value={
+              QUICK_CURRENCIES.includes(
+                currency as (typeof QUICK_CURRENCIES)[number],
+              )
+                ? ""
+                : currency
+            }
+            onChange={(e) => {
+              if (e.target.value) setCurrency(e.target.value);
+            }}
             className="w-full px-3 py-2.5 rounded-xl border-2 border-slate-200 text-sm text-slate-600 bg-white focus:outline-none focus:border-[#1a9e5c] transition-colors"
           >
             <option value="">Other currencies…</option>
             {SUPPORTED_CURRENCIES.filter(
-              (c) => !QUICK_CURRENCIES.includes(c.code as (typeof QUICK_CURRENCIES)[number])
+              (c) =>
+                !QUICK_CURRENCIES.includes(
+                  c.code as (typeof QUICK_CURRENCIES)[number],
+                ),
             ).map((c) => (
               <option key={c.code} value={c.code}>
                 {c.code} — {c.name}
@@ -151,7 +178,10 @@ function WelcomeStep({
               { icon: Wallet, label: "A bank account to track cash & debit" },
               { icon: CreditCard, label: "A credit card (optional)" },
             ].map(({ icon: Icon, label }) => (
-              <li key={label} className="flex items-center gap-2.5 text-sm text-slate-600">
+              <li
+                key={label}
+                className="flex items-center gap-2.5 text-sm text-slate-600"
+              >
                 <div className="w-6 h-6 rounded-lg bg-[#1a9e5c]/10 flex items-center justify-center shrink-0">
                   <Icon className="w-3.5 h-3.5 text-[#1a9e5c]" />
                 </div>
@@ -198,7 +228,10 @@ function BankAccountStep({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!name.trim()) { setError("Account name is required"); return; }
+    if (!name.trim()) {
+      setError("Account name is required");
+      return;
+    }
     setLoading(true);
     try {
       await onNext(name.trim(), balance, acctCurrency);
@@ -278,9 +311,13 @@ function BankAccountStep({
           disabled={loading}
           className="w-full flex items-center justify-center gap-2 bg-[#1a9e5c] text-white py-3 rounded-xl text-sm font-semibold hover:bg-[#158a4e] transition-colors disabled:opacity-60"
         >
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>
-            Add Account <ChevronRight className="w-4 h-4" />
-          </>}
+          {loading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <>
+              Add Account <ChevronRight className="w-4 h-4" />
+            </>
+          )}
         </button>
       </form>
 
@@ -302,7 +339,13 @@ function CreditCardStep({
   onSkip,
 }: {
   currency: string;
-  onNext: (data: { name: string; limit: string; billDate: string; paymentDate: string; currency: string }) => Promise<void>;
+  onNext: (data: {
+    name: string;
+    limit: string;
+    billDate: string;
+    paymentDate: string;
+    currency: string;
+  }) => Promise<void>;
   onSkip: () => void;
 }) {
   const [name, setName] = useState("");
@@ -316,10 +359,19 @@ function CreditCardStep({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!name.trim()) { setError("Card name is required"); return; }
+    if (!name.trim()) {
+      setError("Card name is required");
+      return;
+    }
     setLoading(true);
     try {
-      await onNext({ name: name.trim(), limit, billDate, paymentDate: payDate, currency: cardCurrency });
+      await onNext({
+        name: name.trim(),
+        limit,
+        billDate,
+        paymentDate: payDate,
+        currency: cardCurrency,
+      });
     } catch {
       setError("Failed to add card. Please try again.");
     } finally {
@@ -404,7 +456,9 @@ function CreditCardStep({
               className="w-full px-3 py-2.5 rounded-xl border-2 border-slate-200 text-sm focus:outline-none focus:border-[#1a9e5c] transition-colors bg-white"
             >
               {dateOptions.map((d) => (
-                <option key={d} value={d}>{d}</option>
+                <option key={d} value={d}>
+                  {d}
+                </option>
               ))}
             </select>
             <p className="text-xs text-slate-400 mt-1">Day invoice is issued</p>
@@ -419,7 +473,9 @@ function CreditCardStep({
               className="w-full px-3 py-2.5 rounded-xl border-2 border-slate-200 text-sm focus:outline-none focus:border-[#1a9e5c] transition-colors bg-white"
             >
               {dateOptions.map((d) => (
-                <option key={d} value={d}>{d}</option>
+                <option key={d} value={d}>
+                  {d}
+                </option>
               ))}
             </select>
             <p className="text-xs text-slate-400 mt-1">Day payment is due</p>
@@ -431,9 +487,13 @@ function CreditCardStep({
           disabled={loading}
           className="w-full flex items-center justify-center gap-2 bg-violet-600 text-white py-3 rounded-xl text-sm font-semibold hover:bg-violet-700 transition-colors disabled:opacity-60"
         >
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>
-            Add Card <ChevronRight className="w-4 h-4" />
-          </>}
+          {loading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <>
+              Add Card <ChevronRight className="w-4 h-4" />
+            </>
+          )}
         </button>
       </form>
 
@@ -470,7 +530,9 @@ function DoneStep({
         <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-[#1a9e5c]/10 mb-5">
           <span className="text-4xl">🎉</span>
         </div>
-        <h2 className="text-2xl font-bold text-slate-900">You&apos;re all set!</h2>
+        <h2 className="text-2xl font-bold text-slate-900">
+          You&apos;re all set!
+        </h2>
         <p className="text-slate-500 mt-2 text-sm">
           Here&apos;s what we set up for you. You can always add more later.
         </p>
@@ -482,7 +544,7 @@ function DoneStep({
             <div
               className={cn(
                 "w-6 h-6 rounded-full flex items-center justify-center shrink-0",
-                item.done ? "bg-[#1a9e5c]/15" : "bg-slate-200"
+                item.done ? "bg-[#1a9e5c]/15" : "bg-slate-200",
               )}
             >
               {item.done ? (
@@ -494,7 +556,9 @@ function DoneStep({
             <span
               className={cn(
                 "text-sm",
-                item.done ? "text-slate-700 font-medium" : "text-slate-400 line-through"
+                item.done
+                  ? "text-slate-700 font-medium"
+                  : "text-slate-400 line-through",
               )}
             >
               {item.label}
@@ -508,9 +572,13 @@ function DoneStep({
         disabled={loading}
         className="w-full flex items-center justify-center gap-2 bg-[#1a9e5c] text-white py-3 rounded-xl text-sm font-semibold hover:bg-[#158a4e] transition-colors disabled:opacity-60"
       >
-        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>
-          Go to Dashboard <ArrowRight className="w-4 h-4" />
-        </>}
+        {loading ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <>
+            Go to Dashboard <ArrowRight className="w-4 h-4" />
+          </>
+        )}
       </button>
     </StepWrapper>
   );
@@ -556,7 +624,11 @@ export default function OnboardingPage() {
     setStep(1);
   };
 
-  const handleBankAccountNext = async (name: string, balance: string, curr: string) => {
+  const handleBankAccountNext = async (
+    name: string,
+    balance: string,
+    curr: string,
+  ) => {
     const fd = new FormData();
     fd.set("name", name);
     fd.set("initialBalance", balance);
@@ -567,7 +639,11 @@ export default function OnboardingPage() {
   };
 
   const handleCreditCardNext = async (data: {
-    name: string; limit: string; billDate: string; paymentDate: string; currency: string;
+    name: string;
+    limit: string;
+    billDate: string;
+    paymentDate: string;
+    currency: string;
   }) => {
     const fd = new FormData();
     fd.set("name", data.name);
@@ -599,7 +675,8 @@ export default function OnboardingPage() {
 
   if (!session) return null;
 
-  const userName = session.user.name || session.user.email?.split("@")[0] || "there";
+  const userName =
+    session.user.name || session.user.email?.split("@")[0] || "there";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f0faf5] via-white to-[#f5f7ff] flex flex-col items-center justify-center px-4 py-10">
@@ -608,7 +685,9 @@ export default function OnboardingPage() {
         <div className="w-9 h-9 rounded-xl bg-[#1a9e5c] flex items-center justify-center">
           <span className="text-white font-bold text-sm">SE</span>
         </div>
-        <span className="font-bold text-slate-800 text-base">Simple Expenses</span>
+        <span className="font-bold text-slate-800 text-base">
+          Simple Expenses
+        </span>
       </div>
 
       {/* Card */}

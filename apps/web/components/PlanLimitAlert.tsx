@@ -15,7 +15,12 @@ import type { GuardResult } from "@/lib/plan-guards";
 import { getPlanDisplayName } from "@/lib/plans";
 import type { PlanTier } from "@/lib/plans";
 
-export type PlanLimitType = "creditCard" | "bankAccount" | "transaction" | "csvExport" | "pdfExport";
+export type PlanLimitType =
+  | "creditCard"
+  | "bankAccount"
+  | "transaction"
+  | "csvExport"
+  | "pdfExport";
 
 interface PlanLimitAlertProps {
   open: boolean;
@@ -42,10 +47,17 @@ function getActionLabel(limitType: PlanLimitType): string {
   }
 }
 
-export default function PlanLimitAlert({ open, onClose, limitType, guardResult }: PlanLimitAlertProps) {
+export default function PlanLimitAlert({
+  open,
+  onClose,
+  limitType,
+  guardResult,
+}: PlanLimitAlertProps) {
   const router = useRouter();
   const requiredPlan = guardResult.requiredPlan as PlanTier | undefined;
-  const requiredPlanName = requiredPlan ? getPlanDisplayName(requiredPlan) : "a higher plan";
+  const requiredPlanName = requiredPlan
+    ? getPlanDisplayName(requiredPlan)
+    : "a higher plan";
 
   const handleUpgrade = () => {
     onClose();
@@ -53,7 +65,12 @@ export default function PlanLimitAlert({ open, onClose, limitType, guardResult }
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={(open) => { if (!open) onClose(); }}>
+    <AlertDialog
+      open={open}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
@@ -67,27 +84,34 @@ export default function PlanLimitAlert({ open, onClose, limitType, guardResult }
                   `You need to upgrade your plan to ${getActionLabel(limitType)}.`}
               </p>
 
-              {guardResult.currentCount !== undefined && guardResult.limit !== null && guardResult.limit !== undefined && (
-                <div className="rounded-lg border bg-muted/50 px-4 py-3 text-xs space-y-1">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Current</span>
-                    <span className="font-semibold">
-                      {guardResult.currentCount} / {guardResult.limit}
-                    </span>
+              {guardResult.currentCount !== undefined &&
+                guardResult.limit !== null &&
+                guardResult.limit !== undefined && (
+                  <div className="rounded-lg border bg-muted/50 px-4 py-3 text-xs space-y-1">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Current</span>
+                      <span className="font-semibold">
+                        {guardResult.currentCount} / {guardResult.limit}
+                      </span>
+                    </div>
+                    <div className="w-full bg-muted rounded-full h-1.5">
+                      <div
+                        className="h-1.5 rounded-full bg-destructive"
+                        style={{
+                          width: `${Math.min(100, (guardResult.currentCount / (guardResult.limit ?? 1)) * 100)}%`,
+                        }}
+                      />
+                    </div>
                   </div>
-                  <div className="w-full bg-muted rounded-full h-1.5">
-                    <div
-                      className="h-1.5 rounded-full bg-destructive"
-                      style={{
-                        width: `${Math.min(100, (guardResult.currentCount / (guardResult.limit ?? 1)) * 100)}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
+                )}
 
               <p className="text-muted-foreground">
-                Upgrade to <span className="font-semibold text-foreground">{requiredPlanName}</span> to unlock this feature, or remove excess data to stay on the Free plan.
+                Upgrade to{" "}
+                <span className="font-semibold text-foreground">
+                  {requiredPlanName}
+                </span>{" "}
+                to unlock this feature, or remove excess data to stay on the
+                Free plan.
               </p>
             </div>
           </AlertDialogDescription>

@@ -33,7 +33,8 @@ export async function POST(request: Request) {
     return api.badRequest("name and initialBalance are required");
 
   const bal = Number(initialBalance);
-  if (isNaN(bal) || bal < 0) return api.badRequest("initialBalance must be >= 0");
+  if (isNaN(bal) || bal < 0)
+    return api.badRequest("initialBalance must be >= 0");
 
   const account = await db.bank_account.create({
     data: {

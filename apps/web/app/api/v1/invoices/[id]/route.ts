@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 // GET /api/v1/invoices/:id
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const user = await getApiUser(request);
   if (!user) return api.unauthorized();
@@ -26,7 +26,7 @@ export async function GET(
 // PUT /api/v1/invoices/:id
 export async function PUT(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const user = await getApiUser(request);
   if (!user) return api.unauthorized();
@@ -45,15 +45,16 @@ export async function PUT(
     return api.badRequest("Invalid JSON body");
   }
 
-  const { billStartDate, billEndDate, paymentDueDate, totalAmount } = body as Record<
-    string,
-    unknown
-  >;
+  const { billStartDate, billEndDate, paymentDueDate, totalAmount } =
+    body as Record<string, unknown>;
 
   const updates: Record<string, unknown> = {};
-  if (billStartDate !== undefined) updates.billStartDate = new Date(String(billStartDate));
-  if (billEndDate !== undefined) updates.billEndDate = new Date(String(billEndDate));
-  if (paymentDueDate !== undefined) updates.paymentDueDate = new Date(String(paymentDueDate));
+  if (billStartDate !== undefined)
+    updates.billStartDate = new Date(String(billStartDate));
+  if (billEndDate !== undefined)
+    updates.billEndDate = new Date(String(billEndDate));
+  if (paymentDueDate !== undefined)
+    updates.paymentDueDate = new Date(String(paymentDueDate));
   if (totalAmount !== undefined) updates.totalAmount = Number(totalAmount);
 
   const updated = await db.invoice.update({ where: { id }, data: updates });
@@ -63,7 +64,7 @@ export async function PUT(
 // DELETE /api/v1/invoices/:id
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const user = await getApiUser(request);
   if (!user) return api.unauthorized();

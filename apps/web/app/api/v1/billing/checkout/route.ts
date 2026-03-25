@@ -64,7 +64,8 @@ export async function POST(request: Request) {
     mode: "subscription",
     payment_method_types: ["card"],
     line_items: [{ price: String(priceId), quantity: 1 }],
-    subscription_data: trialDays > 0 ? { trial_period_days: trialDays } : undefined,
+    subscription_data:
+      trialDays > 0 ? { trial_period_days: trialDays } : undefined,
     success_url: `${BASE_URL}/billing?success=true`,
     cancel_url: `${BASE_URL}/billing?canceled=true`,
     metadata: { userId: user.id, planTier },

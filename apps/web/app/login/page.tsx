@@ -2,7 +2,13 @@ import type { Metadata } from "next";
 import { LoginForm } from "@/components/login-form";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/LandingFooter";
-import { CreditCard, BarChart3, Shield, Wallet, CheckCircle2 } from "lucide-react";
+import {
+  CreditCard,
+  BarChart3,
+  Shield,
+  Wallet,
+  CheckCircle2,
+} from "lucide-react";
 import { SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
@@ -44,7 +50,6 @@ export default function Page() {
 
         {/* ── Contained card ─────────────────────────────────── */}
         <div className="relative w-full max-w-4xl flex flex-col lg:flex-row rounded-2xl overflow-hidden shadow-2xl border border-border/50">
-
           {/* Left: green branding panel */}
           <div className="relative hidden lg:flex lg:w-[380px] xl:w-[420px] bg-[#1a9e5c] flex-col items-center justify-center p-10 overflow-hidden shrink-0">
             <div className="absolute -top-24 -right-24 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
@@ -59,7 +64,9 @@ export default function Page() {
               </div>
 
               <div>
-                <h2 className="text-3xl font-extrabold leading-tight">Welcome back</h2>
+                <h2 className="text-3xl font-extrabold leading-tight">
+                  Welcome back
+                </h2>
                 <p className="text-white/70 mt-2 text-sm leading-relaxed">
                   Your finances are waiting. Pick up right where you left off.
                 </p>
@@ -71,7 +78,9 @@ export default function Page() {
                     <div className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center shrink-0">
                       <Icon className="w-4 h-4 text-white" />
                     </div>
-                    <span className="text-white/90 text-sm font-medium">{text}</span>
+                    <span className="text-white/90 text-sm font-medium">
+                      {text}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -90,7 +99,9 @@ export default function Page() {
               <div className="w-8 h-8 rounded-full bg-[#1a9e5c] flex items-center justify-center">
                 <CreditCard className="w-4 h-4 text-white" />
               </div>
-              <span className="font-bold text-base text-foreground">Simple Expenses</span>
+              <span className="font-bold text-base text-foreground">
+                Simple Expenses
+              </span>
             </div>
 
             <div className="w-full max-w-sm">

@@ -49,7 +49,7 @@ export async function GET(request: Request) {
   for (const user of trialingUsers) {
     try {
       const daysLeft = Math.ceil(
-        (user.trialEndsAt!.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+        (user.trialEndsAt!.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
       );
 
       await sendTrialExpiringEmail({

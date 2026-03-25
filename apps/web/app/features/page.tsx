@@ -120,8 +120,8 @@ export default function FeaturesPage() {
               Ready to take control of your finances?
             </h2>
             <p className="text-white/80">
-              Join thousands of UAE residents who trust Simple Expenses to manage
-              their money every day.
+              Join thousands of UAE residents who trust Simple Expenses to
+              manage their money every day.
             </p>
             <Link href="/signup">
               <Button

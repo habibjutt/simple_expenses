@@ -11,9 +11,7 @@ const MAX_FUTURE_YEARS = 1;
  * Parse and validate a date string.
  * Returns the Date on success, or a string error message on failure.
  */
-export function parseTransactionDate(
-  raw: unknown
-): Date | string {
+export function parseTransactionDate(raw: unknown): Date | string {
   const parsed = new Date(String(raw));
   if (isNaN(parsed.getTime())) {
     return "Invalid date format";
@@ -29,8 +27,7 @@ export function parseTransactionDate(
 }
 
 export const api = {
-  unauthorized: () =>
-    Response.json({ error: "Unauthorized" }, { status: 401 }),
+  unauthorized: () => Response.json({ error: "Unauthorized" }, { status: 401 }),
   notFound: (message = "Not found") =>
     Response.json({ error: message }, { status: 404 }),
   badRequest: (message: string) =>

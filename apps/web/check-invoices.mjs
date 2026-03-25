@@ -15,7 +15,7 @@ const invoices = await db.invoice.findMany({
     creditCardId: cardId,
   },
   orderBy: {
-    billStartDate: 'desc',
+    billStartDate: "desc",
   },
 });
 
@@ -24,13 +24,17 @@ console.log(`\nFound ${invoices.length} invoices for card ${cardId}:\n`);
 invoices.forEach((inv, idx) => {
   console.log(`Invoice ${idx + 1}:`);
   console.log(`  ID: ${inv.id}`);
-  console.log(`  billStartDate: ${inv.billStartDate} (${inv.billStartDate.toISOString()})`);
-  console.log(`  billEndDate: ${inv.billEndDate} (${inv.billEndDate.toISOString()})`);
+  console.log(
+    `  billStartDate: ${inv.billStartDate} (${inv.billStartDate.toISOString()})`,
+  );
+  console.log(
+    `  billEndDate: ${inv.billEndDate} (${inv.billEndDate.toISOString()})`,
+  );
   console.log(`  isPaid: ${inv.isPaid}`);
   console.log(`  paidAt: ${inv.paidAt}`);
   console.log(`  totalAmount: ${inv.totalAmount}`);
   console.log(`  paidAmount: ${inv.paidAmount}`);
-  console.log('');
+  console.log("");
 });
 
 await db.$disconnect();
