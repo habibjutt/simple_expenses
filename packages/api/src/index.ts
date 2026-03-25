@@ -10,6 +10,16 @@ import type {
   CreateTransactionInput,
   LoginInput,
   SignupInput,
+  SpendingLimit,
+  CreateSpendingLimitInput,
+  SavingsGoal,
+  CreateSavingsGoalInput,
+  UpdateSavingsGoalInput,
+  ReportSummary,
+  ReportTrend,
+  ReportBudget,
+  BillNotifications,
+  Subscription,
 } from "@simple-expenses/types";
 
 // ---------------------------------------------------------------------------
@@ -251,6 +261,12 @@ export const invoices = {
       body: JSON.stringify({ bankAccountId }),
     });
   },
+
+  async unpay(invoiceId: string): Promise<{ success: boolean }> {
+    return request<{ success: boolean }>(`/api/v1/invoices/${invoiceId}/unpay`, {
+      method: "POST",
+    });
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -261,5 +277,129 @@ export const categories = {
   async list(type?: string): Promise<Category[]> {
     const qs = type ? `?type=${encodeURIComponent(type)}` : "";
     return request<Category[]>(`/api/v1/categories${qs}`);
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Spending Limits
+// ---------------------------------------------------------------------------
+
+export const spendingLimits = {
+  async list(month?: number, year?: number): Promise<SpendingLimit[]> {
+    const params = new URLSearchParams();
+    if (month) params.set("month", String(month));
+    if (year) params.set("year", String(year));
+    const qs = params.toString();
+    return request<SpendingLimit[]>(`/api/v1/spending-limits${qs ? `?${qs}` : ""}`);
+  },
+
+  async create(input: CreateSpendingLimitInput): Promise<SpendingLimit> {
+    return request<SpendingLimit>("/api/v1/spending-limits", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+  },
+
+  async delete(id: string): Promise<void> {
+    return request<void>(`/api/v1/spending-limits/${id}`, { method: "DELETE" });
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Savings Goals
+// ---------------------------------------------------------------------------
+
+export const goals = {
+  async list(): Promise<SavingsGoal[]> {
+    return request<SavingsGoal[]>("/api/v1/goals");
+  },
+
+  async get(id: string): Promise<SavingsGoal> {
+    return request<SavingsGoal>(`/api/v1/goals/${id}`);
+  },
+
+  async create(input: CreateSavingsGoalInput): Promise<SavingsGoal> {
+    return request<SavingsGoal>("/api/v1/goals", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+  },
+
+  async update(id: string, input: UpdateSavingsGoalInput): Promise<SavingsGoal> {
+    return request<SavingsGoal>(`/api/v1/goals/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(input),
+    });
+  },
+
+  async delete(id: string): Promise<void> {
+    return request<void>(`/api/v1/goals/${id}`, { method: "DELETE" });
+  },
+
+  async contribute(id: string, amount: number): Promise<SavingsGoal> {
+    return request<SavingsGoal>(`/api/v1/goals/${id}/contribute`, {
+      method: "POST",
+      body: JSON.stringify({ amount }),
+    });
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Reports
+// ---------------------------------------------------------------------------
+
+export const reports = {
+  async summary(month?: number, year?: number): Promise<ReportSummary> {
+    const params = new URLSearchParams();
+    if (month) params.set("month", String(month));
+    if (year) params.set("year", String(year));
+    const qs = params.toString();
+    return request<ReportSummary>(`/api/v1/reports/summary${qs ? `?${qs}` : ""}`);
+  },
+
+  async trend(year?: number): Promise<ReportTrend> {
+    const qs = year ? `?year=${year}` : "";
+    return request<ReportTrend>(`/api/v1/reports/trend${qs}`);
+  },
+
+  async budget(month?: number, year?: number): Promise<ReportBudget> {
+    const params = new URLSearchParams();
+    if (month) params.set("month", String(month));
+    if (year) params.set("year", String(year));
+    const qs = params.toString();
+    return request<ReportBudget>(`/api/v1/reports/budget${qs ? `?${qs}` : ""}`);
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Notifications
+// ---------------------------------------------------------------------------
+
+export const notifications = {
+  async bills(): Promise<BillNotifications> {
+    return request<BillNotifications>("/api/v1/notifications/bills");
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Billing
+// ---------------------------------------------------------------------------
+
+export const billing = {
+  async subscription(): Promise<Subscription> {
+    return request<Subscription>("/api/v1/billing/subscription");
+  },
+
+  async checkout(priceId: string): Promise<{ url: string }> {
+    return request<{ url: string }>("/api/v1/billing/checkout", {
+      method: "POST",
+      body: JSON.stringify({ priceId }),
+    });
+  },
+
+  async portal(): Promise<{ url: string }> {
+    return request<{ url: string }>("/api/v1/billing/portal", {
+      method: "POST",
+    });
   },
 };

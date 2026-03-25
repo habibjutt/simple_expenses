@@ -129,6 +129,36 @@ export default function DashboardScreen() {
             </TouchableOpacity>
           )}
 
+          {/* Quick Actions */}
+          <View style={s.section}>
+            <View style={s.sectionHeader}>
+              <View style={[s.sectionIconWrap, { backgroundColor: colors.primaryDim }]}>
+                <Ionicons name="apps" size={15} color={colors.primary} />
+              </View>
+              <Text style={s.sectionTitle}>Quick Actions</Text>
+            </View>
+            <View style={s.quickGrid}>
+              {([
+                { icon: "flag" as const, label: "Goals", color: "#00b896", bg: "rgba(0,184,150,0.10)", route: "/(app)/goals" },
+                { icon: "bar-chart" as const, label: "Reports", color: "#6c47ff", bg: "rgba(108,71,255,0.10)", route: "/(app)/reports" },
+                { icon: "speedometer" as const, label: "Budgets", color: "#ff9f0a", bg: "rgba(255,159,10,0.12)", route: "/(app)/spending-limits" },
+                { icon: "swap-horizontal" as const, label: "Transactions", color: "#0ea5e9", bg: "rgba(14,165,233,0.10)", route: "/(app)/transactions" },
+              ] as const).map((item) => (
+                <TouchableOpacity
+                  key={item.label}
+                  style={s.quickItem}
+                  onPress={() => router.push(item.route as never)}
+                  activeOpacity={0.7}
+                >
+                  <View style={[s.quickIcon, { backgroundColor: item.bg }]}>
+                    <Ionicons name={item.icon} size={20} color={item.color} />
+                  </View>
+                  <Text style={s.quickLabel}>{item.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
           {/* Bank Accounts */}
           {accounts.length > 0 && (
             <View style={s.section}>
@@ -314,5 +344,11 @@ const s = StyleSheet.create({
   cardListLimit: { fontSize: 11, color: colors.textMuted },
   duePill: { backgroundColor: colors.warningDim, borderRadius: 99, paddingHorizontal: 7, paddingVertical: 2 },
   dueAmt: { fontSize: 10, fontWeight: "700", color: colors.warning },
+
+  quickGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
+  quickItem: { width: "47%" as any, backgroundColor: colors.surface, borderRadius: 16, padding: 16, alignItems: "center", gap: 10, borderWidth: 1, borderColor: colors.borderSubtle },
+  quickIcon: { width: 44, height: 44, borderRadius: 14, alignItems: "center", justifyContent: "center" },
+  quickLabel: { fontSize: 12, fontWeight: "700", color: colors.text, letterSpacing: 0.2 },
+
   sm: { elevation: 2, shadowColor: "#a0aec0", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.12, shadowRadius: 6 },
 });

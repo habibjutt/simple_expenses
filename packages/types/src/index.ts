@@ -191,6 +191,141 @@ export type LoginInput = z.infer<typeof loginSchema>;
 export type SignupInput = z.infer<typeof signupSchema>;
 
 // ---------------------------------------------------------------------------
+// Spending Limit
+// ---------------------------------------------------------------------------
+
+export interface SpendingLimit {
+  id: string;
+  categoryName: string;
+  amount: number;
+  month: number;
+  year: number;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const createSpendingLimitSchema = z.object({
+  categoryName: z.string().min(1, "Category is required"),
+  amount: z.number().positive("Amount must be positive"),
+  month: z.number().int().min(1).max(12),
+  year: z.number().int().min(2020).max(2100),
+});
+
+export type CreateSpendingLimitInput = z.infer<typeof createSpendingLimitSchema>;
+
+// ---------------------------------------------------------------------------
+// Savings Goal
+// ---------------------------------------------------------------------------
+
+export interface SavingsGoal {
+  id: string;
+  name: string;
+  targetAmount: number;
+  currentAmount: number;
+  color: string;
+  deadline: string | null;
+  isCompleted: boolean;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const createSavingsGoalSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  targetAmount: z.number().positive("Target amount must be positive"),
+  color: z.string().default("#1a9e5c"),
+  deadline: z.string().optional().nullable(),
+});
+
+export type CreateSavingsGoalInput = z.infer<typeof createSavingsGoalSchema>;
+
+export const updateSavingsGoalSchema = z.object({
+  name: z.string().min(1).optional(),
+  targetAmount: z.number().positive().optional(),
+  color: z.string().optional(),
+  deadline: z.string().optional().nullable(),
+  isCompleted: z.boolean().optional(),
+});
+
+export type UpdateSavingsGoalInput = z.infer<typeof updateSavingsGoalSchema>;
+
+// ---------------------------------------------------------------------------
+// Reports
+// ---------------------------------------------------------------------------
+
+export interface ReportCategorySummary {
+  category: string;
+  expense: number;
+  income: number;
+  net: number;
+}
+
+export interface ReportSummary {
+  month: number;
+  year: number;
+  summary: ReportCategorySummary[];
+  totalExpense: number;
+  totalIncome: number;
+}
+
+export interface ReportTrendItem {
+  month: number;
+  year: number;
+  expense: number;
+  income: number;
+}
+
+export interface ReportTrend {
+  year: number;
+  trend: ReportTrendItem[];
+}
+
+export interface ReportBudgetItem {
+  category: string;
+  limit: number;
+  actual: number;
+  remaining: number;
+  percentage: number;
+}
+
+export interface ReportBudget {
+  month: number;
+  year: number;
+  budget: ReportBudgetItem[];
+}
+
+// ---------------------------------------------------------------------------
+// Bill Notifications
+// ---------------------------------------------------------------------------
+
+export interface BillNotification {
+  invoiceId: string;
+  creditCardId: string;
+  creditCardName: string;
+  totalAmount: number;
+  paymentDueDate: string;
+  daysUntilDue: number;
+}
+
+export interface BillNotifications {
+  count: number;
+  bills: BillNotification[];
+}
+
+// ---------------------------------------------------------------------------
+// Billing / Subscription
+// ---------------------------------------------------------------------------
+
+export interface Subscription {
+  planTier: string;
+  status: string | null;
+  trialDaysRemaining: number | null;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+}
+
+// ---------------------------------------------------------------------------
 // API Response wrapper
 // ---------------------------------------------------------------------------
 
