@@ -1,4 +1,5 @@
 import { getApiUser, api, parseTransactionDate } from "@/lib/api-auth";
+import { validateUserCategory } from "@/lib/category-validation";
 import { db } from "@/lib/db";
 
 // PUT /api/v1/transactions/:id
@@ -41,7 +42,11 @@ export async function PUT(
     if (typeof parsedDate === "string") return api.badRequest(parsedDate);
     updates.date = parsedDate;
   }
-  if (category !== undefined) updates.category = String(category);
+  if (category !== undefined) {
+    const catCheck = await validateUserCategory(user.id, String(category));
+    if (!catCheck.valid) return api.badRequest(catCheck.error!);
+    updates.category = String(category);
+  }
   if (notes !== undefined) updates.notes = notes ? String(notes) : null;
 
   let amtDelta: number | undefined;
