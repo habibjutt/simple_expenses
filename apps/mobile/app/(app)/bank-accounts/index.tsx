@@ -1,13 +1,22 @@
+import { useCallback } from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { bankAccounts } from "@simple-expenses/api";
 import { formatCurrency } from "@simple-expenses/utils";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { colors } from "../../../lib/theme";
 
 export default function BankAccountsScreen() {
+  const qc = useQueryClient();
+
+  useFocusEffect(
+    useCallback(() => {
+      qc.invalidateQueries({ queryKey: ["bank-accounts"] });
+    }, [qc])
+  );
+
   const { data = [], isLoading } = useQuery({ queryKey: ["bank-accounts"], queryFn: () => bankAccounts.list() });
 
   return (

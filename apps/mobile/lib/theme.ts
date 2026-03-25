@@ -1,58 +1,72 @@
-// Design tokens for the dark luxury "Obsidian Finance" theme
+// Design tokens — Light fintech theme
 export const colors = {
-  bg: "#070B14",
-  surface: "#0D1422",
-  surface2: "#121C30",
-  border: "rgba(74,138,255,0.15)",
-  borderSubtle: "rgba(255,255,255,0.06)",
+  // Backgrounds
+  bg: "#f5f5f7",            // Neutral light-gray app background (Apple system-like)
+  surface: "#ffffff",       // White cards and surfaces
+  surface2: "#eef1ff",      // Soft indigo tint for totals / hover rows
 
-  primary: "#4A8AFF",
-  primaryDim: "rgba(74,138,255,0.15)",
+  // Borders
+  border: "rgba(0,0,0,0.07)",      // Very soft border
+  borderSubtle: "rgba(0,0,0,0.04)", // Ultra-subtle row divider
 
-  success: "#00C896",
-  successDim: "rgba(0,200,150,0.15)",
+  // Brand / Primary — vibrant violet (fintech energy)
+  primary: "#6c47ff",
+  primaryDim: "rgba(108,71,255,0.10)",
+  primaryMid: "rgba(108,71,255,0.18)",
 
-  danger: "#FF4560",
-  dangerDim: "rgba(255,69,96,0.15)",
+  // Semantic
+  success: "#00b896",
+  successDim: "rgba(0,184,150,0.10)",
 
-  warning: "#FFB800",
-  warningDim: "rgba(255,184,0,0.15)",
+  danger: "#ff4060",
+  dangerDim: "rgba(255,64,96,0.10)",
 
-  text: "#EEF2FF",
-  textSub: "#6B7A99",
-  textMuted: "#2E3A52",
+  warning: "#ff9f0a",
+  warningDim: "rgba(255,159,10,0.12)",
 
-  // Credit card palette
+  // Text — high contrast on light (WCAG AA+)
+  text: "#0f0d2a",          // Near-black primary text
+  textSub: "#7b7a8e",       // Medium gray secondary text
+  textMuted: "#b8b6cc",     // Dim gray (decorative only)
+
+  // Credit card palette — vibrant gradients
   cards: [
-    ["#0F2A6E", "#1A3A8F"],
-    ["#2A0F5E", "#3D1A8F"],
-    ["#0F3A2A", "#1A5E3D"],
-    ["#3A0F2A", "#6E1A3D"],
-    ["#0F2A3A", "#1A4A6E"],
-    ["#2A1A0F", "#5E3D1A"],
+    ["#6c47ff", "#4527e0"],  // Brand violet
+    ["#0ea5e9", "#0284c7"],  // Sky
+    ["#f43f5e", "#be123c"],  // Rose
+    ["#00b896", "#007a63"],  // Teal
+    ["#d97706", "#b45309"],  // Amber
+    ["#8b5cf6", "#7c3aed"],  // Purple
   ] as [string, string][],
 };
 
 export const shadow = {
   sm: {
-    elevation: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
+    elevation: 2,
+    shadowColor: "#a0aec0",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
   },
   md: {
     elevation: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 16,
+    shadowColor: "#6c47ff",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.22,
+    shadowRadius: 20,
+  },
+  card: {
+    elevation: 3,
+    shadowColor: "#a0aec0",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
   },
   glow: (color: string) => ({
-    elevation: 12,
+    elevation: 10,
     shadowColor: color,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.38,
+    shadowRadius: 18,
   }),
 };

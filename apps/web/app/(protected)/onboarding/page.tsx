@@ -370,8 +370,8 @@ function CreditCardStep({
               type="number"
               value={limit}
               onChange={(e) => setLimit(e.target.value)}
-              min="1"
-              step="100"
+              min="0.01"
+              step="any"
               className="w-full px-3.5 py-2.5 rounded-xl border-2 border-slate-200 text-sm focus:outline-none focus:border-[#1a9e5c] transition-colors bg-white"
             />
           </div>

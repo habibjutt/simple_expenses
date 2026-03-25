@@ -100,6 +100,7 @@ export default function Home() {
   const [topCategories, setTopCategories] = useState<CategoryStat[]>([]);
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
   const [dismissChecklist, setDismissChecklist] = useState(false);
+  const [preferredCurrency, setPreferredCurrency] = useState("AED");
 
   const fetchAll = async () => {
     try {
@@ -114,6 +115,7 @@ export default function Home() {
       setInvoices(invs);
       setNextBills(bills);
       setOnboardingCompleted(profile?.onboardingCompleted ?? true);
+      if (profile?.preferredCurrency) setPreferredCurrency(profile.preferredCurrency);
 
       const now = new Date();
       try {
@@ -183,7 +185,7 @@ export default function Home() {
   const sortedAccounts = [...bankAccounts].sort((a, b) => a.name.localeCompare(b.name));
   const sortedCards = [...creditCards].sort((a, b) => a.name.localeCompare(b.name));
 
-  const fmt = (v: number) => showBalance ? formatCurrency(v) : "•••••";
+  const fmt = (v: number) => showBalance ? formatCurrency(v, preferredCurrency) : "•••••";
 
   // Today's transactions (recent)
   const todayStr = now.toDateString();
@@ -273,7 +275,7 @@ export default function Home() {
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-bold text-red-800">Bills due this month</p>
-                  <p className="text-xs text-red-500">Total: {formatCurrency(totalBills)}</p>
+                  <p className="text-xs text-red-500">Total: {formatCurrency(totalBills, preferredCurrency)}</p>
                 </div>
                 <Link href="/manage-cards" className="text-xs text-red-600 hover:text-red-800 font-semibold flex items-center gap-0.5">
                   View <ChevronRight className="h-3.5 w-3.5" />
@@ -285,7 +287,7 @@ export default function Home() {
                     <span className="text-sm text-red-800 font-medium">{inv.cardName}</span>
                     <div className="flex items-center gap-3">
                       <span className="text-xs text-red-400">Due {new Date(inv.paymentDueDate).toLocaleDateString("en-GB",{day:"2-digit",month:"short"})}</span>
-                      <span className="text-sm font-bold text-red-700">{formatCurrency(inv.totalAmount)}</span>
+                      <span className="text-sm font-bold text-red-700">{formatCurrency(inv.totalAmount, creditCards.find(c => c.id === inv.cardId)?.currency ?? preferredCurrency)}</span>
                     </div>
                   </div>
                 ))}
@@ -418,7 +420,7 @@ export default function Home() {
                         </div>
                         <div className="text-right">
                           <p className={cn("text-sm font-bold tabular-nums", acc.currentBalance >= 0 ? "text-slate-800" : "text-red-500")}>
-                            {fmt(acc.currentBalance)}
+                            {showBalance ? formatCurrency(acc.currentBalance, acc.currency) : "•••••"}
                           </p>
                         </div>
                         <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-slate-400 shrink-0 transition-colors" />
@@ -488,8 +490,8 @@ export default function Home() {
                             {/* Limit bar */}
                             <div className="mt-2 mb-1.5">
                               <div className="flex justify-between text-xs text-slate-400 mb-1">
-                                <span>Used: {formatCurrency(usedAmount)}</span>
-                                <span>Limit: {formatCurrency(card.cardLimit)}</span>
+                                <span>Used: {formatCurrency(usedAmount, card.currency)}</span>
+                                <span>Limit: {formatCurrency(card.cardLimit, card.currency)}</span>
                               </div>
                               <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
                                 <div
@@ -501,16 +503,16 @@ export default function Home() {
                             <div className="flex items-center gap-3 text-xs">
                               {invoice && (
                                 <span className="text-red-600 font-medium">
-                                  Due: {formatCurrency(invoice.totalAmount)}
+                                  Due: {formatCurrency(invoice.totalAmount, card.currency)}
                                 </span>
                               )}
                               {nextBill && nextBill.totalAmount > 0 && (
                                 <span className="text-amber-600 font-medium">
-                                  Next: {formatCurrency(nextBill.totalAmount)}
+                                  Next: {formatCurrency(nextBill.totalAmount, card.currency)}
                                 </span>
                               )}
                               <span className="text-emerald-600 font-medium ml-auto">
-                                Available: {fmt(card.availableBalance)}
+                                Available: {showBalance ? formatCurrency(card.availableBalance, card.currency) : "•••••"}
                               </span>
                             </div>
                           </div>
@@ -529,7 +531,7 @@ export default function Home() {
                       <div className="w-1.5 h-5 rounded-full bg-amber-500" />
                       <h2 className="text-sm font-bold text-slate-800">Upcoming Bills</h2>
                     </div>
-                    <span className="text-sm font-bold text-amber-600">{formatCurrency(totalNextBills)}</span>
+                    <span className="text-sm font-bold text-amber-600">{formatCurrency(totalNextBills, preferredCurrency)}</span>
                   </div>
                   <div className="divide-y divide-amber-50">
                     {nextBills.filter(b => b.totalAmount > 0).map((bill) => {
@@ -541,7 +543,7 @@ export default function Home() {
                           <span className="text-xs text-amber-500">
                             {new Date(bill.nextPaymentDueDate).toLocaleDateString("en-GB",{day:"2-digit",month:"short"})}
                           </span>
-                          <span className="text-sm font-bold text-amber-600">{formatCurrency(bill.totalAmount)}</span>
+                          <span className="text-sm font-bold text-amber-600">{formatCurrency(bill.totalAmount, card?.currency ?? preferredCurrency)}</span>
                         </div>
                       );
                     })}
@@ -604,7 +606,7 @@ export default function Home() {
                               </div>
                               <span className="text-xs font-medium text-slate-600 truncate max-w-[100px]">{cat.category}</span>
                             </div>
-                            <span className="text-xs font-bold text-slate-800 tabular-nums">{formatCurrency(cat.amount)}</span>
+                            <span className="text-xs font-bold text-slate-800 tabular-nums">{formatCurrency(cat.amount, preferredCurrency)}</span>
                           </div>
                           <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
                             <div

@@ -24,7 +24,7 @@ export default function AuthButton({ label, loading, variant = "primary", disabl
       style={[s.wrap, (disabled || loading) && s.disabled]}
       {...props}
     >
-      <LinearGradient colors={["#5B96FF", "#2B5EDD"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={s.gradient}>
+      <LinearGradient colors={[colors.primary, "#4527e0"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={s.gradient}>
         {loading
           ? <ActivityIndicator color="#fff" size="small" />
           : <Text style={s.text}>{label}</Text>

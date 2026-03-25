@@ -4,6 +4,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { invoices, creditCards, bankAccounts } from "@simple-expenses/api";
 import { formatCurrency, formatMonthYear } from "@simple-expenses/utils";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "../../lib/theme";
 
 export default function InvoicesScreen() {
@@ -51,19 +54,33 @@ export default function InvoicesScreen() {
 
   const unpaid = allInvoices.filter((i) => !i.isPaid);
   const totalDue = unpaid.reduce((s, i) => s + (i.totalAmount - i.paidAmount), 0);
+  const insets = useSafeAreaInsets();
 
   return (
     <View style={s.root}>
-      <SafeAreaView style={{ backgroundColor: colors.surface }} edges={["top"]}>
-        <View style={s.header}>
-          <Text style={s.title}>Invoices</Text>
+      <LinearGradient
+        colors={["#8b67ff", "#6c47ff"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[s.heroGradient, { paddingTop: insets.top + 16 }]}
+      >
+        <TouchableOpacity onPress={() => router.back()} style={s.backBtn}>
+          <Ionicons name="arrow-back" size={18} color="#fff" />
+        </TouchableOpacity>
+        <View style={s.heroContent}>
+          <Text style={s.title}>Invoices & Bills</Text>
+          <Text style={s.subtitle}>
+            {unpaid.length > 0
+              ? `${unpaid.length} invoice${unpaid.length > 1 ? "s" : ""} pending`
+              : "All invoices paid"}
+          </Text>
           {unpaid.length > 0 && (
-            <View style={s.dueBadge}>
-              <Text style={s.dueText}>{unpaid.length} due</Text>
+            <View style={s.totalDueBadge}>
+              <Text style={s.totalDueText}>Total due: {formatCurrency(totalDue, cards[0]?.currency ?? "AED")}</Text>
             </View>
           )}
         </View>
-      </SafeAreaView>
+      </LinearGradient>
 
       <FlatList
         data={allInvoices}
@@ -72,15 +89,7 @@ export default function InvoicesScreen() {
         showsVerticalScrollIndicator={false}
         refreshing={isLoading}
         ListHeaderComponent={
-          unpaid.length > 0 ? (
-            <View style={s.alert}>
-              <Ionicons name="warning" size={18} color={colors.warning} />
-              <View style={{ flex: 1 }}>
-                <Text style={s.alertTitle}>Total due: {formatCurrency(totalDue, cards[0]?.currency ?? "AED")}</Text>
-                <Text style={s.alertSub}>{unpaid.length} invoice{unpaid.length > 1 ? "s" : ""} pending payment</Text>
-              </View>
-            </View>
-          ) : allInvoices.length > 0 ? (
+          allInvoices.length > 0 && !unpaid.length ? (
             <View style={[s.alert, { borderColor: "rgba(0,200,150,0.25)", backgroundColor: colors.successDim }]}>
               <Ionicons name="checkmark-circle" size={18} color={colors.success} />
               <Text style={[s.alertTitle, { color: colors.success }]}>All invoices paid 🎉</Text>
@@ -150,10 +159,13 @@ export default function InvoicesScreen() {
 
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.bg },
-  header: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 24, paddingTop: 16, paddingBottom: 20, backgroundColor: colors.surface, borderBottomWidth: 1, borderBottomColor: colors.border },
-  title: { fontSize: 26, fontWeight: "800", color: colors.text, letterSpacing: -0.5 },
-  dueBadge: { backgroundColor: colors.dangerDim, borderRadius: 99, paddingHorizontal: 10, paddingVertical: 4 },
-  dueText: { color: colors.danger, fontSize: 12, fontWeight: "700" },
+  heroGradient: { paddingHorizontal: 24, paddingBottom: 28, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 },
+  backBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(255,255,255,0.2)", alignItems: "center", justifyContent: "center", marginBottom: 16 },
+  heroContent: {},
+  title: { fontSize: 28, fontWeight: "800", color: "#fff", letterSpacing: -0.5 },
+  subtitle: { fontSize: 14, color: "rgba(255,255,255,0.75)", marginTop: 4 },
+  totalDueBadge: { marginTop: 12, backgroundColor: "rgba(255,255,255,0.2)", borderRadius: 12, paddingHorizontal: 14, paddingVertical: 8, alignSelf: "flex-start" },
+  totalDueText: { color: "#fff", fontSize: 14, fontWeight: "700" },
   list: { padding: 20, paddingBottom: 40 },
   alert: { flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: colors.warningDim, borderRadius: 16, padding: 14, marginBottom: 16, borderWidth: 1, borderColor: "rgba(255,184,0,0.25)" },
   alertTitle: { fontSize: 13, fontWeight: "700", color: colors.warning },

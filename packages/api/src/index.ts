@@ -197,6 +197,14 @@ export interface TransactionFilters {
   year?: number;
 }
 
+export interface TransferInput {
+  fromBankAccountId: string;
+  toBankAccountId: string;
+  amount: number;
+  date: string;
+  notes?: string;
+}
+
 export const transactions = {
   async list(filters?: TransactionFilters): Promise<Transaction[]> {
     const params = new URLSearchParams();
@@ -210,6 +218,13 @@ export const transactions = {
 
   async create(input: CreateTransactionInput): Promise<Transaction> {
     return request<Transaction>("/api/v1/transactions", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+  },
+
+  async transfer(input: TransferInput): Promise<{ success: boolean; amount: number }> {
+    return request<{ success: boolean; amount: number }>("/api/v1/transactions/transfer", {
       method: "POST",
       body: JSON.stringify(input),
     });
@@ -243,7 +258,8 @@ export const invoices = {
 // ---------------------------------------------------------------------------
 
 export const categories = {
-  async list(): Promise<Category[]> {
-    return request<Category[]>("/api/v1/categories");
+  async list(type?: string): Promise<Category[]> {
+    const qs = type ? `?type=${encodeURIComponent(type)}` : "";
+    return request<Category[]>(`/api/v1/categories${qs}`);
   },
 };

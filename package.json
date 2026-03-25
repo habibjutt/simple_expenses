@@ -18,5 +18,10 @@
     "turbo": "^2.5.4",
     "typescript": "^5",
     "prettier": "^3.7.4"
+  },
+  "dependencies": {
+    "expo": "~55.0.8",
+    "react": "19.2.0",
+    "react-native": "0.83.2"
   }
 }

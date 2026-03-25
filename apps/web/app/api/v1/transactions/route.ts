@@ -73,7 +73,7 @@ export async function POST(request: Request) {
     return api.badRequest("Invalid JSON body");
   }
 
-  const { name, amount, date, category, notes, creditCardId, bankAccountId, installments } =
+  const { name, amount, date, category, notes, creditCardId, bankAccountId, installments, type } =
     body as Record<string, unknown>;
 
   if (!name || amount == null || !date || !category)
@@ -85,6 +85,9 @@ export async function POST(request: Request) {
 
   const amt = Number(amount);
   if (isNaN(amt) || amt === 0) return api.badRequest("amount cannot be zero");
+
+  const validTypes = ["expense", "income", "transfer"];
+  const txType = type && validTypes.includes(String(type)) ? String(type) : amt < 0 ? "income" : "expense";
 
   const numInstallments = installments ? Number(installments) : 1;
   if (numInstallments < 1 || isNaN(numInstallments))
@@ -118,6 +121,7 @@ export async function POST(request: Request) {
           amount: amt,
           date: transactionDate,
           category: String(category),
+          type: txType,
           notes: notes ? String(notes) : null,
           installments: numInstallments,
           creditCardId: String(creditCardId),
@@ -135,6 +139,7 @@ export async function POST(request: Request) {
               amount: installmentAmount,
               date: installmentDate,
               category: String(category),
+              type: txType,
               notes: notes ? String(notes) : null,
               installments: numInstallments,
               parentTransactionId: parentTransaction.id,
@@ -157,6 +162,7 @@ export async function POST(request: Request) {
             amount: amt,
             date: new Date(String(date)),
             category: String(category),
+            type: txType,
             notes: notes ? String(notes) : null,
             installments: numInstallments,
             creditCardId: String(creditCardId),
@@ -188,6 +194,7 @@ export async function POST(request: Request) {
           amount: amt,
           date: new Date(String(date)),
           category: String(category),
+          type: txType,
           notes: notes ? String(notes) : null,
           installments: numInstallments,
           bankAccountId: String(bankAccountId),

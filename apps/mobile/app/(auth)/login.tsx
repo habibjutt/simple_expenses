@@ -43,7 +43,7 @@ export default function LoginScreen() {
           {/* Hero */}
           <View style={s.hero}>
             <View style={s.logoRing}>
-              <LinearGradient colors={["#5B96FF", "#2B5EDD"]} style={s.logoGrad}>
+              <LinearGradient colors={[colors.primary, "#4527e0"]} style={s.logoGrad}>
                 <Ionicons name="wallet" size={28} color="#fff" />
               </LinearGradient>
             </View>

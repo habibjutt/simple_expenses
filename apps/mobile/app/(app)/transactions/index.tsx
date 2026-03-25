@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { transactions } from "@simple-expenses/api";
 import { formatCurrency, formatShortDate } from "@simple-expenses/utils";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { colors, shadow } from "../../../lib/theme";
 
@@ -18,6 +18,12 @@ const TYPE = {
 export default function TransactionsScreen() {
   const [search, setSearch] = useState("");
   const qc = useQueryClient();
+
+  useFocusEffect(
+    useCallback(() => {
+      qc.invalidateQueries({ queryKey: ["transactions"] });
+    }, [qc])
+  );
 
   const { data = [], isLoading } = useQuery({ queryKey: ["transactions"], queryFn: () => transactions.list() });
 
@@ -94,7 +100,7 @@ export default function TransactionsScreen() {
       />
 
       <TouchableOpacity style={s.fab} onPress={() => router.push("/(app)/transactions/add")}>
-        <LinearGradient colors={["#5B96FF", "#2B5EDD"]} style={s.fabGrad}>
+        <LinearGradient colors={[colors.primary, "#4527e0"]} style={s.fabGrad}>
           <Ionicons name="add" size={28} color="#fff" />
         </LinearGradient>
       </TouchableOpacity>
