@@ -24,6 +24,7 @@ import {
 import LandingFooter from "@/components/LandingFooter";
 import LandingNav from "@/components/LandingNav";
 import PricingSection from "@/components/PricingSection";
+import AnimateOnScroll from "@/components/AnimateOnScroll";
 
 export default function LandingPage() {
   return (
@@ -33,32 +34,46 @@ export default function LandingPage() {
 
       <main>
         {/* ─── Hero ────────────────────────────────────────────── */}
-        <section className="relative overflow-hidden">
-          {/* Background gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#1a9e5c]/8 via-background to-background pointer-events-none" />
-          <div className="absolute -top-40 -right-40 w-[700px] h-[700px] bg-[#1a9e5c]/6 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-[#1a9e5c]/4 rounded-full blur-3xl pointer-events-none" />
+        <section className="relative overflow-hidden se-dot-grid">
+          {/* Atmospheric gradient overlays */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1a9e5c]/10 via-background to-background pointer-events-none" />
+          {/* Animated orbs */}
+          <div
+            className="absolute -top-32 -right-32 w-[600px] h-[600px] bg-[#1a9e5c]/10 rounded-full blur-3xl pointer-events-none"
+            style={{ animation: "se-orb-drift 12s ease-in-out infinite" }}
+          />
+          <div
+            className="absolute -bottom-32 -left-32 w-[500px] h-[500px] bg-[#1a9e5c]/7 rounded-full blur-3xl pointer-events-none"
+            style={{ animation: "se-orb-drift 16s ease-in-out 4s infinite reverse" }}
+          />
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-[#1a9e5c]/5 rounded-full blur-3xl pointer-events-none"
+            style={{ animation: "se-orb-drift 10s ease-in-out 2s infinite" }}
+          />
 
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-16 sm:pt-20 pb-16 sm:pb-24">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
               {/* Left: Content */}
               <div className="space-y-6 sm:space-y-8 text-center lg:text-left">
-                <div className="inline-flex items-center gap-2 bg-[#1a9e5c]/10 text-[#1a9e5c] px-4 py-1.5 rounded-full text-sm font-semibold border border-[#1a9e5c]/20">
+                <div className="se-hero-badge inline-flex items-center gap-2 bg-[#1a9e5c]/10 text-[#1a9e5c] px-4 py-1.5 rounded-full text-sm font-semibold border border-[#1a9e5c]/20">
                   <Globe className="w-3.5 h-3.5" /> Built exclusively for UAE residents
                 </div>
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1]">
+                <h1 className="se-hero-title text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1]">
                   Take control of{" "}
-                  <span className="text-[#1a9e5c]">every dirham</span>
+                  <span className="text-[#1a9e5c] relative">
+                    every dirham
+                    <span className="absolute -bottom-1 left-0 right-0 h-px bg-gradient-to-r from-[#1a9e5c]/60 via-[#1a9e5c]/30 to-transparent" />
+                  </span>
                 </h1>
-                <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-xl mx-auto lg:mx-0">
+                <p className="se-hero-desc text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-xl mx-auto lg:mx-0">
                   Track credit cards, bank accounts, and transactions in one
                   beautiful dashboard. Stop wondering where your money went —
                   start knowing.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
+                <div className="se-hero-btns flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
                   <Button
                     size="lg"
-                    className="h-12 px-8 text-base bg-[#1a9e5c] hover:bg-[#158a4f] text-white shadow-lg shadow-[#1a9e5c]/25"
+                    className="h-12 px-8 text-base text-white shadow-lg shadow-[#1a9e5c]/30 se-animate-shimmer-btn border-0 hover:opacity-90 transition-opacity"
                     asChild
                   >
                     <Link href="/signup">
@@ -68,13 +83,13 @@ export default function LandingPage() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="h-12 px-8 text-base"
+                    className="h-12 px-8 text-base border-[#1a9e5c]/30 hover:border-[#1a9e5c]/60 hover:bg-[#1a9e5c]/5 transition-all"
                     asChild
                   >
                     <Link href="#how-it-works">See how it works</Link>
                   </Button>
                 </div>
-                <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-6 text-sm text-muted-foreground">
+                <div className="se-hero-trust flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-6 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1.5">
                     <CheckCircle2 className="w-4 h-4 text-[#1a9e5c] shrink-0" />
                     Free forever plan
@@ -92,9 +107,10 @@ export default function LandingPage() {
 
               {/* Right: Dashboard mockup */}
               <div className="relative hidden sm:flex justify-center lg:justify-end">
-                <div className="relative w-full max-w-md">
-                  {/* Glow */}
-                  <div className="absolute inset-0 bg-[#1a9e5c]/15 rounded-2xl blur-2xl scale-95" />
+                <div className="se-hero-mockup relative w-full max-w-md">
+                  {/* Glow layers */}
+                  <div className="absolute inset-0 bg-[#1a9e5c]/20 rounded-2xl blur-2xl scale-95 se-animate-pulse-glow" />
+                  <div className="absolute inset-0 bg-[#1a9e5c]/10 rounded-2xl blur-3xl scale-110" />
                   {/* Mockup card */}
                   <div className="relative bg-background border border-border rounded-2xl shadow-2xl overflow-hidden">
                     {/* Mockup header bar */}
@@ -178,18 +194,20 @@ export default function LandingPage() {
         </section>
 
         {/* ─── Stats bar ───────────────────────────────────────── */}
-        <section className="border-y border-border bg-muted/40">
+        <section className="border-y border-border bg-gradient-to-r from-[#1a9e5c]/5 via-muted/40 to-[#1a9e5c]/5">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <AnimateOnScroll type="stagger" className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               {[
                 { value: "500+", label: "UAE users", icon: Users },
                 { value: "AED 10M+", label: "Tracked to date", icon: TrendingUp },
                 { value: "4.9 ★", label: "Average rating", icon: Award },
                 { value: "100%", label: "Data encrypted", icon: Lock },
               ].map(({ value, label, icon: Icon }) => (
-                <div key={label} className="space-y-1">
+                <div key={label} className="space-y-1 group">
                   <div className="flex items-center justify-center gap-2">
-                    <Icon className="w-4 h-4 text-[#1a9e5c]" />
+                    <div className="w-8 h-8 rounded-lg bg-[#1a9e5c]/10 flex items-center justify-center group-hover:bg-[#1a9e5c]/20 transition-colors">
+                      <Icon className="w-4 h-4 text-[#1a9e5c]" />
+                    </div>
                     <span className="text-2xl sm:text-3xl font-extrabold text-foreground">
                       {value}
                     </span>
@@ -197,14 +215,16 @@ export default function LandingPage() {
                   <p className="text-sm text-muted-foreground">{label}</p>
                 </div>
               ))}
-            </div>
+            </AnimateOnScroll>
           </div>
         </section>
 
         {/* ─── Features ────────────────────────────────────────── */}
-        <section id="features" className="px-4 sm:px-6 py-20 sm:py-24">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center space-y-4 mb-14">
+        <section id="features" className="relative px-4 sm:px-6 py-20 sm:py-24 overflow-hidden">
+          {/* Subtle background accent */}
+          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#1a9e5c]/5 rounded-full blur-3xl pointer-events-none" />
+          <div className="max-w-7xl mx-auto relative">
+            <AnimateOnScroll type="fade-up" className="text-center space-y-4 mb-14">
               <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-semibold border border-primary/20">
                 <Zap className="w-4 h-4" />
                 Everything you need
@@ -216,9 +236,9 @@ export default function LandingPage() {
                 Purpose-built for UAE residents — from ADCB to Mashreq, from
                 credit cards to IBAN accounts.
               </p>
-            </div>
+            </AnimateOnScroll>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <AnimateOnScroll type="stagger" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {[
                 {
                   icon: CreditCard,
@@ -277,31 +297,33 @@ export default function LandingPage() {
               ].map(({ icon: Icon, title, desc, badge }) => (
                 <div
                   key={title}
-                  className="relative bg-background border border-border rounded-2xl p-6 space-y-3 hover:shadow-lg hover:border-primary/30 transition-all duration-200 group"
+                  className="relative bg-background border border-border rounded-2xl p-6 space-y-3 hover:shadow-[0_8px_40px_rgba(26,158,92,0.12)] hover:border-primary/40 hover:-translate-y-1 transition-all duration-300 group"
                 >
                   {badge && (
                     <span className="absolute top-4 right-4 text-[10px] font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20">
                       {badge}
                     </span>
                   )}
-                  <div className="w-11 h-11 bg-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary/15 transition-colors">
+                  <div className="w-11 h-11 bg-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
                     <Icon className="w-5 h-5 text-primary" />
                   </div>
                   <h3 className="font-bold text-foreground">{title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
                 </div>
               ))}
-            </div>
+            </AnimateOnScroll>
           </div>
         </section>
 
         {/* ─── How it works ─────────────────────────────────────── */}
         <section
           id="how-it-works"
-          className="px-4 sm:px-6 py-20 sm:py-24 bg-muted/30 border-t border-border"
+          className="relative px-4 sm:px-6 py-20 sm:py-24 bg-muted/30 border-t border-border overflow-hidden"
         >
-          <div className="max-w-5xl mx-auto">
-            <div className="text-center space-y-4 mb-14">
+          {/* Background orb */}
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[#1a9e5c]/6 rounded-full blur-3xl pointer-events-none" />
+          <div className="max-w-5xl mx-auto relative">
+            <AnimateOnScroll type="fade-up" className="text-center space-y-4 mb-14">
               <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-semibold border border-primary/20">
                 <Clock className="w-4 h-4" />
                 Up and running in minutes
@@ -309,11 +331,17 @@ export default function LandingPage() {
               <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
                 Three steps to financial clarity
               </h2>
-            </div>
+            </AnimateOnScroll>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-              {/* Connector line - desktop only */}
-              <div className="hidden md:block absolute top-8 left-[calc(16.67%+1rem)] right-[calc(16.67%+1rem)] h-px bg-border z-0" />
+            <AnimateOnScroll type="stagger" className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+              {/* Animated connector line - desktop only */}
+              <div className="hidden md:block absolute top-8 left-[calc(16.67%+1rem)] right-[calc(16.67%+1rem)] h-px z-0 overflow-hidden">
+                <div className="absolute inset-0 bg-border" />
+                <div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-[#1a9e5c]/60 to-transparent w-1/2"
+                  style={{ animation: "se-connector-flow 2s linear infinite" }}
+                />
+              </div>
 
               {[
                 {
@@ -336,26 +364,29 @@ export default function LandingPage() {
                 },
               ].map(({ step, title, desc }) => (
                 <div key={step} className="relative flex flex-col items-center text-center space-y-4 z-10">
-                  <div className="w-16 h-16 rounded-2xl bg-[#1a9e5c] text-white flex items-center justify-center shadow-lg shadow-[#1a9e5c]/25 text-xl font-extrabold">
-                    {step}
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-[#1a9e5c]/30 rounded-2xl blur-xl scale-150 se-animate-pulse-glow" />
+                    <div className="relative w-16 h-16 rounded-2xl bg-[#1a9e5c] text-white flex items-center justify-center shadow-lg shadow-[#1a9e5c]/30 text-xl font-extrabold hover:scale-105 transition-transform">
+                      {step}
+                    </div>
                   </div>
                   <h3 className="font-bold text-lg text-foreground">{title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">{desc}</p>
                 </div>
               ))}
-            </div>
+            </AnimateOnScroll>
 
-            <div className="text-center mt-12">
+            <AnimateOnScroll type="fade-up" delay={200} className="text-center mt-12">
               <Button
                 size="lg"
-                className="h-12 px-8 text-base bg-[#1a9e5c] hover:bg-[#158a4f] text-white shadow-lg shadow-[#1a9e5c]/25"
+                className="h-12 px-8 text-base text-white shadow-lg shadow-[#1a9e5c]/30 se-animate-shimmer-btn border-0 hover:opacity-90 transition-opacity"
                 asChild
               >
                 <Link href="/signup">
                   Create your free account <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-            </div>
+            </AnimateOnScroll>
           </div>
         </section>
 
@@ -363,9 +394,10 @@ export default function LandingPage() {
         <PricingSection />
 
         {/* ─── Testimonials ─────────────────────────────────────── */}
-        <section id="testimonials" className="px-4 sm:px-6 py-20 sm:py-24 border-t border-border">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center space-y-4 mb-14">
+        <section id="testimonials" className="relative px-4 sm:px-6 py-20 sm:py-24 border-t border-border overflow-hidden">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[200px] bg-[#1a9e5c]/5 rounded-full blur-3xl pointer-events-none" />
+          <div className="max-w-7xl mx-auto relative">
+            <AnimateOnScroll type="fade-up" className="text-center space-y-4 mb-14">
               <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-semibold border border-primary/20">
                 <Star className="w-4 h-4 fill-primary" />
                 Loved by UAE users
@@ -376,9 +408,9 @@ export default function LandingPage() {
               <p className="text-lg text-muted-foreground">
                 Real people. Real dirhams. Real results.
               </p>
-            </div>
+            </AnimateOnScroll>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <AnimateOnScroll type="stagger" className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
                 {
                   name: "Ahmad Al-Mansoori",
@@ -443,7 +475,7 @@ export default function LandingPage() {
               ].map(({ name, role, location, initials, color, quote, rating }) => (
                 <div
                   key={name}
-                  className="bg-background border border-border rounded-2xl p-6 space-y-4 hover:shadow-md hover:border-primary/20 transition-all duration-200 flex flex-col"
+                  className="bg-background border border-border rounded-2xl p-6 space-y-4 hover:shadow-[0_8px_32px_rgba(26,158,92,0.1)] hover:border-primary/25 hover:-translate-y-0.5 transition-all duration-300 flex flex-col"
                 >
                   <div className="flex gap-1">
                     {Array.from({ length: rating }).map((_, i) => (
@@ -456,7 +488,7 @@ export default function LandingPage() {
                   <p className="text-sm text-foreground leading-relaxed flex-1">&ldquo;{quote}&rdquo;</p>
                   <div className="flex items-center gap-3 pt-2 border-t border-border">
                     <div
-                      className={`w-10 h-10 rounded-full ${color} flex items-center justify-center text-white font-bold text-sm shrink-0`}
+                      className={`w-10 h-10 rounded-full ${color} flex items-center justify-center text-white font-bold text-sm shrink-0 ring-2 ring-offset-2 ring-offset-background ring-transparent hover:ring-primary/30 transition-all`}
                     >
                       {initials}
                     </div>
@@ -469,61 +501,64 @@ export default function LandingPage() {
                   </div>
                 </div>
               ))}
-            </div>
+            </AnimateOnScroll>
           </div>
         </section>
 
         {/* ─── FAQ ──────────────────────────────────────────────── */}
         <section
           id="faq"
-          className="px-4 sm:px-6 py-20 sm:py-24 bg-muted/30 border-t border-border"
+          className="relative px-4 sm:px-6 py-20 sm:py-24 bg-muted/30 border-t border-border overflow-hidden"
         >
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center space-y-4 mb-14">
+          <div className="absolute -bottom-20 -right-20 w-[400px] h-[400px] bg-[#1a9e5c]/6 rounded-full blur-3xl pointer-events-none" />
+          <div className="max-w-3xl mx-auto relative">
+            <AnimateOnScroll type="fade-up" className="text-center space-y-4 mb-14">
               <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-semibold border border-primary/20">
                 Frequently Asked Questions
               </div>
               <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
                 Got questions? We have answers.
               </h2>
-            </div>
+            </AnimateOnScroll>
 
-            <div className="divide-y divide-border rounded-2xl border border-border bg-background overflow-hidden">
-              {[
-                {
-                  q: "Is my financial data secure?",
-                  a: "Absolutely. All data is encrypted in transit (TLS 1.3) and at rest (AES-256). Your financial data is tied exclusively to your account and never shared with third parties, advertisers, or financial institutions. We are fully compliant with UAE PDPL data protection regulations.",
-                },
-                {
-                  q: "Which UAE banks are supported?",
-                  a: "Simple Expenses works with all UAE banks including ADCB, FAB, Mashreq, Emirates NBD, DIB, RAKBANK, Abu Dhabi Islamic Bank, and more. Since you enter transactions manually, it works with any bank that issues credit cards or bank accounts.",
-                },
-                {
-                  q: "Is there a truly free plan — no catches?",
-                  a: "Yes. Our Starter plan is permanently free with no time limits. You can track 2 credit cards, 2 bank accounts, and up to 100 transactions per month at no cost, forever. No credit card required to sign up.",
-                },
-                {
-                  q: "Can I track taksit (installment) payments?",
-                  a: "Yes! This is a feature we built specifically for UAE users. When adding a transaction, you can mark it as an installment purchase and specify the number of months. We automatically split the amount and track each monthly payment on your credit card bills.",
-                },
-                {
-                  q: "How do I cancel my subscription?",
-                  a: "You can cancel your subscription anytime from your account settings with one click. There are no cancellation fees. Your account reverts to the free Starter plan and all your data is preserved.",
-                },
-                {
-                  q: "Can I export my data?",
-                  a: "Data export (CSV and PDF) is available on the Premium plan. This lets you download all your transactions, reports, and invoice history for your own records or to share with an accountant.",
-                },
-              ].map(({ q, a }) => (
-                <details key={q} className="group px-6 py-5 cursor-pointer">
-                  <summary className="flex items-center justify-between font-semibold text-foreground list-none [&::-webkit-details-marker]:hidden gap-4">
-                    <span className="text-sm sm:text-base">{q}</span>
-                    <ChevronDown className="w-5 h-5 text-muted-foreground shrink-0 group-open:rotate-180 transition-transform duration-200" />
-                  </summary>
-                  <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{a}</p>
-                </details>
-              ))}
-            </div>
+            <AnimateOnScroll type="fade-up" delay={100}>
+              <div className="divide-y divide-border rounded-2xl border border-border bg-background overflow-hidden shadow-sm">
+                {[
+                  {
+                    q: "Is my financial data secure?",
+                    a: "Absolutely. All data is encrypted in transit (TLS 1.3) and at rest (AES-256). Your financial data is tied exclusively to your account and never shared with third parties, advertisers, or financial institutions. We are fully compliant with UAE PDPL data protection regulations.",
+                  },
+                  {
+                    q: "Which UAE banks are supported?",
+                    a: "Simple Expenses works with all UAE banks including ADCB, FAB, Mashreq, Emirates NBD, DIB, RAKBANK, Abu Dhabi Islamic Bank, and more. Since you enter transactions manually, it works with any bank that issues credit cards or bank accounts.",
+                  },
+                  {
+                    q: "Is there a truly free plan — no catches?",
+                    a: "Yes. Our Starter plan is permanently free with no time limits. You can track 2 credit cards, 2 bank accounts, and up to 100 transactions per month at no cost, forever. No credit card required to sign up.",
+                  },
+                  {
+                    q: "Can I track taksit (installment) payments?",
+                    a: "Yes! This is a feature we built specifically for UAE users. When adding a transaction, you can mark it as an installment purchase and specify the number of months. We automatically split the amount and track each monthly payment on your credit card bills.",
+                  },
+                  {
+                    q: "How do I cancel my subscription?",
+                    a: "You can cancel your subscription anytime from your account settings with one click. There are no cancellation fees. Your account reverts to the free Starter plan and all your data is preserved.",
+                  },
+                  {
+                    q: "Can I export my data?",
+                    a: "Data export (CSV and PDF) is available on the Premium plan. This lets you download all your transactions, reports, and invoice history for your own records or to share with an accountant.",
+                  },
+                ].map(({ q, a }) => (
+                  <details key={q} className="group px-6 py-5 cursor-pointer hover:bg-muted/30 transition-colors">
+                    <summary className="flex items-center justify-between font-semibold text-foreground list-none [&::-webkit-details-marker]:hidden gap-4">
+                      <span className="text-sm sm:text-base">{q}</span>
+                      <ChevronDown className="w-5 h-5 text-muted-foreground shrink-0 group-open:rotate-180 transition-transform duration-300" />
+                    </summary>
+                    <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{a}</p>
+                  </details>
+                ))}
+              </div>
+            </AnimateOnScroll>
 
             <p className="text-center text-sm text-muted-foreground mt-8">
               Still have questions?{" "}
@@ -535,22 +570,36 @@ export default function LandingPage() {
         </section>
 
         {/* ─── Final CTA ────────────────────────────────────────── */}
-        <section className="px-4 sm:px-6 py-20 sm:py-24 bg-[#1a9e5c] border-t border-border">
-          <div className="max-w-3xl mx-auto text-center space-y-6">
-            <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 mx-auto">
+        <section className="relative px-4 sm:px-6 py-20 sm:py-24 bg-[#1a9e5c] border-t border-[#158a4f] overflow-hidden">
+          {/* Animated background orbs */}
+          <div
+            className="absolute -top-20 -left-20 w-[400px] h-[400px] bg-white/8 rounded-full blur-3xl pointer-events-none"
+            style={{ animation: "se-orb-drift 14s ease-in-out infinite" }}
+          />
+          <div
+            className="absolute -bottom-20 -right-20 w-[350px] h-[350px] bg-black/10 rounded-full blur-3xl pointer-events-none"
+            style={{ animation: "se-orb-drift 10s ease-in-out 3s infinite reverse" }}
+          />
+          {/* Dot grid overlay */}
+          <div className="absolute inset-0 se-dot-grid opacity-30 pointer-events-none" />
+
+          <div className="max-w-3xl mx-auto text-center space-y-6 relative">
+            <AnimateOnScroll type="scale" className="flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 mx-auto">
               <Globe className="w-8 h-8 text-white" />
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
-              Start your financial journey today
-            </h2>
-            <p className="text-lg text-white/80 max-w-xl mx-auto">
-              Join hundreds of UAE residents who have taken control of their
-              spending. Free forever — upgrade whenever you need more.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            </AnimateOnScroll>
+            <AnimateOnScroll type="fade-up" delay={100}>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
+                Start your financial journey today
+              </h2>
+              <p className="text-lg text-white/80 max-w-xl mx-auto mt-4">
+                Join hundreds of UAE residents who have taken control of their
+                spending. Free forever — upgrade whenever you need more.
+              </p>
+            </AnimateOnScroll>
+            <AnimateOnScroll type="fade-up" delay={200} className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 size="lg"
-                className="h-12 px-8 text-base bg-white text-[#1a9e5c] hover:bg-white/95 font-bold shadow-lg"
+                className="h-12 px-8 text-base bg-white text-[#1a9e5c] hover:bg-white/95 font-bold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
                 asChild
               >
                 <Link href="/signup">
@@ -560,12 +609,12 @@ export default function LandingPage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="h-12 px-8 text-base border-white/30 text-white hover:bg-white/10 hover:text-white bg-transparent"
+                className="h-12 px-8 text-base border-white/30 text-white hover:bg-white/10 hover:text-white bg-transparent transition-all"
                 asChild
               >
                 <Link href="/contact">Talk to us</Link>
               </Button>
-            </div>
+            </AnimateOnScroll>
             <p className="text-sm text-white/60">
               No credit card required · Cancel anytime · AED pricing always
             </p>

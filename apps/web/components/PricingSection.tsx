@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Check, Sparkles, Zap, Loader2 } from "lucide-react";
+import { Check, Sparkles, Zap, Loader2, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "@/lib/auth-client";
 import { createCheckoutSession } from "@/app/api/billing-action";
@@ -150,7 +150,7 @@ export default function PricingSection() {
   const plans = PLANS[billing];
 
   const handleProCta = async (planId: string) => {
-    if (planId === "starter") return; // handled by Link
+    if (planId === "starter") return;
     if (!session) {
       router.push("/signup");
       return;
@@ -168,167 +168,227 @@ export default function PricingSection() {
   };
 
   return (
-    <section id="pricing" className="px-6 py-24 bg-muted/30 border-t border-border">
-      <div className="max-w-7xl mx-auto">
+    <section
+      id="pricing"
+      className="relative overflow-hidden border-t border-[#1a9e5c]/20"
+      style={{ background: "linear-gradient(160deg, #071812 0%, #0b2218 40%, #091a14 70%, #071610 100%)" }}
+    >
+      {/* Atmospheric orbs */}
+      <div
+        className="absolute -top-40 -left-40 w-[700px] h-[700px] rounded-full pointer-events-none"
+        style={{
+          background: "radial-gradient(circle, rgba(26,158,92,0.18) 0%, transparent 70%)",
+          animation: "se-orb-drift 18s ease-in-out infinite",
+        }}
+      />
+      <div
+        className="absolute -bottom-40 -right-40 w-[600px] h-[600px] rounded-full pointer-events-none"
+        style={{
+          background: "radial-gradient(circle, rgba(26,158,92,0.12) 0%, transparent 70%)",
+          animation: "se-orb-drift 14s ease-in-out 5s infinite reverse",
+        }}
+      />
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full pointer-events-none"
+        style={{
+          background: "radial-gradient(circle, rgba(26,158,92,0.08) 0%, transparent 70%)",
+          animation: "se-orb-drift 22s ease-in-out 2s infinite",
+        }}
+      />
+      {/* Dot grid overlay */}
+      <div className="absolute inset-0 se-dot-grid opacity-20 pointer-events-none" />
+
+      <div className="relative max-w-7xl mx-auto px-6 py-24">
         {/* Header */}
         <div className="text-center space-y-4 mb-14">
-          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-semibold border border-primary/20">
+          <div className="inline-flex items-center gap-2 bg-[#1a9e5c]/20 text-[#22d47a] px-4 py-1.5 rounded-full text-sm font-semibold border border-[#1a9e5c]/30">
             <Sparkles className="w-4 h-4" />
             Simple, transparent pricing
           </div>
-          <h2 className="text-4xl font-extrabold tracking-tight text-foreground">
+          <h2 className="text-4xl font-extrabold tracking-tight text-white">
             Plans that grow with you
           </h2>
-          <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+          <p className="text-lg text-white/60 max-w-xl mx-auto">
             Start free. Upgrade when you&apos;re ready. All prices in AED — no surprises.
           </p>
 
           {/* Toggle */}
-          <div className="flex items-center justify-center gap-4 pt-2">
-            <button
-              onClick={() => setBilling("monthly")}
-              className={cn(
-                "text-sm font-medium transition-colors px-4 py-2 rounded-full",
-                billing === "monthly"
-                  ? "bg-primary text-primary-foreground shadow"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              Monthly
-            </button>
-            <button
-              onClick={() => setBilling("yearly")}
-              className={cn(
-                "relative text-sm font-medium transition-colors px-4 py-2 rounded-full",
-                billing === "yearly"
-                  ? "bg-primary text-primary-foreground shadow"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              Yearly
-              {billing === "monthly" && (
-                <span className="absolute -top-2 -right-2 bg-amber-400 text-amber-900 text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">
-                  -28%
-                </span>
-              )}
-            </button>
+          <div className="flex items-center justify-center gap-2 pt-4">
+            <div className="flex items-center bg-white/8 border border-white/15 rounded-full p-1 gap-1">
+              <button
+                onClick={() => setBilling("monthly")}
+                className={cn(
+                  "text-sm font-semibold px-5 py-2 rounded-full transition-all duration-300",
+                  billing === "monthly"
+                    ? "bg-[#1a9e5c] text-white shadow-lg shadow-[#1a9e5c]/40"
+                    : "text-white/50 hover:text-white/80"
+                )}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setBilling("yearly")}
+                className={cn(
+                  "relative text-sm font-semibold px-5 py-2 rounded-full transition-all duration-300",
+                  billing === "yearly"
+                    ? "bg-[#1a9e5c] text-white shadow-lg shadow-[#1a9e5c]/40"
+                    : "text-white/50 hover:text-white/80"
+                )}
+              >
+                Yearly
+                {billing === "monthly" && (
+                  <span className="absolute -top-2.5 -right-2 bg-amber-400 text-amber-900 text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none whitespace-nowrap shadow">
+                    −28%
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
-          {plans.map((plan) => (
-            <div
-              key={plan.id}
-              className={cn(
-                "relative rounded-2xl border p-8 flex flex-col transition-all duration-200",
-                plan.highlight
-                  ? "bg-primary border-primary shadow-2xl shadow-primary/20 scale-[1.03] z-10"
-                  : "bg-background border-border hover:shadow-lg hover:border-primary/30"
-              )}
-            >
-              {/* Badge */}
-              {plan.badge && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch pt-6">
+          {plans.map((plan) => {
+            if (plan.highlight) {
+              return (
                 <div
-                  className={cn(
-                    "absolute -top-3.5 left-1/2 -translate-x-1/2 text-xs font-bold px-3 py-1 rounded-full shadow",
-                    plan.highlight
-                      ? "bg-white text-primary"
-                      : "bg-amber-400 text-amber-900"
-                  )}
+                  key={plan.id}
+                  className="relative rounded-2xl p-px se-pro-glow-border scale-[1.03] z-10"
+                  style={{ boxShadow: "0 0 80px rgba(26,158,92,0.35), 0 20px 60px rgba(0,0,0,0.5)" }}
                 >
-                  {plan.badge}
-                </div>
-              )}
+                  {/* Most Popular badge */}
+                  <div
+                    className="absolute -top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 bg-[#1a9e5c] text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg shadow-[#1a9e5c]/40 whitespace-nowrap"
+                    style={{ animation: "se-badge-bounce 3s ease-in-out infinite" }}
+                  >
+                    <Zap className="w-3 h-3" />
+                    {plan.badge}
+                  </div>
 
-              <div className="mb-6">
-                <div className="flex items-center gap-2 mb-1">
-                  {plan.highlight && <Zap className="w-4 h-4 text-white/80" />}
-                  <h3
-                    className={cn(
-                      "font-bold text-lg",
-                      plan.highlight ? "text-white" : "text-foreground"
-                    )}
+                  <div className="relative rounded-[calc(1rem-1px)] p-8 flex flex-col h-full overflow-hidden"
+                    style={{ background: "linear-gradient(135deg, #0e2218 0%, #162e1e 50%, #0e2218 100%)" }}
                   >
-                    {plan.name}
-                  </h3>
-                </div>
-                <p
-                  className={cn(
-                    "text-sm mb-4",
-                    plan.highlight ? "text-white/70" : "text-muted-foreground"
-                  )}
-                >
-                  {plan.description}
-                </p>
-                <div className="flex items-end gap-1">
-                  <span
-                    className={cn(
-                      "text-4xl font-extrabold",
-                      plan.highlight ? "text-white" : "text-foreground"
-                    )}
-                  >
-                    {plan.price}
-                  </span>
-                  <span
-                    className={cn(
-                      "text-sm pb-1",
-                      plan.highlight ? "text-white/60" : "text-muted-foreground"
-                    )}
-                  >
-                    {plan.priceLabel}
-                  </span>
-                </div>
-              </div>
-
-              <ul className="space-y-3 mb-8 flex-1">
-                {plan.features.map((feat) => (
-                  <li key={feat} className="flex items-start gap-2.5 text-sm">
-                    <Check
-                      className={cn(
-                        "w-4 h-4 mt-0.5 shrink-0",
-                        plan.highlight ? "text-white/80" : "text-primary"
-                      )}
+                    {/* Inner shimmer overlay */}
+                    <div
+                      className="absolute inset-0 pointer-events-none opacity-30"
+                      style={{
+                        background: "linear-gradient(135deg, rgba(26,158,92,0.3) 0%, transparent 50%, rgba(26,158,92,0.2) 100%)",
+                        animation: "se-gradient-shift 6s ease infinite",
+                        backgroundSize: "200% 200%",
+                      }}
                     />
-                    <span className={plan.highlight ? "text-white/80" : "text-muted-foreground"}>
-                      {feat}
-                    </span>
-                  </li>
-                ))}
-              </ul>
 
-              {plan.id === "starter" ? (
-                <Link
-                  href={plan.href}
-                  className={cn(
-                    "block w-full py-3 rounded-xl font-semibold text-sm text-center transition-all",
-                    plan.highlight
-                      ? "bg-white text-primary hover:bg-white/90 shadow-lg"
-                      : "bg-primary text-primary-foreground hover:bg-primary/90"
-                  )}
-                >
-                  {plan.cta}
-                </Link>
-              ) : (
-                <button
-                  onClick={() => handleProCta(plan.id)}
-                  disabled={loadingPlan === plan.id}
-                  className={cn(
-                    "flex items-center justify-center gap-2 w-full py-3 rounded-xl font-semibold text-sm text-center transition-all disabled:opacity-70",
-                    plan.highlight
-                      ? "bg-white text-primary hover:bg-white/90 shadow-lg"
-                      : "bg-primary text-primary-foreground hover:bg-primary/90"
-                  )}
-                >
-                  {loadingPlan === plan.id && <Loader2 className="h-4 w-4 animate-spin" />}
-                  {plan.cta}
-                </button>
-              )}
-            </div>
-          ))}
+                    <div className="relative mb-6">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-bold text-lg text-white">{plan.name}</h3>
+                      </div>
+                      <p className="text-sm mb-4 text-white/60">{plan.description}</p>
+                      <div className="flex items-end gap-1">
+                        <span className="text-4xl font-extrabold text-white">{plan.price}</span>
+                        <span className="text-sm pb-1 text-white/50">{plan.priceLabel}</span>
+                      </div>
+                    </div>
+
+                    <ul className="space-y-3 mb-8 flex-1 relative">
+                      {plan.features.map((feat) => (
+                        <li key={feat} className="flex items-start gap-2.5 text-sm">
+                          <div className="w-4 h-4 mt-0.5 shrink-0 rounded-full bg-[#1a9e5c]/30 flex items-center justify-center">
+                            <Check className="w-2.5 h-2.5 text-[#22d47a]" />
+                          </div>
+                          <span className="text-white/75">{feat}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {plan.id === "starter" ? (
+                      <Link
+                        href={plan.href}
+                        className="relative block w-full py-3.5 rounded-xl font-bold text-sm text-center text-[#1a9e5c] overflow-hidden transition-all hover:opacity-90"
+                        style={{
+                          background: "linear-gradient(90deg, #ffffff 0%, #f0fdf4 50%, #ffffff 100%)",
+                          backgroundSize: "200% auto",
+                          animation: "se-shimmer 3s linear infinite",
+                        }}
+                      >
+                        {plan.cta}
+                        <ArrowRight className="inline ml-1.5 w-4 h-4" />
+                      </Link>
+                    ) : (
+                      <button
+                        onClick={() => handleProCta(plan.id)}
+                        disabled={loadingPlan === plan.id}
+                        className="relative flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-bold text-sm text-center text-[#1a9e5c] transition-all hover:opacity-90 disabled:opacity-60 overflow-hidden"
+                        style={{
+                          background: "linear-gradient(90deg, #ffffff 0%, #f0fdf4 50%, #ffffff 100%)",
+                          backgroundSize: "200% auto",
+                          animation: "se-shimmer 3s linear infinite",
+                        }}
+                      >
+                        {loadingPlan === plan.id && <Loader2 className="h-4 w-4 animate-spin" />}
+                        {plan.cta}
+                        {!loadingPlan && <ArrowRight className="w-4 h-4" />}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            }
+
+            // Non-highlighted cards (Starter, Premium)
+            return (
+              <div
+                key={plan.id}
+                className="relative rounded-2xl border border-white/10 p-8 flex flex-col hover:border-[#1a9e5c]/40 hover:shadow-[0_0_40px_rgba(26,158,92,0.12)] transition-all duration-300"
+                style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(12px)" }}
+              >
+                {/* Badge for premium yearly */}
+                {plan.badge && (
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-amber-400 text-amber-900 text-xs font-bold px-3 py-1 rounded-full shadow whitespace-nowrap">
+                    {plan.badge}
+                  </div>
+                )}
+
+                <div className="mb-6">
+                  <h3 className="font-bold text-lg text-white mb-1">{plan.name}</h3>
+                  <p className="text-sm mb-4 text-white/50">{plan.description}</p>
+                  <div className="flex items-end gap-1">
+                    <span className="text-4xl font-extrabold text-white">{plan.price}</span>
+                    <span className="text-sm pb-1 text-white/40">{plan.priceLabel}</span>
+                  </div>
+                </div>
+
+                <ul className="space-y-3 mb-8 flex-1">
+                  {plan.features.map((feat) => (
+                    <li key={feat} className="flex items-start gap-2.5 text-sm">
+                      <Check className="w-4 h-4 mt-0.5 shrink-0 text-[#1a9e5c]" />
+                      <span className="text-white/60">{feat}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {plan.id === "starter" ? (
+                  <Link
+                    href={plan.href}
+                    className="block w-full py-3.5 rounded-xl font-semibold text-sm text-center bg-[#1a9e5c] text-white hover:bg-[#1a9e5c]/90 transition-all hover:shadow-lg hover:shadow-[#1a9e5c]/30"
+                  >
+                    {plan.cta}
+                  </Link>
+                ) : (
+                  <button
+                    onClick={() => handleProCta(plan.id)}
+                    disabled={loadingPlan === plan.id}
+                    className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-semibold text-sm text-center bg-[#1a9e5c] text-white hover:bg-[#1a9e5c]/90 transition-all hover:shadow-lg hover:shadow-[#1a9e5c]/30 disabled:opacity-70"
+                  >
+                    {loadingPlan === plan.id && <Loader2 className="h-4 w-4 animate-spin" />}
+                    {plan.cta}
+                  </button>
+                )}
+              </div>
+            );
+          })}
         </div>
 
-        <p className="text-center text-sm text-muted-foreground mt-10">
+        <p className="text-center text-sm text-white/35 mt-10">
           All plans include a 14-day free trial. No credit card required to start.
           Cancel anytime.
         </p>
