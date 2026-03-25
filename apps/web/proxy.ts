@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
+import {
+  rateLimit,
+  READ_LIMIT,
+  WRITE_LIMIT,
+  EXPENSIVE_LIMIT,
+} from "@/lib/rate-limit";
 
 const ALLOWED_METHODS = "GET, POST, PUT, DELETE, OPTIONS";
 const ALLOWED_HEADERS = "Content-Type, Authorization";
@@ -24,10 +30,13 @@ const protectedRoutes = [
   "/admin",
 ];
 
+/** Paths that trigger the stricter "expensive" rate limit. */
+const expensivePaths = ["/api/v1/transactions/export", "/api/v1/reports/export"];
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // CORS handling for API v1 routes
+  // CORS + rate-limiting for API v1 routes
   if (pathname.startsWith("/api/v1")) {
     const origin = request.headers.get("origin") ?? "*";
 
@@ -43,10 +52,45 @@ export function proxy(request: NextRequest) {
       });
     }
 
+    // ── Rate limiting ──────────────────────────────────────────────
+    const ip =
+      request.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
+      request.headers.get("x-real-ip") ??
+      "unknown";
+
+    const isExpensive = expensivePaths.some((p) => pathname.startsWith(p));
+    const isWrite = ["POST", "PUT", "DELETE"].includes(request.method);
+
+    const tier = isExpensive
+      ? EXPENSIVE_LIMIT
+      : isWrite
+        ? WRITE_LIMIT
+        : READ_LIMIT;
+
+    const key = `${ip}:${isExpensive ? "expensive" : isWrite ? "write" : "read"}`;
+    const result = rateLimit(key, tier);
+
+    if (!result.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(result.retryAfterSeconds),
+            "X-RateLimit-Limit": String(result.limit),
+            "X-RateLimit-Remaining": "0",
+            "Access-Control-Allow-Origin": origin,
+          },
+        }
+      );
+    }
+
     const response = NextResponse.next();
     response.headers.set("Access-Control-Allow-Origin", origin);
     response.headers.set("Access-Control-Allow-Methods", ALLOWED_METHODS);
     response.headers.set("Access-Control-Allow-Headers", ALLOWED_HEADERS);
+    response.headers.set("X-RateLimit-Limit", String(result.limit));
+    response.headers.set("X-RateLimit-Remaining", String(result.remaining));
     return response;
   }
 
