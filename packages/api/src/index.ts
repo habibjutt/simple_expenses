@@ -146,6 +146,27 @@ export const auth = {
     return request<User>("/api/v1/auth/me");
   },
 
+  async updateProfile(data: { name: string }): Promise<{ name: string }> {
+    return request<{ name: string }>("/api/v1/auth/profile", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  },
+
+  async changePassword(data: { currentPassword: string; newPassword: string }): Promise<{ success: boolean }> {
+    return request<{ success: boolean }>("/api/v1/auth/change-password", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+
+  async updateCurrency(currency: string): Promise<{ preferredCurrency: string }> {
+    return request<{ preferredCurrency: string }>("/api/v1/auth/currency", {
+      method: "PUT",
+      body: JSON.stringify({ currency }),
+    });
+  },
+
   async logout(): Promise<void> {
     return request<void>("/api/v1/auth/logout", { method: "POST" });
   },
