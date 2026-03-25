@@ -7,11 +7,10 @@ import BankAccountModal from "@/components/bank-account-modal";
 import TransactionModal from "@/components/transaction-modal";
 import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { getCreditCards, deleteCreditCard } from "@/app/api/credit-card-action";
-import { getBankAccounts, deleteBankAccount } from "@/app/api/bank-account-action";
-import { getTransactions } from "@/app/api/transaction-action";
-import { getCurrentMonthInvoices, getNextBillAmounts } from "@/app/api/invoice-action";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { getDashboardData } from "@/app/api/dashboard-action";
+import { deleteCreditCard } from "@/app/api/credit-card-action";
+import { deleteBankAccount } from "@/app/api/bank-account-action";
 import { seedDefaultCategories } from "@/app/api/category-action";
 import { getReportData } from "@/app/api/reports-action";
 import { getUserProfile, completeOnboarding } from "@/app/api/user-action";
@@ -60,12 +59,6 @@ type BankAccount = {
   id: string; name: string; initialBalance: number; currentBalance: number;
   currency: string; createdAt: Date; updatedAt: Date;
 };
-type Transaction = {
-  id: string; name: string; amount: number; date: Date; category: string;
-  installments: number; creditCardId: string | null; creditCard: { name: string } | null;
-  bankAccountId: string | null; bankAccount: { name: string } | null;
-  createdAt: Date; updatedAt: Date;
-};
 type Invoice = {
   cardId: string; cardName: string; billStartDate: Date; billEndDate: Date;
   paymentDueDate: Date; totalAmount: number;
@@ -85,7 +78,7 @@ export default function Home() {
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
   const [creditCards, setCreditCards] = useState<CreditCardType[]>([]);
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [hasTransactions, setHasTransactions] = useState(false);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [nextBills, setNextBills] = useState<NextBill[]>([]);
   const [loading, setLoading] = useState(false);
@@ -102,18 +95,19 @@ export default function Home() {
   const [dismissChecklist, setDismissChecklist] = useState(false);
   const [preferredCurrency, setPreferredCurrency] = useState("AED");
 
-  const fetchAll = async () => {
+  const fetchAll = useCallback(async () => {
     try {
       setLoading(true);
-      const [cards, accounts, txns, invs, bills, profile] = await Promise.all([
-        getCreditCards(), getBankAccounts(), getTransactions(),
-        getCurrentMonthInvoices(), getNextBillAmounts(), getUserProfile(),
+      // Single consolidated query (replaces 5 separate server action calls)
+      const [dashData, profile] = await Promise.all([
+        getDashboardData(),
+        getUserProfile(),
       ]);
-      setCreditCards(cards);
-      setBankAccounts(accounts);
-      setTransactions(txns);
-      setInvoices(invs);
-      setNextBills(bills);
+      setCreditCards(dashData.creditCards);
+      setBankAccounts(dashData.bankAccounts);
+      setHasTransactions(dashData.hasTransactions);
+      setInvoices(dashData.invoices);
+      setNextBills(dashData.nextBills);
       setOnboardingCompleted(profile?.onboardingCompleted ?? true);
       if (profile?.preferredCurrency) setPreferredCurrency(profile.preferredCurrency);
 
@@ -129,7 +123,7 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (!isPending && !session) router.push("/login");
@@ -147,7 +141,43 @@ export default function Home() {
       fetchAll();
       seedDefaultCategories().catch(() => {});
     }
-  }, [session, dataLoaded]);
+  }, [session, dataLoaded, fetchAll]);
+
+  // ── Derived values (memoised to avoid re-computation on unrelated renders) ──
+  const totalBalance = useMemo(
+    () => bankAccounts.reduce((s, a) => s + a.currentBalance, 0),
+    [bankAccounts],
+  );
+  const totalBills = useMemo(
+    () => invoices.reduce((s, i) => s + i.totalAmount, 0),
+    [invoices],
+  );
+  const totalNextBills = useMemo(
+    () => nextBills.reduce((s, b) => s + b.totalAmount, 0),
+    [nextBills],
+  );
+  const sortedAccounts = useMemo(
+    () => [...bankAccounts].sort((a, b) => a.name.localeCompare(b.name)),
+    [bankAccounts],
+  );
+  const sortedCards = useMemo(
+    () => [...creditCards].sort((a, b) => a.name.localeCompare(b.name)),
+    [creditCards],
+  );
+  const fmt = useCallback(
+    (v: number) => showBalance ? formatCurrency(v, preferredCurrency) : "•••••",
+    [showBalance, preferredCurrency],
+  );
+
+  const handleDeleteCard = useCallback(async (cardId: string) => {
+    try { await deleteCreditCard(cardId); await fetchAll(); setDeleteCardId(null); }
+    catch (err) { console.error(err); }
+  }, [fetchAll]);
+
+  const handleDeleteAccount = useCallback(async (accountId: string) => {
+    try { await deleteBankAccount(accountId); await fetchAll(); setDeleteAccountId(null); }
+    catch (err) { console.error(err); }
+  }, [fetchAll]);
 
   if (isPending) {
     return (
@@ -161,15 +191,6 @@ export default function Home() {
   }
   if (!session) return null;
 
-  const handleDeleteCard = async (cardId: string) => {
-    try { await deleteCreditCard(cardId); await fetchAll(); setDeleteCardId(null); }
-    catch (err) { console.error(err); }
-  };
-  const handleDeleteAccount = async (accountId: string) => {
-    try { await deleteBankAccount(accountId); await fetchAll(); setDeleteAccountId(null); }
-    catch (err) { console.error(err); }
-  };
-
   const getGreeting = () => {
     const h = new Date().getHours();
     if (h < 12) return "Good morning";
@@ -177,18 +198,8 @@ export default function Home() {
     return "Good evening";
   };
 
-  const totalBalance = bankAccounts.reduce((s, a) => s + a.currentBalance, 0);
-  const totalBills = invoices.reduce((s, i) => s + i.totalAmount, 0);
-  const totalNextBills = nextBills.reduce((s, b) => s + b.totalAmount, 0);
   const now = new Date();
   const currentMonth = now.toLocaleString("en-US", { month: "long" });
-  const sortedAccounts = [...bankAccounts].sort((a, b) => a.name.localeCompare(b.name));
-  const sortedCards = [...creditCards].sort((a, b) => a.name.localeCompare(b.name));
-
-  const fmt = (v: number) => showBalance ? formatCurrency(v, preferredCurrency) : "•••••";
-
-  // Today's transactions (recent)
-  const todayStr = now.toDateString();
 
   return (
     <div className="min-h-screen bg-[#f0f2f5]">
@@ -324,7 +335,7 @@ export default function Home() {
                   { done: true, label: "Account created", sub: "You're logged in and ready" },
                   { done: bankAccounts.length > 0, label: "Add a bank account", sub: "Track your savings and spending", href: "/manage-accounts" },
                   { done: creditCards.length > 0, label: "Add a credit card", sub: "Monitor bills and due dates", href: "/manage-cards" },
-                  { done: transactions.length > 0, label: "Record your first transaction", sub: "Start tracking your expenses", action: () => setIsTransactionModalOpen(true) },
+                  { done: hasTransactions, label: "Record your first transaction", sub: "Start tracking your expenses", action: () => setIsTransactionModalOpen(true) },
                 ].map((item, i) => (
                   <div
                     key={i}
@@ -352,7 +363,7 @@ export default function Home() {
               </div>
               <div className="mt-3 pt-3 border-t border-emerald-100 flex items-center justify-between">
                 <p className="text-xs text-emerald-600">
-                  {[bankAccounts.length > 0, creditCards.length > 0, transactions.length > 0].filter(Boolean).length + 1}/4 completed
+                  {[bankAccounts.length > 0, creditCards.length > 0, hasTransactions].filter(Boolean).length + 1}/4 completed
                 </p>
                 <button
                   onClick={async () => {
@@ -668,10 +679,12 @@ export default function Home() {
       <CreditCardModal
         open={isModalOpen} setOpen={setIsModalOpen}
         onSuccess={fetchAll} editCard={editCard}
+        preferredCurrency={preferredCurrency}
       />
       <BankAccountModal
         open={isBankAccountModalOpen} setOpen={setIsBankAccountModalOpen}
         onSuccess={fetchAll} editAccount={editAccount}
+        preferredCurrency={preferredCurrency}
       />
       <TransactionModal
         open={isTransactionModalOpen} setOpen={setIsTransactionModalOpen}

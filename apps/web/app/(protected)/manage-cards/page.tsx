@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { getCreditCards, deleteCreditCard } from "@/app/api/credit-card-action";
+import { getUserProfile } from "@/app/api/user-action";
 import { formatCurrency } from "@/lib/utils";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -60,6 +61,7 @@ export default function ManageCardsPage() {
   const [editingCard, setEditingCard] = useState<CreditCard | null>(null);
   const [deletingCard, setDeletingCard] = useState<CreditCard | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [preferredCurrency, setPreferredCurrency] = useState("AED");
 
   useEffect(() => {
     if (!isPending && !session) {
@@ -70,8 +72,12 @@ export default function ManageCardsPage() {
   const fetchCards = async () => {
     try {
       setLoading(true);
-      const fetchedCards = await getCreditCards();
+      const [fetchedCards, profile] = await Promise.all([
+        getCreditCards(),
+        getUserProfile(),
+      ]);
       setCards(fetchedCards);
+      if (profile?.preferredCurrency) setPreferredCurrency(profile.preferredCurrency);
     } catch (error) {
       console.error("Failed to fetch credit cards:", error);
       alert("Error fetching credit cards: " + (error as Error).message);
@@ -366,6 +372,7 @@ export default function ManageCardsPage() {
         setOpen={setIsCardModalOpen}
         onSuccess={handleModalSuccess}
         editCard={editingCard}
+        preferredCurrency={preferredCurrency}
       />
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

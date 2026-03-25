@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { getBankAccounts, deleteBankAccount } from "@/app/api/bank-account-action";
+import { getUserProfile } from "@/app/api/user-action";
 import { formatCurrency, cn } from "@/lib/utils";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -51,6 +52,7 @@ export default function ManageAccountsPage() {
   const [editingAccount, setEditingAccount] = useState<BankAccount | null>(null);
   const [deletingAccount, setDeletingAccount] = useState<BankAccount | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [preferredCurrency, setPreferredCurrency] = useState("AED");
 
   useEffect(() => {
     if (!isPending && !session) {
@@ -61,8 +63,12 @@ export default function ManageAccountsPage() {
   const fetchAccounts = async () => {
     try {
       setLoading(true);
-      const fetchedAccounts = await getBankAccounts();
+      const [fetchedAccounts, profile] = await Promise.all([
+        getBankAccounts(),
+        getUserProfile(),
+      ]);
       setAccounts(fetchedAccounts);
+      if (profile?.preferredCurrency) setPreferredCurrency(profile.preferredCurrency);
     } catch (error) {
       console.error("Failed to fetch bank accounts:", error);
     } finally {
@@ -303,6 +309,7 @@ export default function ManageAccountsPage() {
         setOpen={setIsAccountModalOpen}
         onSuccess={fetchAccounts}
         editAccount={editingAccount}
+        preferredCurrency={preferredCurrency}
       />
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

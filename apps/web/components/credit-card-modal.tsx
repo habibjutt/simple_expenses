@@ -12,8 +12,6 @@ import {
 import { Field } from "./ui/field";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { SUPPORTED_CURRENCIES } from "@/lib/utils";
-import { FormCombobox } from "@/components/ui/form-combobox";
 
 type CreditCard = {
   id: string;
@@ -30,17 +28,18 @@ export default function CreditCardModal({
   setOpen,
   onSuccess,
   editCard,
+  preferredCurrency = "AED",
 }: {
   open: boolean;
   setOpen: (v: boolean) => void;
   onSuccess?: () => void;
   editCard?: CreditCard | null;
+  preferredCurrency?: string;
 }) {
   const [name, setName] = useState("");
   const [billGenerationDate, setBillGenerationDate] = useState("");
   const [paymentDate, setPaymentDate] = useState("");
   const [cardLimit, setCardLimit] = useState("");
-  const [currency, setCurrency] = useState("AED");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,16 +49,17 @@ export default function CreditCardModal({
       setBillGenerationDate(editCard.billGenerationDate.toString());
       setPaymentDate(editCard.paymentDate.toString());
       setCardLimit(editCard.cardLimit.toString());
-      setCurrency(editCard.currency ?? "AED");
     } else {
       setName("");
       setBillGenerationDate("");
       setPaymentDate("");
       setCardLimit("");
-      setCurrency("AED");
     }
     setError(null);
   }, [editCard, open]);
+
+  // Currency: preserve existing on edit, use preferred for new cards
+  const currency = editCard?.currency ?? preferredCurrency;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,12 +89,11 @@ export default function CreditCardModal({
       setBillGenerationDate("");
       setPaymentDate("");
       setCardLimit("");
-      setCurrency("AED");
       if (onSuccess) {
         onSuccess();
       }
-    } catch (err: any) {
-      setError(err.message || `Failed to ${editCard ? "update" : "create"} credit card`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : `Failed to ${editCard ? "update" : "create"} credit card`);
     } finally {
       setLoading(false);
     }
@@ -152,16 +151,9 @@ export default function CreditCardModal({
               aria-label="Card limit"
             />
           </Field>
-          <Field label="Currency">
-            <FormCombobox
-              value={currency}
-              onValueChange={(v) => setCurrency(v || "AED")}
-              options={SUPPORTED_CURRENCIES.map((c) => ({ value: c.code, label: `${c.code} — ${c.name}` }))}
-              placeholder="Select currency…"
-              searchPlaceholder="Search currency…"
-              emptyText="No currency found."
-            />
-          </Field>
+          <p className="text-xs text-slate-500">
+            Currency: <span className="font-medium text-slate-700">{currency}</span>
+          </p>
           {error && (
             <div className="text-red-500 text-sm" role="alert">
               {error}

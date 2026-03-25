@@ -12,8 +12,6 @@ import {
 import { Field } from "./ui/field";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { SUPPORTED_CURRENCIES } from "@/lib/utils";
-import { FormCombobox } from "@/components/ui/form-combobox";
 
 type BankAccount = {
   id: string;
@@ -28,15 +26,16 @@ export default function BankAccountModal({
   setOpen,
   onSuccess,
   editAccount,
+  preferredCurrency = "AED",
 }: {
   open: boolean;
   setOpen: (v: boolean) => void;
   onSuccess?: () => void;
   editAccount?: BankAccount | null;
+  preferredCurrency?: string;
 }) {
   const [name, setName] = useState("");
   const [initialBalance, setInitialBalance] = useState("");
-  const [currency, setCurrency] = useState("AED");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,14 +43,15 @@ export default function BankAccountModal({
     if (editAccount) {
       setName(editAccount.name);
       setInitialBalance(editAccount.initialBalance.toString());
-      setCurrency(editAccount.currency ?? "AED");
     } else {
       setName("");
       setInitialBalance("");
-      setCurrency("AED");
     }
     setError(null);
   }, [editAccount, open]);
+
+  // Currency: preserve existing on edit, use preferred for new accounts
+  const currency = editAccount?.currency ?? preferredCurrency;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,12 +77,11 @@ export default function BankAccountModal({
       setOpen(false);
       setName("");
       setInitialBalance("");
-      setCurrency("AED");
       if (onSuccess) {
         onSuccess();
       }
-    } catch (err: any) {
-      setError(err.message || `Failed to ${editAccount ? "update" : "create"} bank account`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : `Failed to ${editAccount ? "update" : "create"} bank account`);
     } finally {
       setLoading(false);
     }
@@ -116,16 +115,9 @@ export default function BankAccountModal({
               aria-label="Initial balance"
             />
           </Field>
-          <Field label="Currency">
-            <FormCombobox
-              value={currency}
-              onValueChange={(v) => setCurrency(v || "AED")}
-              options={SUPPORTED_CURRENCIES.map((c) => ({ value: c.code, label: `${c.code} — ${c.name}` }))}
-              placeholder="Select currency…"
-              searchPlaceholder="Search currency…"
-              emptyText="No currency found."
-            />
-          </Field>
+          <p className="text-xs text-slate-500">
+            Currency: <span className="font-medium text-slate-700">{currency}</span>
+          </p>
           {error && (
             <div className="text-red-500 text-sm" role="alert">
               {error}
