@@ -10,6 +10,7 @@ import {
   UpdateTransactionSchema,
 } from "@/lib/validations/transaction";
 import type { ActionResult } from "@/lib/validations";
+import { checkCanAddTransaction } from "@/lib/plan-guards";
 
 // Compute the next recurrence date from a base date + frequency
 function computeNextRecurDate(from: Date, frequency: string): Date {
@@ -30,6 +31,12 @@ export async function createTransaction(formData: FormData): Promise<ActionResul
 
   if (!session?.user?.id) {
     throw new Error("Unauthorized");
+  }
+
+  // Plan limit check
+  const guard = await checkCanAddTransaction(session.user.id);
+  if (!guard.allowed) {
+    return { error: guard.reason ?? "Plan limit reached.", planLimitReached: true, requiredPlan: guard.requiredPlan };
   }
 
   const parse = CreateTransactionSchema.safeParse({

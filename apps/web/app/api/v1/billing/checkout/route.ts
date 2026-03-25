@@ -1,6 +1,7 @@
 import { getApiUser, api } from "@/lib/api-auth";
 import { getStripe } from "@/lib/stripe";
-import { STRIPE_PRICES } from "@/lib/stripe-config";
+import { STRIPE_PRICES, ALL_VALID_PRICE_IDS } from "@/lib/stripe-config";
+import { STRIPE_PRICE_TO_PLAN } from "@/lib/plans";
 import { db } from "@/lib/db";
 import { getSubscriptionInfo } from "@/lib/subscription";
 import { env } from "@/lib/env";
@@ -45,7 +46,7 @@ export async function POST(request: Request) {
   const { priceId } = body as Record<string, unknown>;
   if (!priceId) return api.badRequest("priceId is required");
 
-  if (priceId !== STRIPE_PRICES.monthly && priceId !== STRIPE_PRICES.yearly)
+  if (!ALL_VALID_PRICE_IDS.has(String(priceId)))
     return api.badRequest("Invalid priceId");
 
   const customerId = await getOrCreateStripeCustomer(user.id);
@@ -56,6 +57,8 @@ export async function POST(request: Request) {
       ? (subInfo.daysLeftInTrial ?? 0)
       : 0;
 
+  const planTier = STRIPE_PRICE_TO_PLAN[String(priceId)] ?? "pro";
+
   const checkoutSession = await getStripe().checkout.sessions.create({
     customer: customerId,
     mode: "subscription",
@@ -64,7 +67,7 @@ export async function POST(request: Request) {
     subscription_data: trialDays > 0 ? { trial_period_days: trialDays } : undefined,
     success_url: `${BASE_URL}/billing?success=true`,
     cancel_url: `${BASE_URL}/billing?canceled=true`,
-    metadata: { userId: user.id },
+    metadata: { userId: user.id, planTier },
   });
 
   return api.ok({ url: checkoutSession.url });

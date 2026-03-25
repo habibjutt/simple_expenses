@@ -1,6 +1,7 @@
 import { getApiUser, api } from "@/lib/api-auth";
 import { db } from "@/lib/db";
 import { toCsvRow } from "@/lib/csv";
+import { checkCanExport } from "@/lib/plan-guards";
 
 type Tab = "categories" | "trend" | "budget";
 
@@ -8,6 +9,15 @@ type Tab = "categories" | "trend" | "budget";
 export async function GET(request: Request) {
   const user = await getApiUser(request);
   if (!user) return api.unauthorized();
+
+  // Plan limit check
+  const guard = await checkCanExport(user.id, "csv");
+  if (!guard.allowed) {
+    return Response.json(
+      { error: guard.reason, requiredPlan: guard.requiredPlan },
+      { status: 403 }
+    );
+  }
 
   const { searchParams } = new URL(request.url);
   const tab = (searchParams.get("tab") ?? "") as Tab;

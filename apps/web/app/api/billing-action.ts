@@ -3,7 +3,8 @@
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { getStripe } from "@/lib/stripe";
-import { STRIPE_PRICES } from "@/lib/stripe-config";
+import { STRIPE_PRICES, ALL_VALID_PRICE_IDS } from "@/lib/stripe-config";
+import { STRIPE_PRICE_TO_PLAN } from "@/lib/plans";
 import { db } from "@/lib/db";
 import { getSubscriptionInfo } from "@/lib/subscription";
 import { env } from "@/lib/env";
@@ -37,7 +38,7 @@ export async function createCheckoutSession(priceId: string) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) throw new Error("Unauthorized");
 
-  if (priceId !== STRIPE_PRICES.monthly && priceId !== STRIPE_PRICES.yearly) {
+  if (!ALL_VALID_PRICE_IDS.has(priceId)) {
     throw new Error("Invalid price ID");
   }
 
@@ -50,6 +51,9 @@ export async function createCheckoutSession(priceId: string) {
       ? (subInfo.daysLeftInTrial ?? 0)
       : 0;
 
+  // Resolve the plan tier for this price and store it in Stripe metadata
+  const planTier = STRIPE_PRICE_TO_PLAN[priceId] ?? "pro";
+
   const checkoutSession = await getStripe().checkout.sessions.create({
     customer: customerId,
     mode: "subscription",
@@ -58,7 +62,7 @@ export async function createCheckoutSession(priceId: string) {
     subscription_data: trialDays > 0 ? { trial_period_days: trialDays } : undefined,
     success_url: `${BASE_URL}/billing?success=true`,
     cancel_url: `${BASE_URL}/billing?canceled=true`,
-    metadata: { userId: session.user.id },
+    metadata: { userId: session.user.id, planTier },
   });
 
   return { url: checkoutSession.url };

@@ -1,4 +1,8 @@
-export type ActionResult = { error: string } | undefined;
+import type { PlanTier } from "@/lib/plans";
+
+export type ActionResult =
+  | { error: string; planLimitReached?: boolean; requiredPlan?: PlanTier }
+  | undefined;
 
 export * from "./credit-card";
 export * from "./bank-account";

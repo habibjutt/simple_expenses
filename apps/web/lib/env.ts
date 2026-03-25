@@ -21,8 +21,14 @@ export const env = createEnv({
     // Stripe
     STRIPE_SECRET_KEY: z.string().startsWith("sk_"),
     STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_").optional(),
+    // Legacy single-plan price IDs (kept for backward compat)
     STRIPE_MONTHLY_PRICE_ID: z.string().startsWith("price_").optional(),
     STRIPE_YEARLY_PRICE_ID: z.string().startsWith("price_").optional(),
+    // Multi-tier price IDs
+    STRIPE_PRO_MONTHLY_PRICE_ID: z.string().startsWith("price_").optional(),
+    STRIPE_PRO_YEARLY_PRICE_ID: z.string().startsWith("price_").optional(),
+    STRIPE_PREMIUM_MONTHLY_PRICE_ID: z.string().startsWith("price_").optional(),
+    STRIPE_PREMIUM_YEARLY_PRICE_ID: z.string().startsWith("price_").optional(),
 
     // Email (SMTP)
     SMTP_HOST: z.string().min(1),
@@ -66,6 +72,10 @@ export const env = createEnv({
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     STRIPE_MONTHLY_PRICE_ID: process.env.STRIPE_MONTHLY_PRICE_ID,
     STRIPE_YEARLY_PRICE_ID: process.env.STRIPE_YEARLY_PRICE_ID,
+    STRIPE_PRO_MONTHLY_PRICE_ID: process.env.STRIPE_PRO_MONTHLY_PRICE_ID,
+    STRIPE_PRO_YEARLY_PRICE_ID: process.env.STRIPE_PRO_YEARLY_PRICE_ID,
+    STRIPE_PREMIUM_MONTHLY_PRICE_ID: process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID,
+    STRIPE_PREMIUM_YEARLY_PRICE_ID: process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID,
     SMTP_HOST: process.env.SMTP_HOST,
     SMTP_PORT: process.env.SMTP_PORT,
     SMTP_SECURE: process.env.SMTP_SECURE,

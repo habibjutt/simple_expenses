@@ -12,6 +12,8 @@ import {
 import { Field } from "./ui/field";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import PlanLimitAlert from "./PlanLimitAlert";
+import type { GuardResult } from "@/lib/plan-guards";
 
 type BankAccount = {
   id: string;
@@ -38,6 +40,7 @@ export default function BankAccountModal({
   const [initialBalance, setInitialBalance] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [planAlert, setPlanAlert] = useState<GuardResult | null>(null);
 
   useEffect(() => {
     if (editAccount) {
@@ -48,6 +51,7 @@ export default function BankAccountModal({
       setInitialBalance("");
     }
     setError(null);
+    setPlanAlert(null);
   }, [editAccount, open]);
 
   // Currency: preserve existing on edit, use preferred for new accounts
@@ -57,6 +61,7 @@ export default function BankAccountModal({
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setPlanAlert(null);
     try {
       const formData = new FormData();
       formData.append("name", name);
@@ -70,6 +75,10 @@ export default function BankAccountModal({
         result = await createBankAccount(formData);
       }
       if (result?.error) {
+        if (result.planLimitReached) {
+          setPlanAlert({ allowed: false, reason: result.error, requiredPlan: result.requiredPlan });
+          return;
+        }
         setError(result.error);
         return;
       }
@@ -88,55 +97,66 @@ export default function BankAccountModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>{editAccount ? "Edit Bank Account" : "Add Bank Account"}</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Field label="Account Name" required>
-            <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., Main Checking Account"
-              required
-              aria-label="Bank account name"
-            />
-          </Field>
-          <Field label="Initial Balance" required>
-            <Input
-              type="number"
-              value={initialBalance}
-              onChange={(e) => setInitialBalance(e.target.value)}
-              placeholder="Enter initial balance"
-              required
-              min={0}
-              step="0.01"
-              aria-label="Initial balance"
-            />
-          </Field>
-          <p className="text-xs text-slate-500">
-            Currency: <span className="font-medium text-slate-700">{currency}</span>
-          </p>
-          {error && (
-            <div className="text-red-500 text-sm" role="alert">
-              {error}
-            </div>
-          )}
-          <DialogFooter>
-            <Button type="submit" variant="default" disabled={loading}>
-              {loading ? (editAccount ? "Updating..." : "Adding...") : (editAccount ? "Update Account" : "Add Account")}
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setOpen(false)}
-            >
-              Cancel
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+    <>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{editAccount ? "Edit Bank Account" : "Add Bank Account"}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Field label="Account Name" required>
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g., Main Checking Account"
+                required
+                aria-label="Bank account name"
+              />
+            </Field>
+            <Field label="Initial Balance" required>
+              <Input
+                type="number"
+                value={initialBalance}
+                onChange={(e) => setInitialBalance(e.target.value)}
+                placeholder="Enter initial balance"
+                required
+                min={0}
+                step="0.01"
+                aria-label="Initial balance"
+              />
+            </Field>
+            <p className="text-xs text-slate-500">
+              Currency: <span className="font-medium text-slate-700">{currency}</span>
+            </p>
+            {error && (
+              <div className="text-red-500 text-sm" role="alert">
+                {error}
+              </div>
+            )}
+            <DialogFooter>
+              <Button type="submit" variant="default" disabled={loading}>
+                {loading ? (editAccount ? "Updating..." : "Adding...") : (editAccount ? "Update Account" : "Add Account")}
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setOpen(false)}
+              >
+                Cancel
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {planAlert && (
+        <PlanLimitAlert
+          open={!!planAlert}
+          onClose={() => { setPlanAlert(null); setOpen(false); }}
+          limitType="bankAccount"
+          guardResult={planAlert}
+        />
+      )}
+    </>
   );
 }

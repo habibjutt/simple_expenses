@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
+import { STRIPE_PRICE_TO_PLAN } from "@/lib/plans";
 
 async function getUserIdByCustomerId(customerId: string): Promise<string | null> {
   const user = await db.user.findFirst({
@@ -10,6 +11,12 @@ async function getUserIdByCustomerId(customerId: string): Promise<string | null>
     select: { id: true },
   });
   return user?.id ?? null;
+}
+
+/** Resolves the planTier from the first price item on a subscription */
+function resolvePlanTier(subscription: Stripe.Subscription): string {
+  const priceId = subscription.items?.data?.[0]?.price?.id;
+  return (priceId && STRIPE_PRICE_TO_PLAN[priceId]) ? STRIPE_PRICE_TO_PLAN[priceId] : "pro";
 }
 
 async function syncSubscription(subscription: Stripe.Subscription, overrideUserId?: string) {
@@ -34,6 +41,8 @@ async function syncSubscription(subscription: Stripe.Subscription, overrideUserI
   const rawPeriodEnd = (subscription as any).current_period_end as number | undefined;
   const periodEnd = rawPeriodEnd ? new Date(rawPeriodEnd * 1000) : null;
 
+  const planTier = resolvePlanTier(subscription);
+
   await db.user.update({
     where: { id: userId },
     data: {
@@ -41,6 +50,7 @@ async function syncSubscription(subscription: Stripe.Subscription, overrideUserI
       stripeSubscriptionId: subscription.id,
       subscriptionStatus: subscription.status,
       currentPeriodEnd: periodEnd,
+      planTier,
       ...(trialEnd ? { trialEndsAt: trialEnd } : {}),
     },
   });

@@ -22,8 +22,8 @@ const PLANS = {
       highlight: false,
       badge: null,
       features: [
-        "2 credit cards",
-        "2 bank accounts",
+        "1 credit card",
+        "1 bank account",
         "100 transactions / month",
         "Basic reports",
         "AED native formatting",
@@ -40,6 +40,7 @@ const PLANS = {
       href: "/signup?plan=pro",
       highlight: true,
       badge: "Most Popular",
+      priceId: () => STRIPE_PRICES.pro.monthly,
       features: [
         "Unlimited credit cards",
         "Unlimited bank accounts",
@@ -63,6 +64,7 @@ const PLANS = {
       href: "/signup?plan=premium",
       highlight: false,
       badge: null,
+      priceId: () => STRIPE_PRICES.premium.monthly,
       features: [
         "Everything in Pro",
         "CSV & PDF data export",
@@ -87,8 +89,8 @@ const PLANS = {
       highlight: false,
       badge: null,
       features: [
-        "2 credit cards",
-        "2 bank accounts",
+        "1 credit card",
+        "1 bank account",
         "100 transactions / month",
         "Basic reports",
         "AED native formatting",
@@ -105,6 +107,7 @@ const PLANS = {
       href: "/signup?plan=pro-yearly",
       highlight: true,
       badge: "Save AED 99",
+      priceId: () => STRIPE_PRICES.pro.yearly,
       features: [
         "Unlimited credit cards",
         "Unlimited bank accounts",
@@ -128,6 +131,7 @@ const PLANS = {
       href: "/signup?plan=premium-yearly",
       highlight: false,
       badge: "Save AED 269",
+      priceId: () => STRIPE_PRICES.premium.yearly,
       features: [
         "Everything in Pro",
         "CSV & PDF data export",
@@ -155,7 +159,15 @@ export default function PricingSection() {
       router.push("/signup");
       return;
     }
-    const priceId = billing === "monthly" ? STRIPE_PRICES.monthly : STRIPE_PRICES.yearly;
+    // Find the plan to get its specific price ID
+    const plan = plans.find((p) => p.id === planId);
+    const priceId = plan && "priceId" in plan && typeof plan.priceId === "function"
+      ? plan.priceId()
+      : "";
+    if (!priceId) {
+      router.push("/billing");
+      return;
+    }
     setLoadingPlan(planId);
     try {
       const { url } = await createCheckoutSession(priceId);

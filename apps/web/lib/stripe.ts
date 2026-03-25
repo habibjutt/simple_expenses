@@ -2,7 +2,7 @@ import "server-only";
 import Stripe from "stripe";
 import { env } from "@/lib/env";
 
-export { STRIPE_PRICES, TRIAL_DAYS } from "@/lib/stripe-config";
+export { STRIPE_PRICES, ALL_VALID_PRICE_IDS, TRIAL_DAYS } from "@/lib/stripe-config";
 
 let _stripe: Stripe | null = null;
 

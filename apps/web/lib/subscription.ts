@@ -1,5 +1,10 @@
 import { db } from "@/lib/db";
-import { TRIAL_DAYS } from "@/lib/stripe";
+import { TRIAL_DAYS } from "@/lib/stripe-config";
+import {
+  type EffectivePlan,
+  type PlanLimits,
+  getPlanLimits,
+} from "@/lib/plans";
 
 export type SubscriptionStatus =
   | "trialing"
@@ -95,4 +100,56 @@ export async function getSubscriptionInfo(userId: string): Promise<SubscriptionI
 export async function hasActiveSubscription(userId: string): Promise<boolean> {
   const info = await getSubscriptionInfo(userId);
   return info?.isActive ?? false;
+}
+
+/**
+ * Returns the user's *effective* plan:
+ * - "trial"   → within the 14-day free trial (no stripe sub) OR within a Stripe trial
+ * - "pro"     → active Pro subscription
+ * - "premium" → active Premium subscription
+ * - "free"    → expired trial, canceled, or no subscription
+ */
+export async function getEffectivePlan(userId: string): Promise<EffectivePlan> {
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: {
+      stripeSubscriptionId: true,
+      subscriptionStatus: true,
+      trialEndsAt: true,
+      currentPeriodEnd: true,
+      planTier: true,
+      createdAt: true,
+    },
+  });
+
+  if (!user) return "free";
+
+  const now = new Date();
+
+  // Active Stripe subscription
+  if (user.stripeSubscriptionId) {
+    const status = user.subscriptionStatus;
+    if (status === "trialing") return "trial";
+    if (status === "active") {
+      const tier = user.planTier as EffectivePlan;
+      return tier === "pro" || tier === "premium" ? tier : "free";
+    }
+    // past_due, canceled, incomplete, etc. → free limits
+    return "free";
+  }
+
+  // No Stripe subscription — check local 14-day trial
+  const trialEnd =
+    user.trialEndsAt ??
+    new Date(user.createdAt.getTime() + TRIAL_DAYS * 86_400_000);
+
+  if (now < trialEnd) return "trial";
+
+  return "free";
+}
+
+/** Returns the PlanLimits object for the user's current effective plan. */
+export async function getUserPlanLimits(userId: string): Promise<PlanLimits> {
+  const plan = await getEffectivePlan(userId);
+  return getPlanLimits(plan);
 }

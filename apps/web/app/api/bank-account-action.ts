@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { BankAccountSchema } from "@/lib/validations/bank-account";
 import type { ActionResult } from "@/lib/validations";
+import { checkCanAddBankAccount } from "@/lib/plan-guards";
 
 export async function createBankAccount(formData: FormData): Promise<ActionResult> {
   const session = await auth.api.getSession({
@@ -14,6 +15,12 @@ export async function createBankAccount(formData: FormData): Promise<ActionResul
 
   if (!session?.user?.id) {
     throw new Error("Unauthorized");
+  }
+
+  // Plan limit check
+  const guard = await checkCanAddBankAccount(session.user.id);
+  if (!guard.allowed) {
+    return { error: guard.reason ?? "Plan limit reached.", planLimitReached: true, requiredPlan: guard.requiredPlan };
   }
 
   const parse = BankAccountSchema.safeParse({

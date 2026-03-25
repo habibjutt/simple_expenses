@@ -36,6 +36,9 @@ model user {
   trialEndsAt          DateTime?
   currentPeriodEnd     DateTime?
 
+  // Plan tier: free | pro | premium (updated by Stripe webhook on subscription events)
+  planTier             String    @default("free")
+
   preferredCurrency    String    @default("AED")
   onboardingCompleted  Boolean   @default(false)
 

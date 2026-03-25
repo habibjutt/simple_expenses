@@ -287,7 +287,7 @@ export default function BillingContent() {
                 className="w-full bg-[#1a9e5c] hover:bg-[#158a4f] text-white font-semibold h-11"
                 onClick={() =>
                   handleSubscribe(
-                    billingPeriod === "monthly" ? STRIPE_PRICES.monthly : STRIPE_PRICES.yearly
+                    billingPeriod === "monthly" ? STRIPE_PRICES.pro.monthly : STRIPE_PRICES.pro.yearly
                   )
                 }
                 disabled={!!checkoutLoading}

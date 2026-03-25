@@ -100,6 +100,7 @@ export const UserScalarFieldEnum = {
   subscriptionStatus: 'subscriptionStatus',
   trialEndsAt: 'trialEndsAt',
   currentPeriodEnd: 'currentPeriodEnd',
+  planTier: 'planTier',
   preferredCurrency: 'preferredCurrency',
   onboardingCompleted: 'onboardingCompleted'
 } as const

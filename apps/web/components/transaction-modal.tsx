@@ -18,6 +18,8 @@ import { Calendar } from "./ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { CalendarIcon, ChevronDown, ChevronUp, RefreshCw, Layers } from "lucide-react";
 import { FormCombobox } from "@/components/ui/form-combobox";
+import PlanLimitAlert from "./PlanLimitAlert";
+import type { GuardResult } from "@/lib/plan-guards";
 
 type TransactionType = "expense" | "income" | "transfer";
 type RecurringFrequency = "daily" | "weekly" | "monthly" | "yearly";
@@ -81,6 +83,7 @@ export default function TransactionModal({
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [planAlert, setPlanAlert] = useState<GuardResult | null>(null);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [endDatePickerOpen, setEndDatePickerOpen] = useState(false);
 
@@ -205,7 +208,13 @@ export default function TransactionModal({
             if (recurringEndDate) formData.append("recurringEndDate", recurringEndDate);
           }
           const result = await createTransaction(formData);
-          if (result?.error) throw new Error(result.error);
+          if (result?.error) {
+            if (result.planLimitReached) {
+              setPlanAlert({ allowed: false, reason: result.error, requiredPlan: result.requiredPlan });
+              return;
+            }
+            throw new Error(result.error);
+          }
         }
       }
       
@@ -246,6 +255,8 @@ export default function TransactionModal({
     setShowAdvanced(false);
     setDatePickerOpen(false);
     setEndDatePickerOpen(false);
+    setError(null);
+    setPlanAlert(null);
   };
 
   // Sort credit cards and bank accounts by name
@@ -262,6 +273,7 @@ export default function TransactionModal({
   const canShowRecurring = transactionType !== "transfer" && !isInstallments;
 
   return (
+    <>
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-lg max-h-[92vh] overflow-y-auto">
         <DialogHeader className="pb-0">
@@ -652,5 +664,15 @@ export default function TransactionModal({
         </form>
       </DialogContent>
     </Dialog>
+
+    {planAlert && (
+      <PlanLimitAlert
+        open={!!planAlert}
+        onClose={() => { setPlanAlert(null); setOpen(false); }}
+        limitType="transaction"
+        guardResult={planAlert}
+      />
+    )}
+    </>
   );
 }

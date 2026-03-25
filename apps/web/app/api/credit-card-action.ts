@@ -7,6 +7,7 @@ import { headers } from "next/headers";
 import { CreditCardSchema } from "@/lib/validations/credit-card";
 import { PayInvoiceSchema } from "@/lib/validations/invoice";
 import type { ActionResult } from "@/lib/validations";
+import { checkCanAddCreditCard } from "@/lib/plan-guards";
 
 export async function createCreditCard(formData: FormData): Promise<ActionResult> {
   const session = await auth.api.getSession({
@@ -15,6 +16,12 @@ export async function createCreditCard(formData: FormData): Promise<ActionResult
 
   if (!session?.user?.id) {
     throw new Error("Unauthorized");
+  }
+
+  // Plan limit check
+  const guard = await checkCanAddCreditCard(session.user.id);
+  if (!guard.allowed) {
+    return { error: guard.reason ?? "Plan limit reached.", planLimitReached: true, requiredPlan: guard.requiredPlan };
   }
 
   const parse = CreditCardSchema.safeParse({
