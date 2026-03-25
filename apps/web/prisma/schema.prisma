@@ -35,6 +35,7 @@ model user {
   subscriptionStatus   String?   // trialing, active, past_due, canceled, incomplete
   trialEndsAt          DateTime?
   currentPeriodEnd     DateTime?
+  lastTrialReminderAt  DateTime?
 
   // Plan tier: free | pro | premium (updated by Stripe webhook on subscription events)
   planTier             String    @default("free")
