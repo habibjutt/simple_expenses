@@ -6,8 +6,13 @@ import type {
   Invoice,
   Category,
   CreateCreditCardInput,
+  UpdateCreditCardInput,
   CreateBankAccountInput,
+  UpdateBankAccountInput,
   CreateTransactionInput,
+  UpdateTransactionInput,
+  CreateCategoryInput,
+  UpdateCategoryInput,
   LoginInput,
   SignupInput,
   SpendingLimit,
@@ -166,6 +171,13 @@ export const creditCards = {
     });
   },
 
+  async update(id: string, input: UpdateCreditCardInput): Promise<CreditCard> {
+    return request<CreditCard>(`/api/v1/credit-cards/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(input),
+    });
+  },
+
   async delete(id: string): Promise<void> {
     return request<void>(`/api/v1/credit-cards/${id}`, { method: "DELETE" });
   },
@@ -187,6 +199,13 @@ export const bankAccounts = {
   async create(input: CreateBankAccountInput): Promise<BankAccount> {
     return request<BankAccount>("/api/v1/bank-accounts", {
       method: "POST",
+      body: JSON.stringify(input),
+    });
+  },
+
+  async update(id: string, input: UpdateBankAccountInput): Promise<BankAccount> {
+    return request<BankAccount>(`/api/v1/bank-accounts/${id}`, {
+      method: "PUT",
       body: JSON.stringify(input),
     });
   },
@@ -229,6 +248,13 @@ export const transactions = {
   async create(input: CreateTransactionInput): Promise<Transaction> {
     return request<Transaction>("/api/v1/transactions", {
       method: "POST",
+      body: JSON.stringify(input),
+    });
+  },
+
+  async update(id: string, input: UpdateTransactionInput): Promise<Transaction> {
+    return request<Transaction>(`/api/v1/transactions/${id}`, {
+      method: "PUT",
       body: JSON.stringify(input),
     });
   },
@@ -277,6 +303,24 @@ export const categories = {
   async list(type?: string): Promise<Category[]> {
     const qs = type ? `?type=${encodeURIComponent(type)}` : "";
     return request<Category[]>(`/api/v1/categories${qs}`);
+  },
+
+  async create(input: CreateCategoryInput): Promise<Category> {
+    return request<Category>("/api/v1/categories", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+  },
+
+  async update(id: string, input: UpdateCategoryInput): Promise<Category> {
+    return request<Category>(`/api/v1/categories/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(input),
+    });
+  },
+
+  async delete(id: string): Promise<void> {
+    return request<void>(`/api/v1/categories/${id}`, { method: "DELETE" });
   },
 };
 
