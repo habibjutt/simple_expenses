@@ -1,4 +1,5 @@
 import { getApiUser, api, parseTransactionDate } from "@/lib/api-auth";
+import { validateUserCategory } from "@/lib/category-validation";
 import { db } from "@/lib/db";
 
 // GET /api/v1/transactions?creditCardId=&bankAccountId=
@@ -95,6 +96,9 @@ export async function POST(request: Request) {
 
   const parsedDate = parseTransactionDate(date);
   if (typeof parsedDate === "string") return api.badRequest(parsedDate);
+
+  const catCheck = await validateUserCategory(user.id, String(category), txType);
+  if (!catCheck.valid) return api.badRequest(catCheck.error!);
 
   if (creditCardId) {
     const creditCard = await db.credit_card.findFirst({

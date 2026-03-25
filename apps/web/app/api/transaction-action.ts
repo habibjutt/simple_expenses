@@ -11,6 +11,7 @@ import {
 } from "@/lib/validations/transaction";
 import type { ActionResult } from "@/lib/validations";
 import { checkCanAddTransaction } from "@/lib/plan-guards";
+import { validateUserCategory } from "@/lib/category-validation";
 
 // Compute the next recurrence date from a base date + frequency
 function computeNextRecurDate(from: Date, frequency: string): Date {
@@ -57,6 +58,12 @@ export async function createTransaction(formData: FormData): Promise<ActionResul
   }
   const { name, amount, date, category, notes, creditCardId, bankAccountId, installments, isRecurring, recurringFrequency, recurringEndDate } =
     parse.data;
+
+  const txType = amount < 0 ? "income" : "expense";
+  const catCheck = await validateUserCategory(session.user.id, category, txType);
+  if (!catCheck.valid) {
+    return { error: catCheck.error! };
+  }
 
   if (isRecurring && !recurringFrequency) {
     return { error: "Please select a recurring frequency" };
@@ -554,6 +561,11 @@ export async function updateTransaction(transactionId: string, formData: FormDat
   }
   const { name, amount: newAmount, date, category, notes, installments: newInstallments } =
     parse.data;
+
+  const catCheck = await validateUserCategory(session.user.id, category);
+  if (!catCheck.valid) {
+    return { error: catCheck.error! };
+  }
 
   // Get the existing transaction
   const existingTransaction = await db.transaction.findFirst({
