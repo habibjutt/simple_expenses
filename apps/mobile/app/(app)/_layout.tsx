@@ -59,6 +59,9 @@ export default function AppLayout() {
       <Tabs.Screen name="credit-cards" options={{ title: "", tabBarLabel: () => null, tabBarButton: () => <AddTabButton /> }} />
       <Tabs.Screen name="bank-accounts" options={{ title: "Accounts", tabBarIcon: ({ color, size }) => <Ionicons name="wallet" size={size} color={color} /> }} />
       <Tabs.Screen name="invoices" options={{ href: null }} />
+      <Tabs.Screen name="goals" options={{ href: null }} />
+      <Tabs.Screen name="reports" options={{ href: null }} />
+      <Tabs.Screen name="spending-limits" options={{ href: null }} />
       <Tabs.Screen name="settings" options={{ title: "Settings", tabBarIcon: ({ color, size }) => <Ionicons name="settings-outline" size={size} color={color} /> }} />
     </Tabs>
   );
