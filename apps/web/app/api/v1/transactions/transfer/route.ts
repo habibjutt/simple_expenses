@@ -1,4 +1,4 @@
-import { getApiUser, api } from "@/lib/api-auth";
+import { getApiUser, api, parseTransactionDate } from "@/lib/api-auth";
 import { db } from "@/lib/db";
 
 // POST /api/v1/transactions/transfer
@@ -40,7 +40,8 @@ export async function POST(request: Request) {
       `Insufficient funds. Available: ${fromAccount.currentBalance}, Requested: ${amt}`
     );
 
-  const txDate = new Date(String(date));
+  const txDate = parseTransactionDate(date);
+  if (typeof txDate === "string") return api.badRequest(txDate);
 
   await db.$transaction([
     db.transaction.create({

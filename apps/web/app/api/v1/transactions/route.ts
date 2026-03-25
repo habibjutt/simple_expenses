@@ -1,4 +1,4 @@
-import { getApiUser, api } from "@/lib/api-auth";
+import { getApiUser, api, parseTransactionDate } from "@/lib/api-auth";
 import { db } from "@/lib/db";
 
 // GET /api/v1/transactions?creditCardId=&bankAccountId=
@@ -93,6 +93,9 @@ export async function POST(request: Request) {
   if (numInstallments < 1 || isNaN(numInstallments))
     return api.badRequest("installments must be >= 1");
 
+  const parsedDate = parseTransactionDate(date);
+  if (typeof parsedDate === "string") return api.badRequest(parsedDate);
+
   if (creditCardId) {
     const creditCard = await db.credit_card.findFirst({
       where: { id: String(creditCardId), userId: user.id },
@@ -107,7 +110,7 @@ export async function POST(request: Request) {
 
     if (numInstallments > 1) {
       const installmentAmount = amt / numInstallments;
-      const transactionDate = new Date(String(date));
+      const transactionDate = parsedDate;
       const currentDay = transactionDate.getDate();
       const firstBillingMonth = new Date(transactionDate);
       if (currentDay >= creditCard.billGenerationDate) {
@@ -160,7 +163,7 @@ export async function POST(request: Request) {
           data: {
             name: String(name),
             amount: amt,
-            date: new Date(String(date)),
+            date: parsedDate,
             category: String(category),
             type: txType,
             notes: notes ? String(notes) : null,
@@ -192,7 +195,7 @@ export async function POST(request: Request) {
         data: {
           name: String(name),
           amount: amt,
-          date: new Date(String(date)),
+          date: parsedDate,
           category: String(category),
           type: txType,
           notes: notes ? String(notes) : null,
