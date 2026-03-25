@@ -5,6 +5,29 @@ export async function getApiUser(request: Request) {
   return session?.user ?? null;
 }
 
+const MAX_FUTURE_YEARS = 1;
+
+/**
+ * Parse and validate a date string.
+ * Returns the Date on success, or a string error message on failure.
+ */
+export function parseTransactionDate(
+  raw: unknown
+): Date | string {
+  const parsed = new Date(String(raw));
+  if (isNaN(parsed.getTime())) {
+    return "Invalid date format";
+  }
+
+  const maxDate = new Date();
+  maxDate.setFullYear(maxDate.getFullYear() + MAX_FUTURE_YEARS);
+  if (parsed > maxDate) {
+    return `Date cannot be more than ${MAX_FUTURE_YEARS} year in the future`;
+  }
+
+  return parsed;
+}
+
 export const api = {
   unauthorized: () =>
     Response.json({ error: "Unauthorized" }, { status: 401 }),
