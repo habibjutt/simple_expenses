@@ -71,6 +71,7 @@ export const createCreditCardSchema = z.object({
 });
 
 export type CreateCreditCardInput = z.infer<typeof createCreditCardSchema>;
+export type UpdateCreditCardInput = Partial<CreateCreditCardInput>;
 
 // ---------------------------------------------------------------------------
 // Bank Account
@@ -94,6 +95,7 @@ export const createBankAccountSchema = z.object({
 });
 
 export type CreateBankAccountInput = z.infer<typeof createBankAccountSchema>;
+export type UpdateBankAccountInput = Partial<CreateBankAccountInput>;
 
 // ---------------------------------------------------------------------------
 // Transaction
@@ -135,6 +137,7 @@ export const createTransactionSchema = z.object({
 });
 
 export type CreateTransactionInput = z.infer<typeof createTransactionSchema>;
+export type UpdateTransactionInput = Partial<Omit<CreateTransactionInput, "creditCardId" | "bankAccountId">>;
 
 // ---------------------------------------------------------------------------
 // Invoice
@@ -171,6 +174,16 @@ export interface Category {
   createdAt: string;
   updatedAt: string;
 }
+
+export const createCategorySchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  color: z.string().min(1, "Color is required"),
+  icon: z.string().min(1, "Icon is required"),
+  type: z.enum(["expense", "income", "both"]),
+});
+
+export type CreateCategoryInput = z.infer<typeof createCategorySchema>;
+export type UpdateCategoryInput = Partial<CreateCategoryInput>;
 
 // ---------------------------------------------------------------------------
 // Auth
