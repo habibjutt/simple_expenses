@@ -19,7 +19,7 @@ simple_expenses/
 
 ### Currency Configuration
 
-This application supports 18 currencies with AED as default. See [CURRENCY.md](./CURRENCY.md) for details.
+This application supports 18 currencies with AED as default. See [CURRENCY.md](./docs/CURRENCY.md) for details.
 
 ---
 
