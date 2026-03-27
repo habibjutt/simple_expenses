@@ -55,7 +55,7 @@ export async function completeOnboarding() {
   return {};
 }
 
-export async function deleteAccount(email: string, password: string) {
+export async function deleteAccount(email: string) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user?.id) {
     return { error: "Unauthorized" };
@@ -64,30 +64,6 @@ export async function deleteAccount(email: string, password: string) {
   // Verify email matches the logged-in user
   if (session.user.email !== email) {
     return { error: "Email does not match your account." };
-  }
-
-  // Verify the user has a credential (email/password) account
-  const credentialAccount = await db.account.findFirst({
-    where: { userId: session.user.id, providerId: "credential" },
-    select: { id: true },
-  });
-  if (!credentialAccount) {
-    return {
-      error:
-        "Your account uses social login only. Password verification is not available.",
-    };
-  }
-
-  // Verify password by attempting sign-in through Better Auth
-  try {
-    const signInResult = await auth.api.signInEmail({
-      body: { email, password },
-    });
-    if (!signInResult?.token) {
-      return { error: "Invalid password. Please try again." };
-    }
-  } catch {
-    return { error: "Invalid password. Please try again." };
   }
 
   // Cancel active Stripe subscription if any

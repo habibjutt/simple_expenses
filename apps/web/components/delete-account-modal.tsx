@@ -29,19 +29,17 @@ export default function DeleteAccountModal({
 }: DeleteAccountModalProps) {
   const router = useRouter();
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const canSubmit =
-    email === userEmail && password.length >= 8 && !loading;
+  const canSubmit = email === userEmail && !loading;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (!email || !password) {
-      setError("All fields are required.");
+    if (!email) {
+      setError("Please enter your email to confirm.");
       return;
     }
 
@@ -53,7 +51,7 @@ export default function DeleteAccountModal({
     setLoading(true);
 
     try {
-      const result = await deleteAccount(email, password);
+      const result = await deleteAccount(email);
 
       if (result?.error) {
         setError(result.error);
@@ -73,7 +71,6 @@ export default function DeleteAccountModal({
     if (!loading) {
       setOpen(false);
       setEmail("");
-      setPassword("");
       setError("");
     }
   };
@@ -112,11 +109,11 @@ export default function DeleteAccountModal({
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           <p className="text-sm text-slate-600">
-            To confirm, please enter your email{" "}
+            To confirm, please type your email{" "}
             <span className="font-mono text-xs bg-slate-100 px-1.5 py-0.5 rounded text-slate-800">
               {userEmail}
             </span>{" "}
-            and your password.
+            below.
           </p>
 
           <FieldGroup>
@@ -128,21 +125,7 @@ export default function DeleteAccountModal({
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email to confirm"
                 disabled={loading}
-                autoComplete="email"
-              />
-            </Field>
-          </FieldGroup>
-
-          <FieldGroup>
-            <Field>
-              <FieldLabel>Password</FieldLabel>
-              <Input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                disabled={loading}
-                autoComplete="current-password"
+                autoComplete="off"
               />
             </Field>
           </FieldGroup>
