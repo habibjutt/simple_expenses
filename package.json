@@ -15,14 +15,17 @@
     "dev:mobile": "turbo run dev --filter=@simple-expenses/mobile"
   },
   "devDependencies": {
+    "prettier": "^3.7.4",
     "turbo": "^2.5.4",
-    "typescript": "^5",
-    "prettier": "^3.7.4"
+    "typescript": "^5"
   },
   "dependencies": {
     "expo": "~55.0.8",
     "react": "19.2.0",
     "react-native": "0.83.2"
   },
-  "packageManager": "npm@10.9.2"
+  "packageManager": "npm@10.9.2",
+  "overrides": {
+    "brace-expansion": ">=5.0.5"
+  }
 }

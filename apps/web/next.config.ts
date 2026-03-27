@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+/yimport path from "node:path";
 
 /**
  * HTTP security headers applied to every response.
@@ -45,6 +46,10 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Bundles the server + all traced deps into .next/standalone for Docker.
+  output: "standalone",
+  // Trace from the monorepo root so shared packages (packages/*) are included.
+  outputFileTracingRoot: path.join(__dirname, "../../"),
   async headers() {
     return [
       {

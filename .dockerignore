@@ -1,0 +1,40 @@
+# ── Version control ───────────────────────────────────────────────────────────
+.git
+.gitignore
+.gitattributes
+
+# ── Dependencies (rebuilt inside Docker) ─────────────────────────────────────
+node_modules
+**/node_modules
+
+# ── Build outputs ─────────────────────────────────────────────────────────────
+**/.next
+**/dist
+**/.turbo
+**/generated
+
+# ── Environment / secrets (injected at runtime via env_file or -e flags) ──────
+.env
+.env.*
+apps/web/.env
+apps/web/.env.*
+
+# ── Logs & temp files ─────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+*.tgz
+
+# ── Editor & OS artefacts ─────────────────────────────────────────────────────
+.DS_Store
+.idea
+.vscode
+*.swp
+
+# ── Docker files (not needed inside the image) ────────────────────────────────
+docker-compose*.yml
+Dockerfile*
+.dockerignore
+
+# ── Documentation ─────────────────────────────────────────────────────────────
+*.md
+docs/
