@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import SubscriptionBanner from "@/components/SubscriptionBanner";
 import { Toaster } from "@/components/ui/sonner";
@@ -77,6 +78,7 @@ export default function RootLayout({
           <Toaster />
         </ThemeProvider>
       </body>
+      <GoogleAnalytics gaId="G-4GM75YQBWJ" />
     </html>
   );
 }
