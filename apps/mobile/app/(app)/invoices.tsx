@@ -3,16 +3,17 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { invoices, creditCards, bankAccounts } from "@simple-expenses/api";
 import { formatCurrency, formatMonthYear } from "@simple-expenses/utils";
+import { InvoiceSkeleton } from "../../components/ScreenLoader";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { colors } from "../../lib/theme";
+import { colors, fonts } from "../../lib/theme";
 
 export default function InvoicesScreen() {
   const qc = useQueryClient();
-  const { data: cards = [] } = useQuery({ queryKey: ["credit-cards"], queryFn: () => creditCards.list() });
-  const { data: accounts = [] } = useQuery({ queryKey: ["bank-accounts"], queryFn: () => bankAccounts.list() });
+  const { data: cards = [], isLoading: cardsLoading } = useQuery({ queryKey: ["credit-cards"], queryFn: () => creditCards.list(), select: (d) => [...d].sort((a, b) => a.name.localeCompare(b.name)) });
+  const { data: accounts = [] } = useQuery({ queryKey: ["bank-accounts"], queryFn: () => bankAccounts.list(), select: (d) => [...d].sort((a, b) => a.name.localeCompare(b.name)) });
 
   const { data: allInvoices = [], isLoading } = useQuery({
     queryKey: ["all-invoices"],
@@ -25,6 +26,8 @@ export default function InvoicesScreen() {
     },
     enabled: cards.length > 0,
   });
+
+  const isInitialLoad = (isLoading || cardsLoading) && allInvoices.length === 0;
 
   const payMutation = useMutation({
     mutationFn: ({ invoiceId, bankAccountId }: { invoiceId: string; bankAccountId: string }) =>
@@ -59,7 +62,7 @@ export default function InvoicesScreen() {
   return (
     <View style={s.root}>
       <LinearGradient
-        colors={["#8b67ff", "#6c47ff"]}
+        colors={["#34D399", colors.primary]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={[s.heroGradient, { paddingTop: insets.top + 16 }]}
@@ -82,12 +85,13 @@ export default function InvoicesScreen() {
         </View>
       </LinearGradient>
 
+      {isInitialLoad ? <InvoiceSkeleton /> : (
       <FlatList
         data={allInvoices}
         keyExtractor={(i) => i.id}
         contentContainerStyle={s.list}
         showsVerticalScrollIndicator={false}
-        refreshing={isLoading}
+        refreshing={false}
         ListHeaderComponent={
           allInvoices.length > 0 && !unpaid.length ? (
             <View style={[s.alert, { borderColor: "rgba(0,200,150,0.25)", backgroundColor: colors.successDim }]}>
@@ -153,36 +157,37 @@ export default function InvoicesScreen() {
           );
         }}
       />
+      )}
     </View>
   );
 }
 
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.bg },
-  heroGradient: { paddingHorizontal: 24, paddingBottom: 28, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 },
-  backBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(255,255,255,0.2)", alignItems: "center", justifyContent: "center", marginBottom: 16 },
+  heroGradient: { paddingHorizontal: 24, paddingBottom: 28, borderBottomLeftRadius: 30, borderBottomRightRadius: 30 },
+  backBtn: { width: 36, height: 36, borderRadius: 20, backgroundColor: "rgba(255,255,255,0.2)", alignItems: "center", justifyContent: "center", marginBottom: 16 },
   heroContent: {},
-  title: { fontSize: 28, fontWeight: "800", color: "#fff", letterSpacing: -0.5 },
-  subtitle: { fontSize: 14, color: "rgba(255,255,255,0.75)", marginTop: 4 },
-  totalDueBadge: { marginTop: 12, backgroundColor: "rgba(255,255,255,0.2)", borderRadius: 12, paddingHorizontal: 14, paddingVertical: 8, alignSelf: "flex-start" },
-  totalDueText: { color: "#fff", fontSize: 14, fontWeight: "700" },
+  title: { fontSize: 28, fontFamily: fonts.extrabold, color: "#fff", letterSpacing: -0.5 },
+  subtitle: { fontSize: 14, fontFamily: fonts.regular, color: "rgba(255,255,255,0.75)", marginTop: 4 },
+  totalDueBadge: { marginTop: 12, backgroundColor: "rgba(255,255,255,0.2)", borderRadius: 14, paddingHorizontal: 14, paddingVertical: 8, alignSelf: "flex-start" },
+  totalDueText: { color: "#fff", fontSize: 14, fontFamily: fonts.bold },
   list: { padding: 20, paddingBottom: 40 },
-  alert: { flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: colors.warningDim, borderRadius: 16, padding: 14, marginBottom: 16, borderWidth: 1, borderColor: "rgba(255,184,0,0.25)" },
-  alertTitle: { fontSize: 13, fontWeight: "700", color: colors.warning },
-  alertSub: { fontSize: 11, color: colors.textSub, marginTop: 2 },
-  card: { backgroundColor: colors.surface, borderRadius: 20, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: colors.border },
+  alert: { flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: colors.warningDim, borderRadius: 18, padding: 14, marginBottom: 16, borderWidth: 1, borderColor: "rgba(255,184,0,0.25)" },
+  alertTitle: { fontSize: 13, fontFamily: fonts.bold, color: colors.warning },
+  alertSub: { fontSize: 11, fontFamily: fonts.regular, color: colors.textSub, marginTop: 2 },
+  card: { backgroundColor: colors.surface, borderRadius: 22, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: colors.border },
   cardPaid: { borderColor: colors.borderSubtle, opacity: 0.7 },
   cardTop: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 14 },
   statusDot: { width: 8, height: 8, borderRadius: 4 },
-  cardTitle: { fontSize: 14, fontWeight: "700", color: colors.text },
-  cardPeriod: { fontSize: 11, color: colors.textSub, marginTop: 2 },
+  cardTitle: { fontSize: 14, fontFamily: fonts.bold, color: colors.text },
+  cardPeriod: { fontSize: 11, fontFamily: fonts.regular, color: colors.textSub, marginTop: 2 },
   statusPill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 99 },
-  statusText: { fontSize: 11, fontWeight: "700" },
+  statusText: { fontSize: 11, fontFamily: fonts.bold },
   amounts: { flexDirection: "row", gap: 24, marginBottom: 14 },
-  amtLabel: { fontSize: 10, color: colors.textSub, fontWeight: "500", textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 3 },
-  amtVal: { fontSize: 16, fontWeight: "800", color: colors.text },
-  payBtn: { backgroundColor: colors.primary, borderRadius: 12, padding: 12, alignItems: "center" },
-  payBtnText: { color: "#fff", fontSize: 14, fontWeight: "700" },
+  amtLabel: { fontSize: 10, color: colors.textSub, fontFamily: fonts.medium, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 3 },
+  amtVal: { fontSize: 16, fontFamily: fonts.extrabold, color: colors.text },
+  payBtn: { backgroundColor: colors.primary, borderRadius: 14, padding: 12, alignItems: "center" },
+  payBtnText: { color: "#fff", fontSize: 14, fontFamily: fonts.bold },
   empty: { alignItems: "center", paddingTop: 80, gap: 12 },
-  emptyText: { color: colors.textSub, fontSize: 14 },
+  emptyText: { color: colors.textSub, fontSize: 14, fontFamily: fonts.regular },
 });

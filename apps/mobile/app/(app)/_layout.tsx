@@ -5,7 +5,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { tokenManager } from "../../lib/auth-token";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { colors } from "../../lib/theme";
+import { colors, fonts, shadow } from "../../lib/theme";
 
 function AddTabButton() {
   return (
@@ -16,12 +16,12 @@ function AddTabButton() {
     >
       <View style={s.addShadow}>
         <LinearGradient
-          colors={["#8b67ff", "#4527e0"]}
+          colors={[colors.primary, "#15803D"]}
           style={s.addGrad}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         >
-          <Ionicons name="add" size={30} color="#fff" />
+          <Ionicons name="add" size={28} color="#fff" />
         </LinearGradient>
       </View>
     </TouchableOpacity>
@@ -47,7 +47,7 @@ export default function AppLayout() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textSub,
+        tabBarInactiveTintColor: colors.textMuted,
         tabBarStyle: s.tabBar,
         tabBarLabelStyle: s.label,
         tabBarItemStyle: s.item,
@@ -57,11 +57,11 @@ export default function AppLayout() {
       <Tabs.Screen name="dashboard" options={{ title: "Home", tabBarIcon: ({ color, size }) => <Ionicons name="grid" size={size} color={color} /> }} />
       <Tabs.Screen name="transactions" options={{ title: "Txns", tabBarIcon: ({ color, size }) => <Ionicons name="swap-horizontal" size={size} color={color} /> }} />
       <Tabs.Screen name="credit-cards" options={{ title: "", tabBarLabel: () => null, tabBarButton: () => <AddTabButton /> }} />
-      <Tabs.Screen name="bank-accounts" options={{ title: "Accounts", tabBarIcon: ({ color, size }) => <Ionicons name="wallet" size={size} color={color} /> }} />
+      <Tabs.Screen name="spending-limits" options={{ title: "Budgets", tabBarIcon: ({ color, size }) => <Ionicons name="pie-chart" size={size} color={color} /> }} />
+      <Tabs.Screen name="bank-accounts" options={{ href: null }} />
       <Tabs.Screen name="invoices" options={{ href: null }} />
       <Tabs.Screen name="goals" options={{ href: null }} />
       <Tabs.Screen name="reports" options={{ href: null }} />
-      <Tabs.Screen name="spending-limits" options={{ href: null }} />
       <Tabs.Screen name="settings" options={{ title: "Settings", tabBarIcon: ({ color, size }) => <Ionicons name="settings-outline" size={size} color={color} /> }} />
     </Tabs>
   );
@@ -70,44 +70,36 @@ export default function AppLayout() {
 const s = StyleSheet.create({
   tabBar: {
     backgroundColor: "transparent",
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    height: 76,
-    paddingBottom: 10,
-    elevation: 4,
-    shadowColor: "#a0aec0",
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
+    borderTopWidth: 0,
+    height: 80,
+    paddingBottom: 12,
+    elevation: 0,
+    shadowOpacity: 0,
   },
   tabBg: {
     flex: 1,
     backgroundColor: colors.surface,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
   },
-  label: { fontSize: 10, fontWeight: "600", letterSpacing: 0.4 },
+  label: { fontSize: 11, fontFamily: fonts.semibold, letterSpacing: 0.2 },
   item: { paddingTop: 8 },
 
-  // ── Center + button
   addWrap: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: -20,
+    marginTop: -22,
   },
   addShadow: {
-    width: 58,
-    height: 58,
-    borderRadius: 18,
-    backgroundColor: colors.primary,
-    elevation: 10,
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.45,
-    shadowRadius: 14,
+    width: 56,
+    height: 56,
+    borderRadius: 20,
+    ...shadow.glow(colors.primary),
   },
   addGrad: {
     flex: 1,
-    borderRadius: 18,
+    borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
   },

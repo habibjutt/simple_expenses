@@ -37,8 +37,11 @@ model user {
   currentPeriodEnd     DateTime?
   lastTrialReminderAt  DateTime?
 
-  // Plan tier: free | pro | premium (updated by Stripe webhook on subscription events)
+  // Plan tier: free | pro | premium (updated by Stripe/RevenueCat webhooks)
   planTier             String    @default("free")
+
+  // Subscription provider: stripe | apple | google (null = no active paid subscription)
+  subscriptionProvider String?
 
   preferredCurrency    String    @default("AED")
   onboardingCompleted  Boolean   @default(false)

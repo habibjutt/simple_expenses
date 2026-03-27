@@ -18,6 +18,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import ChangePasswordModal from "@/components/change-password-modal";
+import DeleteAccountModal from "@/components/delete-account-modal";
 import { SUPPORTED_CURRENCIES } from "@/lib/utils";
 import { updatePreferredCurrency } from "@/app/api/user-action";
 import { FormCombobox } from "@/components/ui/form-combobox";
@@ -60,6 +61,7 @@ export default function SettingsPage() {
   const { data: session, isPending } = useSession();
   const router = useRouter();
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [alert, setAlert] = useState<AlertState>(null);
 
   const [displayName, setDisplayName] = useState("");
@@ -380,8 +382,8 @@ export default function SettingsPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  disabled
-                  className="border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-50"
+                  onClick={() => setShowDeleteModal(true)}
+                  className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
                 >
                   Delete Account
                 </Button>
@@ -395,6 +397,11 @@ export default function SettingsPage() {
       <ChangePasswordModal
         open={showPasswordModal}
         setOpen={setShowPasswordModal}
+      />
+      <DeleteAccountModal
+        open={showDeleteModal}
+        setOpen={setShowDeleteModal}
+        userEmail={session.user.email || ""}
       />
     </div>
   );

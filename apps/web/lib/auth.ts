@@ -13,6 +13,15 @@ export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
   baseURL: env.BETTER_AUTH_URL,
 
+  // ── Extra user columns exposed on session.user ─────────────────
+  user: {
+    additionalFields: {
+      preferredCurrency: { type: "string", defaultValue: "AED" },
+      onboardingCompleted: { type: "boolean", defaultValue: false },
+      subscriptionStatus: { type: "string", required: false },
+    },
+  },
+
   // ── Session ──────────────────────────────────────────────────────
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days

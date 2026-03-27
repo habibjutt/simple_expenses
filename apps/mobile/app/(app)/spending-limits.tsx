@@ -20,7 +20,8 @@ import type { SpendingLimit, Category, ReportBudget, ReportBudgetItem } from "@s
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect } from "expo-router";
-import { colors, shadow } from "../../lib/theme";
+import { colors, fonts, shadow } from "../../lib/theme";
+import { BudgetSkeleton } from "../../components/ScreenLoader";
 
 const monthNames = [
   "January", "February", "March", "April", "May", "June",
@@ -44,12 +45,12 @@ export default function SpendingLimitsScreen() {
     }, [qc, month, year]),
   );
 
-  const { data: budget } = useQuery<ReportBudget>({
+  const { data: budget, isLoading: budgetLoading } = useQuery<ReportBudget>({
     queryKey: ["budget", month, year],
     queryFn: () => reports.budget(month, year),
   });
 
-  const { data: limits = [] } = useQuery<SpendingLimit[]>({
+  const { data: limits = [], isLoading: limitsLoading } = useQuery<SpendingLimit[]>({
     queryKey: ["spending-limits", month, year],
     queryFn: () => spendingLimits.list(month, year),
   });
@@ -57,7 +58,10 @@ export default function SpendingLimitsScreen() {
   const { data: expenseCategories = [] } = useQuery<Category[]>({
     queryKey: ["categories-expense"],
     queryFn: () => categoriesApi.list("expense"),
+    select: (d) => [...d].sort((a, b) => a.name.localeCompare(b.name)),
   });
+
+  const isInitialLoad = budgetLoading || limitsLoading;
 
   const createMutation = useMutation({
     mutationFn: (input: { categoryName: string; amount: number; month: number; year: number }) =>
@@ -149,6 +153,9 @@ export default function SpendingLimitsScreen() {
         </View>
       </SafeAreaView>
 
+      {isInitialLoad ? (
+        <BudgetSkeleton count={4} />
+      ) : (
       <FlatList
         data={budgetItems}
         keyExtractor={(item) => item.category}
@@ -203,10 +210,11 @@ export default function SpendingLimitsScreen() {
           );
         }}
       />
+      )}
 
       {/* FAB */}
       <TouchableOpacity style={s.fab} onPress={() => setShowCreate(true)}>
-        <LinearGradient colors={[colors.primary, "#4527e0"]} style={s.fabGrad}>
+        <LinearGradient colors={[colors.primary, "#15803D"]} style={s.fabGrad}>
           <Ionicons name="add" size={28} color="#fff" />
         </LinearGradient>
       </TouchableOpacity>
@@ -265,7 +273,7 @@ export default function SpendingLimitsScreen() {
               disabled={createMutation.isPending}
             >
               <LinearGradient
-                colors={selectedCategory && amount ? [colors.primary, "#4527e0"] : [colors.textMuted, colors.textMuted]}
+                colors={selectedCategory && amount ? [colors.primary, "#15803D"] : [colors.textMuted, colors.textMuted]}
                 style={s.saveBtnGrad}
               >
                 <Text style={s.saveBtnText}>
@@ -297,19 +305,19 @@ const s = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  title: { fontSize: 26, fontWeight: "800", color: colors.text, letterSpacing: -0.5, marginBottom: 12 },
+  title: { fontSize: 26, fontFamily: fonts.extrabold, color: colors.text, letterSpacing: -0.5, marginBottom: 12 },
 
   // Month navigation
   navRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 16 },
   navBtn: {
     width: 36,
     height: 36,
-    borderRadius: 12,
+    borderRadius: 14,
     backgroundColor: colors.primaryDim,
     alignItems: "center",
     justifyContent: "center",
   },
-  navLabel: { fontSize: 16, fontWeight: "700", color: colors.text, minWidth: 140, textAlign: "center" },
+  navLabel: { fontSize: 16, fontFamily: fonts.bold, color: colors.text, minWidth: 140, textAlign: "center" },
 
   // List
   list: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 100 },
@@ -317,7 +325,7 @@ const s = StyleSheet.create({
   // Budget item card
   card: {
     backgroundColor: colors.surface,
-    borderRadius: 18,
+    borderRadius: 20,
     padding: 16,
     marginBottom: 10,
     borderWidth: 1,
@@ -325,8 +333,8 @@ const s = StyleSheet.create({
   },
   cardTop: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 12 },
   catDot: { width: 10, height: 10, borderRadius: 5 },
-  catName: { fontSize: 14, fontWeight: "700", color: colors.text },
-  catSub: { fontSize: 12, color: colors.textSub, marginTop: 2 },
+  catName: { fontSize: 14, fontFamily: fonts.bold, color: colors.text },
+  catSub: { fontSize: 12, fontFamily: fonts.regular, color: colors.textSub, marginTop: 2 },
   editBtn: { padding: 6 },
   delBtn: { padding: 6 },
 
@@ -335,8 +343,8 @@ const s = StyleSheet.create({
   barFill: { height: 8, borderRadius: 4 },
 
   cardBottom: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  pctText: { fontSize: 13, fontWeight: "700" },
-  remainText: { fontSize: 12, color: colors.textSub },
+  pctText: { fontSize: 13, fontFamily: fonts.bold },
+  remainText: { fontSize: 12, fontFamily: fonts.regular, color: colors.textSub },
 
   // Empty state
   empty: { alignItems: "center", paddingTop: 100, gap: 8 },
@@ -349,8 +357,8 @@ const s = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 8,
   },
-  emptyTitle: { fontSize: 18, fontWeight: "700", color: colors.text },
-  emptyText: { fontSize: 14, color: colors.textSub, textAlign: "center", paddingHorizontal: 40 },
+  emptyTitle: { fontSize: 18, fontFamily: fonts.bold, color: colors.text },
+  emptyText: { fontSize: 14, fontFamily: fonts.regular, color: colors.textSub, textAlign: "center", paddingHorizontal: 40 },
 
   // FAB
   fab: {
@@ -359,7 +367,7 @@ const s = StyleSheet.create({
     right: 24,
     width: 56,
     height: 56,
-    borderRadius: 18,
+    borderRadius: 20,
     overflow: "hidden",
     ...shadow.glow(colors.primary),
   },
@@ -370,8 +378,8 @@ const s = StyleSheet.create({
   modalBg: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.4)" },
   modalSheet: {
     backgroundColor: colors.surface,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
     paddingHorizontal: 24,
     paddingBottom: Platform.OS === "ios" ? 40 : 24,
     paddingTop: 12,
@@ -385,13 +393,13 @@ const s = StyleSheet.create({
     alignSelf: "center",
     marginBottom: 16,
   },
-  modalTitle: { fontSize: 22, fontWeight: "800", color: colors.text, letterSpacing: -0.5, marginBottom: 4 },
-  modalSubtitle: { fontSize: 13, color: colors.textSub, marginBottom: 24 },
+  modalTitle: { fontSize: 22, fontFamily: fonts.extrabold, color: colors.text, letterSpacing: -0.5, marginBottom: 4 },
+  modalSubtitle: { fontSize: 13, fontFamily: fonts.regular, color: colors.textSub, marginBottom: 24 },
 
   // Field label
   fieldLabel: {
     fontSize: 11,
-    fontWeight: "700",
+    fontFamily: fonts.bold,
     color: colors.textSub,
     letterSpacing: 1.2,
     marginBottom: 10,
@@ -409,7 +417,7 @@ const s = StyleSheet.create({
     borderColor: colors.borderSubtle,
   },
   pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  pillText: { fontSize: 13, fontWeight: "600", color: colors.text },
+  pillText: { fontSize: 13, fontFamily: fonts.semibold, color: colors.text },
   pillTextActive: { color: "#fff" },
 
   // Amount input
@@ -417,7 +425,7 @@ const s = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: colors.surface2,
-    borderRadius: 14,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: colors.borderSubtle,
     paddingHorizontal: 14,
@@ -425,16 +433,16 @@ const s = StyleSheet.create({
     marginBottom: 24,
     gap: 8,
   },
-  inputPrefix: { fontSize: 14, fontWeight: "700", color: colors.textSub },
-  input: { flex: 1, fontSize: 18, fontWeight: "700", color: colors.text },
+  inputPrefix: { fontSize: 14, fontFamily: fonts.bold, color: colors.textSub },
+  input: { flex: 1, fontSize: 18, fontFamily: fonts.bold, color: colors.text },
 
   // Save button
-  saveBtn: { borderRadius: 16, overflow: "hidden", marginBottom: 12 },
+  saveBtn: { borderRadius: 18, overflow: "hidden", marginBottom: 12 },
   saveBtnDisabled: { opacity: 0.5 },
   saveBtnGrad: { paddingVertical: 16, alignItems: "center" },
-  saveBtnText: { fontSize: 16, fontWeight: "700", color: "#fff" },
+  saveBtnText: { fontSize: 16, fontFamily: fonts.bold, color: "#fff" },
 
   // Cancel
   cancelBtn: { alignItems: "center", paddingVertical: 12 },
-  cancelBtnText: { fontSize: 14, fontWeight: "600", color: colors.textSub },
+  cancelBtnText: { fontSize: 14, fontFamily: fonts.semibold, color: colors.textSub },
 });

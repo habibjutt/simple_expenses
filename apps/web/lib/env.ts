@@ -42,6 +42,9 @@ export const env = createEnv({
     SMTP_PASS: z.string().min(1).optional(),
     EMAIL_FROM: z.string().email().default("noreply@simple-expenses.com"),
 
+    // RevenueCat (mobile IAP webhook verification)
+    REVENUECAT_WEBHOOK_SECRET: z.string().min(1).optional(),
+
     // Cron (only required in production deployments)
     CRON_SECRET: z.string().min(1).optional(),
 
@@ -75,6 +78,7 @@ export const env = createEnv({
     STRIPE_PREMIUM_MONTHLY_PRICE_ID:
       process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID,
     STRIPE_PREMIUM_YEARLY_PRICE_ID: process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID,
+    REVENUECAT_WEBHOOK_SECRET: process.env.REVENUECAT_WEBHOOK_SECRET,
     SMTP_HOST: process.env.SMTP_HOST,
     SMTP_PORT: process.env.SMTP_PORT,
     SMTP_SECURE: process.env.SMTP_SECURE,

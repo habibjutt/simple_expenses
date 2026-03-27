@@ -336,6 +336,7 @@ export interface Subscription {
   trialDaysRemaining: number | null;
   currentPeriodEnd: string | null;
   cancelAtPeriodEnd: boolean;
+  provider: string | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -519,4 +520,5 @@ export const subscriptionSchema = z.object({
   trialDaysRemaining: z.number().nullable(),
   currentPeriodEnd: z.string().nullable(),
   cancelAtPeriodEnd: z.boolean(),
+  provider: z.string().nullable(),
 });

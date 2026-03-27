@@ -11,9 +11,11 @@
     "build:ios": "eas build --platform ios"
   },
   "dependencies": {
+    "@expo-google-fonts/nunito": "^0.4.2",
     "@expo/ngrok": "^4.1.0",
     "@expo/vector-icons": "^14.0.4",
     "@hookform/resolvers": "^4.1.3",
+    "@react-native-community/datetimepicker": "^9.1.0",
     "@simple-expenses/api": "*",
     "@simple-expenses/types": "*",
     "@simple-expenses/utils": "*",
@@ -35,6 +37,8 @@
     "react-hook-form": "^7.57.0",
     "react-native": "0.83.2",
     "react-native-gesture-handler": "~2.21.2",
+    "react-native-purchases": "^9.14.0",
+    "react-native-purchases-ui": "^9.14.0",
     "react-native-reanimated": "~3.17.5",
     "react-native-safe-area-context": "^5.4.0",
     "react-native-screens": "^4.10.0",
@@ -45,6 +49,7 @@
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "@types/react": "~19.2.2",
+    "babel-preset-expo": "^55.0.12",
     "tailwindcss": "^3.4.17",
     "typescript": "~5.9.2"
   },

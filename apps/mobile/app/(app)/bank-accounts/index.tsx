@@ -3,10 +3,11 @@ import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { bankAccounts } from "@simple-expenses/api";
+import { CardSkeleton } from "../../../components/ScreenLoader";
 import { formatCurrency } from "@simple-expenses/utils";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
-import { colors } from "../../../lib/theme";
+import { colors, fonts } from "../../../lib/theme";
 
 export default function BankAccountsScreen() {
   const qc = useQueryClient();
@@ -17,7 +18,7 @@ export default function BankAccountsScreen() {
     }, [qc])
   );
 
-  const { data = [], isLoading } = useQuery({ queryKey: ["bank-accounts"], queryFn: () => bankAccounts.list() });
+  const { data = [], isLoading } = useQuery({ queryKey: ["bank-accounts"], queryFn: () => bankAccounts.list(), select: (d) => [...d].sort((a, b) => a.name.localeCompare(b.name)) });
 
   return (
     <View style={s.root}>
@@ -28,12 +29,15 @@ export default function BankAccountsScreen() {
         </View>
       </SafeAreaView>
 
+      {isLoading && data.length === 0 ? (
+        <CardSkeleton count={3} />
+      ) : (
       <FlatList
         data={data}
         keyExtractor={(a) => a.id}
         contentContainerStyle={s.list}
         showsVerticalScrollIndicator={false}
-        refreshing={isLoading}
+        refreshing={false}
         ListEmptyComponent={
           <View style={s.empty}>
             <Ionicons name="wallet-outline" size={40} color={colors.textMuted} />
@@ -84,6 +88,7 @@ export default function BankAccountsScreen() {
           );
         }}
       />
+      )}
     </View>
   );
 }
@@ -91,19 +96,19 @@ export default function BankAccountsScreen() {
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.bg },
   header: { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 20, backgroundColor: colors.surface, borderBottomWidth: 1, borderBottomColor: colors.border },
-  title: { fontSize: 26, fontWeight: "800", color: colors.text, letterSpacing: -0.5 },
-  sub: { fontSize: 13, color: colors.textSub, marginTop: 2 },
+  title: { fontSize: 26, fontFamily: fonts.extrabold, color: colors.text, letterSpacing: -0.5 },
+  sub: { fontSize: 13, fontFamily: fonts.regular, color: colors.textSub, marginTop: 2 },
   list: { padding: 20, paddingBottom: 40 },
   card: { backgroundColor: colors.surface, borderRadius: 20, marginBottom: 12, borderWidth: 1, borderColor: colors.border, overflow: "hidden" },
   cardInner: { flexDirection: "row", alignItems: "center", padding: 16, gap: 12 },
   iconWrap: { width: 48, height: 48, borderRadius: 16, alignItems: "center", justifyContent: "center" },
-  name: { fontSize: 15, fontWeight: "700", color: colors.text },
-  currency: { fontSize: 11, color: colors.textSub, marginTop: 2 },
-  balance: { fontSize: 18, fontWeight: "800", color: colors.text },
+  name: { fontSize: 15, fontFamily: fonts.bold, color: colors.text },
+  currency: { fontSize: 11, fontFamily: fonts.regular, color: colors.textSub, marginTop: 2 },
+  balance: { fontSize: 18, fontFamily: fonts.extrabold, color: colors.text },
   badge: { flexDirection: "row", alignItems: "center", gap: 3, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 99, marginTop: 4 },
-  badgeText: { fontSize: 10, fontWeight: "700" },
+  badgeText: { fontSize: 10, fontFamily: fonts.bold },
   cardFooter: { borderTopWidth: 1, borderTopColor: colors.borderSubtle, paddingHorizontal: 16, paddingVertical: 10 },
-  footerLabel: { fontSize: 11, color: colors.textMuted },
+  footerLabel: { fontSize: 11, fontFamily: fonts.regular, color: colors.textMuted },
   empty: { alignItems: "center", paddingTop: 80, gap: 12 },
-  emptyText: { color: colors.textSub, fontSize: 14 },
+  emptyText: { fontFamily: fonts.regular, color: colors.textSub, fontSize: 14 },
 });

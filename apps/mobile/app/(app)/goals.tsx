@@ -18,18 +18,19 @@ import { formatCurrency } from "@simple-expenses/utils";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { colors, shadow } from "../../lib/theme";
+import { CardSkeleton } from "../../components/ScreenLoader";
+import { colors, fonts, shadow } from "../../lib/theme";
 import type { SavingsGoal } from "@simple-expenses/types";
 
 const PRESET_COLORS = [
-  "#6c47ff",
+  colors.primary,
   "#0ea5e9",
   "#f43f5e",
-  "#00b896",
+  colors.success,
   "#d97706",
   "#8b5cf6",
   "#ec4899",
-  "#6366f1",
+  "#1A9E5C",
 ];
 
 // ---------------------------------------------------------------------------
@@ -143,7 +144,7 @@ function CreateGoalModal({
             onPress={handleSubmit}
             disabled={isPending}
           >
-            <LinearGradient colors={[colors.primary, "#4527e0"]} style={s.submitGrad}>
+            <LinearGradient colors={[colors.primary, "#15803D"]} style={s.submitGrad}>
               <Text style={s.submitText}>{isPending ? "Creating…" : "Create Goal"}</Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -365,12 +366,13 @@ export default function GoalsScreen() {
       </SafeAreaView>
 
       {/* List */}
+      {isLoading && data.length === 0 ? <CardSkeleton count={3} /> : (
       <FlatList
         data={sorted}
         keyExtractor={(item) => item.id}
         contentContainerStyle={s.list}
         showsVerticalScrollIndicator={false}
-        refreshing={isLoading}
+        refreshing={false}
         ListEmptyComponent={
           <View style={s.empty}>
             <Ionicons name="flag-outline" size={40} color={colors.textMuted} />
@@ -386,10 +388,11 @@ export default function GoalsScreen() {
           />
         )}
       />
+      )}
 
       {/* FAB */}
       <TouchableOpacity style={s.fab} onPress={() => setShowCreate(true)}>
-        <LinearGradient colors={[colors.primary, "#4527e0"]} style={s.fabGrad}>
+        <LinearGradient colors={[colors.primary, "#15803D"]} style={s.fabGrad}>
           <Ionicons name="add" size={28} color="#fff" />
         </LinearGradient>
       </TouchableOpacity>
@@ -428,8 +431,8 @@ const s = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  title: { fontSize: 26, fontWeight: "800", color: colors.text, letterSpacing: -0.5 },
-  sub: { fontSize: 13, color: colors.textSub, marginTop: 2 },
+  title: { fontSize: 26, fontFamily: fonts.extrabold, color: colors.text, letterSpacing: -0.5 },
+  sub: { fontSize: 13, fontFamily: fonts.regular, color: colors.textSub, marginTop: 2 },
 
   // List
   list: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 100 },
@@ -437,7 +440,7 @@ const s = StyleSheet.create({
   // Card
   card: {
     backgroundColor: colors.surface,
-    borderRadius: 16,
+    borderRadius: 18,
     padding: 14,
     marginBottom: 10,
     borderWidth: 1,
@@ -446,8 +449,8 @@ const s = StyleSheet.create({
   cardCompleted: { borderColor: colors.success, borderWidth: 1, opacity: 0.85 },
   cardTop: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 10 },
   goalDot: { width: 10, height: 10, borderRadius: 5 },
-  goalName: { fontSize: 15, fontWeight: "700", color: colors.text },
-  goalDeadline: { fontSize: 11, color: colors.textMuted, marginTop: 2 },
+  goalName: { fontSize: 15, fontFamily: fonts.bold, color: colors.text },
+  goalDeadline: { fontSize: 11, fontFamily: fonts.regular, color: colors.textMuted, marginTop: 2 },
   badge: {
     flexDirection: "row",
     alignItems: "center",
@@ -456,8 +459,8 @@ const s = StyleSheet.create({
     paddingVertical: 3,
     borderRadius: 99,
   },
-  badgeText: { fontSize: 11, fontWeight: "700" },
-  pctText: { fontSize: 13, fontWeight: "800", color: colors.primary },
+  badgeText: { fontSize: 11, fontFamily: fonts.bold },
+  pctText: { fontSize: 13, fontFamily: fonts.extrabold, color: colors.primary },
 
   // Progress bar
   progressTrack: {
@@ -471,8 +474,8 @@ const s = StyleSheet.create({
 
   // Amounts
   amountRow: { flexDirection: "row", alignItems: "baseline", gap: 4, marginBottom: 10 },
-  amountCurrent: { fontSize: 16, fontWeight: "800", color: colors.text },
-  amountTarget: { fontSize: 13, fontWeight: "500", color: colors.textSub },
+  amountCurrent: { fontSize: 16, fontFamily: fonts.extrabold, color: colors.text },
+  amountTarget: { fontSize: 13, fontFamily: fonts.medium, color: colors.textSub },
 
   // Card actions
   actionRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
@@ -483,13 +486,13 @@ const s = StyleSheet.create({
     backgroundColor: colors.primaryDim,
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 10,
+    borderRadius: 12,
   },
-  contributeBtnText: { fontSize: 13, fontWeight: "600", color: colors.primary },
+  contributeBtnText: { fontSize: 13, fontFamily: fonts.semibold, color: colors.primary },
   deleteBtn: {
     width: 32,
     height: 32,
-    borderRadius: 10,
+    borderRadius: 12,
     backgroundColor: colors.dangerDim,
     alignItems: "center",
     justifyContent: "center",
@@ -497,8 +500,8 @@ const s = StyleSheet.create({
 
   // Empty
   empty: { alignItems: "center", paddingTop: 80, gap: 8 },
-  emptyTitle: { fontSize: 16, fontWeight: "700", color: colors.text },
-  emptyText: { color: colors.textSub, fontSize: 13 },
+  emptyTitle: { fontSize: 16, fontFamily: fonts.bold, color: colors.text },
+  emptyText: { fontFamily: fonts.regular, color: colors.textSub, fontSize: 13 },
 
   // FAB
   fab: {
@@ -507,7 +510,7 @@ const s = StyleSheet.create({
     right: 24,
     width: 56,
     height: 56,
-    borderRadius: 18,
+    borderRadius: 20,
     overflow: "hidden",
     ...shadow.glow(colors.primary),
   },
@@ -521,8 +524,8 @@ const s = StyleSheet.create({
   },
   modalCard: {
     backgroundColor: colors.surface,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderTopLeftRadius: 26,
+    borderTopRightRadius: 26,
     padding: 24,
     paddingBottom: 32,
   },
@@ -532,12 +535,12 @@ const s = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 20,
   },
-  modalTitle: { fontSize: 18, fontWeight: "800", color: colors.text },
+  modalTitle: { fontSize: 18, fontFamily: fonts.extrabold, color: colors.text },
 
   // Form
   label: {
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: fonts.semibold,
     color: colors.textSub,
     textTransform: "uppercase",
     letterSpacing: 0.6,
@@ -546,21 +549,22 @@ const s = StyleSheet.create({
   },
   input: {
     backgroundColor: colors.bg,
-    borderRadius: 12,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: colors.border,
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 15,
+    fontFamily: fonts.regular,
     color: colors.text,
   },
   colorRow: { flexDirection: "row", gap: 10, flexWrap: "wrap", marginTop: 4 },
   colorDot: { width: 28, height: 28, borderRadius: 14 },
   colorDotActive: { borderWidth: 3, borderColor: colors.text },
-  contributeHint: { fontSize: 13, color: colors.textSub, marginBottom: 4 },
+  contributeHint: { fontSize: 13, fontFamily: fonts.regular, color: colors.textSub, marginBottom: 4 },
 
   // Submit button
-  submitBtn: { marginTop: 20, borderRadius: 14, overflow: "hidden" },
+  submitBtn: { marginTop: 20, borderRadius: 16, overflow: "hidden" },
   submitGrad: { paddingVertical: 14, alignItems: "center", justifyContent: "center" },
-  submitText: { color: "#fff", fontSize: 15, fontWeight: "700" },
+  submitText: { color: "#fff", fontSize: 15, fontFamily: fonts.bold },
 });

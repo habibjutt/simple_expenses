@@ -16,7 +16,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { tokenManager } from "../../lib/auth-token";
-import { colors, shadow } from "../../lib/theme";
+import { logoutRevenueCat } from "../../lib/revenuecat";
+import { colors, fonts, shadow } from "../../lib/theme";
 import { auth, categories as categoriesApi } from "@simple-expenses/api";
 import { SUPPORTED_CURRENCIES } from "@simple-expenses/types";
 import type { User, Category } from "@simple-expenses/types";
@@ -253,7 +254,7 @@ export default function SettingsScreen() {
     try {
       const [me, cats] = await Promise.all([auth.me(), categoriesApi.list()]);
       setUser(me);
-      setUserCategories(cats);
+      setUserCategories([...cats].sort((a, b) => a.name.localeCompare(b.name)));
     } catch {
       // ignore — will show fallbacks
     } finally {
@@ -270,6 +271,7 @@ export default function SettingsScreen() {
         text: "Sign Out",
         style: "destructive",
         onPress: async () => {
+          await logoutRevenueCat();
           await tokenManager.deleteToken();
           router.replace("/(auth)/login");
         },
@@ -315,7 +317,7 @@ export default function SettingsScreen() {
     <View style={s.root}>
       {/* Header */}
       <LinearGradient
-        colors={["#8b67ff", "#6c47ff", "#4e2ee0"]}
+        colors={["#34D399", colors.primary, "#15803D"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={[s.header, { paddingTop: insets.top + 20 }]}
@@ -350,6 +352,15 @@ export default function SettingsScreen() {
 
         {/* Preferences */}
         <SectionCard title="PREFERENCES">
+          <SettingsRow
+            icon="star-outline"
+            iconBg={colors.warningDim}
+            iconColor={colors.warning}
+            label="Subscription"
+            sublabel="Manage your plan"
+            onPress={() => router.push("/(app)/subscription")}
+          />
+          <Divider />
           <SettingsRow
             icon="cash-outline"
             iconBg={colors.successDim}
@@ -482,57 +493,58 @@ const s = StyleSheet.create({
   header: {
     paddingHorizontal: 24,
     paddingBottom: 32,
-    borderBottomLeftRadius: 36,
-    borderBottomRightRadius: 36,
+    borderBottomLeftRadius: 38,
+    borderBottomRightRadius: 38,
     overflow: "hidden",
   },
   headerBubble: { position: "absolute", width: 180, height: 180, borderRadius: 90, backgroundColor: "rgba(255,255,255,0.07)", top: -40, right: -30 },
-  headerTitle: { fontSize: 32, fontWeight: "800", color: "#fff", letterSpacing: -1, marginBottom: 4 },
-  headerSub: { fontSize: 13, color: "rgba(255,255,255,0.70)", fontWeight: "500" },
+  headerTitle: { fontSize: 32, fontFamily: fonts.extrabold, color: "#fff", letterSpacing: -1, marginBottom: 4 },
+  headerSub: { fontSize: 13, color: "rgba(255,255,255,0.70)", fontFamily: fonts.medium },
 
   scroll: { flex: 1 },
 
   sectionWrap: { marginTop: 28, paddingHorizontal: 20 },
-  sectionLabel: { fontSize: 11, fontWeight: "700", color: colors.textSub, letterSpacing: 1.2, marginBottom: 10, paddingLeft: 4 },
-  sectionCard: { backgroundColor: colors.surface, borderRadius: 20, borderWidth: 1, borderColor: colors.border, overflow: "hidden" },
+  sectionLabel: { fontSize: 11, fontFamily: fonts.bold, color: colors.textSub, letterSpacing: 1.2, marginBottom: 10, paddingLeft: 4 },
+  sectionCard: { backgroundColor: colors.surface, borderRadius: 22, borderWidth: 1, borderColor: colors.border, overflow: "hidden" },
 
   row: { flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 14, gap: 12 },
-  rowIcon: { width: 36, height: 36, borderRadius: 11, alignItems: "center", justifyContent: "center" },
-  rowLabel: { fontSize: 14, fontWeight: "600", color: colors.text },
-  rowSub: { fontSize: 11, color: colors.textSub, marginTop: 1 },
+  rowIcon: { width: 36, height: 36, borderRadius: 12, alignItems: "center", justifyContent: "center" },
+  rowLabel: { fontSize: 14, fontFamily: fonts.semibold, color: colors.text },
+  rowSub: { fontSize: 11, fontFamily: fonts.regular, color: colors.textSub, marginTop: 1 },
   divider: { height: 1, backgroundColor: colors.borderSubtle, marginLeft: 64 },
 
   catDot: { width: 10, height: 10, borderRadius: 5 },
-  versionBadge: { fontSize: 12, fontWeight: "700", color: colors.primary, backgroundColor: colors.primaryDim, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 99 },
+  versionBadge: { fontSize: 12, fontFamily: fonts.bold, color: colors.primary, backgroundColor: colors.primaryDim, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 99 },
 
   // Modals
   modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "center", alignItems: "center" },
-  modalCard: { backgroundColor: colors.surface, borderRadius: 24, padding: 24, width: "85%", maxWidth: 360 },
-  modalTitle: { fontSize: 18, fontWeight: "700", color: colors.text, marginBottom: 16 },
+  modalCard: { backgroundColor: colors.surface, borderRadius: 26, padding: 24, width: "85%", maxWidth: 360 },
+  modalTitle: { fontSize: 18, fontFamily: fonts.bold, color: colors.text, marginBottom: 16 },
   modalButtons: { flexDirection: "row", gap: 12, marginTop: 20 },
 
   input: {
     backgroundColor: colors.bg,
-    borderRadius: 12,
+    borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 15,
+    fontFamily: fonts.regular,
     color: colors.text,
     borderWidth: 1,
     borderColor: colors.border,
   },
 
-  btnCancel: { flex: 1, paddingVertical: 12, borderRadius: 12, alignItems: "center", backgroundColor: colors.bg },
-  btnCancelText: { fontSize: 15, fontWeight: "600", color: colors.textSub },
-  btnPrimary: { flex: 1, paddingVertical: 12, borderRadius: 12, alignItems: "center", backgroundColor: colors.primary },
-  btnPrimaryText: { fontSize: 15, fontWeight: "600", color: "#fff" },
+  btnCancel: { flex: 1, paddingVertical: 12, borderRadius: 14, alignItems: "center", backgroundColor: colors.bg },
+  btnCancelText: { fontSize: 15, fontFamily: fonts.semibold, color: colors.textSub },
+  btnPrimary: { flex: 1, paddingVertical: 12, borderRadius: 14, alignItems: "center", backgroundColor: colors.primary },
+  btnPrimaryText: { fontSize: 15, fontFamily: fonts.semibold, color: "#fff" },
 
   // Currency picker
-  currencyCard: { backgroundColor: colors.surface, borderRadius: 24, padding: 20, width: "90%", maxWidth: 400, maxHeight: "70%" },
+  currencyCard: { backgroundColor: colors.surface, borderRadius: 26, padding: 20, width: "90%", maxWidth: 400, maxHeight: "70%" },
   currencyHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
-  currencyRow: { flexDirection: "row", alignItems: "center", paddingVertical: 14, paddingHorizontal: 12, borderRadius: 12, gap: 12 },
+  currencyRow: { flexDirection: "row", alignItems: "center", paddingVertical: 14, paddingHorizontal: 12, borderRadius: 14, gap: 12 },
   currencyRowActive: { backgroundColor: colors.primaryDim },
-  currencyCode: { fontSize: 15, fontWeight: "700", color: colors.text, width: 40 },
-  currencyName: { flex: 1, fontSize: 14, color: colors.textSub },
+  currencyCode: { fontSize: 15, fontFamily: fonts.bold, color: colors.text, width: 40 },
+  currencyName: { flex: 1, fontSize: 14, fontFamily: fonts.regular, color: colors.textSub },
 });
 

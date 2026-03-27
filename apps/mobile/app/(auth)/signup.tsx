@@ -5,11 +5,12 @@ import { router } from "expo-router";
 import { auth } from "@simple-expenses/api";
 import { signupSchema, type SignupInput } from "@simple-expenses/types";
 import { tokenManager } from "../../lib/auth-token";
+import { loginRevenueCat } from "../../lib/revenuecat";
 import AuthInput from "../../components/AuthInput";
 import AuthButton from "../../components/AuthButton";
 import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { colors } from "../../lib/theme";
+import { colors, fonts } from "../../lib/theme";
 
 function ControlledInput({ control, name, ...props }: Parameters<typeof AuthInput>[0] & { control: ReturnType<typeof useForm>["control"]; name: string }) {
   const { field, fieldState } = useController({ control, name });
@@ -28,6 +29,11 @@ export default function SignupScreen() {
     try {
       const res = await auth.signup(data);
       await tokenManager.setToken(res.token);
+      if (res.user?.id) {
+        loginRevenueCat(res.user.id).catch((err) =>
+          console.warn("RevenueCat login failed — purchases may not sync:", err)
+        );
+      }
       router.replace("/(app)/dashboard");
     } catch (e: unknown) {
       setServerError(e instanceof Error ? e.message : "Could not create account.");
@@ -75,8 +81,8 @@ const s = StyleSheet.create({
   top: { paddingHorizontal: 24, paddingTop: 56, paddingBottom: 24 },
   back: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.surface2, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: colors.borderSubtle },
   form: { flex: 1, backgroundColor: colors.surface, borderTopLeftRadius: 32, borderTopRightRadius: 32, paddingHorizontal: 28, paddingTop: 36, paddingBottom: 40, borderTopWidth: 1, borderTopColor: colors.border },
-  title: { fontSize: 26, fontWeight: "800", color: colors.text, letterSpacing: -0.5 },
-  subtitle: { fontSize: 14, color: colors.textSub, marginTop: 4 },
-  errBox: { flexDirection: "row", alignItems: "center", backgroundColor: colors.dangerDim, borderRadius: 12, padding: 12, marginTop: 16, gap: 8, borderWidth: 1, borderColor: "rgba(255,69,96,0.3)" },
-  errText: { color: colors.danger, fontSize: 13, flex: 1 },
+  title: { fontSize: 26, fontFamily: fonts.extrabold, color: colors.text, letterSpacing: -0.5 },
+  subtitle: { fontSize: 14, fontFamily: fonts.regular, color: colors.textSub, marginTop: 4 },
+  errBox: { flexDirection: "row", alignItems: "center", backgroundColor: colors.dangerDim, borderRadius: 14, padding: 12, marginTop: 16, gap: 8, borderWidth: 1, borderColor: "rgba(255,69,96,0.3)" },
+  errText: { color: colors.danger, fontSize: 13, fontFamily: fonts.regular, flex: 1 },
 });

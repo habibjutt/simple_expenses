@@ -18,7 +18,7 @@ import type {
   ReportTrend,
   ReportBudget,
 } from "@simple-expenses/types";
-import { colors, shadow } from "../../lib/theme";
+import { colors, fonts, shadow } from "../../lib/theme";
 
 const monthNames = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -378,7 +378,7 @@ const s = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: "800",
+    fontFamily: fonts.extrabold,
     color: colors.text,
     letterSpacing: -0.5,
   },
@@ -388,21 +388,21 @@ const s = StyleSheet.create({
     flexDirection: "row",
     marginHorizontal: 24,
     backgroundColor: colors.bg,
-    borderRadius: 14,
+    borderRadius: 16,
     padding: 4,
   },
   tab: {
     flex: 1,
     paddingVertical: 10,
     alignItems: "center",
-    borderRadius: 11,
+    borderRadius: 13,
   },
   tabActive: {
     backgroundColor: colors.primary,
   },
   tabText: {
     fontSize: 13,
-    fontWeight: "600",
+    fontFamily: fonts.semibold,
     color: colors.textSub,
   },
   tabTextActive: {
@@ -420,14 +420,14 @@ const s = StyleSheet.create({
   dateArrow: {
     width: 36,
     height: 36,
-    borderRadius: 12,
+    borderRadius: 14,
     backgroundColor: colors.primaryDim,
     alignItems: "center",
     justifyContent: "center",
   },
   datePeriod: {
     fontSize: 16,
-    fontWeight: "700",
+    fontFamily: fonts.bold,
     color: colors.text,
     minWidth: 120,
     textAlign: "center",
@@ -458,26 +458,26 @@ const s = StyleSheet.create({
   },
   totalCard: {
     flex: 1,
-    borderRadius: 18,
+    borderRadius: 20,
     padding: 16,
     alignItems: "center",
   },
   totalLabel: {
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: fonts.semibold,
     marginBottom: 4,
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
   totalAmount: {
     fontSize: 18,
-    fontWeight: "800",
+    fontFamily: fonts.extrabold,
   },
 
   /* Card */
   card: {
     backgroundColor: colors.surface,
-    borderRadius: 22,
+    borderRadius: 24,
     borderWidth: 1,
     borderColor: colors.border,
     padding: 20,
@@ -485,7 +485,7 @@ const s = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 15,
-    fontWeight: "700",
+    fontFamily: fonts.bold,
     color: colors.text,
     marginBottom: 16,
   },
@@ -504,7 +504,7 @@ const s = StyleSheet.create({
   catName: {
     width: 80,
     fontSize: 13,
-    fontWeight: "600",
+    fontFamily: fonts.semibold,
     color: colors.text,
   },
   barContainer: {
@@ -521,7 +521,7 @@ const s = StyleSheet.create({
   catAmount: {
     width: 80,
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: fonts.semibold,
     color: colors.textSub,
     textAlign: "right",
   },
@@ -532,7 +532,7 @@ const s = StyleSheet.create({
   },
   trendMonth: {
     fontSize: 13,
-    fontWeight: "700",
+    fontFamily: fonts.bold,
     color: colors.text,
     marginBottom: 6,
   },
@@ -553,7 +553,7 @@ const s = StyleSheet.create({
   },
   trendAmt: {
     fontSize: 11,
-    fontWeight: "600",
+    fontFamily: fonts.semibold,
   },
 
   /* Budget Rows */
@@ -568,7 +568,7 @@ const s = StyleSheet.create({
   },
   budgetPct: {
     fontSize: 14,
-    fontWeight: "800",
+    fontFamily: fonts.extrabold,
   },
   progressBg: {
     height: 10,
@@ -587,12 +587,12 @@ const s = StyleSheet.create({
   },
   budgetSub: {
     fontSize: 11,
-    fontWeight: "500",
+    fontFamily: fonts.medium,
     color: colors.textSub,
   },
   budgetRemaining: {
     fontSize: 11,
-    fontWeight: "600",
+    fontFamily: fonts.semibold,
   },
 
   /* Empty State */
@@ -603,7 +603,7 @@ const s = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    fontWeight: "500",
+    fontFamily: fonts.medium,
     color: colors.textMuted,
   },
 });

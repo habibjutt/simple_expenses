@@ -10,6 +10,8 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const type = searchParams.get("type");
 
+  const VALID_TYPES = ["expense", "income", "both"] as const;
+
   const categories = await db.category.findMany({
     where: type
       ? { userId: user.id, OR: [{ type }, { type: "both" }] }
@@ -17,7 +19,15 @@ export async function GET(request: Request) {
     orderBy: [{ type: "asc" }, { name: "asc" }],
   });
 
-  return api.ok(categories);
+  // Coerce any invalid type values to "expense" so the response matches the schema
+  const sanitized = categories.map((c) => ({
+    ...c,
+    type: VALID_TYPES.includes(c.type as (typeof VALID_TYPES)[number])
+      ? c.type
+      : "expense",
+  }));
+
+  return api.ok(sanitized);
 }
 
 // POST /api/v1/categories

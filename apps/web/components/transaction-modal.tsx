@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
 import {
   createTransaction,
   createTransfer,
   updateTransaction,
 } from "@/app/api/transaction-action";
+import { getCategories } from "@/app/api/category-action";
 import { cn, formatCurrency } from "@/lib/utils";
 import {
   Dialog,
@@ -48,22 +49,6 @@ type EditTransaction = {
   recurringFrequency?: string | null;
   recurringEndDate?: Date | null;
 };
-
-const CATEGORIES = [
-  "Food & Dining",
-  "Shopping",
-  "Transportation",
-  "Entertainment",
-  "Bills & Utilities",
-  "Healthcare",
-  "Groceries",
-  "Salary",
-  "Investment",
-  "Yumni",
-  "Splitwise",
-  "Loan",
-  "Others",
-];
 
 export default function TransactionModal({
   open,
@@ -110,6 +95,23 @@ export default function TransactionModal({
   const [planAlert, setPlanAlert] = useState<GuardResult | null>(null);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [endDatePickerOpen, setEndDatePickerOpen] = useState(false);
+  const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
+
+  // Fetch categories from DB when modal opens
+  const loadCategories = useCallback(async () => {
+    try {
+      const cats = await getCategories();
+      setCategoryOptions(cats.map((c) => c.name));
+    } catch {
+      setCategoryOptions([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      loadCategories();
+    }
+  }, [open, loadCategories]);
 
   // Populate form when editing
   useEffect(() => {
@@ -495,7 +497,7 @@ export default function TransactionModal({
                   <FormCombobox
                     value={category}
                     onValueChange={setCategory}
-                    options={CATEGORIES.map((cat) => ({
+                    options={categoryOptions.map((cat) => ({
                       value: cat,
                       label: cat,
                     }))}

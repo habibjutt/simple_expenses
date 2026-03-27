@@ -736,22 +736,38 @@ export default function Home() {
                             <div className="flex items-center gap-3 text-xs">
                               {invoice && (
                                 <span className="text-red-600 font-medium">
-                                  Due:{" "}
+                                  Due{" "}
+                                  {new Date(
+                                    invoice.paymentDueDate,
+                                  ).toLocaleDateString("en-GB", {
+                                    day: "2-digit",
+                                    month: "short",
+                                  })}
+                                  :{" "}
                                   {formatCurrency(
                                     invoice.totalAmount,
                                     card.currency,
                                   )}
                                 </span>
                               )}
-                              {nextBill && nextBill.totalAmount > 0 && (
-                                <span className="text-amber-600 font-medium">
-                                  Next:{" "}
-                                  {formatCurrency(
-                                    nextBill.totalAmount,
-                                    card.currency,
-                                  )}
-                                </span>
-                              )}
+                              {!invoice &&
+                                nextBill &&
+                                nextBill.totalAmount > 0 && (
+                                  <span className="text-amber-600 font-medium">
+                                    Due{" "}
+                                    {new Date(
+                                      nextBill.nextPaymentDueDate,
+                                    ).toLocaleDateString("en-GB", {
+                                      day: "2-digit",
+                                      month: "short",
+                                    })}
+                                    :{" "}
+                                    {formatCurrency(
+                                      nextBill.totalAmount,
+                                      card.currency,
+                                    )}
+                                  </span>
+                                )}
                               <span className="text-emerald-600 font-medium ml-auto">
                                 Available:{" "}
                                 {showBalance

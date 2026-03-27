@@ -1511,6 +1511,7 @@ export const UserScalarFieldEnum = {
   currentPeriodEnd: 'currentPeriodEnd',
   lastTrialReminderAt: 'lastTrialReminderAt',
   planTier: 'planTier',
+  subscriptionProvider: 'subscriptionProvider',
   preferredCurrency: 'preferredCurrency',
   onboardingCompleted: 'onboardingCompleted'
 } as const

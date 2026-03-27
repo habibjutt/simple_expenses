@@ -43,6 +43,7 @@ export type UserMinAggregateOutputType = {
   currentPeriodEnd: Date | null
   lastTrialReminderAt: Date | null
   planTier: string | null
+  subscriptionProvider: string | null
   preferredCurrency: string | null
   onboardingCompleted: boolean | null
 }
@@ -66,6 +67,7 @@ export type UserMaxAggregateOutputType = {
   currentPeriodEnd: Date | null
   lastTrialReminderAt: Date | null
   planTier: string | null
+  subscriptionProvider: string | null
   preferredCurrency: string | null
   onboardingCompleted: boolean | null
 }
@@ -89,6 +91,7 @@ export type UserCountAggregateOutputType = {
   currentPeriodEnd: number
   lastTrialReminderAt: number
   planTier: number
+  subscriptionProvider: number
   preferredCurrency: number
   onboardingCompleted: number
   _all: number
@@ -114,6 +117,7 @@ export type UserMinAggregateInputType = {
   currentPeriodEnd?: true
   lastTrialReminderAt?: true
   planTier?: true
+  subscriptionProvider?: true
   preferredCurrency?: true
   onboardingCompleted?: true
 }
@@ -137,6 +141,7 @@ export type UserMaxAggregateInputType = {
   currentPeriodEnd?: true
   lastTrialReminderAt?: true
   planTier?: true
+  subscriptionProvider?: true
   preferredCurrency?: true
   onboardingCompleted?: true
 }
@@ -160,6 +165,7 @@ export type UserCountAggregateInputType = {
   currentPeriodEnd?: true
   lastTrialReminderAt?: true
   planTier?: true
+  subscriptionProvider?: true
   preferredCurrency?: true
   onboardingCompleted?: true
   _all?: true
@@ -256,6 +262,7 @@ export type UserGroupByOutputType = {
   currentPeriodEnd: Date | null
   lastTrialReminderAt: Date | null
   planTier: string
+  subscriptionProvider: string | null
   preferredCurrency: string
   onboardingCompleted: boolean
   _count: UserCountAggregateOutputType | null
@@ -300,6 +307,7 @@ export type userWhereInput = {
   currentPeriodEnd?: Prisma.DateTimeNullableFilter<"user"> | Date | string | null
   lastTrialReminderAt?: Prisma.DateTimeNullableFilter<"user"> | Date | string | null
   planTier?: Prisma.StringFilter<"user"> | string
+  subscriptionProvider?: Prisma.StringNullableFilter<"user"> | string | null
   preferredCurrency?: Prisma.StringFilter<"user"> | string
   onboardingCompleted?: Prisma.BoolFilter<"user"> | boolean
   accounts?: Prisma.AccountListRelationFilter
@@ -332,6 +340,7 @@ export type userOrderByWithRelationInput = {
   currentPeriodEnd?: Prisma.SortOrderInput | Prisma.SortOrder
   lastTrialReminderAt?: Prisma.SortOrderInput | Prisma.SortOrder
   planTier?: Prisma.SortOrder
+  subscriptionProvider?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredCurrency?: Prisma.SortOrder
   onboardingCompleted?: Prisma.SortOrder
   accounts?: Prisma.accountOrderByRelationAggregateInput
@@ -367,6 +376,7 @@ export type userWhereUniqueInput = Prisma.AtLeast<{
   currentPeriodEnd?: Prisma.DateTimeNullableFilter<"user"> | Date | string | null
   lastTrialReminderAt?: Prisma.DateTimeNullableFilter<"user"> | Date | string | null
   planTier?: Prisma.StringFilter<"user"> | string
+  subscriptionProvider?: Prisma.StringNullableFilter<"user"> | string | null
   preferredCurrency?: Prisma.StringFilter<"user"> | string
   onboardingCompleted?: Prisma.BoolFilter<"user"> | boolean
   accounts?: Prisma.AccountListRelationFilter
@@ -399,6 +409,7 @@ export type userOrderByWithAggregationInput = {
   currentPeriodEnd?: Prisma.SortOrderInput | Prisma.SortOrder
   lastTrialReminderAt?: Prisma.SortOrderInput | Prisma.SortOrder
   planTier?: Prisma.SortOrder
+  subscriptionProvider?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredCurrency?: Prisma.SortOrder
   onboardingCompleted?: Prisma.SortOrder
   _count?: Prisma.userCountOrderByAggregateInput
@@ -428,6 +439,7 @@ export type userScalarWhereWithAggregatesInput = {
   currentPeriodEnd?: Prisma.DateTimeNullableWithAggregatesFilter<"user"> | Date | string | null
   lastTrialReminderAt?: Prisma.DateTimeNullableWithAggregatesFilter<"user"> | Date | string | null
   planTier?: Prisma.StringWithAggregatesFilter<"user"> | string
+  subscriptionProvider?: Prisma.StringNullableWithAggregatesFilter<"user"> | string | null
   preferredCurrency?: Prisma.StringWithAggregatesFilter<"user"> | string
   onboardingCompleted?: Prisma.BoolWithAggregatesFilter<"user"> | boolean
 }
@@ -451,6 +463,7 @@ export type userCreateInput = {
   currentPeriodEnd?: Date | string | null
   lastTrialReminderAt?: Date | string | null
   planTier?: string
+  subscriptionProvider?: string | null
   preferredCurrency?: string
   onboardingCompleted?: boolean
   accounts?: Prisma.accountCreateNestedManyWithoutUserInput
@@ -483,6 +496,7 @@ export type userUncheckedCreateInput = {
   currentPeriodEnd?: Date | string | null
   lastTrialReminderAt?: Date | string | null
   planTier?: string
+  subscriptionProvider?: string | null
   preferredCurrency?: string
   onboardingCompleted?: boolean
   accounts?: Prisma.accountUncheckedCreateNestedManyWithoutUserInput
@@ -515,6 +529,7 @@ export type userUpdateInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastTrialReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   planTier?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accounts?: Prisma.accountUpdateManyWithoutUserNestedInput
@@ -547,6 +562,7 @@ export type userUncheckedUpdateInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastTrialReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   planTier?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accounts?: Prisma.accountUncheckedUpdateManyWithoutUserNestedInput
@@ -579,6 +595,7 @@ export type userCreateManyInput = {
   currentPeriodEnd?: Date | string | null
   lastTrialReminderAt?: Date | string | null
   planTier?: string
+  subscriptionProvider?: string | null
   preferredCurrency?: string
   onboardingCompleted?: boolean
 }
@@ -602,6 +619,7 @@ export type userUpdateManyMutationInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastTrialReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   planTier?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -625,6 +643,7 @@ export type userUncheckedUpdateManyInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastTrialReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   planTier?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -648,6 +667,7 @@ export type userCountOrderByAggregateInput = {
   currentPeriodEnd?: Prisma.SortOrder
   lastTrialReminderAt?: Prisma.SortOrder
   planTier?: Prisma.SortOrder
+  subscriptionProvider?: Prisma.SortOrder
   preferredCurrency?: Prisma.SortOrder
   onboardingCompleted?: Prisma.SortOrder
 }
@@ -671,6 +691,7 @@ export type userMaxOrderByAggregateInput = {
   currentPeriodEnd?: Prisma.SortOrder
   lastTrialReminderAt?: Prisma.SortOrder
   planTier?: Prisma.SortOrder
+  subscriptionProvider?: Prisma.SortOrder
   preferredCurrency?: Prisma.SortOrder
   onboardingCompleted?: Prisma.SortOrder
 }
@@ -694,6 +715,7 @@ export type userMinOrderByAggregateInput = {
   currentPeriodEnd?: Prisma.SortOrder
   lastTrialReminderAt?: Prisma.SortOrder
   planTier?: Prisma.SortOrder
+  subscriptionProvider?: Prisma.SortOrder
   preferredCurrency?: Prisma.SortOrder
   onboardingCompleted?: Prisma.SortOrder
 }
@@ -875,6 +897,7 @@ export type userCreateWithoutSessionsInput = {
   currentPeriodEnd?: Date | string | null
   lastTrialReminderAt?: Date | string | null
   planTier?: string
+  subscriptionProvider?: string | null
   preferredCurrency?: string
   onboardingCompleted?: boolean
   accounts?: Prisma.accountCreateNestedManyWithoutUserInput
@@ -906,6 +929,7 @@ export type userUncheckedCreateWithoutSessionsInput = {
   currentPeriodEnd?: Date | string | null
   lastTrialReminderAt?: Date | string | null
   planTier?: string
+  subscriptionProvider?: string | null
   preferredCurrency?: string
   onboardingCompleted?: boolean
   accounts?: Prisma.accountUncheckedCreateNestedManyWithoutUserInput
@@ -953,6 +977,7 @@ export type userUpdateWithoutSessionsInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastTrialReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   planTier?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accounts?: Prisma.accountUpdateManyWithoutUserNestedInput
@@ -984,6 +1009,7 @@ export type userUncheckedUpdateWithoutSessionsInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastTrialReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   planTier?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accounts?: Prisma.accountUncheckedUpdateManyWithoutUserNestedInput
@@ -1015,6 +1041,7 @@ export type userCreateWithoutAccountsInput = {
   currentPeriodEnd?: Date | string | null
   lastTrialReminderAt?: Date | string | null
   planTier?: string
+  subscriptionProvider?: string | null
   preferredCurrency?: string
   onboardingCompleted?: boolean
   sessions?: Prisma.sessionCreateNestedManyWithoutUserInput
@@ -1046,6 +1073,7 @@ export type userUncheckedCreateWithoutAccountsInput = {
   currentPeriodEnd?: Date | string | null
   lastTrialReminderAt?: Date | string | null
   planTier?: string
+  subscriptionProvider?: string | null
   preferredCurrency?: string
   onboardingCompleted?: boolean
   sessions?: Prisma.sessionUncheckedCreateNestedManyWithoutUserInput
@@ -1093,6 +1121,7 @@ export type userUpdateWithoutAccountsInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastTrialReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   planTier?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessions?: Prisma.sessionUpdateManyWithoutUserNestedInput
@@ -1124,6 +1153,7 @@ export type userUncheckedUpdateWithoutAccountsInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastTrialReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   planTier?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sessions?: Prisma.sessionUncheckedUpdateManyWithoutUserNestedInput
@@ -1155,6 +1185,7 @@ export type userCreateWithoutVerificationsInput = {
   currentPeriodEnd?: Date | string | null
   lastTrialReminderAt?: Date | string | null
   planTier?: string
+  subscriptionProvider?: string | null
   preferredCurrency?: string
   onboardingCompleted?: boolean
   accounts?: Prisma.accountCreateNestedManyWithoutUserInput
@@ -1186,6 +1217,7 @@ export type userUncheckedCreateWithoutVerificationsInput = {
   currentPeriodEnd?: Date | string | null
   lastTrialReminderAt?: Date | string | null
   planTier?: string
+  subscriptionProvider?: string | null
   preferredCurrency?: string
   onboardingCompleted?: boolean
   accounts?: Prisma.accountUncheckedCreateNestedManyWithoutUserInput
@@ -1233,6 +1265,7 @@ export type userUpdateWithoutVerificationsInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastTrialReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   planTier?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accounts?: Prisma.accountUpdateManyWithoutUserNestedInput
@@ -1264,6 +1297,7 @@ export type userUncheckedUpdateWithoutVerificationsInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastTrialReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   planTier?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accounts?: Prisma.accountUncheckedUpdateManyWithoutUserNestedInput
@@ -1295,6 +1329,7 @@ export type userCreateWithoutCreditCardsInput = {
   currentPeriodEnd?: Date | string | null
   lastTrialReminderAt?: Date | string | null
   planTier?: string
+  subscriptionProvider?: string | null
   preferredCurrency?: string
   onboardingCompleted?: boolean
   accounts?: Prisma.accountCreateNestedManyWithoutUserInput
@@ -1326,6 +1361,7 @@ export type userUncheckedCreateWithoutCreditCardsInput = {
   currentPeriodEnd?: Date | string | null
   lastTrialReminderAt?: Date | string | null
   planTier?: string
+  subscriptionProvider?: string | null
   preferredCurrency?: string
   onboardingCompleted?: boolean
   accounts?: Prisma.accountUncheckedCreateNestedManyWithoutUserInput
@@ -1373,6 +1409,7 @@ export type userUpdateWithoutCreditCardsInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastTrialReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   planTier?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accounts?: Prisma.accountUpdateManyWithoutUserNestedInput
@@ -1404,6 +1441,7 @@ export type userUncheckedUpdateWithoutCreditCardsInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastTrialReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   planTier?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accounts?: Prisma.accountUncheckedUpdateManyWithoutUserNestedInput
@@ -1435,6 +1473,7 @@ export type userCreateWithoutBankAccountsInput = {
   currentPeriodEnd?: Date | string | null
   lastTrialReminderAt?: Date | string | null
   planTier?: string
+  subscriptionProvider?: string | null
   preferredCurrency?: string
   onboardingCompleted?: boolean
   accounts?: Prisma.accountCreateNestedManyWithoutUserInput
@@ -1466,6 +1505,7 @@ export type userUncheckedCreateWithoutBankAccountsInput = {
   currentPeriodEnd?: Date | string | null
   lastTrialReminderAt?: Date | string | null
   planTier?: string
+  subscriptionProvider?: string | null
   preferredCurrency?: string
   onboardingCompleted?: boolean
   accounts?: Prisma.accountUncheckedCreateNestedManyWithoutUserInput
@@ -1513,6 +1553,7 @@ export type userUpdateWithoutBankAccountsInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastTrialReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   planTier?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accounts?: Prisma.accountUpdateManyWithoutUserNestedInput
@@ -1544,6 +1585,7 @@ export type userUncheckedUpdateWithoutBankAccountsInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastTrialReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   planTier?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accounts?: Prisma.accountUncheckedUpdateManyWithoutUserNestedInput
@@ -1575,6 +1617,7 @@ export type userCreateWithoutCategoriesInput = {
   currentPeriodEnd?: Date | string | null
   lastTrialReminderAt?: Date | string | null
   planTier?: string
+  subscriptionProvider?: string | null
   preferredCurrency?: string
   onboardingCompleted?: boolean
   accounts?: Prisma.accountCreateNestedManyWithoutUserInput
@@ -1606,6 +1649,7 @@ export type userUncheckedCreateWithoutCategoriesInput = {
   currentPeriodEnd?: Date | string | null
   lastTrialReminderAt?: Date | string | null
   planTier?: string
+  subscriptionProvider?: string | null
   preferredCurrency?: string
   onboardingCompleted?: boolean
   accounts?: Prisma.accountUncheckedCreateNestedManyWithoutUserInput
@@ -1653,6 +1697,7 @@ export type userUpdateWithoutCategoriesInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastTrialReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   planTier?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accounts?: Prisma.accountUpdateManyWithoutUserNestedInput
@@ -1684,6 +1729,7 @@ export type userUncheckedUpdateWithoutCategoriesInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastTrialReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   planTier?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accounts?: Prisma.accountUncheckedUpdateManyWithoutUserNestedInput
@@ -1715,6 +1761,7 @@ export type userCreateWithoutSpendingLimitsInput = {
   currentPeriodEnd?: Date | string | null
   lastTrialReminderAt?: Date | string | null
   planTier?: string
+  subscriptionProvider?: string | null
   preferredCurrency?: string
   onboardingCompleted?: boolean
   accounts?: Prisma.accountCreateNestedManyWithoutUserInput
@@ -1746,6 +1793,7 @@ export type userUncheckedCreateWithoutSpendingLimitsInput = {
   currentPeriodEnd?: Date | string | null
   lastTrialReminderAt?: Date | string | null
   planTier?: string
+  subscriptionProvider?: string | null
   preferredCurrency?: string
   onboardingCompleted?: boolean
   accounts?: Prisma.accountUncheckedCreateNestedManyWithoutUserInput
@@ -1793,6 +1841,7 @@ export type userUpdateWithoutSpendingLimitsInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastTrialReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   planTier?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accounts?: Prisma.accountUpdateManyWithoutUserNestedInput
@@ -1824,6 +1873,7 @@ export type userUncheckedUpdateWithoutSpendingLimitsInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastTrialReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   planTier?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accounts?: Prisma.accountUncheckedUpdateManyWithoutUserNestedInput
@@ -1855,6 +1905,7 @@ export type userCreateWithoutSavingsGoalsInput = {
   currentPeriodEnd?: Date | string | null
   lastTrialReminderAt?: Date | string | null
   planTier?: string
+  subscriptionProvider?: string | null
   preferredCurrency?: string
   onboardingCompleted?: boolean
   accounts?: Prisma.accountCreateNestedManyWithoutUserInput
@@ -1886,6 +1937,7 @@ export type userUncheckedCreateWithoutSavingsGoalsInput = {
   currentPeriodEnd?: Date | string | null
   lastTrialReminderAt?: Date | string | null
   planTier?: string
+  subscriptionProvider?: string | null
   preferredCurrency?: string
   onboardingCompleted?: boolean
   accounts?: Prisma.accountUncheckedCreateNestedManyWithoutUserInput
@@ -1933,6 +1985,7 @@ export type userUpdateWithoutSavingsGoalsInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastTrialReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   planTier?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accounts?: Prisma.accountUpdateManyWithoutUserNestedInput
@@ -1964,6 +2017,7 @@ export type userUncheckedUpdateWithoutSavingsGoalsInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastTrialReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   planTier?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accounts?: Prisma.accountUncheckedUpdateManyWithoutUserNestedInput
@@ -1995,6 +2049,7 @@ export type userCreateWithoutAuditLogsInput = {
   currentPeriodEnd?: Date | string | null
   lastTrialReminderAt?: Date | string | null
   planTier?: string
+  subscriptionProvider?: string | null
   preferredCurrency?: string
   onboardingCompleted?: boolean
   accounts?: Prisma.accountCreateNestedManyWithoutUserInput
@@ -2026,6 +2081,7 @@ export type userUncheckedCreateWithoutAuditLogsInput = {
   currentPeriodEnd?: Date | string | null
   lastTrialReminderAt?: Date | string | null
   planTier?: string
+  subscriptionProvider?: string | null
   preferredCurrency?: string
   onboardingCompleted?: boolean
   accounts?: Prisma.accountUncheckedCreateNestedManyWithoutUserInput
@@ -2073,6 +2129,7 @@ export type userUpdateWithoutAuditLogsInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastTrialReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   planTier?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accounts?: Prisma.accountUpdateManyWithoutUserNestedInput
@@ -2104,6 +2161,7 @@ export type userUncheckedUpdateWithoutAuditLogsInput = {
   currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   lastTrialReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   planTier?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   accounts?: Prisma.accountUncheckedUpdateManyWithoutUserNestedInput
@@ -2238,6 +2296,7 @@ export type userSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   currentPeriodEnd?: boolean
   lastTrialReminderAt?: boolean
   planTier?: boolean
+  subscriptionProvider?: boolean
   preferredCurrency?: boolean
   onboardingCompleted?: boolean
   accounts?: boolean | Prisma.user$accountsArgs<ExtArgs>
@@ -2271,6 +2330,7 @@ export type userSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   currentPeriodEnd?: boolean
   lastTrialReminderAt?: boolean
   planTier?: boolean
+  subscriptionProvider?: boolean
   preferredCurrency?: boolean
   onboardingCompleted?: boolean
 }, ExtArgs["result"]["user"]>
@@ -2294,6 +2354,7 @@ export type userSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   currentPeriodEnd?: boolean
   lastTrialReminderAt?: boolean
   planTier?: boolean
+  subscriptionProvider?: boolean
   preferredCurrency?: boolean
   onboardingCompleted?: boolean
 }, ExtArgs["result"]["user"]>
@@ -2317,11 +2378,12 @@ export type userSelectScalar = {
   currentPeriodEnd?: boolean
   lastTrialReminderAt?: boolean
   planTier?: boolean
+  subscriptionProvider?: boolean
   preferredCurrency?: boolean
   onboardingCompleted?: boolean
 }
 
-export type userOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "image" | "createdAt" | "updatedAt" | "role" | "banned" | "banReason" | "banExpires" | "stripeCustomerId" | "stripeSubscriptionId" | "subscriptionStatus" | "trialEndsAt" | "currentPeriodEnd" | "lastTrialReminderAt" | "planTier" | "preferredCurrency" | "onboardingCompleted", ExtArgs["result"]["user"]>
+export type userOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "image" | "createdAt" | "updatedAt" | "role" | "banned" | "banReason" | "banExpires" | "stripeCustomerId" | "stripeSubscriptionId" | "subscriptionStatus" | "trialEndsAt" | "currentPeriodEnd" | "lastTrialReminderAt" | "planTier" | "subscriptionProvider" | "preferredCurrency" | "onboardingCompleted", ExtArgs["result"]["user"]>
 export type userInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   accounts?: boolean | Prisma.user$accountsArgs<ExtArgs>
   sessions?: boolean | Prisma.user$sessionsArgs<ExtArgs>
@@ -2369,6 +2431,7 @@ export type $userPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     currentPeriodEnd: Date | null
     lastTrialReminderAt: Date | null
     planTier: string
+    subscriptionProvider: string | null
     preferredCurrency: string
     onboardingCompleted: boolean
   }, ExtArgs["result"]["user"]>
@@ -2821,6 +2884,7 @@ export interface userFieldRefs {
   readonly currentPeriodEnd: Prisma.FieldRef<"user", 'DateTime'>
   readonly lastTrialReminderAt: Prisma.FieldRef<"user", 'DateTime'>
   readonly planTier: Prisma.FieldRef<"user", 'String'>
+  readonly subscriptionProvider: Prisma.FieldRef<"user", 'String'>
   readonly preferredCurrency: Prisma.FieldRef<"user", 'String'>
   readonly onboardingCompleted: Prisma.FieldRef<"user", 'Boolean'>
 }

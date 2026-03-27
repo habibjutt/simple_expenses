@@ -21,6 +21,7 @@ export interface SubscriptionInfo {
   trialEndsAt: Date | null;
   currentPeriodEnd: Date | null;
   daysLeftInTrial: number | null;
+  provider: string | null;
 }
 
 export async function getSubscriptionInfo(
@@ -32,6 +33,7 @@ export async function getSubscriptionInfo(
       stripeCustomerId: true,
       stripeSubscriptionId: true,
       subscriptionStatus: true,
+      subscriptionProvider: true,
       trialEndsAt: true,
       currentPeriodEnd: true,
       createdAt: true,
@@ -41,8 +43,29 @@ export async function getSubscriptionInfo(
   if (!user) return null;
 
   const now = new Date();
+  const isStoreSubscription =
+    user.subscriptionProvider === "apple" || user.subscriptionProvider === "google";
 
-  // Active Stripe subscription takes precedence
+  // Active store subscription (Apple/Google via RevenueCat)
+  if (
+    isStoreSubscription &&
+    (user.subscriptionStatus === "active" || user.subscriptionStatus === "trialing")
+  ) {
+    return {
+      status: user.subscriptionStatus as SubscriptionStatus,
+      isActive: true,
+      hasStripeSubscription: false,
+      trialEndsAt: user.trialEndsAt,
+      currentPeriodEnd: user.currentPeriodEnd,
+      daysLeftInTrial:
+        user.subscriptionStatus === "trialing" && user.trialEndsAt
+          ? Math.max(0, Math.ceil((user.trialEndsAt.getTime() - now.getTime()) / 86_400_000))
+          : null,
+      provider: user.subscriptionProvider,
+    };
+  }
+
+  // Active Stripe subscription
   if (
     user.stripeSubscriptionId &&
     (user.subscriptionStatus === "active" ||
@@ -63,6 +86,7 @@ export async function getSubscriptionInfo(
               ),
             )
           : null,
+      provider: user.subscriptionProvider,
     };
   }
 
@@ -75,6 +99,7 @@ export async function getSubscriptionInfo(
       trialEndsAt: user.trialEndsAt,
       currentPeriodEnd: user.currentPeriodEnd,
       daysLeftInTrial: null,
+      provider: user.subscriptionProvider,
     };
   }
 
@@ -95,6 +120,7 @@ export async function getSubscriptionInfo(
       trialEndsAt: trialEnd,
       currentPeriodEnd: null,
       daysLeftInTrial: daysLeft,
+      provider: null,
     };
   }
 
@@ -105,6 +131,7 @@ export async function getSubscriptionInfo(
     trialEndsAt: trialEnd,
     currentPeriodEnd: null,
     daysLeftInTrial: 0,
+    provider: null,
   };
 }
 
@@ -115,8 +142,8 @@ export async function hasActiveSubscription(userId: string): Promise<boolean> {
 
 /**
  * Returns the user's *effective* plan:
- * - "trial"   → within the 14-day free trial (no stripe sub) OR within a Stripe trial
- * - "pro"     → active Pro subscription
+ * - "trial"   → within the 14-day free trial or a Stripe/store trial
+ * - "pro"     → active Pro subscription (Stripe or store IAP)
  * - "premium" → active Premium subscription
  * - "free"    → expired trial, canceled, or no subscription
  */
@@ -126,6 +153,7 @@ export async function getEffectivePlan(userId: string): Promise<EffectivePlan> {
     select: {
       stripeSubscriptionId: true,
       subscriptionStatus: true,
+      subscriptionProvider: true,
       trialEndsAt: true,
       currentPeriodEnd: true,
       planTier: true,
@@ -137,8 +165,14 @@ export async function getEffectivePlan(userId: string): Promise<EffectivePlan> {
 
   const now = new Date();
 
-  // Active Stripe subscription
-  if (user.stripeSubscriptionId) {
+  // Active paid subscription (Stripe or store IAP via RevenueCat)
+  const hasActiveProvider =
+    user.subscriptionProvider === "stripe"
+      ? !!user.stripeSubscriptionId
+      : user.subscriptionProvider === "apple" ||
+        user.subscriptionProvider === "google";
+
+  if (hasActiveProvider) {
     const status = user.subscriptionStatus;
     if (status === "trialing") return "trial";
     if (status === "active") {
@@ -149,7 +183,7 @@ export async function getEffectivePlan(userId: string): Promise<EffectivePlan> {
     return "free";
   }
 
-  // No Stripe subscription — check local 14-day trial
+  // No active subscription — check local 14-day trial
   const trialEnd =
     user.trialEndsAt ??
     new Date(user.createdAt.getTime() + TRIAL_DAYS * 86_400_000);

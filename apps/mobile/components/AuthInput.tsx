@@ -1,7 +1,7 @@
 import { forwardRef, useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, type TextInputProps } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { colors } from "../lib/theme";
+import { colors, fonts } from "../lib/theme";
 
 interface AuthInputProps extends TextInputProps {
   label: string;
@@ -44,11 +44,11 @@ const AuthInput = forwardRef<TextInput, AuthInputProps>(function AuthInput(
 export default AuthInput;
 
 const s = StyleSheet.create({
-  wrapper: { marginBottom: 16 },
+  wrapper: { marginBottom: 18 },
   label: {
-    fontSize: 11,
-    fontWeight: "600",
-    letterSpacing: 1.2,
+    fontSize: 12,
+    fontFamily: fonts.semibold,
+    letterSpacing: 0.8,
     textTransform: "uppercase",
     color: colors.textSub,
     marginBottom: 8,
@@ -56,14 +56,14 @@ const s = StyleSheet.create({
   row: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.surface2,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: colors.border,
     paddingHorizontal: 16,
-    height: 52,
+    height: 54,
   },
   rowError: { borderColor: colors.danger },
-  input: { flex: 1, fontSize: 15, color: colors.text, fontWeight: "500" },
-  error: { fontSize: 12, color: colors.danger, marginTop: 6, marginLeft: 2 },
+  input: { flex: 1, fontSize: 15, color: colors.text, fontFamily: fonts.medium },
+  error: { fontSize: 12, color: colors.danger, marginTop: 6, marginLeft: 2, fontFamily: fonts.medium },
 });

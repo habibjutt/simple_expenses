@@ -83,6 +83,12 @@ Create `apps/mobile/.env.local`:
 
 ```
 EXPO_PUBLIC_API_URL=http://YOUR_LOCAL_IP:3000
+
+# RevenueCat (optional — needed for in-app subscriptions)
+# Use a single key for testing, or separate keys per platform in production
+EXPO_PUBLIC_REVENUECAT_API_KEY=your_revenuecat_api_key
+# EXPO_PUBLIC_REVENUECAT_IOS_KEY=your_ios_key
+# EXPO_PUBLIC_REVENUECAT_ANDROID_KEY=your_android_key
 ```
 
 Replace `YOUR_LOCAL_IP` with your machine's local IP (e.g., `192.168.1.10`).  

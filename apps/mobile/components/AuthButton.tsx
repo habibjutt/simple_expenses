@@ -1,6 +1,6 @@
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, type TouchableOpacityProps } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { colors } from "../lib/theme";
+import { colors, fonts } from "../lib/theme";
 
 interface AuthButtonProps extends TouchableOpacityProps {
   label: string;
@@ -24,7 +24,7 @@ export default function AuthButton({ label, loading, variant = "primary", disabl
       style={[s.wrap, (disabled || loading) && s.disabled]}
       {...props}
     >
-      <LinearGradient colors={[colors.primary, "#4527e0"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={s.gradient}>
+      <LinearGradient colors={[colors.primary, "#15803D"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={s.gradient}>
         {loading
           ? <ActivityIndicator color="#fff" size="small" />
           : <Text style={s.text}>{label}</Text>
@@ -35,10 +35,10 @@ export default function AuthButton({ label, loading, variant = "primary", disabl
 }
 
 const s = StyleSheet.create({
-  wrap: { borderRadius: 16, overflow: "hidden", marginTop: 8 },
-  gradient: { height: 54, alignItems: "center", justifyContent: "center" },
-  text: { color: "#fff", fontSize: 16, fontWeight: "700", letterSpacing: 0.5 },
+  wrap: { borderRadius: 28, overflow: "hidden", marginTop: 8 },
+  gradient: { height: 56, alignItems: "center", justifyContent: "center" },
+  text: { color: "#fff", fontSize: 16, fontFamily: fonts.bold, letterSpacing: 0.3 },
   ghost: { alignItems: "center", paddingVertical: 14 },
-  ghostText: { color: colors.primary, fontSize: 14, fontWeight: "600" },
-  disabled: { opacity: 0.6 },
+  ghostText: { color: colors.primary, fontSize: 14, fontFamily: fonts.semibold },
+  disabled: { opacity: 0.55 },
 });

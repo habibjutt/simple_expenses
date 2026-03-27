@@ -6,10 +6,11 @@ import { router } from "expo-router";
 import { auth } from "@simple-expenses/api";
 import { loginSchema, type LoginInput } from "@simple-expenses/types";
 import { tokenManager } from "../../lib/auth-token";
+import { loginRevenueCat } from "../../lib/revenuecat";
 import AuthInput from "../../components/AuthInput";
 import AuthButton from "../../components/AuthButton";
 import { useState } from "react";
-import { colors } from "../../lib/theme";
+import { colors, fonts } from "../../lib/theme";
 import { Ionicons } from "@expo/vector-icons";
 
 function ControlledInput({ control, name, ...props }: Parameters<typeof AuthInput>[0] & { control: ReturnType<typeof useForm>["control"]; name: string }) {
@@ -29,6 +30,11 @@ export default function LoginScreen() {
     try {
       const response = await auth.login(data);
       await tokenManager.setToken(response.token);
+      if (response.user?.id) {
+        loginRevenueCat(response.user.id).catch((err) =>
+          console.warn("RevenueCat login failed — purchases may not sync:", err)
+        );
+      }
       router.replace("/(app)/dashboard");
     } catch (e: unknown) {
       setServerError(e instanceof Error ? e.message : "Invalid email or password.");
@@ -43,7 +49,7 @@ export default function LoginScreen() {
           {/* Hero */}
           <View style={s.hero}>
             <View style={s.logoRing}>
-              <LinearGradient colors={[colors.primary, "#4527e0"]} style={s.logoGrad}>
+              <LinearGradient colors={[colors.primary, "#15803D"]} style={s.logoGrad}>
                 <Ionicons name="wallet" size={28} color="#fff" />
               </LinearGradient>
             </View>
@@ -92,18 +98,18 @@ const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.bg },
   scroll: { flexGrow: 1 },
   hero: { alignItems: "center", paddingTop: 72, paddingBottom: 40 },
-  logoRing: { width: 80, height: 80, borderRadius: 24, overflow: "hidden", marginBottom: 20, borderWidth: 1, borderColor: "rgba(91,150,255,0.3)" },
+  logoRing: { width: 80, height: 80, borderRadius: 24, overflow: "hidden", marginBottom: 20, borderWidth: 1.5, borderColor: "rgba(99,102,241,0.25)" },
   logoGrad: { flex: 1, alignItems: "center", justifyContent: "center" },
-  appName: { fontSize: 22, fontWeight: "800", color: colors.text, letterSpacing: -0.5 },
-  tagline: { fontSize: 13, color: colors.textSub, marginTop: 6 },
-  form: { flex: 1, backgroundColor: colors.surface, borderTopLeftRadius: 32, borderTopRightRadius: 32, paddingHorizontal: 28, paddingTop: 36, paddingBottom: 40, borderTopWidth: 1, borderTopColor: colors.border },
-  title: { fontSize: 26, fontWeight: "800", color: colors.text, letterSpacing: -0.5 },
-  subtitle: { fontSize: 14, color: colors.textSub, marginTop: 4 },
-  errBox: { flexDirection: "row", alignItems: "center", backgroundColor: colors.dangerDim, borderRadius: 12, padding: 12, marginTop: 16, gap: 8, borderWidth: 1, borderColor: "rgba(255,69,96,0.3)" },
-  errText: { color: colors.danger, fontSize: 13, flex: 1 },
+  appName: { fontSize: 24, fontFamily: fonts.extrabold, color: colors.text, letterSpacing: -0.5 },
+  tagline: { fontSize: 14, fontFamily: fonts.medium, color: colors.textSub, marginTop: 6 },
+  form: { flex: 1, backgroundColor: colors.surface, borderTopLeftRadius: 36, borderTopRightRadius: 36, paddingHorizontal: 28, paddingTop: 36, paddingBottom: 40, borderTopWidth: 1, borderTopColor: colors.border },
+  title: { fontSize: 28, fontFamily: fonts.extrabold, color: colors.text, letterSpacing: -0.5 },
+  subtitle: { fontSize: 14, fontFamily: fonts.medium, color: colors.textSub, marginTop: 4 },
+  errBox: { flexDirection: "row", alignItems: "center", backgroundColor: colors.dangerDim, borderRadius: 14, padding: 14, marginTop: 16, gap: 8, borderWidth: 1, borderColor: "rgba(244,63,94,0.2)" },
+  errText: { color: colors.danger, fontSize: 13, flex: 1, fontFamily: fonts.medium },
   forgot: { alignSelf: "flex-end", marginTop: -4, marginBottom: 20 },
-  forgotText: { color: colors.primary, fontSize: 13, fontWeight: "600" },
+  forgotText: { color: colors.primary, fontSize: 13, fontFamily: fonts.semibold },
   divider: { flexDirection: "row", alignItems: "center", marginVertical: 20 },
   line: { flex: 1, height: 1, backgroundColor: colors.borderSubtle },
-  divText: { color: colors.textSub, fontSize: 12, marginHorizontal: 16 },
+  divText: { color: colors.textMuted, fontSize: 12, fontFamily: fonts.medium, marginHorizontal: 16 },
 });

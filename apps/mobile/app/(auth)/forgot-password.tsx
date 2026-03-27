@@ -5,7 +5,7 @@ import { auth } from "@simple-expenses/api";
 import { Ionicons } from "@expo/vector-icons";
 import AuthInput from "../../components/AuthInput";
 import AuthButton from "../../components/AuthButton";
-import { colors } from "../../lib/theme";
+import { colors, fonts } from "../../lib/theme";
 
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState("");
@@ -68,12 +68,12 @@ const s = StyleSheet.create({
   top: { paddingHorizontal: 24, paddingTop: 56, paddingBottom: 24 },
   back: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.surface2, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: colors.borderSubtle },
   form: { flex: 1, backgroundColor: colors.surface, borderTopLeftRadius: 32, borderTopRightRadius: 32, paddingHorizontal: 28, paddingTop: 36, paddingBottom: 40, borderTopWidth: 1, borderTopColor: colors.border },
-  title: { fontSize: 26, fontWeight: "800", color: colors.text, letterSpacing: -0.5 },
-  subtitle: { fontSize: 14, color: colors.textSub, marginTop: 4 },
-  errBox: { flexDirection: "row", alignItems: "center", backgroundColor: colors.dangerDim, borderRadius: 12, padding: 12, marginTop: 16, gap: 8, borderWidth: 1, borderColor: "rgba(255,69,96,0.3)" },
-  errText: { color: colors.danger, fontSize: 13, flex: 1 },
+  title: { fontSize: 26, fontFamily: fonts.extrabold, color: colors.text, letterSpacing: -0.5 },
+  subtitle: { fontSize: 14, fontFamily: fonts.regular, color: colors.textSub, marginTop: 4 },
+  errBox: { flexDirection: "row", alignItems: "center", backgroundColor: colors.dangerDim, borderRadius: 14, padding: 12, marginTop: 16, gap: 8, borderWidth: 1, borderColor: "rgba(255,69,96,0.3)" },
+  errText: { color: colors.danger, fontSize: 13, fontFamily: fonts.regular, flex: 1 },
   successBox: { alignItems: "center", paddingTop: 40, gap: 12 },
-  successIcon: { width: 80, height: 80, borderRadius: 24, backgroundColor: colors.successDim, alignItems: "center", justifyContent: "center", marginBottom: 8 },
-  successTitle: { fontSize: 22, fontWeight: "800", color: colors.text },
-  successSub: { fontSize: 14, color: colors.textSub, textAlign: "center", lineHeight: 20, marginBottom: 24 },
+  successIcon: { width: 80, height: 80, borderRadius: 26, backgroundColor: colors.successDim, alignItems: "center", justifyContent: "center", marginBottom: 8 },
+  successTitle: { fontSize: 22, fontFamily: fonts.extrabold, color: colors.text },
+  successSub: { fontSize: 14, fontFamily: fonts.regular, color: colors.textSub, textAlign: "center", lineHeight: 20, marginBottom: 24 },
 });

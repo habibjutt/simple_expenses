@@ -83,6 +83,7 @@ async function syncSubscription(
       stripeCustomerId: customerId,
       stripeSubscriptionId: subscription.id,
       subscriptionStatus: subscription.status,
+      subscriptionProvider: "stripe",
       currentPeriodEnd: periodEnd,
       planTier,
       ...(trialEnd ? { trialEndsAt: trialEnd } : {}),
