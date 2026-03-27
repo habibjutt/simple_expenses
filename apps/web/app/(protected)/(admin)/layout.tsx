@@ -6,7 +6,7 @@ import { AdminSiteHeader } from "@/components/admin-site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 export const metadata = {
-  title: "Admin Panel — Simple Expenses",
+  title: "Admin Panel — Fixpenses",
 };
 
 export default async function AdminLayout({

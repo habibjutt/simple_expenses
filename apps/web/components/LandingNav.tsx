@@ -32,7 +32,7 @@ export default function LandingNav() {
             <CreditCard className="w-4 h-4 text-white" />
           </div>
           <span className="font-bold text-white text-sm sm:text-base">
-            Simple Expenses
+            Fixpenses
           </span>
         </Link>
 

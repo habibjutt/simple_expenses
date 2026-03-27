@@ -445,7 +445,7 @@ export default function SettingsScreen() {
             icon="information-circle-outline"
             iconBg="rgba(99,102,241,0.10)"
             iconColor="#6366f1"
-            label="About Simple Expenses"
+            label="About Fixpenses"
             sublabel="Version 1.0.0"
             rightEl={<Text style={s.versionBadge}>v1.0</Text>}
           />

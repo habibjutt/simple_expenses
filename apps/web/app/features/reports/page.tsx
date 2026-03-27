@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/features/reports`,
   },
   openGraph: {
-    title: "Reports & Analytics | Simple Expenses",
+    title: "Reports & Analytics | Fixpenses",
     description:
       "Beautiful charts, category breakdowns, and monthly summaries for your UAE spending.",
     url: `${SITE_URL}/features/reports`,

@@ -14,9 +14,9 @@ import { SITE_URL } from "@/lib/seo";
 export const metadata: Metadata = {
   title: "Create Account",
   description:
-    "Create your free Simple Expenses account. Track credit cards, bank accounts, and invoices — built for UAE residents. No credit card required.",
+    "Create your free Fixpenses account. Track credit cards, bank accounts, and invoices — built for UAE residents. No credit card required.",
   keywords: [
-    "sign up Simple Expenses",
+    "sign up Fixpenses",
     "create account expense tracker UAE",
     "free finance app UAE",
     "AED expense tracker free",
@@ -26,9 +26,9 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/signup`,
   },
   openGraph: {
-    title: "Create Your Free Account | Simple Expenses",
+    title: "Create Your Free Account | Fixpenses",
     description:
-      "Join thousands of UAE residents tracking their finances with Simple Expenses. Free, private, and built for AED.",
+      "Join thousands of UAE residents tracking their finances with Fixpenses. Free, private, and built for AED.",
     url: `${SITE_URL}/signup`,
   },
 };
@@ -62,7 +62,7 @@ export default function Page() {
                 <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
                   <CreditCard className="w-5 h-5 text-white" />
                 </div>
-                <span className="font-bold text-xl">Simple Expenses</span>
+                <span className="font-bold text-xl">Fixpenses</span>
               </div>
 
               <div>
@@ -112,7 +112,7 @@ export default function Page() {
                 <CreditCard className="w-4 h-4 text-white" />
               </div>
               <span className="font-bold text-base text-foreground">
-                Simple Expenses
+                Fixpenses
               </span>
             </div>
 

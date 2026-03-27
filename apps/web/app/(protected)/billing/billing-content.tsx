@@ -147,7 +147,7 @@ export default function BillingContent() {
           <div className="mb-6 flex items-center gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-300">
             <CheckCircle2 className="h-5 w-5 shrink-0" />
             <p className="text-sm font-medium">
-              Subscription activated! Welcome to Simple Expenses Pro.
+              Subscription activated! Welcome to Fixpenses Pro.
             </p>
           </div>
         )}
@@ -163,7 +163,7 @@ export default function BillingContent() {
         <div className="mb-8">
           <h1 className="text-2xl font-bold tracking-tight">Billing</h1>
           <p className="text-muted-foreground mt-1">
-            Manage your Simple Expenses subscription.
+            Manage your Fixpenses subscription.
           </p>
         </div>
 
@@ -184,7 +184,7 @@ export default function BillingContent() {
                 </p>
                 <div className="flex items-center gap-2">
                   <span className="text-lg font-semibold">
-                    Simple Expenses Pro
+                    Fixpenses Pro
                   </span>
                   <StatusBadge status={subscription.status} />
                 </div>
@@ -318,7 +318,7 @@ export default function BillingContent() {
 
               <div className="flex items-start justify-between gap-4 mb-6">
                 <div>
-                  <h3 className="text-lg font-bold">Simple Expenses Pro</h3>
+                  <h3 className="text-lg font-bold">Fixpenses Pro</h3>
                   <p className="text-muted-foreground text-sm mt-0.5">
                     Everything you need to track your finances
                   </p>

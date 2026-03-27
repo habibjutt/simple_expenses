@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/features/expense-tracking`,
   },
   openGraph: {
-    title: "Expense Tracking | Simple Expenses",
+    title: "Expense Tracking | Fixpenses",
     description:
       "Log every dirham in seconds with smart categories, filters, and installment support.",
     url: `${SITE_URL}/features/expense-tracking`,

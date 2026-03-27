@@ -10,7 +10,7 @@ import { SITE_URL } from "@/lib/seo";
 export const metadata: Metadata = {
   title: "Features",
   description:
-    "Explore all the powerful features Simple Expenses offers to help you track every dirham across credit cards, bank accounts, and more.",
+    "Explore all the powerful features Fixpenses offers to help you track every dirham across credit cards, bank accounts, and more.",
   keywords: [
     "expense tracking features UAE",
     "personal finance tools UAE",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/features`,
   },
   openGraph: {
-    title: "Features | Simple Expenses",
+    title: "Features | Fixpenses",
     description:
       "Powerful features for UAE residents — expense tracking, credit cards, bank accounts, budgets, savings goals, and reports.",
     url: `${SITE_URL}/features`,
@@ -59,7 +59,7 @@ export default function FeaturesPage() {
               <span className="text-[#1a9e5c]">simple experience</span>
             </h1>
             <p className="text-lg text-muted-foreground">
-              Simple Expenses gives UAE residents a complete personal finance
+              Fixpenses gives UAE residents a complete personal finance
               toolkit — from transaction logging to savings goals — all in one
               clean app.
             </p>
@@ -120,7 +120,7 @@ export default function FeaturesPage() {
               Ready to take control of your finances?
             </h2>
             <p className="text-white/80">
-              Join thousands of UAE residents who trust Simple Expenses to
+              Join thousands of UAE residents who trust Fixpenses to
               manage their money every day.
             </p>
             <Link href="/signup">

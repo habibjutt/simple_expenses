@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/features/budgets`,
   },
   openGraph: {
-    title: "Budgets & Spending Limits | Simple Expenses",
+    title: "Budgets & Spending Limits | Fixpenses",
     description:
       "Set monthly spending limits by category and get alerts before you overspend.",
     url: `${SITE_URL}/features/budgets`,

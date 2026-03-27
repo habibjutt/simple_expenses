@@ -1,6 +1,6 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Simple Expenses — Expense Tracking Application
+## Fixpenses — Expense Tracking Application
 
 A comprehensive expense tracking application built with Next.js (web) and React Native + Expo (iOS & Android), organized as a Turborepo monorepo.
 

@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # ─────────────────────────────────────────────────────────────────────────────
-#  Simple Expenses — Web (Next.js 16, Node 22, Turborepo monorepo)
+#  Fixpenses — Web (Next.js 16, Node 22, Turborepo monorepo)
 #
 #  Stages:
 #    1. installer — npm install (layer-cached; re-runs only when package.json changes)

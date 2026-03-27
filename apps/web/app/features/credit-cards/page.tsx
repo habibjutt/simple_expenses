@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/features/credit-cards`,
   },
   openGraph: {
-    title: "Credit Card Management | Simple Expenses",
+    title: "Credit Card Management | Fixpenses",
     description:
       "Track balances, due dates, and invoices for all your UAE credit cards in one place.",
     url: `${SITE_URL}/features/credit-cards`,

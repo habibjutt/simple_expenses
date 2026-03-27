@@ -40,7 +40,7 @@ export const env = createEnv({
       .transform((v) => v === "true"),
     SMTP_USER: z.string().min(1).optional(),
     SMTP_PASS: z.string().min(1).optional(),
-    EMAIL_FROM: z.string().email().default("noreply@simple-expenses.com"),
+    EMAIL_FROM: z.string().email().default("noreply@fixpenses.com"),
 
     // RevenueCat (mobile IAP webhook verification)
     REVENUECAT_WEBHOOK_SECRET: z.string().min(1).optional(),

@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "Simple Expenses",
-    "slug": "simple-expenses",
+    "name": "Fixpenses",
+    "slug": "fixpenses",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "scheme": "simpleexpenses",
+    "scheme": "fixpenses",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -14,10 +14,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.simpleexpenses.app"
+      "bundleIdentifier": "com.fixpenses.app"
     },
     "android": {
-      "package": "com.simpleexpenses.app",
+      "package": "com.fixpenses.app",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",

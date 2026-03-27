@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/features/bank-accounts`,
   },
   openGraph: {
-    title: "Bank Account Management | Simple Expenses",
+    title: "Bank Account Management | Fixpenses",
     description:
       "Connect multiple UAE bank accounts and track your total balance in real time.",
     url: `${SITE_URL}/features/bank-accounts`,

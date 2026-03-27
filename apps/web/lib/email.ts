@@ -31,7 +31,7 @@ const emailWrapper = (content: string) => `
   <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
     ${content}
     <p style="color:#71717a;font-size:12px;margin-top:32px;border-top:1px solid #e4e4e7;padding-top:16px;">
-      Simple Expenses · If you didn't request this email, you can safely ignore it.
+      Fixpenses · If you didn't request this email, you can safely ignore it.
     </p>
   </div>
 `;
@@ -130,7 +130,7 @@ export async function sendTrialStartedEmail({
     const info = await transporter.sendMail({
       from: env.EMAIL_FROM,
       to,
-      subject: "Welcome to Simple Expenses — Your free trial has started!",
+      subject: "Welcome to Fixpenses — Your free trial has started!",
       html: emailWrapper(`
         <h2 style="margin-top:0;">Welcome, ${name}! 🎉</h2>
         <p>Your <strong>14-day free trial</strong> is now active. You have full access to all Premium features, including:</p>
@@ -182,7 +182,7 @@ export async function sendTrialExpiringEmail({
       html: emailWrapper(`
         <h2 style="margin-top:0;">Your trial is ending soon ⏰</h2>
         <p>Hi ${name},</p>
-        <p>Your Simple Expenses free trial expires on <strong>${endDateStr}</strong> — that's only <strong>${daysWord}</strong> away.</p>
+        <p>Your Fixpenses free trial expires on <strong>${endDateStr}</strong> — that's only <strong>${daysWord}</strong> away.</p>
         <p>After the trial ends, your account will revert to the Free plan with limited features. Upgrade now to keep your premium access.</p>
         <p style="margin: 24px 0;">
           <a href="${appUrl}/billing" style="background:#18181b;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:600;">
@@ -219,7 +219,7 @@ export async function sendSubscriptionActivatedEmail({
       html: emailWrapper(`
         <h2 style="margin-top:0;">Subscription confirmed ✅</h2>
         <p>Hi ${name},</p>
-        <p>Your <strong>${planName}</strong> subscription is now active. Thank you for supporting Simple Expenses!</p>
+        <p>Your <strong>${planName}</strong> subscription is now active. Thank you for supporting Fixpenses!</p>
         <p>You can manage your subscription, update your payment method, or download invoices anytime from the billing page.</p>
         <p style="margin: 24px 0;">
           <a href="${appUrl}/billing" style="background:#18181b;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:600;">
@@ -259,7 +259,7 @@ export async function sendSubscriptionCancelledEmail({
       html: emailWrapper(`
         <h2 style="margin-top:0;">Subscription cancelled</h2>
         <p>Hi ${name},</p>
-        <p>We're sorry to see you go. Your Simple Expenses subscription has been cancelled.</p>
+        <p>We're sorry to see you go. Your Fixpenses subscription has been cancelled.</p>
         <p>${endInfo}</p>
         <p>You can resubscribe anytime to regain full access.</p>
         <p style="margin: 24px 0;">

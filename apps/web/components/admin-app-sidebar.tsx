@@ -8,9 +8,9 @@ import {
   IconChartBar,
   IconFlag,
   IconClipboardList,
-  IconShield,
   type Icon,
 } from "@tabler/icons-react";
+import { CreditCard } from "lucide-react";
 
 import { AdminNavMain } from "@/components/admin-nav-main";
 import { AdminNavUser } from "@/components/admin-nav-user";
@@ -82,10 +82,10 @@ export function AdminAppSidebar({
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <Link href="/admin" className="flex items-center gap-2">
-                <div className="flex size-6 items-center justify-center rounded-md bg-gradient-to-br from-[#4f6ef7] to-[#6c47ff]">
-                  <IconShield className="size-3.5 text-white" />
+                <div className="flex size-6 items-center justify-center rounded-full bg-gradient-to-br from-[#6c47ff] to-[#4f6ef7]">
+                  <CreditCard className="size-3.5 text-white" />
                 </div>
-                <span className="text-sm font-semibold">Admin Panel</span>
+                <span className="text-sm font-semibold">Fixpenses</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

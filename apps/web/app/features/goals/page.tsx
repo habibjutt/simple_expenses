@@ -9,7 +9,7 @@ import { SITE_URL } from "@/lib/seo";
 export const metadata: Metadata = {
   title: "Savings Goals",
   description:
-    "Define savings targets, track progress visually, and reach your financial goals faster with Simple Expenses.",
+    "Define savings targets, track progress visually, and reach your financial goals faster with Fixpenses.",
   keywords: [
     "savings goals UAE",
     "financial goals tracker UAE",
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/features/goals`,
   },
   openGraph: {
-    title: "Savings Goals | Simple Expenses",
+    title: "Savings Goals | Fixpenses",
     description:
       "Define savings targets and track progress visually to reach your financial goals faster.",
     url: `${SITE_URL}/features/goals`,

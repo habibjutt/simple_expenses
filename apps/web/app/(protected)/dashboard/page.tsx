@@ -425,7 +425,7 @@ export default function Home() {
                       Getting Started
                     </p>
                     <p className="text-xs text-emerald-600">
-                      Complete your setup to get the most out of Simple Expenses
+                      Complete your setup to get the most out of Fixpenses
                     </p>
                   </div>
                 </div>

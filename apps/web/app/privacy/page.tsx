@@ -8,9 +8,9 @@ import { SITE_URL } from "@/lib/seo";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
-    "Simple Expenses Privacy Policy — how we collect, use, and protect your data in compliance with UAE PDPL.",
+    "Fixpenses Privacy Policy — how we collect, use, and protect your data in compliance with UAE PDPL.",
   keywords: [
-    "Simple Expenses privacy policy",
+    "Fixpenses privacy policy",
     "UAE PDPL compliance",
     "expense app data privacy",
     "finance app privacy UAE",
@@ -19,8 +19,8 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/privacy`,
   },
   openGraph: {
-    title: "Privacy Policy | Simple Expenses",
-    description: "How Simple Expenses collects, uses, and protects your data.",
+    title: "Privacy Policy | Fixpenses",
+    description: "How Fixpenses collects, uses, and protects your data.",
     url: `${SITE_URL}/privacy`,
   },
 };
@@ -62,7 +62,7 @@ export default function PrivacyPage() {
               <strong className="text-foreground">1 March 2025</strong>
             </p>
             <p className="text-muted-foreground leading-relaxed">
-              Simple Expenses (&quot;we&quot;, &quot;our&quot;, or &quot;the
+              Fixpenses (&quot;we&quot;, &quot;our&quot;, or &quot;the
               Service&quot;) is committed to protecting your personal data. This
               Privacy Policy explains how we collect, use, store, and protect
               information in accordance with the{" "}
@@ -115,7 +115,7 @@ export default function PrivacyPage() {
               <p>Your data is used exclusively to:</p>
               <ul className="list-disc pl-5 space-y-1">
                 <li>
-                  Provide, operate, and maintain the Simple Expenses Service.
+                  Provide, operate, and maintain the Fixpenses Service.
                 </li>
                 <li>Personalise your dashboard, reports, and notifications.</li>
                 <li>
@@ -240,7 +240,7 @@ export default function PrivacyPage() {
 
             <Section title="8. Children's Privacy">
               <p>
-                Simple Expenses is not directed to individuals under 18 years of
+                Fixpenses is not directed to individuals under 18 years of
                 age. We do not knowingly collect data from minors. If we become
                 aware that a minor has provided personal data, we will delete it
                 promptly.

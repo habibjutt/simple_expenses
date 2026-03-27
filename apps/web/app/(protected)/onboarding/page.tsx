@@ -686,7 +686,7 @@ export default function OnboardingPage() {
           <span className="text-white font-bold text-sm">SE</span>
         </div>
         <span className="font-bold text-slate-800 text-base">
-          Simple Expenses
+          Fixpenses
         </span>
       </div>
 

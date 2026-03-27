@@ -73,7 +73,7 @@ const Header = () => {
                 <CreditCard className="w-4 h-4 text-white" />
               </div>
               <span className="font-bold text-sm md:text-base text-white hidden sm:block">
-                Simple Expenses
+                Fixpenses
               </span>
             </Link>
 

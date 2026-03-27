@@ -7,9 +7,9 @@ import { SITE_URL } from "@/lib/seo";
 export const metadata: Metadata = {
   title: "Forgot Password",
   description:
-    "Reset your Simple Expenses password. Enter your email and we'll send you a secure link to get back into your account.",
+    "Reset your Fixpenses password. Enter your email and we'll send you a secure link to get back into your account.",
   keywords: [
-    "forgot password Simple Expenses",
+    "forgot password Fixpenses",
     "reset password UAE finance app",
   ],
   alternates: {

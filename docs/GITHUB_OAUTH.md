@@ -20,7 +20,7 @@
 3. Fill in the form:
    | Field | Value |
    |---|---|
-   | Application name | `Simple Expenses` |
+   | Application name | `Fixpenses` |
    | Homepage URL | `https://yourdomain.com` |
    | Application description | *(optional)* |
    | Authorization callback URL | `https://yourdomain.com/api/auth/callback/github` |
@@ -69,7 +69,7 @@ If you want the green "Verified" badge on the GitHub OAuth consent screen:
 User clicks "Sign in with GitHub"
   → Better Auth redirects to GitHub OAuth
   → GitHub shows authorization screen (user sees your app name + requested scopes)
-  → User clicks "Authorize Simple Expenses"
+  → User clicks "Authorize Fixpenses"
   → GitHub redirects to /api/auth/callback/github with an auth code
   → Better Auth exchanges the code for an access token
   → Better Auth creates or links the account in your database

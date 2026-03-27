@@ -7,8 +7,8 @@ import { SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Reset Password",
-  description: "Set a new password for your Simple Expenses account.",
-  keywords: ["reset password Simple Expenses"],
+  description: "Set a new password for your Fixpenses account.",
+  keywords: ["reset password Fixpenses"],
   alternates: {
     canonical: `${SITE_URL}/reset-password`,
   },

@@ -41,7 +41,7 @@ export default function LandingFooter() {
               <div className="w-8 h-8 rounded-xl bg-[#1a9e5c] flex items-center justify-center shadow-lg">
                 <CreditCard className="w-4 h-4 text-white" />
               </div>
-              <span className="font-bold text-lg">Simple Expenses</span>
+              <span className="font-bold text-lg">Fixpenses</span>
             </Link>
             <p className="text-sm text-white/55 leading-relaxed max-w-xs">
               The smartest way for UAE residents to track every dirham across
@@ -147,7 +147,7 @@ export default function LandingFooter() {
         {/* Bottom bar */}
         <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-white/35">
-            © {new Date().getFullYear()} Simple Expenses. All rights reserved.
+            © {new Date().getFullYear()} Fixpenses. All rights reserved.
             Made with ❤️ in UAE.
           </p>
           <div className="flex items-center gap-6">

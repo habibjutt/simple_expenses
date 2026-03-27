@@ -119,7 +119,7 @@ export default function SplashScreenView({ onFinish }: Props) {
           },
         ]}
       >
-        Simple Expenses
+        Fixpenses
       </Animated.Text>
 
       {/* Tagline */}

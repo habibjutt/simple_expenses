@@ -8,9 +8,9 @@ import { SITE_URL } from "@/lib/seo";
 export const metadata: Metadata = {
   title: "Terms of Service",
   description:
-    "Simple Expenses Terms of Service — the rules and conditions governing your use of the platform.",
+    "Fixpenses Terms of Service — the rules and conditions governing your use of the platform.",
   keywords: [
-    "Simple Expenses terms of service",
+    "Fixpenses terms of service",
     "expense app terms and conditions",
     "UAE finance app terms",
   ],
@@ -18,9 +18,9 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/terms`,
   },
   openGraph: {
-    title: "Terms of Service | Simple Expenses",
+    title: "Terms of Service | Fixpenses",
     description:
-      "The rules and conditions governing your use of Simple Expenses.",
+      "The rules and conditions governing your use of Fixpenses.",
     url: `${SITE_URL}/terms`,
   },
 };
@@ -72,7 +72,7 @@ export default function TermsPage() {
             <Section title="1. Acceptance of Terms">
               <p>
                 These Terms constitute a legally binding agreement between you
-                and Simple Expenses (operated from Dubai, UAE) governing your
+                and Fixpenses (operated from Dubai, UAE) governing your
                 use of the web application and related services. These Terms are
                 governed by the laws of the{" "}
                 <strong className="text-foreground">
@@ -84,7 +84,7 @@ export default function TermsPage() {
 
             <Section title="2. Description of Service">
               <p>
-                Simple Expenses is a personal finance tracking application that
+                Fixpenses is a personal finance tracking application that
                 allows UAE residents to:
               </p>
               <ul className="list-disc pl-5 space-y-1">
@@ -105,7 +105,7 @@ export default function TermsPage() {
               <p>
                 You must be at least{" "}
                 <strong className="text-foreground">18 years old</strong> to use
-                Simple Expenses. By using the Service, you represent that you
+                Fixpenses. By using the Service, you represent that you
                 meet this requirement. The Service is intended primarily for
                 residents of the United Arab Emirates.
               </p>
@@ -138,7 +138,7 @@ export default function TermsPage() {
 
             <Section title="5. Subscription Plans and Billing">
               <p>
-                Simple Expenses offers a free Starter plan and paid Pro and
+                Fixpenses offers a free Starter plan and paid Pro and
                 Premium plans billed in AED (UAE Dirham).
               </p>
               <ul className="list-disc pl-5 space-y-1">
@@ -207,7 +207,7 @@ export default function TermsPage() {
             <Section title="8. Intellectual Property">
               <p>
                 The Service, including its design, code, content, and branding,
-                is owned by Simple Expenses and protected by UAE and
+                is owned by Fixpenses and protected by UAE and
                 international intellectual property laws. You may not reproduce,
                 distribute, or create derivative works without our written
                 permission.
@@ -218,14 +218,14 @@ export default function TermsPage() {
               <p>
                 The Service is provided &quot;as is&quot; without warranties of
                 any kind. We do not guarantee that the Service will be
-                uninterrupted, error-free, or completely secure. Simple Expenses
+                uninterrupted, error-free, or completely secure. Fixpenses
                 does not provide financial, investment, tax, or legal advice.
               </p>
             </Section>
 
             <Section title="10. Limitation of Liability">
               <p>
-                To the maximum extent permitted by UAE law, Simple Expenses
+                To the maximum extent permitted by UAE law, Fixpenses
                 shall not be liable for indirect, incidental, consequential, or
                 punitive damages arising from your use of the Service. Our total
                 liability shall not exceed the amount you paid us in the three

@@ -17,7 +17,7 @@
 
 1. Go to [https://console.cloud.google.com](https://console.cloud.google.com)
 2. Click the project selector at the top → **"New Project"**
-3. Name it `Simple Expenses` → Click **"Create"**
+3. Name it `Fixpenses` → Click **"Create"**
 
 ### Step 2 — Enable the Google Identity API
 
@@ -34,7 +34,7 @@ This is the screen users see when signing in. Fill it in carefully — Google re
 3. Fill in **App information**:
    | Field | Value |
    |---|---|
-   | App name | `Simple Expenses` |
+   | App name | `Fixpenses` |
    | User support email | `hello@simpleexpenses.ae` |
    | App logo | Upload your logo (optional but recommended) |
    | App domain → Homepage | `https://yourdomain.com` |
@@ -72,7 +72,7 @@ While your app is in **Testing** status, only users you add here can sign in.
 4. Fill in:
    | Field | Value |
    |---|---|
-   | Name | `Simple Expenses Web` |
+   | Name | `Fixpenses Web` |
    | Authorized JavaScript origins | `http://localhost:3000` (dev) / `https://yourdomain.com` (prod) |
    | Authorized redirect URIs | `http://localhost:3000/api/auth/callback/google` (dev) |
 
@@ -129,7 +129,7 @@ Google verification removes the "unverified app" warning and is only required if
 - You request **sensitive scopes** (e.g., Calendar, Drive, Gmail)
 - You have more than **100 users** and need to remove the warning
 
-For Simple Expenses (email + profile only), verification is **not required**. But if you want the clean consent screen:
+For Fixpenses (email + profile only), verification is **not required**. But if you want the clean consent screen:
 
 1. Go to **OAuth consent screen → "Prepare for verification"**
 2. Fill in:

@@ -1,5 +1,5 @@
 import type { NextConfig } from "next";
-/yimport path from "node:path";
+import path from "node:path";
 
 /**
  * HTTP security headers applied to every response.

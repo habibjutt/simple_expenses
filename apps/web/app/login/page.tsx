@@ -14,9 +14,9 @@ import { SITE_URL } from "@/lib/seo";
 export const metadata: Metadata = {
   title: "Sign In",
   description:
-    "Sign in to Simple Expenses and pick up right where you left off. Track your credit cards, bank accounts, and spending across the UAE.",
+    "Sign in to Fixpenses and pick up right where you left off. Track your credit cards, bank accounts, and spending across the UAE.",
   keywords: [
-    "login Simple Expenses",
+    "login Fixpenses",
     "sign in expense tracker UAE",
     "personal finance login",
     "AED tracker login",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/login`,
   },
   openGraph: {
-    title: "Sign In | Simple Expenses",
+    title: "Sign In | Fixpenses",
     description: "Sign in and take control of your UAE finances.",
     url: `${SITE_URL}/login`,
   },
@@ -60,7 +60,7 @@ export default function Page() {
                 <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
                   <CreditCard className="w-5 h-5 text-white" />
                 </div>
-                <span className="font-bold text-xl">Simple Expenses</span>
+                <span className="font-bold text-xl">Fixpenses</span>
               </div>
 
               <div>
@@ -100,7 +100,7 @@ export default function Page() {
                 <CreditCard className="w-4 h-4 text-white" />
               </div>
               <span className="font-bold text-base text-foreground">
-                Simple Expenses
+                Fixpenses
               </span>
             </div>
 

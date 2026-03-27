@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     "free expense tracker",
     "dirham spending tracker",
     "invoice management UAE",
-    "Simple Expenses",
+    "Fixpenses",
   ],
   alternates: {
     canonical: SITE_URL,
@@ -157,7 +157,7 @@ export default function LandingPage() {
                           <CreditCard className="w-3 h-3 text-white" />
                         </div>
                         <span className="text-white text-xs font-semibold">
-                          Simple Expenses
+                          Fixpenses
                         </span>
                       </div>
                       <div className="flex gap-1">
@@ -580,7 +580,7 @@ export default function LandingPage() {
                   initials: "RH",
                   color: "bg-teal-500",
                   quote:
-                    "I used to use Excel spreadsheets. Now with Simple Expenses I spend 5 minutes a week on my finances instead of an hour. The free plan has everything I need.",
+                    "I used to use Excel spreadsheets. Now with Fixpenses I spend 5 minutes a week on my finances instead of an hour. The free plan has everything I need.",
                   rating: 5,
                 },
               ].map(
@@ -650,7 +650,7 @@ export default function LandingPage() {
                   },
                   {
                     q: "Which UAE banks are supported?",
-                    a: "Simple Expenses works with all UAE banks including ADCB, FAB, Mashreq, Emirates NBD, DIB, RAKBANK, Abu Dhabi Islamic Bank, and more. Since you enter transactions manually, it works with any bank that issues credit cards or bank accounts.",
+                    a: "Fixpenses works with all UAE banks including ADCB, FAB, Mashreq, Emirates NBD, DIB, RAKBANK, Abu Dhabi Islamic Bank, and more. Since you enter transactions manually, it works with any bank that issues credit cards or bank accounts.",
                   },
                   {
                     q: "Is there a truly free plan — no catches?",

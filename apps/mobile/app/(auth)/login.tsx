@@ -53,7 +53,7 @@ export default function LoginScreen() {
                 <Ionicons name="wallet" size={28} color="#fff" />
               </LinearGradient>
             </View>
-            <Text style={s.appName}>Simple Expenses</Text>
+            <Text style={s.appName}>Fixpenses</Text>
             <Text style={s.tagline}>Your finances, beautifully tracked</Text>
           </View>
 

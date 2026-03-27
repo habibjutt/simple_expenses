@@ -7,7 +7,7 @@ services:
       # For most cases the placeholder is fine — no DB connection happens at build.
       args:
         DATABASE_URL: "${DATABASE_URL:-postgresql://placeholder:placeholder@localhost:5432/placeholder}"
-    image: simple-expenses-web:latest
+    image: fixpenses-web:latest
     ports:
       - "3000:3000"
     # All runtime secrets come from the root .env file.

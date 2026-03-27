@@ -9,19 +9,19 @@ import { SITE_URL } from "@/lib/seo";
 export const metadata: Metadata = {
   title: "Request a Feature",
   description:
-    "Share your ideas and help shape the future of Simple Expenses. Tell us what features you'd love to see in the UAE's favourite personal finance app.",
+    "Share your ideas and help shape the future of Fixpenses. Tell us what features you'd love to see in the UAE's favourite personal finance app.",
   keywords: [
-    "Simple Expenses feature request",
+    "Fixpenses feature request",
     "suggest feature UAE finance app",
-    "product feedback Simple Expenses",
+    "product feedback Fixpenses",
   ],
   alternates: {
     canonical: `${SITE_URL}/request-feature`,
   },
   openGraph: {
-    title: "Request a Feature | Simple Expenses",
+    title: "Request a Feature | Fixpenses",
     description:
-      "Share your ideas and help shape the future of Simple Expenses.",
+      "Share your ideas and help shape the future of Fixpenses.",
     url: `${SITE_URL}/request-feature`,
   },
 };
@@ -43,7 +43,7 @@ export default function RequestFeaturePage() {
               Request a feature
             </h1>
             <p className="text-lg text-muted-foreground">
-              Have an idea that would make Simple Expenses even better? We love
+              Have an idea that would make Fixpenses even better? We love
               hearing from our users. Share your suggestion and help us build
               the features that matter most to you.
             </p>

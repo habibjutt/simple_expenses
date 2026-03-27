@@ -3,9 +3,9 @@ import { NextResponse } from "next/server";
 const spec = {
   openapi: "3.0.3",
   info: {
-    title: "Simple Expenses API",
+    title: "Fixpenses API",
     description:
-      "REST API for the Simple Expenses app. Authenticate via `POST /api/auth/sign-in/email` and use the returned `token` as a Bearer token in the `Authorization` header.",
+      "REST API for the Fixpenses app. Authenticate via `POST /api/auth/sign-in/email` and use the returned `token` as a Bearer token in the `Authorization` header.",
     version: "1.0.0",
   },
   servers: [{ url: "/api/v1", description: "API v1" }],

@@ -16,10 +16,10 @@ import { SITE_URL } from "@/lib/seo";
 export const metadata: Metadata = {
   title: "Contact Us",
   description:
-    "Get in touch with the Simple Expenses team. We're here to help UAE users with any questions about tracking expenses, credit cards, and bank accounts.",
+    "Get in touch with the Fixpenses team. We're here to help UAE users with any questions about tracking expenses, credit cards, and bank accounts.",
   keywords: [
-    "contact Simple Expenses",
-    "Simple Expenses support",
+    "contact Fixpenses",
+    "Fixpenses support",
     "UAE finance app help",
     "expense tracker support",
   ],
@@ -27,8 +27,8 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/contact`,
   },
   openGraph: {
-    title: "Contact Us | Simple Expenses",
-    description: "Get in touch with the Simple Expenses team.",
+    title: "Contact Us | Fixpenses",
+    description: "Get in touch with the Fixpenses team.",
     url: `${SITE_URL}/contact`,
   },
 };
