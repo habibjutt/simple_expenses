@@ -15,6 +15,9 @@
 
 FROM node:22-alpine AS base
 RUN apk add --no-cache libc6-compat
+# Disable Corepack so the "packageManager" field in package.json doesn't cause
+# npm to attempt to download/pin a specific version during the build.
+RUN corepack disable || true
 
 
 # ── Stage 1: Install dependencies (layer-cached per package.json changes) ────
@@ -34,6 +37,9 @@ COPY packages/utils/package.json   ./packages/utils/package.json
 # No --frozen-lockfile: the lockfile was generated on macOS and npm regenerates
 # it on linux to add the correct platform-specific optional binaries.
 RUN npm install --ignore-scripts
+# Ensure the workspace-local directory exists so the COPY in the builder stage
+# never fails with "not found" (npm may hoist everything to root node_modules).
+RUN mkdir -p ./apps/web/node_modules
 
 
 # ── Stage 2: Build ───────────────────────────────────────────────────────────
@@ -55,6 +61,9 @@ ENV DATABASE_URL=$DATABASE_URL
 # Skip t3-oss/env-nextjs validation; all real env vars are injected at runtime.
 ENV SKIP_ENV_VALIDATION=1
 ENV NEXT_TELEMETRY_DISABLED=1
+
+# Increase Node.js heap for next build — OOM kills surface as exit code 255.
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 RUN cd apps/web && npx prisma generate
 RUN cd apps/web && npx next build --webpack
