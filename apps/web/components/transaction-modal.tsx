@@ -538,6 +538,7 @@ export default function TransactionModal({
                       ]}
                       placeholder="Select…"
                       searchPlaceholder="Search…"
+                      searchable={false}
                     />
                   </Field>
 
@@ -553,6 +554,7 @@ export default function TransactionModal({
                         placeholder="Select card…"
                         searchPlaceholder="Search cards…"
                         emptyText="No cards found."
+                        searchable={false}
                       />
                     </Field>
                   ) : (
@@ -567,6 +569,7 @@ export default function TransactionModal({
                         placeholder="Select account…"
                         searchPlaceholder="Search accounts…"
                         emptyText="No accounts found."
+                        searchable={false}
                       />
                     </Field>
                   )}

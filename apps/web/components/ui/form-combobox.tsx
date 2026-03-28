@@ -33,6 +33,7 @@ interface FormComboboxProps {
   searchPlaceholder?: string;
   emptyText?: string;
   disabled?: boolean;
+  searchable?: boolean;
   className?: string;
 }
 
@@ -44,6 +45,7 @@ export function FormCombobox({
   searchPlaceholder = "Search…",
   emptyText = "No results found.",
   disabled = false,
+  searchable = true,
   className,
 }: FormComboboxProps) {
   const [open, setOpen] = React.useState(false);
@@ -72,9 +74,10 @@ export function FormCombobox({
         className="w-[--radix-popover-trigger-width] p-0"
         align="start"
         sideOffset={4}
+        onWheel={(e) => e.stopPropagation()}
       >
         <Command>
-          <CommandInput placeholder={searchPlaceholder} />
+          {searchable && <CommandInput placeholder={searchPlaceholder} />}
           <CommandList>
             <CommandEmpty>{emptyText}</CommandEmpty>
             <CommandGroup>
