@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { SignupForm } from "@/components/signup-form";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/LandingFooter";
@@ -10,6 +12,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { SITE_URL } from "@/lib/seo";
+import { auth } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "Create Account",
@@ -39,7 +42,10 @@ const benefits = [
   { icon: Globe, text: "Built for UAE — AED-native from day one" },
 ];
 
-export default function Page() {
+export default async function Page() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (session?.user) redirect("/dashboard");
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <LandingNav />
