@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { creditCards, invoices, transactions as txApi } from "@simple-expenses/api";
 import type { Invoice, Transaction } from "@simple-expenses/types";
 import { formatCurrency, formatDate, formatShortDate } from "@simple-expenses/utils";
@@ -23,6 +23,7 @@ function getOrdinal(n: number) {
 
 export default function CreditCardDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const qc = useQueryClient();
 
   const now = new Date();
   const [month, setMonth] = useState(now.getMonth() + 1);
@@ -71,6 +72,34 @@ export default function CreditCardDetailScreen() {
 
   const monthExpenses = useMemo(() => monthTx.filter((t) => t.amount > 0).reduce((s, t) => s + t.amount, 0), [monthTx]);
   const monthPayments = useMemo(() => monthTx.filter((t) => t.amount < 0).reduce((s, t) => s + Math.abs(t.amount), 0), [monthTx]);
+
+  const deleteMutation = useMutation({
+    mutationFn: (txId: string) => txApi.delete(txId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["transactions"] }),
+    onError: (e: Error) => Alert.alert("Error", e.message),
+  });
+
+  function confirmDelete(txId: string, txName: string) {
+    Alert.alert("Delete", `Delete "${txName}"?`, [
+      { text: "Cancel", style: "cancel" },
+      { text: "Delete", style: "destructive", onPress: () => deleteMutation.mutate(txId) },
+    ]);
+  }
+
+  function handleEdit(tx: Transaction) {
+    router.push({
+      pathname: "/edit-transaction",
+      params: {
+        id:       tx.id,
+        name:     tx.name,
+        amount:   String(Math.abs(tx.amount)),
+        date:     tx.date,
+        category: tx.category ?? "",
+        type:     tx.type,
+        notes:    tx.notes ?? "",
+      },
+    });
+  }
 
   if (!card) return null;
 
@@ -270,6 +299,12 @@ export default function CreditCardDetailScreen() {
               <Text style={[st.txAmount, { color: isPayment ? colors.success : colors.danger }]}>
                 {isPayment ? "+" : "−"}{formatCurrency(Math.abs(tx.amount), card.currency)}
               </Text>
+              <TouchableOpacity onPress={() => handleEdit(tx)} style={st.action} hitSlop={8}>
+                <Ionicons name="create-outline" size={14} color={colors.textMuted} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => confirmDelete(tx.id, tx.name)} style={st.action} hitSlop={8}>
+                <Ionicons name="trash-outline" size={14} color={colors.textMuted} />
+              </TouchableOpacity>
             </View>
           );
         }}
@@ -389,6 +424,7 @@ const st = StyleSheet.create({
   txName: { fontSize: 15, fontFamily: fonts.semibold, color: colors.text },
   txDate: { fontSize: 12, fontFamily: fonts.regular, color: colors.textSub, marginTop: 2 },
   txAmount: { fontSize: 15, fontFamily: fonts.bold },
+  action: { padding: 4 },
 
   /* Empty state */
   empty: { alignItems: "center", paddingVertical: 40, gap: 8, paddingHorizontal: 20 },

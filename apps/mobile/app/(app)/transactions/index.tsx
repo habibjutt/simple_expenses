@@ -70,6 +70,21 @@ export default function TransactionsScreen() {
     return { income, expense, net: income - expense };
   }, [visible]);
 
+  function handleEdit(tx: (typeof visible)[0]) {
+    router.push({
+      pathname: "/edit-transaction",
+      params: {
+        id:       tx.id,
+        name:     tx.name,
+        amount:   String(Math.abs(tx.amount)),
+        date:     tx.date,
+        category: tx.category ?? "",
+        type:     tx.type,
+        notes:    tx.notes ?? "",
+      },
+    });
+  }
+
   function confirmDelete(id: string, name: string) {
     Alert.alert("Delete", `Delete "${name}"?`, [
       { text: "Cancel", style: "cancel" },
@@ -191,7 +206,10 @@ export default function TransactionsScreen() {
                   <Text style={s.installment}>{tx.installmentNumber}/{tx.installments}</Text>
                 )}
               </View>
-              <TouchableOpacity onPress={() => confirmDelete(tx.id, tx.name)} style={s.del} hitSlop={8}>
+              <TouchableOpacity onPress={() => handleEdit(tx)} style={s.action} hitSlop={8}>
+                <Ionicons name="create-outline" size={14} color={colors.textMuted} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => confirmDelete(tx.id, tx.name)} style={s.action} hitSlop={8}>
                 <Ionicons name="trash-outline" size={14} color={colors.textMuted} />
               </TouchableOpacity>
             </View>
@@ -262,6 +280,7 @@ const s = StyleSheet.create({
   amt: { fontSize: 15, fontFamily: fonts.bold },
   installment: { fontSize: 10, fontFamily: fonts.regular, color: colors.textSub, marginTop: 2 },
   del: { padding: 4 },
+  action: { padding: 4 },
 
   /* Empty */
   empty: { alignItems: "center", paddingVertical: 48, gap: 8, paddingHorizontal: 20 },

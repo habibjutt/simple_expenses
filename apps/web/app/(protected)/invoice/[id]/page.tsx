@@ -33,7 +33,7 @@ import {
 import { FormCombobox } from "@/components/ui/form-combobox";
 
 type InvoiceData = Awaited<ReturnType<typeof getInvoiceDetail>>;
-type BankAccount = { id: string; name: string; currentBalance: number };
+type BankAccount = { id: string; name: string; currentBalance: number; currency: string };
 
 const CATEGORY_ICONS: Record<string, string> = {
   Food: "🍔",
@@ -235,7 +235,7 @@ export default function InvoiceDetailPage() {
               <div className="text-right">
                 <p className="text-white/70 text-sm">Total Amount</p>
                 <p className="text-3xl font-bold">
-                  {formatCurrency(invoice.totalAmount)}
+                  {formatCurrency(invoice.totalAmount, invoice.creditCard.currency)}
                 </p>
                 <div className="mt-2">
                   {invoice.isPaid ? (
@@ -362,7 +362,7 @@ export default function InvoiceDetailPage() {
                           {category}
                         </span>
                         <span className="text-sm font-semibold text-slate-800">
-                          {formatCurrency(amount)}
+                          {formatCurrency(amount, invoice.creditCard.currency)}
                           <span className="text-xs text-slate-400 ml-1">
                             ({pct}%)
                           </span>
@@ -391,7 +391,7 @@ export default function InvoiceDetailPage() {
                 <div className="flex items-center gap-2">
                   <TrendingDown className="h-4 w-4 text-slate-400" />
                   <span className="text-sm font-bold text-slate-800">
-                    {formatCurrency(invoice.totalAmount)}
+                    {formatCurrency(invoice.totalAmount, invoice.creditCard.currency)}
                   </span>
                 </div>
               </div>
@@ -445,7 +445,7 @@ export default function InvoiceDetailPage() {
                       </div>
                     </div>
                     <p className="text-sm font-semibold text-red-600 shrink-0">
-                      -{formatCurrency(txn.amount)}
+                      -{formatCurrency(txn.amount, invoice.creditCard.currency)}
                     </p>
                   </div>
                 ))}
@@ -463,7 +463,7 @@ export default function InvoiceDetailPage() {
           <DialogHeader>
             <DialogTitle>Pay Invoice</DialogTitle>
             <DialogDescription>
-              Pay {formatCurrency(invoice.totalAmount)} for{" "}
+              Pay {formatCurrency(invoice.totalAmount, invoice.creditCard.currency)} for{" "}
               {invoice.creditCard.name}
             </DialogDescription>
           </DialogHeader>
@@ -478,7 +478,7 @@ export default function InvoiceDetailPage() {
                 onValueChange={setSelectedBankId}
                 options={bankAccounts.map((acc) => ({
                   value: acc.id,
-                  label: `${acc.name} — ${formatCurrency(acc.currentBalance)}`,
+                  label: `${acc.name} — ${formatCurrency(acc.currentBalance, acc.currency)}`,
                 }))}
                 placeholder="Select account…"
                 searchPlaceholder="Search account…"

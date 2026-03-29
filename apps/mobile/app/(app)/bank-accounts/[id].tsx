@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { bankAccounts, transactions } from "@simple-expenses/api";
 import { formatCurrency, formatShortDate } from "@simple-expenses/utils";
 import { Ionicons } from "@expo/vector-icons";
@@ -16,6 +16,7 @@ const MONTHS = [
 
 export default function BankAccountDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const qc = useQueryClient();
 
   const now = new Date();
   const [month, setMonth] = useState(now.getMonth() + 1);
@@ -58,6 +59,34 @@ export default function BankAccountDetailScreen() {
     }
     return { income: inc, expense: exp };
   }, [filtered]);
+
+  const deleteMutation = useMutation({
+    mutationFn: (txId: string) => transactions.delete(txId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["transactions"] }),
+    onError: (e: Error) => Alert.alert("Error", e.message),
+  });
+
+  function confirmDelete(txId: string, txName: string) {
+    Alert.alert("Delete", `Delete "${txName}"?`, [
+      { text: "Cancel", style: "cancel" },
+      { text: "Delete", style: "destructive", onPress: () => deleteMutation.mutate(txId) },
+    ]);
+  }
+
+  function handleEdit(tx: (typeof filtered)[0]) {
+    router.push({
+      pathname: "/edit-transaction",
+      params: {
+        id:       tx.id,
+        name:     tx.name,
+        amount:   String(Math.abs(tx.amount)),
+        date:     tx.date,
+        category: tx.category ?? "",
+        type:     tx.type,
+        notes:    tx.notes ?? "",
+      },
+    });
+  }
 
   if (!account) return null;
 
@@ -215,6 +244,12 @@ export default function BankAccountDetailScreen() {
               {tx.type === "income" ? "+" : tx.type === "expense" ? "-" : ""}
               {formatCurrency(Math.abs(tx.amount), currency)}
             </Text>
+            <TouchableOpacity onPress={() => handleEdit(tx)} style={s.action} hitSlop={8}>
+              <Ionicons name="create-outline" size={14} color={colors.textMuted} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => confirmDelete(tx.id, tx.name)} style={s.action} hitSlop={8}>
+              <Ionicons name="trash-outline" size={14} color={colors.textMuted} />
+            </TouchableOpacity>
           </View>
         )}
       />
@@ -300,6 +335,7 @@ const s = StyleSheet.create({
   txName: { fontSize: 15, fontFamily: fonts.semibold, color: colors.text },
   txMeta: { fontSize: 12, fontFamily: fonts.regular, color: colors.textSub, marginTop: 2 },
   txAmt: { fontSize: 15, fontFamily: fonts.bold },
+  action: { padding: 4 },
 
   /* Empty state */
   empty: { alignItems: "center", paddingVertical: 48, paddingHorizontal: 32 },
