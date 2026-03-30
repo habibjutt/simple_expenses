@@ -319,6 +319,7 @@ export type userWhereInput = {
   spendingLimits?: Prisma.Spending_limitListRelationFilter
   savingsGoals?: Prisma.Savings_goalListRelationFilter
   auditLogs?: Prisma.Audit_logListRelationFilter
+  dismissedNotifications?: Prisma.Dismissed_notificationListRelationFilter
 }
 
 export type userOrderByWithRelationInput = {
@@ -352,6 +353,7 @@ export type userOrderByWithRelationInput = {
   spendingLimits?: Prisma.spending_limitOrderByRelationAggregateInput
   savingsGoals?: Prisma.savings_goalOrderByRelationAggregateInput
   auditLogs?: Prisma.audit_logOrderByRelationAggregateInput
+  dismissedNotifications?: Prisma.dismissed_notificationOrderByRelationAggregateInput
 }
 
 export type userWhereUniqueInput = Prisma.AtLeast<{
@@ -388,6 +390,7 @@ export type userWhereUniqueInput = Prisma.AtLeast<{
   spendingLimits?: Prisma.Spending_limitListRelationFilter
   savingsGoals?: Prisma.Savings_goalListRelationFilter
   auditLogs?: Prisma.Audit_logListRelationFilter
+  dismissedNotifications?: Prisma.Dismissed_notificationListRelationFilter
 }, "id" | "email">
 
 export type userOrderByWithAggregationInput = {
@@ -475,6 +478,7 @@ export type userCreateInput = {
   spendingLimits?: Prisma.spending_limitCreateNestedManyWithoutUserInput
   savingsGoals?: Prisma.savings_goalCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.audit_logCreateNestedManyWithoutUserInput
+  dismissedNotifications?: Prisma.dismissed_notificationCreateNestedManyWithoutUserInput
 }
 
 export type userUncheckedCreateInput = {
@@ -508,6 +512,7 @@ export type userUncheckedCreateInput = {
   spendingLimits?: Prisma.spending_limitUncheckedCreateNestedManyWithoutUserInput
   savingsGoals?: Prisma.savings_goalUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.audit_logUncheckedCreateNestedManyWithoutUserInput
+  dismissedNotifications?: Prisma.dismissed_notificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type userUpdateInput = {
@@ -541,6 +546,7 @@ export type userUpdateInput = {
   spendingLimits?: Prisma.spending_limitUpdateManyWithoutUserNestedInput
   savingsGoals?: Prisma.savings_goalUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.audit_logUpdateManyWithoutUserNestedInput
+  dismissedNotifications?: Prisma.dismissed_notificationUpdateManyWithoutUserNestedInput
 }
 
 export type userUncheckedUpdateInput = {
@@ -574,6 +580,7 @@ export type userUncheckedUpdateInput = {
   spendingLimits?: Prisma.spending_limitUncheckedUpdateManyWithoutUserNestedInput
   savingsGoals?: Prisma.savings_goalUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.audit_logUncheckedUpdateManyWithoutUserNestedInput
+  dismissedNotifications?: Prisma.dismissed_notificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type userCreateManyInput = {
@@ -878,6 +885,20 @@ export type userUpdateOneRequiredWithoutAuditLogsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.userUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.userUpdateWithoutAuditLogsInput>, Prisma.userUncheckedUpdateWithoutAuditLogsInput>
 }
 
+export type userCreateNestedOneWithoutDismissedNotificationsInput = {
+  create?: Prisma.XOR<Prisma.userCreateWithoutDismissedNotificationsInput, Prisma.userUncheckedCreateWithoutDismissedNotificationsInput>
+  connectOrCreate?: Prisma.userCreateOrConnectWithoutDismissedNotificationsInput
+  connect?: Prisma.userWhereUniqueInput
+}
+
+export type userUpdateOneRequiredWithoutDismissedNotificationsNestedInput = {
+  create?: Prisma.XOR<Prisma.userCreateWithoutDismissedNotificationsInput, Prisma.userUncheckedCreateWithoutDismissedNotificationsInput>
+  connectOrCreate?: Prisma.userCreateOrConnectWithoutDismissedNotificationsInput
+  upsert?: Prisma.userUpsertWithoutDismissedNotificationsInput
+  connect?: Prisma.userWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.userUpdateToOneWithWhereWithoutDismissedNotificationsInput, Prisma.userUpdateWithoutDismissedNotificationsInput>, Prisma.userUncheckedUpdateWithoutDismissedNotificationsInput>
+}
+
 export type userCreateWithoutSessionsInput = {
   id?: string
   name?: string | null
@@ -908,6 +929,7 @@ export type userCreateWithoutSessionsInput = {
   spendingLimits?: Prisma.spending_limitCreateNestedManyWithoutUserInput
   savingsGoals?: Prisma.savings_goalCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.audit_logCreateNestedManyWithoutUserInput
+  dismissedNotifications?: Prisma.dismissed_notificationCreateNestedManyWithoutUserInput
 }
 
 export type userUncheckedCreateWithoutSessionsInput = {
@@ -940,6 +962,7 @@ export type userUncheckedCreateWithoutSessionsInput = {
   spendingLimits?: Prisma.spending_limitUncheckedCreateNestedManyWithoutUserInput
   savingsGoals?: Prisma.savings_goalUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.audit_logUncheckedCreateNestedManyWithoutUserInput
+  dismissedNotifications?: Prisma.dismissed_notificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type userCreateOrConnectWithoutSessionsInput = {
@@ -988,6 +1011,7 @@ export type userUpdateWithoutSessionsInput = {
   spendingLimits?: Prisma.spending_limitUpdateManyWithoutUserNestedInput
   savingsGoals?: Prisma.savings_goalUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.audit_logUpdateManyWithoutUserNestedInput
+  dismissedNotifications?: Prisma.dismissed_notificationUpdateManyWithoutUserNestedInput
 }
 
 export type userUncheckedUpdateWithoutSessionsInput = {
@@ -1020,6 +1044,7 @@ export type userUncheckedUpdateWithoutSessionsInput = {
   spendingLimits?: Prisma.spending_limitUncheckedUpdateManyWithoutUserNestedInput
   savingsGoals?: Prisma.savings_goalUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.audit_logUncheckedUpdateManyWithoutUserNestedInput
+  dismissedNotifications?: Prisma.dismissed_notificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type userCreateWithoutAccountsInput = {
@@ -1052,6 +1077,7 @@ export type userCreateWithoutAccountsInput = {
   spendingLimits?: Prisma.spending_limitCreateNestedManyWithoutUserInput
   savingsGoals?: Prisma.savings_goalCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.audit_logCreateNestedManyWithoutUserInput
+  dismissedNotifications?: Prisma.dismissed_notificationCreateNestedManyWithoutUserInput
 }
 
 export type userUncheckedCreateWithoutAccountsInput = {
@@ -1084,6 +1110,7 @@ export type userUncheckedCreateWithoutAccountsInput = {
   spendingLimits?: Prisma.spending_limitUncheckedCreateNestedManyWithoutUserInput
   savingsGoals?: Prisma.savings_goalUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.audit_logUncheckedCreateNestedManyWithoutUserInput
+  dismissedNotifications?: Prisma.dismissed_notificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type userCreateOrConnectWithoutAccountsInput = {
@@ -1132,6 +1159,7 @@ export type userUpdateWithoutAccountsInput = {
   spendingLimits?: Prisma.spending_limitUpdateManyWithoutUserNestedInput
   savingsGoals?: Prisma.savings_goalUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.audit_logUpdateManyWithoutUserNestedInput
+  dismissedNotifications?: Prisma.dismissed_notificationUpdateManyWithoutUserNestedInput
 }
 
 export type userUncheckedUpdateWithoutAccountsInput = {
@@ -1164,6 +1192,7 @@ export type userUncheckedUpdateWithoutAccountsInput = {
   spendingLimits?: Prisma.spending_limitUncheckedUpdateManyWithoutUserNestedInput
   savingsGoals?: Prisma.savings_goalUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.audit_logUncheckedUpdateManyWithoutUserNestedInput
+  dismissedNotifications?: Prisma.dismissed_notificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type userCreateWithoutVerificationsInput = {
@@ -1196,6 +1225,7 @@ export type userCreateWithoutVerificationsInput = {
   spendingLimits?: Prisma.spending_limitCreateNestedManyWithoutUserInput
   savingsGoals?: Prisma.savings_goalCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.audit_logCreateNestedManyWithoutUserInput
+  dismissedNotifications?: Prisma.dismissed_notificationCreateNestedManyWithoutUserInput
 }
 
 export type userUncheckedCreateWithoutVerificationsInput = {
@@ -1228,6 +1258,7 @@ export type userUncheckedCreateWithoutVerificationsInput = {
   spendingLimits?: Prisma.spending_limitUncheckedCreateNestedManyWithoutUserInput
   savingsGoals?: Prisma.savings_goalUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.audit_logUncheckedCreateNestedManyWithoutUserInput
+  dismissedNotifications?: Prisma.dismissed_notificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type userCreateOrConnectWithoutVerificationsInput = {
@@ -1276,6 +1307,7 @@ export type userUpdateWithoutVerificationsInput = {
   spendingLimits?: Prisma.spending_limitUpdateManyWithoutUserNestedInput
   savingsGoals?: Prisma.savings_goalUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.audit_logUpdateManyWithoutUserNestedInput
+  dismissedNotifications?: Prisma.dismissed_notificationUpdateManyWithoutUserNestedInput
 }
 
 export type userUncheckedUpdateWithoutVerificationsInput = {
@@ -1308,6 +1340,7 @@ export type userUncheckedUpdateWithoutVerificationsInput = {
   spendingLimits?: Prisma.spending_limitUncheckedUpdateManyWithoutUserNestedInput
   savingsGoals?: Prisma.savings_goalUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.audit_logUncheckedUpdateManyWithoutUserNestedInput
+  dismissedNotifications?: Prisma.dismissed_notificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type userCreateWithoutCreditCardsInput = {
@@ -1340,6 +1373,7 @@ export type userCreateWithoutCreditCardsInput = {
   spendingLimits?: Prisma.spending_limitCreateNestedManyWithoutUserInput
   savingsGoals?: Prisma.savings_goalCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.audit_logCreateNestedManyWithoutUserInput
+  dismissedNotifications?: Prisma.dismissed_notificationCreateNestedManyWithoutUserInput
 }
 
 export type userUncheckedCreateWithoutCreditCardsInput = {
@@ -1372,6 +1406,7 @@ export type userUncheckedCreateWithoutCreditCardsInput = {
   spendingLimits?: Prisma.spending_limitUncheckedCreateNestedManyWithoutUserInput
   savingsGoals?: Prisma.savings_goalUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.audit_logUncheckedCreateNestedManyWithoutUserInput
+  dismissedNotifications?: Prisma.dismissed_notificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type userCreateOrConnectWithoutCreditCardsInput = {
@@ -1420,6 +1455,7 @@ export type userUpdateWithoutCreditCardsInput = {
   spendingLimits?: Prisma.spending_limitUpdateManyWithoutUserNestedInput
   savingsGoals?: Prisma.savings_goalUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.audit_logUpdateManyWithoutUserNestedInput
+  dismissedNotifications?: Prisma.dismissed_notificationUpdateManyWithoutUserNestedInput
 }
 
 export type userUncheckedUpdateWithoutCreditCardsInput = {
@@ -1452,6 +1488,7 @@ export type userUncheckedUpdateWithoutCreditCardsInput = {
   spendingLimits?: Prisma.spending_limitUncheckedUpdateManyWithoutUserNestedInput
   savingsGoals?: Prisma.savings_goalUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.audit_logUncheckedUpdateManyWithoutUserNestedInput
+  dismissedNotifications?: Prisma.dismissed_notificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type userCreateWithoutBankAccountsInput = {
@@ -1484,6 +1521,7 @@ export type userCreateWithoutBankAccountsInput = {
   spendingLimits?: Prisma.spending_limitCreateNestedManyWithoutUserInput
   savingsGoals?: Prisma.savings_goalCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.audit_logCreateNestedManyWithoutUserInput
+  dismissedNotifications?: Prisma.dismissed_notificationCreateNestedManyWithoutUserInput
 }
 
 export type userUncheckedCreateWithoutBankAccountsInput = {
@@ -1516,6 +1554,7 @@ export type userUncheckedCreateWithoutBankAccountsInput = {
   spendingLimits?: Prisma.spending_limitUncheckedCreateNestedManyWithoutUserInput
   savingsGoals?: Prisma.savings_goalUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.audit_logUncheckedCreateNestedManyWithoutUserInput
+  dismissedNotifications?: Prisma.dismissed_notificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type userCreateOrConnectWithoutBankAccountsInput = {
@@ -1564,6 +1603,7 @@ export type userUpdateWithoutBankAccountsInput = {
   spendingLimits?: Prisma.spending_limitUpdateManyWithoutUserNestedInput
   savingsGoals?: Prisma.savings_goalUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.audit_logUpdateManyWithoutUserNestedInput
+  dismissedNotifications?: Prisma.dismissed_notificationUpdateManyWithoutUserNestedInput
 }
 
 export type userUncheckedUpdateWithoutBankAccountsInput = {
@@ -1596,6 +1636,7 @@ export type userUncheckedUpdateWithoutBankAccountsInput = {
   spendingLimits?: Prisma.spending_limitUncheckedUpdateManyWithoutUserNestedInput
   savingsGoals?: Prisma.savings_goalUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.audit_logUncheckedUpdateManyWithoutUserNestedInput
+  dismissedNotifications?: Prisma.dismissed_notificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type userCreateWithoutCategoriesInput = {
@@ -1628,6 +1669,7 @@ export type userCreateWithoutCategoriesInput = {
   spendingLimits?: Prisma.spending_limitCreateNestedManyWithoutUserInput
   savingsGoals?: Prisma.savings_goalCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.audit_logCreateNestedManyWithoutUserInput
+  dismissedNotifications?: Prisma.dismissed_notificationCreateNestedManyWithoutUserInput
 }
 
 export type userUncheckedCreateWithoutCategoriesInput = {
@@ -1660,6 +1702,7 @@ export type userUncheckedCreateWithoutCategoriesInput = {
   spendingLimits?: Prisma.spending_limitUncheckedCreateNestedManyWithoutUserInput
   savingsGoals?: Prisma.savings_goalUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.audit_logUncheckedCreateNestedManyWithoutUserInput
+  dismissedNotifications?: Prisma.dismissed_notificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type userCreateOrConnectWithoutCategoriesInput = {
@@ -1708,6 +1751,7 @@ export type userUpdateWithoutCategoriesInput = {
   spendingLimits?: Prisma.spending_limitUpdateManyWithoutUserNestedInput
   savingsGoals?: Prisma.savings_goalUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.audit_logUpdateManyWithoutUserNestedInput
+  dismissedNotifications?: Prisma.dismissed_notificationUpdateManyWithoutUserNestedInput
 }
 
 export type userUncheckedUpdateWithoutCategoriesInput = {
@@ -1740,6 +1784,7 @@ export type userUncheckedUpdateWithoutCategoriesInput = {
   spendingLimits?: Prisma.spending_limitUncheckedUpdateManyWithoutUserNestedInput
   savingsGoals?: Prisma.savings_goalUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.audit_logUncheckedUpdateManyWithoutUserNestedInput
+  dismissedNotifications?: Prisma.dismissed_notificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type userCreateWithoutSpendingLimitsInput = {
@@ -1772,6 +1817,7 @@ export type userCreateWithoutSpendingLimitsInput = {
   categories?: Prisma.categoryCreateNestedManyWithoutUserInput
   savingsGoals?: Prisma.savings_goalCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.audit_logCreateNestedManyWithoutUserInput
+  dismissedNotifications?: Prisma.dismissed_notificationCreateNestedManyWithoutUserInput
 }
 
 export type userUncheckedCreateWithoutSpendingLimitsInput = {
@@ -1804,6 +1850,7 @@ export type userUncheckedCreateWithoutSpendingLimitsInput = {
   categories?: Prisma.categoryUncheckedCreateNestedManyWithoutUserInput
   savingsGoals?: Prisma.savings_goalUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.audit_logUncheckedCreateNestedManyWithoutUserInput
+  dismissedNotifications?: Prisma.dismissed_notificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type userCreateOrConnectWithoutSpendingLimitsInput = {
@@ -1852,6 +1899,7 @@ export type userUpdateWithoutSpendingLimitsInput = {
   categories?: Prisma.categoryUpdateManyWithoutUserNestedInput
   savingsGoals?: Prisma.savings_goalUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.audit_logUpdateManyWithoutUserNestedInput
+  dismissedNotifications?: Prisma.dismissed_notificationUpdateManyWithoutUserNestedInput
 }
 
 export type userUncheckedUpdateWithoutSpendingLimitsInput = {
@@ -1884,6 +1932,7 @@ export type userUncheckedUpdateWithoutSpendingLimitsInput = {
   categories?: Prisma.categoryUncheckedUpdateManyWithoutUserNestedInput
   savingsGoals?: Prisma.savings_goalUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.audit_logUncheckedUpdateManyWithoutUserNestedInput
+  dismissedNotifications?: Prisma.dismissed_notificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type userCreateWithoutSavingsGoalsInput = {
@@ -1916,6 +1965,7 @@ export type userCreateWithoutSavingsGoalsInput = {
   categories?: Prisma.categoryCreateNestedManyWithoutUserInput
   spendingLimits?: Prisma.spending_limitCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.audit_logCreateNestedManyWithoutUserInput
+  dismissedNotifications?: Prisma.dismissed_notificationCreateNestedManyWithoutUserInput
 }
 
 export type userUncheckedCreateWithoutSavingsGoalsInput = {
@@ -1948,6 +1998,7 @@ export type userUncheckedCreateWithoutSavingsGoalsInput = {
   categories?: Prisma.categoryUncheckedCreateNestedManyWithoutUserInput
   spendingLimits?: Prisma.spending_limitUncheckedCreateNestedManyWithoutUserInput
   auditLogs?: Prisma.audit_logUncheckedCreateNestedManyWithoutUserInput
+  dismissedNotifications?: Prisma.dismissed_notificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type userCreateOrConnectWithoutSavingsGoalsInput = {
@@ -1996,6 +2047,7 @@ export type userUpdateWithoutSavingsGoalsInput = {
   categories?: Prisma.categoryUpdateManyWithoutUserNestedInput
   spendingLimits?: Prisma.spending_limitUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.audit_logUpdateManyWithoutUserNestedInput
+  dismissedNotifications?: Prisma.dismissed_notificationUpdateManyWithoutUserNestedInput
 }
 
 export type userUncheckedUpdateWithoutSavingsGoalsInput = {
@@ -2028,6 +2080,7 @@ export type userUncheckedUpdateWithoutSavingsGoalsInput = {
   categories?: Prisma.categoryUncheckedUpdateManyWithoutUserNestedInput
   spendingLimits?: Prisma.spending_limitUncheckedUpdateManyWithoutUserNestedInput
   auditLogs?: Prisma.audit_logUncheckedUpdateManyWithoutUserNestedInput
+  dismissedNotifications?: Prisma.dismissed_notificationUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type userCreateWithoutAuditLogsInput = {
@@ -2060,6 +2113,7 @@ export type userCreateWithoutAuditLogsInput = {
   categories?: Prisma.categoryCreateNestedManyWithoutUserInput
   spendingLimits?: Prisma.spending_limitCreateNestedManyWithoutUserInput
   savingsGoals?: Prisma.savings_goalCreateNestedManyWithoutUserInput
+  dismissedNotifications?: Prisma.dismissed_notificationCreateNestedManyWithoutUserInput
 }
 
 export type userUncheckedCreateWithoutAuditLogsInput = {
@@ -2092,6 +2146,7 @@ export type userUncheckedCreateWithoutAuditLogsInput = {
   categories?: Prisma.categoryUncheckedCreateNestedManyWithoutUserInput
   spendingLimits?: Prisma.spending_limitUncheckedCreateNestedManyWithoutUserInput
   savingsGoals?: Prisma.savings_goalUncheckedCreateNestedManyWithoutUserInput
+  dismissedNotifications?: Prisma.dismissed_notificationUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type userCreateOrConnectWithoutAuditLogsInput = {
@@ -2140,6 +2195,7 @@ export type userUpdateWithoutAuditLogsInput = {
   categories?: Prisma.categoryUpdateManyWithoutUserNestedInput
   spendingLimits?: Prisma.spending_limitUpdateManyWithoutUserNestedInput
   savingsGoals?: Prisma.savings_goalUpdateManyWithoutUserNestedInput
+  dismissedNotifications?: Prisma.dismissed_notificationUpdateManyWithoutUserNestedInput
 }
 
 export type userUncheckedUpdateWithoutAuditLogsInput = {
@@ -2172,6 +2228,155 @@ export type userUncheckedUpdateWithoutAuditLogsInput = {
   categories?: Prisma.categoryUncheckedUpdateManyWithoutUserNestedInput
   spendingLimits?: Prisma.spending_limitUncheckedUpdateManyWithoutUserNestedInput
   savingsGoals?: Prisma.savings_goalUncheckedUpdateManyWithoutUserNestedInput
+  dismissedNotifications?: Prisma.dismissed_notificationUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type userCreateWithoutDismissedNotificationsInput = {
+  id?: string
+  name?: string | null
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  role?: string
+  banned?: boolean
+  banReason?: string | null
+  banExpires?: Date | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  subscriptionStatus?: string | null
+  trialEndsAt?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  lastTrialReminderAt?: Date | string | null
+  planTier?: string
+  subscriptionProvider?: string | null
+  preferredCurrency?: string
+  onboardingCompleted?: boolean
+  accounts?: Prisma.accountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.sessionCreateNestedManyWithoutUserInput
+  verifications?: Prisma.verificationCreateNestedManyWithoutUserInput
+  creditCards?: Prisma.credit_cardCreateNestedManyWithoutUserInput
+  bankAccounts?: Prisma.bank_accountCreateNestedManyWithoutUserInput
+  categories?: Prisma.categoryCreateNestedManyWithoutUserInput
+  spendingLimits?: Prisma.spending_limitCreateNestedManyWithoutUserInput
+  savingsGoals?: Prisma.savings_goalCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.audit_logCreateNestedManyWithoutUserInput
+}
+
+export type userUncheckedCreateWithoutDismissedNotificationsInput = {
+  id?: string
+  name?: string | null
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  role?: string
+  banned?: boolean
+  banReason?: string | null
+  banExpires?: Date | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  subscriptionStatus?: string | null
+  trialEndsAt?: Date | string | null
+  currentPeriodEnd?: Date | string | null
+  lastTrialReminderAt?: Date | string | null
+  planTier?: string
+  subscriptionProvider?: string | null
+  preferredCurrency?: string
+  onboardingCompleted?: boolean
+  accounts?: Prisma.accountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.sessionUncheckedCreateNestedManyWithoutUserInput
+  verifications?: Prisma.verificationUncheckedCreateNestedManyWithoutUserInput
+  creditCards?: Prisma.credit_cardUncheckedCreateNestedManyWithoutUserInput
+  bankAccounts?: Prisma.bank_accountUncheckedCreateNestedManyWithoutUserInput
+  categories?: Prisma.categoryUncheckedCreateNestedManyWithoutUserInput
+  spendingLimits?: Prisma.spending_limitUncheckedCreateNestedManyWithoutUserInput
+  savingsGoals?: Prisma.savings_goalUncheckedCreateNestedManyWithoutUserInput
+  auditLogs?: Prisma.audit_logUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type userCreateOrConnectWithoutDismissedNotificationsInput = {
+  where: Prisma.userWhereUniqueInput
+  create: Prisma.XOR<Prisma.userCreateWithoutDismissedNotificationsInput, Prisma.userUncheckedCreateWithoutDismissedNotificationsInput>
+}
+
+export type userUpsertWithoutDismissedNotificationsInput = {
+  update: Prisma.XOR<Prisma.userUpdateWithoutDismissedNotificationsInput, Prisma.userUncheckedUpdateWithoutDismissedNotificationsInput>
+  create: Prisma.XOR<Prisma.userCreateWithoutDismissedNotificationsInput, Prisma.userUncheckedCreateWithoutDismissedNotificationsInput>
+  where?: Prisma.userWhereInput
+}
+
+export type userUpdateToOneWithWhereWithoutDismissedNotificationsInput = {
+  where?: Prisma.userWhereInput
+  data: Prisma.XOR<Prisma.userUpdateWithoutDismissedNotificationsInput, Prisma.userUncheckedUpdateWithoutDismissedNotificationsInput>
+}
+
+export type userUpdateWithoutDismissedNotificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  banned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastTrialReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planTier?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
+  onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accounts?: Prisma.accountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.sessionUpdateManyWithoutUserNestedInput
+  verifications?: Prisma.verificationUpdateManyWithoutUserNestedInput
+  creditCards?: Prisma.credit_cardUpdateManyWithoutUserNestedInput
+  bankAccounts?: Prisma.bank_accountUpdateManyWithoutUserNestedInput
+  categories?: Prisma.categoryUpdateManyWithoutUserNestedInput
+  spendingLimits?: Prisma.spending_limitUpdateManyWithoutUserNestedInput
+  savingsGoals?: Prisma.savings_goalUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.audit_logUpdateManyWithoutUserNestedInput
+}
+
+export type userUncheckedUpdateWithoutDismissedNotificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  banned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subscriptionStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentPeriodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastTrialReminderAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planTier?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
+  onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  accounts?: Prisma.accountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.sessionUncheckedUpdateManyWithoutUserNestedInput
+  verifications?: Prisma.verificationUncheckedUpdateManyWithoutUserNestedInput
+  creditCards?: Prisma.credit_cardUncheckedUpdateManyWithoutUserNestedInput
+  bankAccounts?: Prisma.bank_accountUncheckedUpdateManyWithoutUserNestedInput
+  categories?: Prisma.categoryUncheckedUpdateManyWithoutUserNestedInput
+  spendingLimits?: Prisma.spending_limitUncheckedUpdateManyWithoutUserNestedInput
+  savingsGoals?: Prisma.savings_goalUncheckedUpdateManyWithoutUserNestedInput
+  auditLogs?: Prisma.audit_logUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -2189,6 +2394,7 @@ export type UserCountOutputType = {
   spendingLimits: number
   savingsGoals: number
   auditLogs: number
+  dismissedNotifications: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2201,6 +2407,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   spendingLimits?: boolean | UserCountOutputTypeCountSpendingLimitsArgs
   savingsGoals?: boolean | UserCountOutputTypeCountSavingsGoalsArgs
   auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
+  dismissedNotifications?: boolean | UserCountOutputTypeCountDismissedNotificationsArgs
 }
 
 /**
@@ -2276,6 +2483,13 @@ export type UserCountOutputTypeCountAuditLogsArgs<ExtArgs extends runtime.Types.
   where?: Prisma.audit_logWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountDismissedNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.dismissed_notificationWhereInput
+}
+
 
 export type userSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2308,6 +2522,7 @@ export type userSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   spendingLimits?: boolean | Prisma.user$spendingLimitsArgs<ExtArgs>
   savingsGoals?: boolean | Prisma.user$savingsGoalsArgs<ExtArgs>
   auditLogs?: boolean | Prisma.user$auditLogsArgs<ExtArgs>
+  dismissedNotifications?: boolean | Prisma.user$dismissedNotificationsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -2394,6 +2609,7 @@ export type userInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   spendingLimits?: boolean | Prisma.user$spendingLimitsArgs<ExtArgs>
   savingsGoals?: boolean | Prisma.user$savingsGoalsArgs<ExtArgs>
   auditLogs?: boolean | Prisma.user$auditLogsArgs<ExtArgs>
+  dismissedNotifications?: boolean | Prisma.user$dismissedNotificationsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type userIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -2411,6 +2627,7 @@ export type $userPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     spendingLimits: Prisma.$spending_limitPayload<ExtArgs>[]
     savingsGoals: Prisma.$savings_goalPayload<ExtArgs>[]
     auditLogs: Prisma.$audit_logPayload<ExtArgs>[]
+    dismissedNotifications: Prisma.$dismissed_notificationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2837,6 +3054,7 @@ export interface Prisma__userClient<T, Null = never, ExtArgs extends runtime.Typ
   spendingLimits<T extends Prisma.user$spendingLimitsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.user$spendingLimitsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$spending_limitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   savingsGoals<T extends Prisma.user$savingsGoalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.user$savingsGoalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$savings_goalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   auditLogs<T extends Prisma.user$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.user$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$audit_logPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  dismissedNotifications<T extends Prisma.user$dismissedNotificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.user$dismissedNotificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$dismissed_notificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3493,6 +3711,30 @@ export type user$auditLogsArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.Audit_logScalarFieldEnum | Prisma.Audit_logScalarFieldEnum[]
+}
+
+/**
+ * user.dismissedNotifications
+ */
+export type user$dismissedNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the dismissed_notification
+   */
+  select?: Prisma.dismissed_notificationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the dismissed_notification
+   */
+  omit?: Prisma.dismissed_notificationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.dismissed_notificationInclude<ExtArgs> | null
+  where?: Prisma.dismissed_notificationWhereInput
+  orderBy?: Prisma.dismissed_notificationOrderByWithRelationInput | Prisma.dismissed_notificationOrderByWithRelationInput[]
+  cursor?: Prisma.dismissed_notificationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.Dismissed_notificationScalarFieldEnum | Prisma.Dismissed_notificationScalarFieldEnum[]
 }
 
 /**

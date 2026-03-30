@@ -102,6 +102,11 @@ export type savings_goal = Prisma.savings_goalModel
  */
 export type audit_log = Prisma.audit_logModel
 /**
+ * Model dismissed_notification
+ * 
+ */
+export type dismissed_notification = Prisma.dismissed_notificationModel
+/**
  * Model rateLimit
  * 
  */

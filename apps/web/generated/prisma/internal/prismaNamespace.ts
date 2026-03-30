@@ -396,6 +396,7 @@ export const ModelName = {
   spending_limit: 'spending_limit',
   savings_goal: 'savings_goal',
   audit_log: 'audit_log',
+  dismissed_notification: 'dismissed_notification',
   rateLimit: 'rateLimit',
   feature_flag: 'feature_flag'
 } as const
@@ -413,7 +414,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification" | "credit_card" | "bank_account" | "invoice" | "transaction" | "category" | "spending_limit" | "savings_goal" | "audit_log" | "rateLimit" | "feature_flag"
+    modelProps: "user" | "session" | "account" | "verification" | "credit_card" | "bank_account" | "invoice" | "transaction" | "category" | "spending_limit" | "savings_goal" | "audit_log" | "dismissed_notification" | "rateLimit" | "feature_flag"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1305,6 +1306,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    dismissed_notification: {
+      payload: Prisma.$dismissed_notificationPayload<ExtArgs>
+      fields: Prisma.dismissed_notificationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.dismissed_notificationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$dismissed_notificationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.dismissed_notificationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$dismissed_notificationPayload>
+        }
+        findFirst: {
+          args: Prisma.dismissed_notificationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$dismissed_notificationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.dismissed_notificationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$dismissed_notificationPayload>
+        }
+        findMany: {
+          args: Prisma.dismissed_notificationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$dismissed_notificationPayload>[]
+        }
+        create: {
+          args: Prisma.dismissed_notificationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$dismissed_notificationPayload>
+        }
+        createMany: {
+          args: Prisma.dismissed_notificationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.dismissed_notificationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$dismissed_notificationPayload>[]
+        }
+        delete: {
+          args: Prisma.dismissed_notificationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$dismissed_notificationPayload>
+        }
+        update: {
+          args: Prisma.dismissed_notificationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$dismissed_notificationPayload>
+        }
+        deleteMany: {
+          args: Prisma.dismissed_notificationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.dismissed_notificationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.dismissed_notificationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$dismissed_notificationPayload>[]
+        }
+        upsert: {
+          args: Prisma.dismissed_notificationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$dismissed_notificationPayload>
+        }
+        aggregate: {
+          args: Prisma.Dismissed_notificationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDismissed_notification>
+        }
+        groupBy: {
+          args: Prisma.dismissed_notificationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Dismissed_notificationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.dismissed_notificationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Dismissed_notificationCountAggregateOutputType> | number
+        }
+      }
+    }
     rateLimit: {
       payload: Prisma.$rateLimitPayload<ExtArgs>
       fields: Prisma.rateLimitFieldRefs
@@ -1700,6 +1775,16 @@ export const Audit_logScalarFieldEnum = {
 export type Audit_logScalarFieldEnum = (typeof Audit_logScalarFieldEnum)[keyof typeof Audit_logScalarFieldEnum]
 
 
+export const Dismissed_notificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  refKey: 'refKey',
+  dismissedAt: 'dismissedAt'
+} as const
+
+export type Dismissed_notificationScalarFieldEnum = (typeof Dismissed_notificationScalarFieldEnum)[keyof typeof Dismissed_notificationScalarFieldEnum]
+
+
 export const RateLimitScalarFieldEnum = {
   id: 'id',
   key: 'key',
@@ -1966,6 +2051,7 @@ export type GlobalOmitConfig = {
   spending_limit?: Prisma.spending_limitOmit
   savings_goal?: Prisma.savings_goalOmit
   audit_log?: Prisma.audit_logOmit
+  dismissed_notification?: Prisma.dismissed_notificationOmit
   rateLimit?: Prisma.rateLimitOmit
   feature_flag?: Prisma.feature_flagOmit
 }

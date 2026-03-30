@@ -63,6 +63,7 @@ export const ModelName = {
   spending_limit: 'spending_limit',
   savings_goal: 'savings_goal',
   audit_log: 'audit_log',
+  dismissed_notification: 'dismissed_notification',
   rateLimit: 'rateLimit',
   feature_flag: 'feature_flag'
 } as const
@@ -289,6 +290,16 @@ export const Audit_logScalarFieldEnum = {
 } as const
 
 export type Audit_logScalarFieldEnum = (typeof Audit_logScalarFieldEnum)[keyof typeof Audit_logScalarFieldEnum]
+
+
+export const Dismissed_notificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  refKey: 'refKey',
+  dismissedAt: 'dismissedAt'
+} as const
+
+export type Dismissed_notificationScalarFieldEnum = (typeof Dismissed_notificationScalarFieldEnum)[keyof typeof Dismissed_notificationScalarFieldEnum]
 
 
 export const RateLimitScalarFieldEnum = {
