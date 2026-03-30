@@ -1,0 +1,23 @@
+# syntax=docker/dockerfile:1
+# ─────────────────────────────────────────────────────────────────────────────
+# Fixpenses — Development Image (Node 22, matching production)
+#
+# Lightweight image for local development. Source code is bind-mounted
+# via docker-compose.dev.yml; dependencies live in an isolated Docker volume.
+# ─────────────────────────────────────────────────────────────────────────────
+
+FROM node:22-alpine
+
+# Required by some npm packages with native bindings (prisma, sharp, etc.)
+RUN apk add --no-cache libc6-compat
+# Disable Corepack so "packageManager" field doesn't interfere
+RUN corepack disable || true
+
+WORKDIR /app
+
+ENV NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED=1
+# Cap Node.js heap so the dev server can't consume all system memory
+ENV NODE_OPTIONS="--max-old-space-size=3072"
+
+EXPOSE 3000

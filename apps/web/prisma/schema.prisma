@@ -55,6 +55,7 @@ model user {
   spendingLimits spending_limit[]
   savingsGoals   savings_goal[]
   auditLogs audit_log[]
+  dismissedNotifications dismissed_notification[]
 }
 
 model session {
@@ -287,6 +288,21 @@ model audit_log {
   @@index([userId])
   @@index([action])
   @@index([createdAt])
+}
+
+// Tracks which bill notifications a user has dismissed (marked as read).
+// refKey format: "bill:{cardId}:{YYYY-MM-DD}" where the date is the paymentDueDate.
+// This auto-resets next billing cycle since the date changes each month.
+model dismissed_notification {
+  id           String   @id @default(cuid())
+  userId       String
+  refKey       String   // "bill:{cardId}:{paymentDueDate ISO date}"
+  dismissedAt  DateTime @default(now())
+
+  user user @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, refKey])
+  @@index([userId])
 }
 
 model rateLimit {
