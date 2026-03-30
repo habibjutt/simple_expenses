@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { format } from "date-fns";
 import {
   createTransaction,
   createTransfer,
   updateTransaction,
+  getTransactionSuggestions,
+  type TransactionSuggestion,
 } from "@/app/api/transaction-action";
 import { getCategoriesByType } from "@/app/api/category-action";
 import { cn, formatCurrency } from "@/lib/utils";
@@ -96,6 +98,9 @@ export default function TransactionModal({
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [endDatePickerOpen, setEndDatePickerOpen] = useState(false);
   const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<TransactionSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Load categories filtered by type; cancel stale fetches on cleanup
   useEffect(() => {
@@ -118,6 +123,43 @@ export default function TransactionModal({
   useEffect(() => {
     setCategory("");
   }, [transactionType]);
+
+  // Debounced suggestion fetch — runs when the name field changes
+  const fetchSuggestions = useCallback((value: string) => {
+    if (suggestDebounceRef.current) clearTimeout(suggestDebounceRef.current);
+    if (value.trim().length < 2 || editTransaction) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    suggestDebounceRef.current = setTimeout(async () => {
+      try {
+        const results = await getTransactionSuggestions(value);
+        setSuggestions(results);
+        setShowSuggestions(results.length > 0);
+      } catch {
+        setSuggestions([]);
+        setShowSuggestions(false);
+      }
+    }, 300);
+  }, [editTransaction]);
+
+  // Apply a suggestion: fill name, category, payment type, and account/card
+  const applySuggestion = useCallback((s: TransactionSuggestion) => {
+    setName(s.name);
+    if (s.category) setCategory(s.category);
+    if (s.creditCardId) {
+      setPaymentType("creditCard");
+      setCreditCardId(s.creditCardId);
+      setBankAccountId("");
+    } else if (s.bankAccountId) {
+      setPaymentType("bankAccount");
+      setBankAccountId(s.bankAccountId);
+      setCreditCardId("");
+    }
+    setSuggestions([]);
+    setShowSuggestions(false);
+  }, []);
 
   // Populate form when editing
   useEffect(() => {
@@ -319,6 +361,8 @@ export default function TransactionModal({
     setEndDatePickerOpen(false);
     setError(null);
     setPlanAlert(null);
+    setSuggestions([]);
+    setShowSuggestions(false);
   };
 
   // Sort credit cards and bank accounts by name
@@ -456,14 +500,56 @@ export default function TransactionModal({
               </Field>
             </div>
 
-            {/* Description */}
+            {/* Description with autocomplete */}
             <Field label="Description">
-              <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="What was this for?"
-                aria-label="Transaction description"
-              />
+              <div className="relative">
+                <Input
+                  value={name}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    fetchSuggestions(e.target.value);
+                  }}
+                  onFocus={() => {
+                    if (suggestions.length > 0) setShowSuggestions(true);
+                  }}
+                  onBlur={() => {
+                    // Delay hiding so clicks on suggestions register
+                    setTimeout(() => setShowSuggestions(false), 150);
+                  }}
+                  placeholder="What was this for?"
+                  aria-label="Transaction description"
+                  autoComplete="off"
+                />
+                {showSuggestions && suggestions.length > 0 && (
+                  <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-56 overflow-y-auto rounded-md border bg-popover shadow-md">
+                    {suggestions.map((s, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        className="flex w-full flex-col gap-0.5 px-3 py-2 text-left text-sm hover:bg-accent focus:bg-accent focus:outline-none"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          applySuggestion(s);
+                        }}
+                      >
+                        <span className="font-medium">{s.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {[
+                            s.category,
+                            s.creditCardName
+                              ? `💳 ${s.creditCardName}`
+                              : s.bankAccountName
+                                ? `🏦 ${s.bankAccountName}`
+                                : null,
+                          ]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </Field>
 
             {/* Transfer fields */}

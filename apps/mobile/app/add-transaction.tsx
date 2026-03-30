@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -21,6 +21,7 @@ import {
   bankAccounts,
   categories as categoriesApi,
   type TransferInput,
+  type TransactionSuggestion,
 } from "@simple-expenses/api";
 import type { BankAccount, CreditCard, Category, CreateTransactionInput } from "@simple-expenses/types";
 import { formatCurrency } from "@simple-expenses/utils";
@@ -151,6 +152,11 @@ export default function AddTransactionScreen() {
   const [toAccountId, setToAccountId] = useState("");
   const [showAdvanced, setShowAdvanced] = useState(false);
 
+  // Suggestion state
+  const [suggestions, setSuggestions] = useState<TransactionSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const { data: cards = [] } = useQuery<CreditCard[]>({
     queryKey: ["credit-cards"],
     queryFn: () => creditCards.list(),
@@ -207,6 +213,47 @@ export default function AddTransactionScreen() {
   );
 
   const selectedCategory = categoriesList.find((c) => c.id === selectedCategoryId) ?? null;
+
+  function handleNameChange(value: string) {
+    setName(value);
+    if (suggestDebounceRef.current) clearTimeout(suggestDebounceRef.current);
+    if (value.trim().length < 2) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    suggestDebounceRef.current = setTimeout(async () => {
+      try {
+        const results = await txApi.getSuggestions(value);
+        setSuggestions(results);
+        setShowSuggestions(results.length > 0);
+      } catch {
+        setSuggestions([]);
+        setShowSuggestions(false);
+      }
+    }, 300);
+  }
+
+  function applySuggestion(s: TransactionSuggestion) {
+    setName(s.name);
+    if (s.category) {
+      const match = categoriesList.find(
+        (c) => c.name.toLowerCase() === s.category!.toLowerCase(),
+      );
+      if (match) setSelectedCategoryId(match.id);
+    }
+    if (s.creditCardId) {
+      setAccountType("card");
+      setSelectedCardId(s.creditCardId);
+      setSelectedAccountId("");
+    } else if (s.bankAccountId) {
+      setAccountType("bank");
+      setSelectedAccountId(s.bankAccountId);
+      setSelectedCardId("");
+    }
+    setSuggestions([]);
+    setShowSuggestions(false);
+  }
 
   function onTypeChange(type: TxType) {
     setTxType(type);
@@ -410,7 +457,7 @@ export default function AddTransactionScreen() {
               </Modal>
             )}
 
-            {/* Description */}
+            {/* Description with autocomplete */}
             <View style={s.fieldWrap}>
               <Text style={s.fieldLabel}>Description (optional)</Text>
               <View style={s.inputRow}>
@@ -418,11 +465,37 @@ export default function AddTransactionScreen() {
                 <TextInput
                   style={s.inputField}
                   value={name}
-                  onChangeText={setName}
+                  onChangeText={handleNameChange}
                   placeholder={txType === "transfer" ? "Transfer note…" : "What was this for?"}
                   placeholderTextColor={colors.textMuted}
                 />
               </View>
+              {showSuggestions && suggestions.length > 0 && (
+                <View style={s.suggestionsContainer}>
+                  {suggestions.map((sg, idx) => (
+                    <TouchableOpacity
+                      key={idx}
+                      style={[s.suggestionItem, idx < suggestions.length - 1 && s.suggestionItemBorder]}
+                      onPress={() => applySuggestion(sg)}
+                      activeOpacity={0.7}
+                    >
+                      <View style={s.suggestionLeft}>
+                        <Ionicons name="time-outline" size={14} color={colors.primary} style={{ marginRight: 8, marginTop: 1 }} />
+                        <View style={{ flex: 1 }}>
+                          <Text style={s.suggestionName} numberOfLines={1}>{sg.name}</Text>
+                          <Text style={s.suggestionSub} numberOfLines={1}>
+                            {[
+                              sg.category,
+                              sg.creditCardName ? `💳 ${sg.creditCardName}` : sg.bankAccountName ? `🏦 ${sg.bankAccountName}` : null,
+                            ].filter(Boolean).join(" · ")}
+                          </Text>
+                        </View>
+                      </View>
+                      <Ionicons name="arrow-up-outline" size={14} color={colors.textMuted} style={{ transform: [{ rotate: "45deg" }] }} />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
             </View>
 
             {txType === "transfer" ? (
@@ -724,4 +797,28 @@ const s = StyleSheet.create({
   webDateDoneText: { color: "#fff", fontSize: 15, fontFamily: fonts.bold },
 
   emptyText: { color: colors.textMuted, fontSize: 13, fontFamily: fonts.regular, paddingVertical: 12, textAlign: "center" },
+
+  /* Suggestion dropdown */
+  suggestionsContainer: {
+    marginTop: 4,
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    overflow: "hidden",
+  },
+  suggestionItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    justifyContent: "space-between",
+  },
+  suggestionItemBorder: {
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  suggestionLeft: { flexDirection: "row", alignItems: "flex-start", flex: 1, marginRight: 8 },
+  suggestionName: { fontSize: 14, fontFamily: fonts.semibold, color: colors.text },
+  suggestionSub: { fontSize: 12, fontFamily: fonts.regular, color: colors.textSub, marginTop: 1 },
 });

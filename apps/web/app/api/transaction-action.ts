@@ -750,3 +750,60 @@ export async function toggleRecurringStatus(
   revalidatePath("/");
   return {};
 }
+
+// ---------------------------------------------------------------------------
+// Transaction name autocomplete suggestions
+// ---------------------------------------------------------------------------
+
+export type TransactionSuggestion = {
+  name: string;
+  category: string | null;
+  creditCardId: string | null;
+  creditCardName: string | null;
+  bankAccountId: string | null;
+  bankAccountName: string | null;
+};
+
+export async function getTransactionSuggestions(
+  query: string,
+): Promise<TransactionSuggestion[]> {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  const trimmed = query.trim();
+  if (trimmed.length < 2) return [];
+
+  const rows = await db.transaction.findMany({
+    where: {
+      name: { contains: trimmed, mode: "insensitive" },
+      NOT: { category: "Transfer" },
+      OR: [
+        { creditCard: { userId: session.user.id } },
+        { bankAccount: { userId: session.user.id } },
+      ],
+    },
+    distinct: ["name", "category", "creditCardId", "bankAccountId"],
+    select: {
+      name: true,
+      category: true,
+      creditCardId: true,
+      bankAccountId: true,
+      creditCard: { select: { name: true } },
+      bankAccount: { select: { name: true } },
+    },
+    orderBy: { date: "desc" },
+    take: 10,
+  });
+
+  return rows.map((r) => ({
+    name: r.name,
+    category: r.category ?? null,
+    creditCardId: r.creditCardId ?? null,
+    creditCardName: r.creditCard?.name ?? null,
+    bankAccountId: r.bankAccountId ?? null,
+    bankAccountName: r.bankAccount?.name ?? null,
+  }));
+}

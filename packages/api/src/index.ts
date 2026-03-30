@@ -339,6 +339,24 @@ export interface TransferInput {
   notes?: string;
 }
 
+export interface TransactionSuggestion {
+  name: string;
+  category: string | null;
+  creditCardId: string | null;
+  creditCardName: string | null;
+  bankAccountId: string | null;
+  bankAccountName: string | null;
+}
+
+const transactionSuggestionSchema = z.object({
+  name: z.string(),
+  category: z.string().nullable(),
+  creditCardId: z.string().nullable(),
+  creditCardName: z.string().nullable(),
+  bankAccountId: z.string().nullable(),
+  bankAccountName: z.string().nullable(),
+});
+
 export const transactions = {
   async list(filters?: TransactionFilters): Promise<Transaction[]> {
     const params = new URLSearchParams();
@@ -387,6 +405,14 @@ export const transactions = {
 
   async delete(id: string): Promise<void> {
     return request<void>(`/api/v1/transactions/${id}`, { method: "DELETE" });
+  },
+
+  async getSuggestions(query: string): Promise<TransactionSuggestion[]> {
+    const qs = new URLSearchParams({ q: query }).toString();
+    return request<TransactionSuggestion[]>(
+      `/api/v1/transactions/suggestions?${qs}`,
+      { schema: z.array(transactionSuggestionSchema) },
+    );
   },
 };
 
