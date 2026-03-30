@@ -106,10 +106,16 @@ export async function getUpcomingBills(): Promise<UpcomingBill[]> {
 
     let totalAmount = invoice?.totalAmount ?? 0;
     if (!invoice) {
+      // Transactions for a bill are from the month BEFORE billStartDate up to
+      // and including billStartDate (the cut-off/statement date). This matches
+      // the window used by getUpcomingInvoice() in credit-card-action.ts.
+      const transactionWindowStart = new Date(billStartDate);
+      transactionWindowStart.setMonth(transactionWindowStart.getMonth() - 1);
+
       const transactions = await db.transaction.findMany({
         where: {
           creditCardId: card.id,
-          date: { gte: billStartDate, lt: billEndDate },
+          date: { gt: transactionWindowStart, lte: billStartDate },
           OR: [{ installmentNumber: null }, { installmentNumber: { gt: 0 } }],
         },
       });
@@ -181,12 +187,17 @@ export async function getInvoiceDetail(invoiceId: string) {
     throw new Error("Invoice not found");
   }
 
+  // Transactions for an invoice span from the month before billStartDate (exclusive)
+  // up to and including billStartDate — the same window used everywhere else.
+  const transactionWindowStart = new Date(invoice.billStartDate);
+  transactionWindowStart.setMonth(transactionWindowStart.getMonth() - 1);
+
   const transactions = await db.transaction.findMany({
     where: {
       creditCardId: invoice.creditCardId,
       date: {
-        gte: invoice.billStartDate,
-        lt: invoice.billEndDate,
+        gt: transactionWindowStart,
+        lte: invoice.billStartDate,
       },
       OR: [{ installmentNumber: null }, { installmentNumber: { gt: 0 } }],
     },
