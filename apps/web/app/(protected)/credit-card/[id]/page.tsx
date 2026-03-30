@@ -1531,24 +1531,15 @@ export default function CreditCardDetailsPage() {
           <div className="space-y-4 py-4">
             {/* Category Filter */}
             <div className="space-y-2">
-              <Label htmlFor="filter-category">Category</Label>
-              <Input
-                id="filter-category"
-                placeholder="Enter category name"
+              <Label>Category</Label>
+              <FormCombobox
                 value={filterCategory}
-                onChange={(e) => setFilterCategory(e.target.value)}
-                list="categories"
+                onValueChange={setFilterCategory}
+                options={uniqueCategories.map((cat) => ({ value: cat, label: cat }))}
+                placeholder="All categories"
+                searchPlaceholder="Search categories…"
+                emptyText="No categories found."
               />
-              <datalist id="categories">
-                {uniqueCategories.map((category) => (
-                  <option key={category} value={category} />
-                ))}
-              </datalist>
-              {uniqueCategories.length > 0 && (
-                <div className="text-xs text-gray-500 mt-1">
-                  Available categories: {uniqueCategories.join(", ")}
-                </div>
-              )}
             </div>
 
             {/* Name Filter */}
