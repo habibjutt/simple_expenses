@@ -713,14 +713,18 @@ export default function Home() {
                               <div className="flex justify-between text-xs text-slate-400 mb-1">
                                 <span>
                                   Used:{" "}
-                                  {formatCurrency(usedAmount, card.currency)}
+                                  {showBalance
+                                    ? formatCurrency(usedAmount, card.currency)
+                                    : "•••••"}
                                 </span>
                                 <span>
                                   Limit:{" "}
-                                  {formatCurrency(
-                                    card.cardLimit,
-                                    card.currency,
-                                  )}
+                                  {showBalance
+                                    ? formatCurrency(
+                                        card.cardLimit,
+                                        card.currency,
+                                      )
+                                    : "•••••"}
                                 </span>
                               </div>
                               <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">

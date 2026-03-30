@@ -19,7 +19,7 @@ export type UpcomingBill = {
 
 /** Builds the stable key for a bill notification. Tied to the payment due date
  *  so it naturally resets next billing cycle. */
-export function buildNotificationKey(cardId: string, paymentDueDate: Date): string {
+function buildNotificationKey(cardId: string, paymentDueDate: Date): string {
   return `bill:${cardId}:${paymentDueDate.toISOString().slice(0, 10)}`;
 }
 
