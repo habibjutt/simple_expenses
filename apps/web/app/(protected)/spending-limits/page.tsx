@@ -16,6 +16,7 @@ import { getReportData } from "@/app/api/reports-action";
 import { getUserProfile } from "@/app/api/user-action";
 import { formatCurrency } from "@/lib/utils";
 import { ChevronLeft, ChevronRight, Plus, Target, Trash2 } from "lucide-react";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import EmptyState from "@/components/EmptyState";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -374,9 +375,10 @@ export default function SpendingLimitsPage() {
                           className="w-9 h-9 rounded-xl flex items-center justify-center"
                           style={{ backgroundColor: color + "22" }}
                         >
-                          <div
-                            className="w-4 h-4 rounded-full"
-                            style={{ backgroundColor: color }}
+                          <CategoryIcon
+                            icon={categories.find(c => c.name === limit.categoryName)?.icon ?? "tag"}
+                            className="h-4 w-4"
+                            color={color}
                           />
                         </div>
                         <div>
