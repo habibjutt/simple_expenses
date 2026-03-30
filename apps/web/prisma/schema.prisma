@@ -155,6 +155,7 @@ model invoice {
   paymentDueDate           DateTime
   totalAmount              Float
   paidAmount               Float     @default(0) // Track how much has been paid
+  previousBalanceOwed      Float     @default(0) // Unpaid balance carried forward from previous invoice underpayment
   creditFromPreviousMonth  Float     @default(0) // Credit balance carried forward from previous invoice overpayment
   isPaid                   Boolean   @default(false)
   paidAt                   DateTime?

@@ -69,6 +69,7 @@ type Invoice = {
   isPaid: boolean;
   paidAmount: number;
   totalAmount: number;
+  previousBalanceOwed: number;
   creditFromPreviousMonth: number;
   paidAt: Date | null;
   paidFromBankAccount: BankAccount | null;
@@ -80,6 +81,7 @@ type InvoiceData = {
   paymentDueDate: Date;
   transactions: Transaction[];
   totalAmount: number;
+  previousBalanceOwed: number;
   card: {
     id: string;
     name: string;
@@ -273,13 +275,14 @@ export default function CreditCardDetailsPage() {
       setIsPaymentModalOpen(true);
       setPaymentError(null);
       setSelectedBankAccountId("");
-      // Set default payment amount to the invoice amount (after applying credit from previous month)
+      // Set default payment amount to the remaining balance owed
       const creditFromPrevious =
         invoiceData?.invoice?.creditFromPreviousMonth || 0;
+      const prevBalanceOwed = invoiceData?.previousBalanceOwed || 0;
       const paidSoFar = invoiceData?.invoice?.paidAmount || 0;
       const invoiceTotal = invoiceData?.totalAmount || 0;
-      const amountOwed = invoiceTotal - creditFromPrevious;
-      const remaining = Math.max(0, amountOwed - paidSoFar);
+      const effectiveTotal = invoiceTotal + prevBalanceOwed - creditFromPrevious;
+      const remaining = Math.max(0, effectiveTotal - paidSoFar);
       setPaymentAmount(remaining.toFixed(2));
     } catch (err: unknown) {
       setPaymentError(
@@ -582,10 +585,16 @@ export default function CreditCardDetailsPage() {
     {},
   );
 
-  const previousBalance = -(invoiceData.invoice?.creditFromPreviousMonth || 0); // Negative because it's a credit
+  const creditFromPrevious = invoiceData.invoice?.creditFromPreviousMonth || 0;
+  const prevBalanceOwed =
+    invoiceData.invoice?.previousBalanceOwed ||
+    invoiceData.previousBalanceOwed ||
+    0;
+  // previousBalance > 0 = unpaid debt from last month (red); < 0 = overpayment credit (green)
+  const previousBalance = prevBalanceOwed - creditFromPrevious;
   const monthSpending = totalAmount;
-  const invoiceAmount =
-    totalAmount - (invoiceData.invoice?.creditFromPreviousMonth || 0);
+  // Effective invoice total includes previous balance and subtracts any credit
+  const invoiceAmount = totalAmount + prevBalanceOwed - creditFromPrevious;
 
   return (
     <div className="min-h-screen bg-[#f0f2f5]">
