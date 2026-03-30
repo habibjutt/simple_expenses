@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { format } from "date-fns";
 import {
   createTransaction,
   createTransfer,
   updateTransaction,
 } from "@/app/api/transaction-action";
-import { getCategories } from "@/app/api/category-action";
+import { getCategoriesByType } from "@/app/api/category-action";
 import { cn, formatCurrency } from "@/lib/utils";
 import {
   Dialog,
@@ -97,21 +97,27 @@ export default function TransactionModal({
   const [endDatePickerOpen, setEndDatePickerOpen] = useState(false);
   const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
 
-  // Fetch categories from DB when modal opens
-  const loadCategories = useCallback(async () => {
-    try {
-      const cats = await getCategories();
-      setCategoryOptions(cats.map((c) => c.name));
-    } catch {
-      setCategoryOptions([]);
-    }
-  }, []);
-
+  // Load categories filtered by type; cancel stale fetches on cleanup
   useEffect(() => {
-    if (open) {
-      loadCategories();
-    }
-  }, [open, loadCategories]);
+    if (!open) return;
+    let cancelled = false;
+    const type = transactionType === "transfer" ? "both" : transactionType;
+    getCategoriesByType(type)
+      .then((cats) => {
+        if (!cancelled) setCategoryOptions(cats.map((c) => c.name));
+      })
+      .catch(() => {
+        if (!cancelled) setCategoryOptions([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, transactionType]);
+
+  // Reset selected category when transaction type changes
+  useEffect(() => {
+    setCategory("");
+  }, [transactionType]);
 
   // Populate form when editing
   useEffect(() => {
@@ -286,6 +292,7 @@ export default function TransactionModal({
   };
 
   const resetForm = () => {
+    setTransactionType("expense");
     setName("");
     setAmount("");
     setDate(new Date().toISOString().split("T")[0]);
@@ -397,7 +404,7 @@ export default function TransactionModal({
             <div className="grid grid-cols-2 gap-3">
               <Field label="Amount" required>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-muted-foreground">
+                  <span className="absolute text-sm font-medium -translate-y-1/2 left-3 top-1/2 text-muted-foreground">
                     AED
                   </span>
                   <Input
@@ -425,7 +432,7 @@ export default function TransactionModal({
                         !date && "text-muted-foreground",
                       )}
                     >
-                      <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                      <CalendarIcon className="w-4 h-4 mr-2 shrink-0" />
                       {date
                         ? format(new Date(date + "T00:00:00"), "MMM d, yyyy")
                         : "Pick a date"}
@@ -579,7 +586,7 @@ export default function TransactionModal({
 
             {/* Advanced Section */}
             {transactionType !== "transfer" && (
-              <div className="border border-dashed border-border rounded-lg overflow-hidden">
+              <div className="overflow-hidden border border-dashed rounded-lg border-border">
                 <button
                   type="button"
                   onClick={() => setShowAdvanced(!showAdvanced)}
@@ -599,7 +606,7 @@ export default function TransactionModal({
                 </button>
 
                 {showAdvanced && (
-                  <div className="px-4 pb-4 pt-1 space-y-4 border-t border-dashed border-border">
+                  <div className="px-4 pt-1 pb-4 space-y-4 border-t border-dashed border-border">
                     {/* Notes */}
                     <Field label="Notes (optional)">
                       <textarea
@@ -607,7 +614,7 @@ export default function TransactionModal({
                         onChange={(e) => setNotes(e.target.value)}
                         placeholder="Add a note…"
                         rows={2}
-                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+                        className="w-full px-3 py-2 text-sm border rounded-md resize-none border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         aria-label="Transaction notes"
                       />
                     </Field>
@@ -700,7 +707,7 @@ export default function TransactionModal({
                         {isRecurring && (
                           <div className="space-y-3">
                             <div>
-                              <p className="text-xs text-muted-foreground mb-2">
+                              <p className="mb-2 text-xs text-muted-foreground">
                                 Repeat every
                               </p>
                               <div className="grid grid-cols-4 gap-1.5">
@@ -744,7 +751,7 @@ export default function TransactionModal({
                                         "text-muted-foreground",
                                     )}
                                   >
-                                    <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                                    <CalendarIcon className="w-4 h-4 mr-2 shrink-0" />
                                     {recurringEndDate
                                       ? format(
                                           new Date(
@@ -785,7 +792,7 @@ export default function TransactionModal({
                                 </PopoverContent>
                               </Popover>
                             </Field>
-                            <p className="text-xs text-muted-foreground bg-muted/50 px-3 py-2 rounded-md">
+                            <p className="px-3 py-2 text-xs rounded-md text-muted-foreground bg-muted/50">
                               A new transaction will be created automatically
                               each{" "}
                               {recurringFrequency === "daily"
@@ -808,7 +815,7 @@ export default function TransactionModal({
 
             {error && (
               <div
-                className="text-red-500 text-sm bg-red-50 dark:bg-red-950/40 px-3 py-2 rounded-md"
+                className="px-3 py-2 text-sm text-red-500 rounded-md bg-red-50 dark:bg-red-950/40"
                 role="alert"
               >
                 {error}
