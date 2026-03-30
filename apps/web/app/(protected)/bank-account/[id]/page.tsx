@@ -390,15 +390,7 @@ export default function BankAccountDetailsPage() {
                       {formatCurrency(account.currentBalance, account.currency)}
                     </div>
                   </div>
-                  <div className="w-px h-8 bg-white/20" />
-                  <div>
-                    <div className="text-white/50 text-xs font-medium">
-                      Initial Balance
-                    </div>
-                    <div className="text-base font-semibold">
-                      {formatCurrency(account.initialBalance, account.currency)}
-                    </div>
-                  </div>
+
                 </div>
               </div>
 
