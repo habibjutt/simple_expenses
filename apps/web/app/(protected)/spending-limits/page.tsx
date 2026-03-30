@@ -13,6 +13,7 @@ import {
 } from "@/app/api/spending-limit-action";
 import { getCategories, type Category } from "@/app/api/category-action";
 import { getReportData } from "@/app/api/reports-action";
+import { getUserProfile } from "@/app/api/user-action";
 import { formatCurrency } from "@/lib/utils";
 import { ChevronLeft, ChevronRight, Plus, Target, Trash2 } from "lucide-react";
 import EmptyState from "@/components/EmptyState";
@@ -49,9 +50,15 @@ export default function SpendingLimitsPage() {
   const [editAmount, setEditAmount] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [formError, setFormError] = useState("");
+  const [preferredCurrency, setPreferredCurrency] = useState("AED");
 
   useEffect(() => {
     if (!isPending && !session) router.push("/login");
+    if (session) {
+      getUserProfile().then((p) => {
+        if (p?.preferredCurrency) setPreferredCurrency(p.preferredCurrency);
+      });
+    }
   }, [session, isPending, router]);
 
   const load = useCallback(async () => {
@@ -236,7 +243,7 @@ export default function SpendingLimitsPage() {
                     Total Budget
                   </p>
                   <p className="text-lg font-bold text-slate-800 tabular-nums">
-                    {formatCurrency(totalBudget)}
+                    {formatCurrency(totalBudget, preferredCurrency)}
                   </p>
                 </div>
                 <div className="text-right">
@@ -244,7 +251,7 @@ export default function SpendingLimitsPage() {
                   <p
                     className={`text-lg font-bold tabular-nums ${totalSpent > totalBudget ? "text-red-600" : "text-slate-800"}`}
                   >
-                    {formatCurrency(totalSpent)}
+                    {formatCurrency(totalSpent, preferredCurrency)}
                   </p>
                 </div>
               </div>
@@ -261,7 +268,7 @@ export default function SpendingLimitsPage() {
                   ? `${Math.round((totalSpent / totalBudget) * 100)}% used`
                   : ""}
                 {totalSpent < totalBudget
-                  ? ` · ${formatCurrency(totalBudget - totalSpent)} remaining`
+                  ? ` · ${formatCurrency(totalBudget - totalSpent, preferredCurrency)} remaining`
                   : " · Over budget"}
               </p>
             </div>
@@ -291,7 +298,7 @@ export default function SpendingLimitsPage() {
               </div>
               <div>
                 <label className="block text-xs font-semibold text-slate-600 mb-1.5">
-                  Monthly Budget (AED)
+                  Monthly Budget ({preferredCurrency})
                 </label>
                 <Input
                   type="number"
@@ -451,10 +458,10 @@ export default function SpendingLimitsPage() {
                           over ? "text-red-600 font-semibold" : "text-slate-500"
                         }
                       >
-                        Spent: {formatCurrency(spent)}
+                        Spent: {formatCurrency(spent, preferredCurrency)}
                       </span>
                       <span className="text-slate-400">
-                        Budget: {formatCurrency(limit.amount)}
+                        Budget: {formatCurrency(limit.amount, preferredCurrency)}
                       </span>
                     </div>
                   </div>

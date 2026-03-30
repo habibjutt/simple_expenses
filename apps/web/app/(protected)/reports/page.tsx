@@ -10,6 +10,7 @@ import {
   getMonthlyTrend,
   getBudgetVsActual,
 } from "@/app/api/reports-action";
+import { getUserProfile } from "@/app/api/user-action";
 import { formatCurrency } from "@/lib/utils";
 import {
   ChevronLeft,
@@ -95,9 +96,15 @@ export default function ReportsPage() {
   const [trendData, setTrendData] = useState<MonthlyData[]>([]);
   const [budgetData, setBudgetData] = useState<BudgetItem[]>([]);
   const [exportingCsv, setExportingCsv] = useState(false);
+  const [preferredCurrency, setPreferredCurrency] = useState("AED");
 
   useEffect(() => {
     if (!isPending && !session) router.push("/login");
+    if (session) {
+      getUserProfile().then((p) => {
+        if (p?.preferredCurrency) setPreferredCurrency(p.preferredCurrency);
+      });
+    }
   }, [session, isPending, router]);
 
   const loadReport = useCallback(async () => {
@@ -328,7 +335,7 @@ export default function ReportsPage() {
                     </span>
                   </div>
                   <p className="text-sm font-bold text-slate-800 tabular-nums">
-                    {formatCurrency(totalIncome)}
+                    {formatCurrency(totalIncome, preferredCurrency)}
                   </p>
                 </div>
                 <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/60 text-center">
@@ -339,7 +346,7 @@ export default function ReportsPage() {
                     </span>
                   </div>
                   <p className="text-sm font-bold text-slate-800 tabular-nums">
-                    {formatCurrency(totalExpenses)}
+                    {formatCurrency(totalExpenses, preferredCurrency)}
                   </p>
                 </div>
                 <div
@@ -351,7 +358,7 @@ export default function ReportsPage() {
                   <p
                     className={`text-sm font-bold tabular-nums ${net >= 0 ? "text-emerald-700" : "text-red-700"}`}
                   >
-                    {formatCurrency(net)}
+                    {formatCurrency(net, preferredCurrency)}
                   </p>
                 </div>
               </div>
@@ -384,7 +391,7 @@ export default function ReportsPage() {
                             ))}
                           </Pie>
                           <Tooltip
-                            formatter={(v) => formatCurrency(Number(v))}
+                            formatter={(v) => formatCurrency(Number(v), preferredCurrency)}
                           />
                         </PieChart>
                       </ErrorBoundary>
@@ -417,7 +424,7 @@ export default function ReportsPage() {
                               {pct}%
                             </span>
                             <span className="text-sm font-semibold text-slate-800 tabular-nums">
-                              {formatCurrency(cat.amount)}
+                              {formatCurrency(cat.amount, preferredCurrency)}
                             </span>
                           </div>
                         );
@@ -463,7 +470,7 @@ export default function ReportsPage() {
                           {cat.category}
                         </span>
                         <span className="text-sm font-semibold text-emerald-700 tabular-nums">
-                          +{formatCurrency(cat.amount)}
+                          +{formatCurrency(cat.amount, preferredCurrency)}
                         </span>
                       </div>
                     ))}
@@ -502,7 +509,7 @@ export default function ReportsPage() {
                           axisLine={false}
                           tickLine={false}
                         />
-                        <Tooltip formatter={(v) => formatCurrency(Number(v))} />
+                        <Tooltip formatter={(v) => formatCurrency(Number(v), preferredCurrency)} />
                         <Legend />
                         <Bar
                           dataKey="income"
@@ -578,10 +585,10 @@ export default function ReportsPage() {
                           <span
                             className={`text-sm font-semibold tabular-nums ${over ? "text-red-600" : "text-slate-800"}`}
                           >
-                            {formatCurrency(item.actual)}
+                            {formatCurrency(item.actual, preferredCurrency)}
                           </span>
                           <span className="text-xs text-slate-400 ml-1">
-                            / {formatCurrency(item.budget)}
+                            / {formatCurrency(item.budget, preferredCurrency)}
                           </span>
                         </div>
                       </div>
@@ -597,11 +604,11 @@ export default function ReportsPage() {
                         </span>
                         {over ? (
                           <span className="text-xs text-red-500 font-medium">
-                            +{formatCurrency(item.actual - item.budget)} over
+                            +{formatCurrency(item.actual - item.budget, preferredCurrency)} over
                           </span>
                         ) : (
                           <span className="text-xs text-emerald-600 font-medium">
-                            {formatCurrency(item.budget - item.actual)} left
+                            {formatCurrency(item.budget - item.actual, preferredCurrency)} left
                           </span>
                         )}
                       </div>
@@ -618,6 +625,7 @@ export default function ReportsPage() {
                   <span className="font-semibold text-slate-800 tabular-nums">
                     {formatCurrency(
                       budgetData.reduce((s, i) => s + i.budget, 0),
+                      preferredCurrency,
                     )}
                   </span>
                 </div>
@@ -630,6 +638,7 @@ export default function ReportsPage() {
                   >
                     {formatCurrency(
                       budgetData.reduce((s, i) => s + i.actual, 0),
+                      preferredCurrency,
                     )}
                   </span>
                 </div>

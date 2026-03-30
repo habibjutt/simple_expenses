@@ -62,8 +62,8 @@ export default function TransactionModal({
 }: {
   open: boolean;
   setOpen: (v: boolean) => void;
-  creditCards: Array<{ id: string; name: string; availableBalance: number }>;
-  bankAccounts: Array<{ id: string; name: string; currentBalance: number }>;
+  creditCards: Array<{ id: string; name: string; availableBalance: number; currency: string }>;
+  bankAccounts: Array<{ id: string; name: string; currentBalance: number; currency: string }>;
   onSuccess?: () => void;
   editTransaction?: EditTransaction | null;
   defaultBankAccountId?: string;
@@ -468,7 +468,7 @@ export default function TransactionModal({
                     onValueChange={setFromAccountId}
                     options={sortedBankAccounts.map((a) => ({
                       value: a.id,
-                      label: `${a.name} (${formatCurrency(a.currentBalance)})`,
+                      label: `${a.name} (${formatCurrency(a.currentBalance, a.currency)})`,
                     }))}
                     placeholder="Select account…"
                     searchPlaceholder="Search accounts…"
@@ -481,7 +481,7 @@ export default function TransactionModal({
                     onValueChange={setToAccountId}
                     options={sortedBankAccounts.map((a) => ({
                       value: a.id,
-                      label: `${a.name} (${formatCurrency(a.currentBalance)})`,
+                      label: `${a.name} (${formatCurrency(a.currentBalance, a.currency)})`,
                       disabled: a.id === fromAccountId,
                     }))}
                     placeholder="Select account…"
@@ -549,7 +549,7 @@ export default function TransactionModal({
                         onValueChange={setCreditCardId}
                         options={sortedCreditCards.map((card) => ({
                           value: card.id,
-                          label: `${card.name} (${formatCurrency(card.availableBalance)})`,
+                          label: `${card.name} (${formatCurrency(card.availableBalance, card.currency)})`,
                         }))}
                         placeholder="Select card…"
                         searchPlaceholder="Search cards…"
@@ -564,7 +564,7 @@ export default function TransactionModal({
                         onValueChange={setBankAccountId}
                         options={sortedBankAccounts.map((a) => ({
                           value: a.id,
-                          label: `${a.name} (${formatCurrency(a.currentBalance)})`,
+                          label: `${a.name} (${formatCurrency(a.currentBalance, a.currency)})`,
                         }))}
                         placeholder="Select account…"
                         searchPlaceholder="Search accounts…"

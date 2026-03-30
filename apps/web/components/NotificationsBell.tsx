@@ -95,7 +95,7 @@ export function NotificationsBell() {
                       {bill.cardName}
                     </p>
                     <p className="text-base font-bold text-slate-900 mt-0.5">
-                      {formatCurrency(bill.totalAmount)}
+                      {formatCurrency(bill.totalAmount, bill.currency)}
                     </p>
                   </div>
                   <span

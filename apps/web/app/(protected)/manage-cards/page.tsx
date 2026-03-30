@@ -29,11 +29,11 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-const formatCompact = (amount: number) => {
+const formatCompact = (amount: number, currency: string) => {
   if (Math.abs(amount) >= 1000) {
-    return `AED ${(amount / 1000).toFixed(1)}K`;
+    return `${currency} ${(amount / 1000).toFixed(1)}K`;
   }
-  return formatCurrency(amount);
+  return formatCurrency(amount, currency);
 };
 
 const CARD_COLOR_CONFIGS = [
@@ -220,9 +220,9 @@ export default function ManageCardsPage() {
                   Limit
                 </p>
                 <p className="text-white font-bold text-xs sm:text-sm md:text-base leading-none">
-                  <span className="sm:hidden">{formatCompact(totalLimit)}</span>
+                  <span className="sm:hidden">{formatCompact(totalLimit, preferredCurrency)}</span>
                   <span className="hidden sm:block">
-                    {formatCurrency(totalLimit)}
+                    {formatCurrency(totalLimit, preferredCurrency)}
                   </span>
                 </p>
               </div>
@@ -231,9 +231,9 @@ export default function ManageCardsPage() {
                   Used
                 </p>
                 <p className="text-white font-bold text-xs sm:text-sm md:text-base leading-none">
-                  <span className="sm:hidden">{formatCompact(totalUsed)}</span>
+                  <span className="sm:hidden">{formatCompact(totalUsed, preferredCurrency)}</span>
                   <span className="hidden sm:block">
-                    {formatCurrency(totalUsed)}
+                    {formatCurrency(totalUsed, preferredCurrency)}
                   </span>
                 </p>
               </div>
@@ -243,10 +243,10 @@ export default function ManageCardsPage() {
                 </p>
                 <p className="text-white font-bold text-xs sm:text-sm md:text-base leading-none">
                   <span className="sm:hidden">
-                    {formatCompact(totalAvailable)}
+                    {formatCompact(totalAvailable, preferredCurrency)}
                   </span>
                   <span className="hidden sm:block">
-                    {formatCurrency(totalAvailable)}
+                    {formatCurrency(totalAvailable, preferredCurrency)}
                   </span>
                 </p>
               </div>
@@ -324,7 +324,7 @@ export default function ManageCardsPage() {
                         Available
                       </p>
                       <p className="text-white font-bold text-2xl leading-none mb-2">
-                        {formatCurrency(card.availableBalance)}
+                        {formatCurrency(card.availableBalance, card.currency)}
                       </p>
                       <p className="text-white/80 font-semibold text-sm tracking-wide">
                         {card.name}
@@ -338,7 +338,7 @@ export default function ManageCardsPage() {
                     <div className="mb-4">
                       <div className="flex justify-between items-center mb-1.5">
                         <p className="text-xs font-semibold text-slate-500">
-                          {formatCurrency(used)} used
+                          {formatCurrency(used, card.currency)} used
                         </p>
                         <p
                           className="text-xs font-bold"
@@ -357,7 +357,7 @@ export default function ManageCardsPage() {
                         />
                       </div>
                       <p className="text-[10px] text-slate-400 mt-1.5">
-                        of {formatCurrency(card.cardLimit)} limit
+                        of {formatCurrency(card.cardLimit, card.currency)} limit
                       </p>
                     </div>
 

@@ -61,6 +61,7 @@ type BankAccount = {
   id: string;
   name: string;
   currentBalance: number;
+  currency: string;
 };
 
 type Invoice = {
@@ -1228,7 +1229,7 @@ export default function CreditCardDetailsPage() {
                     const hasBalance = account.currentBalance >= payAmount;
                     return {
                       value: account.id,
-                      label: `${account.name} — ${formatCurrency(account.currentBalance)}${!hasBalance && payAmount > 0 ? " (Insufficient balance)" : ""}`,
+                      label: `${account.name} — ${formatCurrency(account.currentBalance, account.currency)}${!hasBalance && payAmount > 0 ? " (Insufficient balance)" : ""}`,
                       disabled: !hasBalance && payAmount > 0,
                     };
                   })}
@@ -1466,6 +1467,7 @@ export default function CreditCardDetailsPage() {
             id: card.id,
             name: card.name,
             availableBalance: card.availableBalance,
+            currency: card.currency,
           },
         ]}
         bankAccounts={bankAccounts}

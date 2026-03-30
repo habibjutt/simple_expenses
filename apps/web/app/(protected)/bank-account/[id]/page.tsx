@@ -99,10 +99,10 @@ export default function BankAccountDetailsPage() {
     string | null
   >(null);
   const [creditCards, setCreditCards] = useState<
-    Array<{ id: string; name: string; availableBalance: number }>
+    Array<{ id: string; name: string; availableBalance: number; currency: string }>
   >([]);
   const [bankAccounts, setBankAccounts] = useState<
-    Array<{ id: string; name: string; currentBalance: number }>
+    Array<{ id: string; name: string; currentBalance: number; currency: string }>
   >([]);
   const [categories, setCategories] = useState<CategoryType[]>([]);
 

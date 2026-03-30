@@ -201,7 +201,7 @@ export default function ManageAccountsPage() {
                   Total Balance
                 </p>
                 <p className="text-white font-bold text-xl leading-none">
-                  {formatCurrency(totalBalance)}
+                  {formatCurrency(totalBalance, preferredCurrency)}
                 </p>
               </div>
               <div className="bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl p-4">
@@ -303,7 +303,7 @@ export default function ManageAccountsPage() {
                         Current Balance
                       </p>
                       <p className="text-3xl font-bold text-slate-900 tracking-tight">
-                        {formatCurrency(account.currentBalance)}
+                        {formatCurrency(account.currentBalance, account.currency)}
                       </p>
                     </div>
 
@@ -314,7 +314,7 @@ export default function ManageAccountsPage() {
                           Initial
                         </p>
                         <p className="text-sm font-semibold text-slate-700">
-                          {formatCurrency(account.initialBalance)}
+                          {formatCurrency(account.initialBalance, account.currency)}
                         </p>
                       </div>
                       <div>
@@ -332,7 +332,7 @@ export default function ManageAccountsPage() {
                           ) : (
                             <TrendingDown className="h-3.5 w-3.5" />
                           )}
-                          {formatCurrency(Math.abs(change))}
+                          {formatCurrency(Math.abs(change), account.currency)}
                         </div>
                       </div>
                     </div>

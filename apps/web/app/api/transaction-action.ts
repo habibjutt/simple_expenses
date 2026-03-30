@@ -459,11 +459,13 @@ export async function getTransactions(
       creditCard: {
         select: {
           name: true,
+          currency: true,
         },
       },
       bankAccount: {
         select: {
           name: true,
+          currency: true,
         },
       },
     },

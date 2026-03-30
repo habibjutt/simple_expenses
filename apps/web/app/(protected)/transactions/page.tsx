@@ -8,6 +8,7 @@ import {
   deleteTransaction,
 } from "@/app/api/transaction-action";
 import { getCategories } from "@/app/api/category-action";
+import { getUserProfile } from "@/app/api/user-action";
 import { type Category as CategoryType } from "@/lib/category-data";
 import { CategoryIcon } from "@/components/CategoryIcon";
 import { formatCurrency } from "@/lib/utils";
@@ -63,9 +64,9 @@ type Transaction = {
   parentTransactionId: string | null;
   installmentNumber: number | null;
   creditCardId: string | null;
-  creditCard: { name: string } | null;
+  creditCard: { name: string; currency: string } | null;
   bankAccountId: string | null;
-  bankAccount: { name: string } | null;
+  bankAccount: { name: string; currency: string } | null;
   isRecurring: boolean;
   isRecurringActive: boolean;
   recurringFrequency: string | null;
@@ -81,6 +82,7 @@ type CreditCard = {
   paymentDate: number;
   cardLimit: number;
   availableBalance: number;
+  currency: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -90,6 +92,7 @@ type BankAccount = {
   name: string;
   initialBalance: number;
   currentBalance: number;
+  currency: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -102,6 +105,7 @@ export default function TransactionsPage() {
   const [creditCards, setCreditCards] = useState<CreditCard[]>([]);
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
   const [loading, setLoading] = useState(true);
+  const [preferredCurrency, setPreferredCurrency] = useState("AED");
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] =
     useState<Transaction | null>(null);
@@ -173,6 +177,9 @@ export default function TransactionsPage() {
       fetchCreditCards();
       fetchBankAccounts();
       fetchCategories();
+      getUserProfile().then((p) => {
+        if (p?.preferredCurrency) setPreferredCurrency(p.preferredCurrency);
+      });
       setDataLoaded(true);
     }
   }, [session, dataLoaded]);
@@ -377,6 +384,7 @@ export default function TransactionsPage() {
                       filteredTransactions
                         .filter((t) => t.amount > 0)
                         .reduce((s, t) => s + t.amount, 0),
+                      preferredCurrency,
                     )}
                   </p>
                 </div>
@@ -390,6 +398,7 @@ export default function TransactionsPage() {
                           .filter((t) => t.amount < 0)
                           .reduce((s, t) => s + t.amount, 0),
                       ),
+                      preferredCurrency,
                     )}
                   </p>
                 </div>
@@ -526,7 +535,7 @@ export default function TransactionsPage() {
                       filteredTotal < 0 ? "text-emerald-600" : "text-red-600"
                     }
                   >
-                    {formatCurrency(Math.abs(filteredTotal))}
+                    {formatCurrency(Math.abs(filteredTotal), preferredCurrency)}
                   </span>
                 </div>
               </div>
@@ -669,7 +678,7 @@ export default function TransactionsPage() {
                               }`}
                             >
                               {transaction.amount < 0 ? "+" : ""}
-                              {formatCurrency(Math.abs(transaction.amount))}
+                              {formatCurrency(Math.abs(transaction.amount), transaction.creditCard?.currency || transaction.bankAccount?.currency || preferredCurrency)}
                             </span>
                             <div className="hidden sm:flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                               <button
@@ -706,7 +715,7 @@ export default function TransactionsPage() {
                           }`}
                         >
                           {dayTotal < 0 ? "+" : dayTotal > 0 ? "-" : ""}
-                          {formatCurrency(Math.abs(dayTotal))}
+                          {formatCurrency(Math.abs(dayTotal), preferredCurrency)}
                         </span>
                       </div>
                     </div>

@@ -128,7 +128,9 @@ export default function Home() {
     boolean | null
   >(null);
   const [dismissChecklist, setDismissChecklist] = useState(false);
-  const [preferredCurrency, setPreferredCurrency] = useState("AED");
+  const [preferredCurrency, setPreferredCurrency] = useState<string | null>(
+    null,
+  );
 
   const fetchAll = useCallback(async () => {
     try {
@@ -206,9 +208,11 @@ export default function Home() {
     [creditCards],
   );
   const fmt = useCallback(
-    (v: number) =>
-      showBalance ? formatCurrency(v, preferredCurrency) : "•••••",
-    [showBalance, preferredCurrency],
+    (v: number) => {
+      if (loading || preferredCurrency === null) return "—";
+      return showBalance ? formatCurrency(v, preferredCurrency) : "•••••";
+    },
+    [loading, showBalance, preferredCurrency],
   );
 
   const handleDeleteCard = useCallback(
@@ -371,7 +375,7 @@ export default function Home() {
                     Bills due this month
                   </p>
                   <p className="text-xs text-red-500">
-                    Total: {formatCurrency(totalBills, preferredCurrency)}
+                    Total: {formatCurrency(totalBills, preferredCurrency ?? "AED")}
                   </p>
                 </div>
                 <Link
@@ -402,7 +406,7 @@ export default function Home() {
                         {formatCurrency(
                           inv.totalAmount,
                           creditCards.find((c) => c.id === inv.cardId)
-                            ?.currency ?? preferredCurrency,
+                            ?.currency ?? (preferredCurrency ?? "AED"),
                         )}
                       </span>
                     </div>
@@ -797,7 +801,7 @@ export default function Home() {
                       </h2>
                     </div>
                     <span className="text-sm font-bold text-amber-600">
-                      {formatCurrency(totalNextBills, preferredCurrency)}
+                      {formatCurrency(totalNextBills, preferredCurrency ?? "AED")}
                     </span>
                   </div>
                   <div className="divide-y divide-amber-50">
@@ -827,7 +831,7 @@ export default function Home() {
                             <span className="text-sm font-bold text-amber-600">
                               {formatCurrency(
                                 bill.totalAmount,
-                                card?.currency ?? preferredCurrency,
+                                card?.currency ?? (preferredCurrency ?? "AED"),
                               )}
                             </span>
                           </div>
@@ -945,7 +949,7 @@ export default function Home() {
                               </span>
                             </div>
                             <span className="text-xs font-bold text-slate-800 tabular-nums">
-                              {formatCurrency(cat.amount, preferredCurrency)}
+                              {formatCurrency(cat.amount, preferredCurrency ?? "AED")}
                             </span>
                           </div>
                           <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
@@ -1028,14 +1032,14 @@ export default function Home() {
         setOpen={setIsModalOpen}
         onSuccess={fetchAll}
         editCard={editCard}
-        preferredCurrency={preferredCurrency}
+        preferredCurrency={preferredCurrency ?? "AED"}
       />
       <BankAccountModal
         open={isBankAccountModalOpen}
         setOpen={setIsBankAccountModalOpen}
         onSuccess={fetchAll}
         editAccount={editAccount}
-        preferredCurrency={preferredCurrency}
+        preferredCurrency={preferredCurrency ?? "AED"}
       />
       <TransactionModal
         open={isTransactionModalOpen}
@@ -1045,11 +1049,13 @@ export default function Home() {
           id: c.id,
           name: c.name,
           availableBalance: c.availableBalance,
+          currency: c.currency,
         }))}
         bankAccounts={bankAccounts.map((b) => ({
           id: b.id,
           name: b.name,
           currentBalance: b.currentBalance,
+          currency: b.currency,
         }))}
       />
 
