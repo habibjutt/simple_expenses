@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { format } from "date-fns";
 import {
   createTransaction,
   createTransfer,
   updateTransaction,
+  getTransactionSuggestions,
+  type TransactionSuggestion,
 } from "@/app/api/transaction-action";
-import { getCategories } from "@/app/api/category-action";
+import { getCategoriesByType } from "@/app/api/category-action";
 import { cn, formatCurrency } from "@/lib/utils";
 import {
   Dialog,
@@ -62,8 +64,8 @@ export default function TransactionModal({
 }: {
   open: boolean;
   setOpen: (v: boolean) => void;
-  creditCards: Array<{ id: string; name: string; availableBalance: number }>;
-  bankAccounts: Array<{ id: string; name: string; currentBalance: number }>;
+  creditCards: Array<{ id: string; name: string; availableBalance: number; currency: string }>;
+  bankAccounts: Array<{ id: string; name: string; currentBalance: number; currency: string }>;
   onSuccess?: () => void;
   editTransaction?: EditTransaction | null;
   defaultBankAccountId?: string;
@@ -96,22 +98,68 @@ export default function TransactionModal({
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [endDatePickerOpen, setEndDatePickerOpen] = useState(false);
   const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<TransactionSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Fetch categories from DB when modal opens
-  const loadCategories = useCallback(async () => {
-    try {
-      const cats = await getCategories();
-      setCategoryOptions(cats.map((c) => c.name));
-    } catch {
-      setCategoryOptions([]);
-    }
-  }, []);
-
+  // Load categories filtered by type; cancel stale fetches on cleanup
   useEffect(() => {
-    if (open) {
-      loadCategories();
+    if (!open) return;
+    let cancelled = false;
+    const type = transactionType === "transfer" ? "both" : transactionType;
+    getCategoriesByType(type)
+      .then((cats) => {
+        if (!cancelled) setCategoryOptions(cats.map((c) => c.name));
+      })
+      .catch(() => {
+        if (!cancelled) setCategoryOptions([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, transactionType]);
+
+  // Reset selected category when transaction type changes
+  useEffect(() => {
+    setCategory("");
+  }, [transactionType]);
+
+  // Debounced suggestion fetch — runs when the name field changes
+  const fetchSuggestions = useCallback((value: string) => {
+    if (suggestDebounceRef.current) clearTimeout(suggestDebounceRef.current);
+    if (value.trim().length < 2 || editTransaction) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
     }
-  }, [open, loadCategories]);
+    suggestDebounceRef.current = setTimeout(async () => {
+      try {
+        const results = await getTransactionSuggestions(value);
+        setSuggestions(results);
+        setShowSuggestions(results.length > 0);
+      } catch {
+        setSuggestions([]);
+        setShowSuggestions(false);
+      }
+    }, 300);
+  }, [editTransaction]);
+
+  // Apply a suggestion: fill name, category, payment type, and account/card
+  const applySuggestion = useCallback((s: TransactionSuggestion) => {
+    setName(s.name);
+    if (s.category) setCategory(s.category);
+    if (s.creditCardId) {
+      setPaymentType("creditCard");
+      setCreditCardId(s.creditCardId);
+      setBankAccountId("");
+    } else if (s.bankAccountId) {
+      setPaymentType("bankAccount");
+      setBankAccountId(s.bankAccountId);
+      setCreditCardId("");
+    }
+    setSuggestions([]);
+    setShowSuggestions(false);
+  }, []);
 
   // Populate form when editing
   useEffect(() => {
@@ -286,6 +334,7 @@ export default function TransactionModal({
   };
 
   const resetForm = () => {
+    setTransactionType("expense");
     setName("");
     setAmount("");
     setDate(new Date().toISOString().split("T")[0]);
@@ -312,6 +361,8 @@ export default function TransactionModal({
     setEndDatePickerOpen(false);
     setError(null);
     setPlanAlert(null);
+    setSuggestions([]);
+    setShowSuggestions(false);
   };
 
   // Sort credit cards and bank accounts by name
@@ -397,7 +448,7 @@ export default function TransactionModal({
             <div className="grid grid-cols-2 gap-3">
               <Field label="Amount" required>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-muted-foreground">
+                  <span className="absolute text-sm font-medium -translate-y-1/2 left-3 top-1/2 text-muted-foreground">
                     AED
                   </span>
                   <Input
@@ -425,7 +476,7 @@ export default function TransactionModal({
                         !date && "text-muted-foreground",
                       )}
                     >
-                      <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                      <CalendarIcon className="w-4 h-4 mr-2 shrink-0" />
                       {date
                         ? format(new Date(date + "T00:00:00"), "MMM d, yyyy")
                         : "Pick a date"}
@@ -449,14 +500,56 @@ export default function TransactionModal({
               </Field>
             </div>
 
-            {/* Description */}
+            {/* Description with autocomplete */}
             <Field label="Description">
-              <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="What was this for?"
-                aria-label="Transaction description"
-              />
+              <div className="relative">
+                <Input
+                  value={name}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    fetchSuggestions(e.target.value);
+                  }}
+                  onFocus={() => {
+                    if (suggestions.length > 0) setShowSuggestions(true);
+                  }}
+                  onBlur={() => {
+                    // Delay hiding so clicks on suggestions register
+                    setTimeout(() => setShowSuggestions(false), 150);
+                  }}
+                  placeholder="What was this for?"
+                  aria-label="Transaction description"
+                  autoComplete="off"
+                />
+                {showSuggestions && suggestions.length > 0 && (
+                  <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-56 overflow-y-auto rounded-md border bg-popover shadow-md">
+                    {suggestions.map((s, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        className="flex w-full flex-col gap-0.5 px-3 py-2 text-left text-sm hover:bg-accent focus:bg-accent focus:outline-none"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          applySuggestion(s);
+                        }}
+                      >
+                        <span className="font-medium">{s.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {[
+                            s.category,
+                            s.creditCardName
+                              ? `💳 ${s.creditCardName}`
+                              : s.bankAccountName
+                                ? `🏦 ${s.bankAccountName}`
+                                : null,
+                          ]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </Field>
 
             {/* Transfer fields */}
@@ -468,7 +561,7 @@ export default function TransactionModal({
                     onValueChange={setFromAccountId}
                     options={sortedBankAccounts.map((a) => ({
                       value: a.id,
-                      label: `${a.name} (${formatCurrency(a.currentBalance)})`,
+                      label: `${a.name} (${formatCurrency(a.currentBalance, a.currency)})`,
                     }))}
                     placeholder="Select account…"
                     searchPlaceholder="Search accounts…"
@@ -481,7 +574,7 @@ export default function TransactionModal({
                     onValueChange={setToAccountId}
                     options={sortedBankAccounts.map((a) => ({
                       value: a.id,
-                      label: `${a.name} (${formatCurrency(a.currentBalance)})`,
+                      label: `${a.name} (${formatCurrency(a.currentBalance, a.currency)})`,
                       disabled: a.id === fromAccountId,
                     }))}
                     placeholder="Select account…"
@@ -549,7 +642,7 @@ export default function TransactionModal({
                         onValueChange={setCreditCardId}
                         options={sortedCreditCards.map((card) => ({
                           value: card.id,
-                          label: `${card.name} (${formatCurrency(card.availableBalance)})`,
+                          label: `${card.name} (${formatCurrency(card.availableBalance, card.currency)})`,
                         }))}
                         placeholder="Select card…"
                         searchPlaceholder="Search cards…"
@@ -564,7 +657,7 @@ export default function TransactionModal({
                         onValueChange={setBankAccountId}
                         options={sortedBankAccounts.map((a) => ({
                           value: a.id,
-                          label: `${a.name} (${formatCurrency(a.currentBalance)})`,
+                          label: `${a.name} (${formatCurrency(a.currentBalance, a.currency)})`,
                         }))}
                         placeholder="Select account…"
                         searchPlaceholder="Search accounts…"
@@ -579,7 +672,7 @@ export default function TransactionModal({
 
             {/* Advanced Section */}
             {transactionType !== "transfer" && (
-              <div className="border border-dashed border-border rounded-lg overflow-hidden">
+              <div className="overflow-hidden border border-dashed rounded-lg border-border">
                 <button
                   type="button"
                   onClick={() => setShowAdvanced(!showAdvanced)}
@@ -599,7 +692,7 @@ export default function TransactionModal({
                 </button>
 
                 {showAdvanced && (
-                  <div className="px-4 pb-4 pt-1 space-y-4 border-t border-dashed border-border">
+                  <div className="px-4 pt-1 pb-4 space-y-4 border-t border-dashed border-border">
                     {/* Notes */}
                     <Field label="Notes (optional)">
                       <textarea
@@ -607,7 +700,7 @@ export default function TransactionModal({
                         onChange={(e) => setNotes(e.target.value)}
                         placeholder="Add a note…"
                         rows={2}
-                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+                        className="w-full px-3 py-2 text-sm border rounded-md resize-none border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         aria-label="Transaction notes"
                       />
                     </Field>
@@ -700,7 +793,7 @@ export default function TransactionModal({
                         {isRecurring && (
                           <div className="space-y-3">
                             <div>
-                              <p className="text-xs text-muted-foreground mb-2">
+                              <p className="mb-2 text-xs text-muted-foreground">
                                 Repeat every
                               </p>
                               <div className="grid grid-cols-4 gap-1.5">
@@ -744,7 +837,7 @@ export default function TransactionModal({
                                         "text-muted-foreground",
                                     )}
                                   >
-                                    <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                                    <CalendarIcon className="w-4 h-4 mr-2 shrink-0" />
                                     {recurringEndDate
                                       ? format(
                                           new Date(
@@ -785,7 +878,7 @@ export default function TransactionModal({
                                 </PopoverContent>
                               </Popover>
                             </Field>
-                            <p className="text-xs text-muted-foreground bg-muted/50 px-3 py-2 rounded-md">
+                            <p className="px-3 py-2 text-xs rounded-md text-muted-foreground bg-muted/50">
                               A new transaction will be created automatically
                               each{" "}
                               {recurringFrequency === "daily"
@@ -808,7 +901,7 @@ export default function TransactionModal({
 
             {error && (
               <div
-                className="text-red-500 text-sm bg-red-50 dark:bg-red-950/40 px-3 py-2 rounded-md"
+                className="px-3 py-2 text-sm text-red-500 rounded-md bg-red-50 dark:bg-red-950/40"
                 role="alert"
               >
                 {error}

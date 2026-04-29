@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FormCombobox } from "@/components/ui/form-combobox";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 
@@ -99,10 +100,10 @@ export default function BankAccountDetailsPage() {
     string | null
   >(null);
   const [creditCards, setCreditCards] = useState<
-    Array<{ id: string; name: string; availableBalance: number }>
+    Array<{ id: string; name: string; availableBalance: number; currency: string }>
   >([]);
   const [bankAccounts, setBankAccounts] = useState<
-    Array<{ id: string; name: string; currentBalance: number }>
+    Array<{ id: string; name: string; currentBalance: number; currency: string }>
   >([]);
   const [categories, setCategories] = useState<CategoryType[]>([]);
 
@@ -390,15 +391,7 @@ export default function BankAccountDetailsPage() {
                       {formatCurrency(account.currentBalance, account.currency)}
                     </div>
                   </div>
-                  <div className="w-px h-8 bg-white/20" />
-                  <div>
-                    <div className="text-white/50 text-xs font-medium">
-                      Initial Balance
-                    </div>
-                    <div className="text-base font-semibold">
-                      {formatCurrency(account.initialBalance, account.currency)}
-                    </div>
-                  </div>
+
                 </div>
               </div>
 
@@ -742,24 +735,15 @@ export default function BankAccountDetailsPage() {
           <div className="space-y-4 py-4">
             {/* Category Filter */}
             <div className="space-y-2">
-              <Label htmlFor="filter-category">Category</Label>
-              <Input
-                id="filter-category"
-                placeholder="Enter category name"
+              <Label>Category</Label>
+              <FormCombobox
                 value={filterCategory}
-                onChange={(e) => setFilterCategory(e.target.value)}
-                list="categories"
+                onValueChange={setFilterCategory}
+                options={uniqueCategories.map((cat) => ({ value: cat, label: cat }))}
+                placeholder="All categories"
+                searchPlaceholder="Search categories…"
+                emptyText="No categories found."
               />
-              <datalist id="categories">
-                {uniqueCategories.map((category) => (
-                  <option key={category} value={category} />
-                ))}
-              </datalist>
-              {uniqueCategories.length > 0 && (
-                <div className="text-xs text-gray-500 mt-1">
-                  Available categories: {uniqueCategories.join(", ")}
-                </div>
-              )}
             </div>
 
             {/* Name Filter */}

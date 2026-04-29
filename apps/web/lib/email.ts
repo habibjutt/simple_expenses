@@ -1,31 +1,103 @@
 import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import { env } from "@/lib/env";
 
-const transporter = nodemailer.createTransport({
-  host: env.SMTP_HOST,
-  port: env.SMTP_PORT,
-  secure: env.SMTP_SECURE,
-  auth:
-    env.SMTP_USER && env.SMTP_PASS
-      ? { user: env.SMTP_USER, pass: env.SMTP_PASS }
-      : undefined,
-  // Increase timeout for slow SMTP hosts
-  connectionTimeout: 10_000,
-  socketTimeout: 15_000,
-});
+// ─── Lazy provider instances ──────────────────────────────────────────────────
 
-// Verify SMTP connection on module load so misconfiguration surfaces immediately
-transporter
-  .verify()
-  .then(() => {
-    console.log("[email] SMTP connection verified ✓");
-  })
-  .catch((err: unknown) => {
-    console.error(
-      "[email] SMTP connection FAILED — check SMTP_HOST / SMTP_PORT / credentials:",
-      err,
+let _smtp: nodemailer.Transporter | null = null;
+let _resend: Resend | null = null;
+
+function getSmtp(): nodemailer.Transporter {
+  if (!_smtp) {
+    if (!env.SMTP_HOST) {
+      throw new Error(
+        "[email] SMTP_HOST is required when EMAIL_PROVIDER=smtp",
+      );
+    }
+    _smtp = nodemailer.createTransport({
+      host: env.SMTP_HOST,
+      port: env.SMTP_PORT,
+      secure: env.SMTP_SECURE,
+      auth:
+        env.SMTP_USER && env.SMTP_PASS
+          ? { user: env.SMTP_USER, pass: env.SMTP_PASS }
+          : undefined,
+      connectionTimeout: 10_000,
+      socketTimeout: 15_000,
+    });
+  }
+  return _smtp;
+}
+
+function getResend(): Resend {
+  if (!_resend) {
+    if (!env.RESEND_API_KEY) {
+      throw new Error(
+        "[email] RESEND_API_KEY is required when EMAIL_PROVIDER=resend",
+      );
+    }
+    _resend = new Resend(env.RESEND_API_KEY);
+  }
+  return _resend;
+}
+
+// Verify/announce the active provider on module load
+if (env.EMAIL_PROVIDER === "smtp") {
+  getSmtp()
+    .verify()
+    .then(() => console.log("[email] SMTP connection verified ✓"))
+    .catch((err: unknown) =>
+      console.error(
+        "[email] SMTP connection FAILED — check SMTP_HOST / SMTP_PORT / credentials:",
+        err,
+      ),
     );
+} else {
+  console.log(
+    `[email] Using Resend — from: ${env.EMAIL_FROM}`,
+  );
+}
+
+// ─── Unified send helper ──────────────────────────────────────────────────────
+
+async function sendEmail({
+  to,
+  subject,
+  html,
+}: {
+  to: string;
+  subject: string;
+  html: string;
+}): Promise<string> {
+  if (env.EMAIL_PROVIDER === "resend") {
+    console.log(`[email] Resend → sending "${subject}" to ${to} from ${env.EMAIL_FROM}`);
+    const response = await getResend().emails.send({
+      from: `Fixpenses <${env.EMAIL_FROM}>`,
+      to,
+      subject,
+      html,
+    });
+    console.log(`[email] Resend raw response:`, JSON.stringify(response));
+    const { data, error } = response;
+    if (error) {
+      console.error(`[email] Resend API error:`, JSON.stringify(error));
+      throw new Error(`Resend error [${error.name}]: ${error.message}`);
+    }
+    console.log(`[email] Resend success — id: ${data?.id}`);
+    return data?.id ?? "resend";
+  }
+
+  console.log(`[email] SMTP → sending "${subject}" to ${to}`);
+  const info = await getSmtp().sendMail({
+    from: env.EMAIL_FROM,
+    to,
+    subject,
+    html,
   });
+  return info.messageId as string;
+}
+
+// ─── Email template wrapper ───────────────────────────────────────────────────
 
 const emailWrapper = (content: string) => `
   <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
@@ -36,6 +108,8 @@ const emailWrapper = (content: string) => `
   </div>
 `;
 
+// ─── Auth emails ──────────────────────────────────────────────────────────────
+
 export async function sendPasswordResetEmail({
   to,
   url,
@@ -44,8 +118,7 @@ export async function sendPasswordResetEmail({
   url: string;
 }) {
   try {
-    const info = await transporter.sendMail({
-      from: env.EMAIL_FROM,
+    const id = await sendEmail({
       to,
       subject: "Reset your password",
       html: emailWrapper(`
@@ -63,9 +136,7 @@ export async function sendPasswordResetEmail({
         </p>
       `),
     });
-    console.log(
-      `[email] Password reset email sent to ${to} — messageId: ${info.messageId}`,
-    );
+    console.log(`[email] Password reset email sent to ${to} — id: ${id}`);
   } catch (err) {
     console.error(`[email] Failed to send password reset email to ${to}:`, err);
     throw err;
@@ -80,8 +151,7 @@ export async function sendVerificationEmail({
   url: string;
 }) {
   try {
-    const info = await transporter.sendMail({
-      from: env.EMAIL_FROM,
+    const id = await sendEmail({
       to,
       subject: "Verify your email address",
       html: emailWrapper(`
@@ -98,16 +168,14 @@ export async function sendVerificationEmail({
         </p>
       `),
     });
-    console.log(
-      `[email] Verification email sent to ${to} — messageId: ${info.messageId}`,
-    );
+    console.log(`[email] Verification email sent to ${to} — id: ${id}`);
   } catch (err) {
     console.error(`[email] Failed to send verification email to ${to}:`, err);
     throw err;
   }
 }
 
-// ─── Subscription Lifecycle Emails ───────────────────────────────────────────
+// ─── Subscription lifecycle emails ────────────────────────────────────────────
 
 const appUrl = env.BETTER_AUTH_URL || "http://localhost:3000";
 
@@ -127,8 +195,7 @@ export async function sendTrialStartedEmail({
     day: "numeric",
   });
   try {
-    const info = await transporter.sendMail({
-      from: env.EMAIL_FROM,
+    const id = await sendEmail({
       to,
       subject: "Welcome to Fixpenses — Your free trial has started!",
       html: emailWrapper(`
@@ -148,9 +215,7 @@ export async function sendTrialStartedEmail({
         </p>
       `),
     });
-    console.log(
-      `[email] Trial started email sent to ${to} — messageId: ${info.messageId}`,
-    );
+    console.log(`[email] Trial started email sent to ${to} — id: ${id}`);
   } catch (err) {
     console.error(`[email] Failed to send trial started email to ${to}:`, err);
   }
@@ -175,8 +240,7 @@ export async function sendTrialExpiringEmail({
   });
   const daysWord = daysLeft === 1 ? "1 day" : `${daysLeft} days`;
   try {
-    const info = await transporter.sendMail({
-      from: env.EMAIL_FROM,
+    const id = await sendEmail({
       to,
       subject: `Your free trial ends in ${daysWord}`,
       html: emailWrapper(`
@@ -195,7 +259,7 @@ export async function sendTrialExpiringEmail({
       `),
     });
     console.log(
-      `[email] Trial expiring email sent to ${to} (${daysWord} left) — messageId: ${info.messageId}`,
+      `[email] Trial expiring email sent to ${to} (${daysWord} left) — id: ${id}`,
     );
   } catch (err) {
     console.error(`[email] Failed to send trial expiring email to ${to}:`, err);
@@ -212,8 +276,7 @@ export async function sendSubscriptionActivatedEmail({
   planName: string;
 }) {
   try {
-    const info = await transporter.sendMail({
-      from: env.EMAIL_FROM,
+    const id = await sendEmail({
       to,
       subject: `You're now on the ${planName} plan!`,
       html: emailWrapper(`
@@ -229,7 +292,7 @@ export async function sendSubscriptionActivatedEmail({
       `),
     });
     console.log(
-      `[email] Subscription activated email sent to ${to} — messageId: ${info.messageId}`,
+      `[email] Subscription activated email sent to ${to} — id: ${id}`,
     );
   } catch (err) {
     console.error(
@@ -252,8 +315,7 @@ export async function sendSubscriptionCancelledEmail({
     ? `Your premium access remains active until <strong>${endsAt.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</strong>. After that, your account will switch to the Free plan.`
     : "Your account has been switched to the Free plan.";
   try {
-    const info = await transporter.sendMail({
-      from: env.EMAIL_FROM,
+    const id = await sendEmail({
       to,
       subject: "Your subscription has been cancelled",
       html: emailWrapper(`
@@ -270,7 +332,7 @@ export async function sendSubscriptionCancelledEmail({
       `),
     });
     console.log(
-      `[email] Subscription cancelled email sent to ${to} — messageId: ${info.messageId}`,
+      `[email] Subscription cancelled email sent to ${to} — id: ${id}`,
     );
   } catch (err) {
     console.error(
@@ -288,8 +350,7 @@ export async function sendPaymentFailedEmail({
   name: string;
 }) {
   try {
-    const info = await transporter.sendMail({
-      from: env.EMAIL_FROM,
+    const id = await sendEmail({
       to,
       subject: "⚠️ Payment failed — action required",
       html: emailWrapper(`
@@ -304,9 +365,7 @@ export async function sendPaymentFailedEmail({
         </p>
       `),
     });
-    console.log(
-      `[email] Payment failed email sent to ${to} — messageId: ${info.messageId}`,
-    );
+    console.log(`[email] Payment failed email sent to ${to} — id: ${id}`);
   } catch (err) {
     console.error(`[email] Failed to send payment failed email to ${to}:`, err);
   }
@@ -331,8 +390,7 @@ export async function sendSubscriptionRenewedEmail({
       })
     : "your next billing cycle";
   try {
-    const info = await transporter.sendMail({
-      from: env.EMAIL_FROM,
+    const id = await sendEmail({
       to,
       subject: `Payment received — ${planName} subscription renewed`,
       html: emailWrapper(`
@@ -348,7 +406,7 @@ export async function sendSubscriptionRenewedEmail({
       `),
     });
     console.log(
-      `[email] Subscription renewed email sent to ${to} — messageId: ${info.messageId}`,
+      `[email] Subscription renewed email sent to ${to} — id: ${id}`,
     );
   } catch (err) {
     console.error(

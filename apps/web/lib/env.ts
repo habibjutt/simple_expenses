@@ -31,8 +31,14 @@ export const env = createEnv({
     STRIPE_PREMIUM_MONTHLY_PRICE_ID: z.string().startsWith("price_").optional(),
     STRIPE_PREMIUM_YEARLY_PRICE_ID: z.string().startsWith("price_").optional(),
 
-    // Email (SMTP)
-    SMTP_HOST: z.string().min(1),
+    // Email provider — set to "resend" to use Resend, "smtp" to use SMTP
+    EMAIL_PROVIDER: z.enum(["smtp", "resend"]).default("smtp"),
+
+    // Resend (required when EMAIL_PROVIDER=resend)
+    RESEND_API_KEY: z.string().min(1).optional(),
+
+    // SMTP (required when EMAIL_PROVIDER=smtp)
+    SMTP_HOST: z.string().min(1).optional(),
     SMTP_PORT: z.coerce.number().int().positive().default(587),
     SMTP_SECURE: z
       .enum(["true", "false"])
@@ -40,6 +46,7 @@ export const env = createEnv({
       .transform((v) => v === "true"),
     SMTP_USER: z.string().min(1).optional(),
     SMTP_PASS: z.string().min(1).optional(),
+
     EMAIL_FROM: z.string().email().default("noreply@fixpenses.com"),
 
     // RevenueCat (mobile IAP webhook verification)
@@ -79,6 +86,8 @@ export const env = createEnv({
       process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID,
     STRIPE_PREMIUM_YEARLY_PRICE_ID: process.env.STRIPE_PREMIUM_YEARLY_PRICE_ID,
     REVENUECAT_WEBHOOK_SECRET: process.env.REVENUECAT_WEBHOOK_SECRET,
+    EMAIL_PROVIDER: process.env.EMAIL_PROVIDER,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
     SMTP_HOST: process.env.SMTP_HOST,
     SMTP_PORT: process.env.SMTP_PORT,
     SMTP_SECURE: process.env.SMTP_SECURE,

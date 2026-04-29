@@ -185,7 +185,8 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
             <div className="space-y-1">
               <h2 className="text-xl font-semibold">Check your inbox</h2>
               <p className="text-sm text-muted-foreground">
-                We sent a verification link to
+                If this email is registered, we&apos;ve sent a verification link
+                to
               </p>
               <p className="text-sm font-medium">{sentToEmail}</p>
             </div>
@@ -194,6 +195,14 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
               Click the link in that email to verify your account and get
               started. Check your spam folder if you don&apos;t see it.
             </p>
+
+            <div className="rounded-md bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800 w-full">
+              <p className="font-medium">Already have an account?</p>
+              <p className="mt-1 text-amber-700">
+                If you&apos;ve signed up before, no new verification email will
+                be sent. Please sign in instead.
+              </p>
+            </div>
 
             {resendSuccess && (
               <div
@@ -217,6 +226,10 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
             )}
 
             <div className="flex flex-col gap-2 w-full pt-2">
+              <Button asChild className="w-full">
+                <Link href="/login">Sign in to your account</Link>
+              </Button>
+
               <Button
                 variant="outline"
                 onClick={handleResendEmail}
@@ -241,13 +254,21 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
             </div>
 
             <p className="text-sm text-muted-foreground pt-2">
-              Already verified?{" "}
-              <Link
-                href="/login"
+              Want to use a different email?{" "}
+              <button
+                type="button"
+                onClick={() => {
+                  setEmailSent(false);
+                  setSentToEmail("");
+                  setResendSuccess(false);
+                  setResendError("");
+                  setResendCooldown(0);
+                  if (cooldownRef.current) clearInterval(cooldownRef.current);
+                }}
                 className="underline underline-offset-4 hover:no-underline hover:text-primary"
               >
-                Sign in
-              </Link>
+                Try again
+              </button>
             </p>
           </div>
         </CardContent>

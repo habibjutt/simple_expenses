@@ -61,6 +61,7 @@ type BankAccount = {
   id: string;
   name: string;
   currentBalance: number;
+  currency: string;
 };
 
 type Invoice = {
@@ -68,6 +69,7 @@ type Invoice = {
   isPaid: boolean;
   paidAmount: number;
   totalAmount: number;
+  previousBalanceOwed: number;
   creditFromPreviousMonth: number;
   paidAt: Date | null;
   paidFromBankAccount: BankAccount | null;
@@ -79,6 +81,7 @@ type InvoiceData = {
   paymentDueDate: Date;
   transactions: Transaction[];
   totalAmount: number;
+  previousBalanceOwed: number;
   card: {
     id: string;
     name: string;
@@ -272,13 +275,14 @@ export default function CreditCardDetailsPage() {
       setIsPaymentModalOpen(true);
       setPaymentError(null);
       setSelectedBankAccountId("");
-      // Set default payment amount to the invoice amount (after applying credit from previous month)
+      // Set default payment amount to the remaining balance owed
       const creditFromPrevious =
         invoiceData?.invoice?.creditFromPreviousMonth || 0;
+      const prevBalanceOwed = invoiceData?.previousBalanceOwed || 0;
       const paidSoFar = invoiceData?.invoice?.paidAmount || 0;
       const invoiceTotal = invoiceData?.totalAmount || 0;
-      const amountOwed = invoiceTotal - creditFromPrevious;
-      const remaining = Math.max(0, amountOwed - paidSoFar);
+      const effectiveTotal = invoiceTotal + prevBalanceOwed - creditFromPrevious;
+      const remaining = Math.max(0, effectiveTotal - paidSoFar);
       setPaymentAmount(remaining.toFixed(2));
     } catch (err: unknown) {
       setPaymentError(
@@ -581,10 +585,16 @@ export default function CreditCardDetailsPage() {
     {},
   );
 
-  const previousBalance = -(invoiceData.invoice?.creditFromPreviousMonth || 0); // Negative because it's a credit
+  const creditFromPrevious = invoiceData.invoice?.creditFromPreviousMonth || 0;
+  const prevBalanceOwed =
+    invoiceData.invoice?.previousBalanceOwed ||
+    invoiceData.previousBalanceOwed ||
+    0;
+  // previousBalance > 0 = unpaid debt from last month (red); < 0 = overpayment credit (green)
+  const previousBalance = prevBalanceOwed - creditFromPrevious;
   const monthSpending = totalAmount;
-  const invoiceAmount =
-    totalAmount - (invoiceData.invoice?.creditFromPreviousMonth || 0);
+  // Effective invoice total includes previous balance and subtracts any credit
+  const invoiceAmount = totalAmount + prevBalanceOwed - creditFromPrevious;
 
   return (
     <div className="min-h-screen bg-[#f0f2f5]">
@@ -1228,7 +1238,7 @@ export default function CreditCardDetailsPage() {
                     const hasBalance = account.currentBalance >= payAmount;
                     return {
                       value: account.id,
-                      label: `${account.name} — ${formatCurrency(account.currentBalance)}${!hasBalance && payAmount > 0 ? " (Insufficient balance)" : ""}`,
+                      label: `${account.name} — ${formatCurrency(account.currentBalance, account.currency)}${!hasBalance && payAmount > 0 ? " (Insufficient balance)" : ""}`,
                       disabled: !hasBalance && payAmount > 0,
                     };
                   })}
@@ -1466,6 +1476,7 @@ export default function CreditCardDetailsPage() {
             id: card.id,
             name: card.name,
             availableBalance: card.availableBalance,
+            currency: card.currency,
           },
         ]}
         bankAccounts={bankAccounts}
@@ -1529,24 +1540,15 @@ export default function CreditCardDetailsPage() {
           <div className="space-y-4 py-4">
             {/* Category Filter */}
             <div className="space-y-2">
-              <Label htmlFor="filter-category">Category</Label>
-              <Input
-                id="filter-category"
-                placeholder="Enter category name"
+              <Label>Category</Label>
+              <FormCombobox
                 value={filterCategory}
-                onChange={(e) => setFilterCategory(e.target.value)}
-                list="categories"
+                onValueChange={setFilterCategory}
+                options={uniqueCategories.map((cat) => ({ value: cat, label: cat }))}
+                placeholder="All categories"
+                searchPlaceholder="Search categories…"
+                emptyText="No categories found."
               />
-              <datalist id="categories">
-                {uniqueCategories.map((category) => (
-                  <option key={category} value={category} />
-                ))}
-              </datalist>
-              {uniqueCategories.length > 0 && (
-                <div className="text-xs text-gray-500 mt-1">
-                  Available categories: {uniqueCategories.join(", ")}
-                </div>
-              )}
             </div>
 
             {/* Name Filter */}

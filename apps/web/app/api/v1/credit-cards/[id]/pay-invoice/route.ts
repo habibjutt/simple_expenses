@@ -65,8 +65,17 @@ export async function POST(
     where: { creditCardId: id, billStartDate: start, billEndDate: end },
   });
 
-  const overpayment = Math.max(0, paid - total);
-  const amountRestoredToCard = total;
+  if (existingInvoice?.isPaid) return api.badRequest("Invoice is already fully paid");
+
+  const currentPaidAmount = existingInvoice?.paidAmount ?? 0;
+  const creditFromPreviousMonth = existingInvoice?.creditFromPreviousMonth ?? 0;
+  const previousBalanceOwed = existingInvoice?.previousBalanceOwed ?? 0;
+
+  const effectiveTotal = Math.max(0, total + previousBalanceOwed - creditFromPreviousMonth);
+  const newPaidAmount = currentPaidAmount + paid;
+  const isFullyPaid = newPaidAmount >= effectiveTotal;
+  const overpayment = Math.max(0, newPaidAmount - effectiveTotal);
+  const amountRestoredToCard = paid;
 
   // Handle carry-forward for next invoice if there's credit
   const nextBillStart = new Date(start);
@@ -79,9 +88,10 @@ export async function POST(
       await prisma.invoice.update({
         where: { id: existingInvoice.id },
         data: {
-          isPaid: true,
-          paidAt: new Date(),
-          paidAmount: paid,
+          totalAmount: total,
+          paidAmount: newPaidAmount,
+          isPaid: isFullyPaid,
+          paidAt: isFullyPaid ? new Date() : null,
           paidFromBankAccountId: String(bankAccountId),
         },
       });
@@ -93,8 +103,8 @@ export async function POST(
           billEndDate: end,
           paymentDueDate: due,
           totalAmount: total,
-          isPaid: true,
-          paidAt: new Date(),
+          isPaid: isFullyPaid,
+          paidAt: isFullyPaid ? new Date() : null,
           paidAmount: paid,
           paidFromBankAccountId: String(bankAccountId),
         },

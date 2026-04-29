@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useSession } from "@/lib/auth-client";
@@ -13,6 +13,7 @@ import {
   seedDefaultCategories,
   type Category,
 } from "@/app/api/category-action";
+import { ICON_GROUPS } from "@/lib/category-data";
 import { Plus, Pencil, Trash2, Tag } from "lucide-react";
 import EmptyState from "@/components/EmptyState";
 import { CategoryIcon } from "@/components/CategoryIcon";
@@ -50,29 +51,6 @@ const PRESET_COLORS = [
   "#dc2626",
 ];
 
-const PRESET_ICONS = [
-  "utensils",
-  "shopping-cart",
-  "car",
-  "heart-pulse",
-  "tv",
-  "graduation-cap",
-  "home",
-  "plane",
-  "sparkles",
-  "repeat",
-  "fuel",
-  "zap",
-  "users",
-  "gift",
-  "trending-up",
-  "landmark",
-  "tag",
-  "banknote",
-  "briefcase",
-  "arrow-left-right",
-];
-
 function CategoryForm({
   initial,
   onSave,
@@ -93,6 +71,16 @@ function CategoryForm({
   const [type, setType] = useState(initial?.type ?? "expense");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [iconSearch, setIconSearch] = useState("");
+
+  const filteredGroups = useMemo(() => {
+    const q = iconSearch.trim().toLowerCase();
+    if (!q) return ICON_GROUPS;
+    const matched = ICON_GROUPS.flatMap((g) => g.icons).filter((ic) =>
+      ic.includes(q),
+    );
+    return matched.length ? [{ label: "Results", icons: matched }] : [];
+  }, [iconSearch]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -155,29 +143,50 @@ function CategoryForm({
         <label className="block text-xs font-semibold text-slate-600 mb-1.5">
           Icon
         </label>
-        <div className="flex flex-wrap gap-2">
-          {PRESET_ICONS.map((ic) => (
-            <button
-              key={ic}
-              type="button"
-              onClick={() => setIcon(ic)}
-              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
-                icon === ic
-                  ? "ring-2 ring-offset-1 ring-slate-700"
-                  : "bg-slate-100 hover:bg-slate-200"
-              }`}
-              style={
-                icon === ic ? { backgroundColor: color + "33" } : undefined
-              }
-              title={ic}
-            >
-              <CategoryIcon
-                icon={ic}
-                className="h-4 w-4"
-                color={icon === ic ? color : "#64748b"}
-              />
-            </button>
-          ))}
+        <Input
+          value={iconSearch}
+          onChange={(e) => setIconSearch(e.target.value)}
+          placeholder="Search icons…"
+          className="mb-2 h-8 text-xs"
+        />
+        <div className="max-h-56 overflow-y-auto space-y-3 pr-1">
+          {filteredGroups.length === 0 ? (
+            <p className="text-xs text-slate-400 py-2">No icons found</p>
+          ) : (
+            filteredGroups.map((group) => (
+              <div key={group.label}>
+                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1.5">
+                  {group.label}
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {group.icons.map((ic) => (
+                    <button
+                      key={ic}
+                      type="button"
+                      onClick={() => setIcon(ic)}
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
+                        icon === ic
+                          ? "ring-2 ring-offset-1 ring-slate-700"
+                          : "bg-slate-100 hover:bg-slate-200"
+                      }`}
+                      style={
+                        icon === ic
+                          ? { backgroundColor: color + "33" }
+                          : undefined
+                      }
+                      title={ic}
+                    >
+                      <CategoryIcon
+                        icon={ic}
+                        className="h-4 w-4"
+                        color={icon === ic ? color : "#64748b"}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
       <div>

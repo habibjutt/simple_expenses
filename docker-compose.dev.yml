@@ -1,0 +1,51 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Development Compose — Hot-reload with Docker-backed Node 22
+#
+# Usage:
+#   npm run dev:docker              Start dev server (first run installs deps)
+#   npm run dev:docker:down         Stop and remove containers
+#   npm run dev:docker:reset        Nuke node_modules volume and reinstall
+#
+# Why Docker for dev?
+#   - Matches production Node 22 — no native-binary or API conflicts
+#   - Memory-capped (4 GB) so the dev server can't freeze your PC
+#   - No local npm install needed; deps live in a Docker volume
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      # Bind-mount source for hot reload (edit locally → reflects in container)
+      - .:/app
+      # Isolate container node_modules from host.
+      # Prevents Node 25 (host) ↔ Node 22 (container) native binary conflicts.
+      - node_modules:/app/node_modules
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      # Polling-based file watcher — required for Windows → Linux bind mounts.
+      # Turbopack uses inotify (not watchpack) so polling doesn't work with it.
+      # We run next dev --webpack below so WATCHPACK_POLLING takes effect.
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
+    # Install deps into the named volume, then start the dev server.
+    # npm install triggers postinstall → prisma generate automatically.
+    # Subsequent starts are fast because the named volume persists.
+    #
+    # --webpack: Turbopack's inotify watcher can't detect file changes through
+    # Docker bind mounts on Windows. Webpack + WATCHPACK_POLLING=true uses
+    # polling which works reliably. Local (non-Docker) dev still uses Turbopack.
+    command: sh -c "npm install && cd apps/web && npx next dev --webpack"
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+    restart: unless-stopped
+
+volumes:
+  node_modules:

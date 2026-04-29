@@ -81,6 +81,7 @@ export const auth = betterAuth({
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }) => {
+      console.log(`[auth] sendVerificationEmail hook called for ${user.email}`);
       await sendVerificationEmail({ to: user.email, url });
     },
   },

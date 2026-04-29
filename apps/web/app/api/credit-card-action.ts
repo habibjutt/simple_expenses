@@ -372,6 +372,32 @@ export async function getUpcomingInvoice(
     totalAmount,
     card,
     invoice: existingInvoice,
+    previousBalanceOwed: await (async () => {
+      // If we already have a stored value use it
+      if (existingInvoice?.previousBalanceOwed) {
+        return existingInvoice.previousBalanceOwed;
+      }
+      // Otherwise lazily compute from the previous billing period's unpaid balance
+      const prevBillStart = new Date(billStartDate);
+      prevBillStart.setMonth(prevBillStart.getMonth() - 1);
+      const prevInvoice = await db.invoice.findUnique({
+        where: {
+          creditCardId_billStartDate_billEndDate: {
+            creditCardId: cardId,
+            billStartDate: prevBillStart,
+            billEndDate: billStartDate,
+          },
+        },
+      });
+      if (prevInvoice && !prevInvoice.isPaid) {
+        const prevEffectiveTotal =
+          prevInvoice.totalAmount +
+          (prevInvoice.previousBalanceOwed ?? 0) -
+          prevInvoice.creditFromPreviousMonth;
+        return Math.max(0, prevEffectiveTotal - prevInvoice.paidAmount);
+      }
+      return 0;
+    })(),
   };
 }
 
@@ -381,7 +407,7 @@ export async function payInvoice(
   billStartDate: Date,
   billEndDate: Date,
   paymentDueDate: Date,
-  totalAmount: number,
+  paymentAmount: number, // the amount being paid now (not the invoice total)
 ): Promise<ActionResult> {
   const parse = PayInvoiceSchema.safeParse({
     cardId,
@@ -389,7 +415,7 @@ export async function payInvoice(
     billStartDate,
     billEndDate,
     paymentDueDate,
-    totalAmount,
+    paymentAmount,
   });
   if (!parse.success) {
     return { error: parse.error.issues[0].message };
@@ -422,9 +448,27 @@ export async function payInvoice(
   }
 
   // Check if bank account has sufficient balance
-  if (bankAccount.currentBalance < totalAmount) {
+  if (bankAccount.currentBalance < paymentAmount) {
     throw new Error("Insufficient balance in bank account");
   }
+
+  // Compute the actual invoice total from DB transactions using the correct billing window.
+  // Transactions for a bill starting on billStartDate come from the PREVIOUS month's window:
+  // gt: billStartDate - 1 month, lte: billStartDate
+  const transactionWindowStart = new Date(billStartDate);
+  transactionWindowStart.setMonth(transactionWindowStart.getMonth() - 1);
+
+  const invoiceTransactions = await db.transaction.findMany({
+    where: {
+      creditCardId: cardId,
+      date: { gt: transactionWindowStart, lte: billStartDate },
+      OR: [{ installmentNumber: null }, { installmentNumber: { gt: 0 } }],
+    },
+  });
+  const invoiceTransactionTotal = invoiceTransactions.reduce(
+    (sum, t) => sum + t.amount,
+    0,
+  );
 
   // Check if invoice already exists and is paid
   const existingInvoice = await db.invoice.findUnique({
@@ -441,20 +485,47 @@ export async function payInvoice(
     throw new Error("Invoice is already fully paid");
   }
 
-  // Check if this would be a partial or full payment, or an overpayment
-  const currentPaidAmount = existingInvoice?.paidAmount || 0;
-  const creditFromPreviousMonth = existingInvoice?.creditFromPreviousMonth || 0;
-  const invoiceTotal = existingInvoice?.totalAmount || totalAmount;
+  const currentPaidAmount = existingInvoice?.paidAmount ?? 0;
+  const creditFromPreviousMonth = existingInvoice?.creditFromPreviousMonth ?? 0;
 
-  // Actual amount owed is invoice total minus any credit from previous month
-  const amountOwed = invoiceTotal - creditFromPreviousMonth;
-  const totalPaidSoFar = currentPaidAmount;
-  const remainingAmount = amountOwed - totalPaidSoFar;
-  const newPaidAmount = currentPaidAmount + totalAmount;
+  // Determine previousBalanceOwed: if the invoice already exists, use its stored value.
+  // For the first payment, check the previous billing period for any unpaid carry-forward.
+  let previousBalanceOwed = existingInvoice?.previousBalanceOwed ?? 0;
+  if (!existingInvoice) {
+    const prevBillStart = new Date(billStartDate);
+    prevBillStart.setMonth(prevBillStart.getMonth() - 1);
 
-  // Invoice is fully paid if total paid (including new payment) >= amount owed
-  const isFullyPaid = newPaidAmount >= amountOwed;
-  const overpaymentAmount = Math.max(0, newPaidAmount - amountOwed);
+    const prevInvoice = await db.invoice.findUnique({
+      where: {
+        creditCardId_billStartDate_billEndDate: {
+          creditCardId: cardId,
+          billStartDate: prevBillStart,
+          billEndDate: billStartDate,
+        },
+      },
+    });
+
+    if (prevInvoice && !prevInvoice.isPaid) {
+      const prevEffectiveTotal =
+        prevInvoice.totalAmount +
+        (prevInvoice.previousBalanceOwed ?? 0) -
+        prevInvoice.creditFromPreviousMonth;
+      previousBalanceOwed = Math.max(
+        0,
+        prevEffectiveTotal - prevInvoice.paidAmount,
+      );
+    }
+  }
+
+  // Effective total = DB transaction total + previous unpaid balance - overpayment credit
+  const invoiceTotal = invoiceTransactionTotal;
+  const effectiveTotal = Math.max(
+    0,
+    invoiceTotal + previousBalanceOwed - creditFromPreviousMonth,
+  );
+  const newPaidAmount = currentPaidAmount + paymentAmount;
+  const isFullyPaid = newPaidAmount >= effectiveTotal;
+  const overpaymentAmount = Math.max(0, newPaidAmount - effectiveTotal);
 
   // Perform the payment in a transaction
   await db.$transaction(async (tx) => {
@@ -463,31 +534,32 @@ export async function payInvoice(
       where: { id: bankAccountId },
       data: {
         currentBalance: {
-          decrement: totalAmount,
+          decrement: paymentAmount,
         },
       },
     });
 
-    // Restore credit card available balance for the full payment (including overpayment)
+    // Restore credit card available balance
     await tx.credit_card.update({
       where: { id: cardId },
       data: {
         availableBalance: {
-          increment: totalAmount,
+          increment: paymentAmount,
         },
       },
     });
 
-    // Create or update invoice record
+    // Create or update invoice record with DB-computed totals
     if (existingInvoice) {
       await tx.invoice.update({
         where: { id: existingInvoice.id },
         data: {
+          totalAmount: invoiceTotal,
+          previousBalanceOwed,
           paidAmount: newPaidAmount,
           isPaid: isFullyPaid,
           paidAt: isFullyPaid ? new Date() : existingInvoice.paidAt,
           paidFromBankAccountId: bankAccountId,
-          totalAmount: existingInvoice.totalAmount, // Keep the original total
         },
       });
     } else {
@@ -497,18 +569,18 @@ export async function payInvoice(
           billStartDate,
           billEndDate,
           paymentDueDate,
-          totalAmount,
-          paidAmount: totalAmount,
-          isPaid: true,
-          paidAt: new Date(),
+          totalAmount: invoiceTotal,
+          previousBalanceOwed,
+          paidAmount: paymentAmount,
+          isPaid: isFullyPaid,
+          paidAt: isFullyPaid ? new Date() : null,
           paidFromBankAccountId: bankAccountId,
         },
       });
     }
 
-    // If there's an overpayment, apply it to the next invoice
+    // If there's an overpayment, carry the credit forward to the next invoice
     if (overpaymentAmount > 0) {
-      // Calculate next billing period
       const nextBillStartDate = new Date(billEndDate);
       const nextBillEndDate = new Date(billEndDate);
       nextBillEndDate.setMonth(nextBillEndDate.getMonth() + 1);
@@ -516,7 +588,6 @@ export async function payInvoice(
       const nextPaymentDueDate = new Date(paymentDueDate);
       nextPaymentDueDate.setMonth(nextPaymentDueDate.getMonth() + 1);
 
-      // Check if next invoice already exists
       const nextInvoice = await tx.invoice.findUnique({
         where: {
           creditCardId_billStartDate_billEndDate: {
@@ -528,13 +599,16 @@ export async function payInvoice(
       });
 
       if (nextInvoice) {
-        // Update existing next invoice with the overpayment credit
         const nextInvoiceCreditFromPrevious =
           nextInvoice.creditFromPreviousMonth + overpaymentAmount;
-        const nextInvoiceAmountOwed =
-          nextInvoice.totalAmount - nextInvoiceCreditFromPrevious;
+        const nextEffectiveTotal = Math.max(
+          0,
+          nextInvoice.totalAmount +
+            (nextInvoice.previousBalanceOwed ?? 0) -
+            nextInvoiceCreditFromPrevious,
+        );
         const nextInvoiceIsFullyPaid =
-          nextInvoice.paidAmount >= nextInvoiceAmountOwed;
+          nextInvoice.paidAmount >= nextEffectiveTotal;
 
         await tx.invoice.update({
           where: { id: nextInvoice.id },
@@ -545,15 +619,12 @@ export async function payInvoice(
           },
         });
       } else {
-        // Create a new invoice for the next period with the overpayment as credit
-        // Calculate total amount from transactions in next period
+        // Fetch next period's transaction total using the correct billing window:
+        // transactions for nextBillStartDate come from: gt: billStartDate, lte: nextBillStartDate
         const nextPeriodTransactions = await tx.transaction.findMany({
           where: {
             creditCardId: cardId,
-            date: {
-              gte: nextBillStartDate,
-              lt: nextBillEndDate,
-            },
+            date: { gt: billStartDate, lte: nextBillStartDate },
             OR: [{ installmentNumber: null }, { installmentNumber: { gt: 0 } }],
           },
         });
@@ -562,7 +633,10 @@ export async function payInvoice(
           (sum, txn) => sum + txn.amount,
           0,
         );
-        const nextInvoiceAmountOwed = nextPeriodTotal - overpaymentAmount;
+        const nextEffectiveTotal = Math.max(
+          0,
+          nextPeriodTotal - overpaymentAmount,
+        );
         const nextInvoiceIsFullyPaid = overpaymentAmount >= nextPeriodTotal;
 
         await tx.invoice.create({
@@ -573,7 +647,7 @@ export async function payInvoice(
             paymentDueDate: nextPaymentDueDate,
             totalAmount: nextPeriodTotal,
             creditFromPreviousMonth: overpaymentAmount,
-            paidAmount: 0, // The credit is separate from paid amount
+            paidAmount: 0,
             isPaid: nextInvoiceIsFullyPaid,
             paidAt: nextInvoiceIsFullyPaid ? new Date() : null,
           },

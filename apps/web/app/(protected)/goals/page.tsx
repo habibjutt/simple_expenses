@@ -13,6 +13,7 @@ import {
   addContribution,
   type SavingsGoal,
 } from "@/app/api/savings-goal-action";
+import { getUserProfile } from "@/app/api/user-action";
 import { formatCurrency } from "@/lib/utils";
 import {
   Target,
@@ -43,11 +44,13 @@ const GOAL_COLORS = [
 
 function GoalCard({
   goal,
+  currency,
   onContribute,
   onEdit,
   onDelete,
 }: {
   goal: SavingsGoal;
+  currency: string;
   onContribute: (g: SavingsGoal) => void;
   onEdit: (g: SavingsGoal) => void;
   onDelete: (id: string) => void;
@@ -123,12 +126,12 @@ function GoalCard({
           <div className="flex justify-between text-xs mb-1.5">
             <span className="text-slate-500">
               <span className="font-semibold text-slate-800">
-                {formatCurrency(goal.currentAmount)}
+                {formatCurrency(goal.currentAmount, currency)}
               </span>{" "}
               saved
             </span>
             <span className="text-slate-400">
-              Target: {formatCurrency(goal.targetAmount)}
+              Target: {formatCurrency(goal.targetAmount, currency)}
             </span>
           </div>
           <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
@@ -146,7 +149,7 @@ function GoalCard({
             </span>
             {!goal.isCompleted && remaining > 0 && (
               <span className="text-xs text-slate-400">
-                {formatCurrency(remaining)} to go
+                {formatCurrency(remaining, currency)} to go
               </span>
             )}
           </div>
@@ -185,9 +188,15 @@ export default function GoalsPage() {
   const [contribAmount, setContribAmount] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [preferredCurrency, setPreferredCurrency] = useState("AED");
 
   useEffect(() => {
     if (!isPending && !session) router.push("/login");
+    if (session) {
+      getUserProfile().then((p) => {
+        if (p?.preferredCurrency) setPreferredCurrency(p.preferredCurrency);
+      });
+    }
   }, [session, isPending, router]);
 
   const load = useCallback(async () => {
@@ -345,14 +354,14 @@ export default function GoalsPage() {
                 <div className="bg-white/10 rounded-xl p-3 text-center">
                   <PiggyBank className="h-4 w-4 mx-auto mb-1 text-white/70" />
                   <p className="text-sm font-bold">
-                    {formatCurrency(totalSaved)}
+                    {formatCurrency(totalSaved, preferredCurrency)}
                   </p>
                   <p className="text-xs text-white/60">Total saved</p>
                 </div>
                 <div className="bg-white/10 rounded-xl p-3 text-center">
                   <Target className="h-4 w-4 mx-auto mb-1 text-white/70" />
                   <p className="text-sm font-bold">
-                    {formatCurrency(totalTarget)}
+                    {formatCurrency(totalTarget, preferredCurrency)}
                   </p>
                   <p className="text-xs text-white/60">Total target</p>
                 </div>
@@ -397,6 +406,7 @@ export default function GoalsPage() {
                       <GoalCard
                         key={g.id}
                         goal={g}
+                        currency={preferredCurrency}
                         onContribute={openContribute}
                         onEdit={openEdit}
                         onDelete={handleDelete}
@@ -420,6 +430,7 @@ export default function GoalsPage() {
                       <GoalCard
                         key={g.id}
                         goal={g}
+                        currency={preferredCurrency}
                         onContribute={openContribute}
                         onEdit={openEdit}
                         onDelete={handleDelete}
@@ -462,7 +473,7 @@ export default function GoalsPage() {
               </div>
               <div>
                 <label className="text-xs font-medium text-slate-500 mb-1 block">
-                  Target Amount (AED)
+                  Target Amount ({preferredCurrency})
                 </label>
                 <input
                   type="number"
@@ -551,7 +562,7 @@ export default function GoalsPage() {
               <div className="bg-slate-50 rounded-xl p-3 flex justify-between text-sm">
                 <span className="text-slate-500">Current</span>
                 <span className="font-semibold">
-                  {formatCurrency(activeGoal.currentAmount)}
+                  {formatCurrency(activeGoal.currentAmount, preferredCurrency)}
                 </span>
               </div>
               <div className="bg-slate-50 rounded-xl p-3 flex justify-between text-sm">
@@ -559,12 +570,13 @@ export default function GoalsPage() {
                 <span className="font-semibold text-[#1a9e5c]">
                   {formatCurrency(
                     activeGoal.targetAmount - activeGoal.currentAmount,
+                    preferredCurrency,
                   )}
                 </span>
               </div>
               <div>
                 <label className="text-xs font-medium text-slate-500 mb-1 block">
-                  Amount to add (AED)
+                  Amount to add ({preferredCurrency})
                 </label>
                 <input
                   type="number"

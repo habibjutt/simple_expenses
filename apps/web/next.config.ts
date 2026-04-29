@@ -16,13 +16,17 @@ import path from "node:path";
  *    (window.location.href), not iframes or fetch calls, so no extra CSP
  *    allowances are required beyond form-action 'self'.
  */
+const isDev = process.env.NODE_ENV !== "production";
+
 const CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  // 'unsafe-eval' is required in dev for webpack HMR / React Refresh.
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self'",
-  "connect-src 'self'",
+  // In dev, webpack HMR uses WebSocket connections.
+  `connect-src 'self'${isDev ? " ws://localhost:* ws://127.0.0.1:*" : ""}`,
   "frame-src 'none'",
   "object-src 'none'",
   "base-uri 'self'",

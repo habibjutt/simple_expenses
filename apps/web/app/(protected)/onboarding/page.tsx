@@ -221,7 +221,6 @@ function BankAccountStep({
 }) {
   const [name, setName] = useState("");
   const [balance, setBalance] = useState("0");
-  const [acctCurrency, setAcctCurrency] = useState(currency);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -234,7 +233,7 @@ function BankAccountStep({
     }
     setLoading(true);
     try {
-      await onNext(name.trim(), balance, acctCurrency);
+      await onNext(name.trim(), balance, currency);
     } catch {
       setError("Failed to create account. Please try again.");
     } finally {
@@ -274,36 +273,23 @@ function BankAccountStep({
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-              Current balance
-            </label>
-            <input
-              type="number"
-              value={balance}
-              onChange={(e) => setBalance(e.target.value)}
-              min="0"
-              step="0.01"
-              className="w-full px-3.5 py-2.5 rounded-xl border-2 border-slate-200 text-sm focus:outline-none focus:border-[#1a9e5c] transition-colors bg-white"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-              Currency
-            </label>
-            <select
-              value={acctCurrency}
-              onChange={(e) => setAcctCurrency(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-xl border-2 border-slate-200 text-sm focus:outline-none focus:border-[#1a9e5c] transition-colors bg-white"
-            >
-              {SUPPORTED_CURRENCIES.map((c) => (
-                <option key={c.code} value={c.code}>
-                  {c.code}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div>
+          <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+            Current balance
+          </label>
+          <input
+            type="number"
+            value={balance}
+            onChange={(e) => setBalance(e.target.value)}
+            min="0"
+            step="0.01"
+            className="w-full px-3.5 py-2.5 rounded-xl border-2 border-slate-200 text-sm focus:outline-none focus:border-[#1a9e5c] transition-colors bg-white"
+          />
+          <p className="text-xs text-slate-400 mt-1.5">
+            Currency:{" "}
+            <span className="font-semibold text-slate-600">{currency}</span>
+            {" · "}based on your preference
+          </p>
         </div>
 
         <button
@@ -352,7 +338,6 @@ function CreditCardStep({
   const [limit, setLimit] = useState("10000");
   const [billDate, setBillDate] = useState("25");
   const [payDate, setPayDate] = useState("5");
-  const [cardCurrency, setCardCurrency] = useState(currency);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -370,7 +355,7 @@ function CreditCardStep({
         limit,
         billDate,
         paymentDate: payDate,
-        currency: cardCurrency,
+        currency: currency,
       });
     } catch {
       setError("Failed to add card. Please try again.");
@@ -413,36 +398,23 @@ function CreditCardStep({
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-              Credit limit
-            </label>
-            <input
-              type="number"
-              value={limit}
-              onChange={(e) => setLimit(e.target.value)}
-              min="0.01"
-              step="any"
-              className="w-full px-3.5 py-2.5 rounded-xl border-2 border-slate-200 text-sm focus:outline-none focus:border-[#1a9e5c] transition-colors bg-white"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-              Currency
-            </label>
-            <select
-              value={cardCurrency}
-              onChange={(e) => setCardCurrency(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-xl border-2 border-slate-200 text-sm focus:outline-none focus:border-[#1a9e5c] transition-colors bg-white"
-            >
-              {SUPPORTED_CURRENCIES.map((c) => (
-                <option key={c.code} value={c.code}>
-                  {c.code}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div>
+          <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+            Credit limit
+          </label>
+          <input
+            type="number"
+            value={limit}
+            onChange={(e) => setLimit(e.target.value)}
+            min="0.01"
+            step="any"
+            className="w-full px-3.5 py-2.5 rounded-xl border-2 border-slate-200 text-sm focus:outline-none focus:border-[#1a9e5c] transition-colors bg-white"
+          />
+          <p className="text-xs text-slate-400 mt-1.5">
+            Currency:{" "}
+            <span className="font-semibold text-slate-600">{currency}</span>
+            {" · "}based on your preference
+          </p>
         </div>
 
         <div className="grid grid-cols-2 gap-3">

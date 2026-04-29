@@ -8,7 +8,7 @@ export const PayInvoiceSchema = z.object({
   billStartDate: z.date({ error: "Invalid bill start date" }),
   billEndDate: z.date({ error: "Invalid bill end date" }),
   paymentDueDate: z.date({ error: "Invalid payment due date" }),
-  totalAmount: z.number().min(0, "Total amount cannot be negative"),
+  paymentAmount: z.number().min(0.01, "Payment amount must be greater than 0"),
 });
 
 export const EditInvoiceSchema = z.object({
