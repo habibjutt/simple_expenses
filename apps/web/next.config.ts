@@ -50,6 +50,16 @@ const nextConfig: NextConfig = {
   output: "standalone",
   // Trace from the monorepo root so shared packages (packages/*) are included.
   outputFileTracingRoot: path.join(__dirname, "../../"),
+  experimental: {
+    turbo: {
+      // The monorepo root node_modules hoists tailwindcss@3 (from NativeWind/mobile).
+      // Force Turbopack's CSS resolver to use the local tailwindcss@4 installation
+      // inside apps/web/node_modules so `@import "tailwindcss"` resolves correctly.
+      resolveAlias: {
+        tailwindcss: path.resolve(__dirname, "node_modules/tailwindcss"),
+      },
+    },
+  },
   async headers() {
     return [
       {
