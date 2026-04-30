@@ -41,23 +41,6 @@ function getResend(): Resend {
   return _resend;
 }
 
-// Verify/announce the active provider on module load
-if (env.EMAIL_PROVIDER === "smtp") {
-  getSmtp()
-    .verify()
-    .then(() => console.log("[email] SMTP connection verified ✓"))
-    .catch((err: unknown) =>
-      console.error(
-        "[email] SMTP connection FAILED — check SMTP_HOST / SMTP_PORT / credentials:",
-        err,
-      ),
-    );
-} else {
-  console.log(
-    `[email] Using Resend — from: ${env.EMAIL_FROM}`,
-  );
-}
-
 // ─── Unified send helper ──────────────────────────────────────────────────────
 
 async function sendEmail({
