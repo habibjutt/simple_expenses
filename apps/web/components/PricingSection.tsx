@@ -6,10 +6,24 @@ import { useRouter } from "next/navigation";
 import { Check, Sparkles, Zap, Loader2, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "@/lib/auth-client";
-import { createCheckoutSession } from "@/app/api/billing-action";
-import { STRIPE_PRICES } from "@/lib/stripe-config";
+import { createCheckoutSession, type PlanKey } from "@/app/api/billing-action";
 
-const PLANS = {
+const PLANS: Record<
+  "monthly" | "yearly",
+  Array<{
+    id: string;
+    name: string;
+    price: string;
+    priceLabel: string;
+    description: string;
+    cta: string;
+    href: string;
+    highlight: boolean;
+    badge: string | null;
+    planKey?: PlanKey;
+    features: string[];
+  }>
+> = {
   monthly: [
     {
       id: "starter",
@@ -42,7 +56,7 @@ const PLANS = {
       href: "/signup?plan=pro",
       highlight: true,
       badge: "Most Popular",
-      priceId: () => STRIPE_PRICES.pro.monthly,
+      planKey: "pro-monthly",
       features: [
         "Unlimited credit cards",
         "Unlimited bank accounts",
@@ -67,7 +81,7 @@ const PLANS = {
       href: "/signup?plan=premium",
       highlight: false,
       badge: null,
-      priceId: () => STRIPE_PRICES.premium.monthly,
+      planKey: "premium-monthly",
       features: [
         "Everything in Pro",
         "CSV & PDF data export",
@@ -112,7 +126,7 @@ const PLANS = {
       href: "/signup?plan=pro-yearly",
       highlight: true,
       badge: "Save AED 99",
-      priceId: () => STRIPE_PRICES.pro.yearly,
+      planKey: "pro-yearly",
       features: [
         "Unlimited credit cards",
         "Unlimited bank accounts",
@@ -137,7 +151,7 @@ const PLANS = {
       href: "/signup?plan=premium-yearly",
       highlight: false,
       badge: "Save AED 269",
-      priceId: () => STRIPE_PRICES.premium.yearly,
+      planKey: "premium-yearly",
       features: [
         "Everything in Pro",
         "CSV & PDF data export",
@@ -165,19 +179,15 @@ export default function PricingSection() {
       router.push("/signup");
       return;
     }
-    // Find the plan to get its specific price ID
     const plan = plans.find((p) => p.id === planId);
-    const priceId =
-      plan && "priceId" in plan && typeof plan.priceId === "function"
-        ? plan.priceId()
-        : "";
-    if (!priceId) {
+    const planKey = plan?.planKey;
+    if (!planKey) {
       router.push("/billing");
       return;
     }
     setLoadingPlan(planId);
     try {
-      const { url } = await createCheckoutSession(priceId);
+      const { url } = await createCheckoutSession(planKey);
       if (url) window.location.href = url;
     } catch {
       router.push("/billing");

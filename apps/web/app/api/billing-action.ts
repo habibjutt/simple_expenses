@@ -3,11 +3,19 @@
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { getStripe } from "@/lib/stripe";
-import { STRIPE_PRICES, ALL_VALID_PRICE_IDS } from "@/lib/stripe-config";
-import { STRIPE_PRICE_TO_PLAN } from "@/lib/plans";
 import { db } from "@/lib/db";
 import { getSubscriptionInfo } from "@/lib/subscription";
 import { env } from "@/lib/env";
+
+/**
+ * Plan keys passed from client components. Price IDs are resolved
+ * server-side so they never need to be exposed to the browser.
+ */
+export type PlanKey =
+  | "pro-monthly"
+  | "pro-yearly"
+  | "premium-monthly"
+  | "premium-yearly";
 
 const BASE_URL = env.BETTER_AUTH_URL;
 
@@ -34,13 +42,25 @@ async function getOrCreateStripeCustomer(userId: string) {
   return customer.id;
 }
 
-export async function createCheckoutSession(priceId: string) {
+/** Resolves a PlanKey to the configured Stripe price ID. Throws if not set. */
+function resolvePriceId(planKey: PlanKey): string {
+  const priceMap: Record<PlanKey, string | undefined> = {
+    "pro-monthly": env.STRIPE_PRO_MONTHLY_PRICE_ID,
+    "pro-yearly": env.STRIPE_PRO_YEARLY_PRICE_ID,
+    "premium-monthly": env.STRIPE_PREMIUM_MONTHLY_PRICE_ID,
+    "premium-yearly": env.STRIPE_PREMIUM_YEARLY_PRICE_ID,
+  };
+  const priceId = priceMap[planKey];
+  if (!priceId) throw new Error(`Stripe price not configured for: ${planKey}`);
+  return priceId;
+}
+
+export async function createCheckoutSession(planKey: PlanKey) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) throw new Error("Unauthorized");
 
-  if (!ALL_VALID_PRICE_IDS.has(priceId)) {
-    throw new Error("Invalid price ID");
-  }
+  const priceId = resolvePriceId(planKey);
+  const planTier = planKey.startsWith("pro") ? "pro" : "premium";
 
   const customerId = await getOrCreateStripeCustomer(session.user.id);
 
@@ -50,9 +70,6 @@ export async function createCheckoutSession(priceId: string) {
     subInfo?.status === "trialing" && !subInfo.hasStripeSubscription
       ? (subInfo.daysLeftInTrial ?? 0)
       : 0;
-
-  // Resolve the plan tier for this price and store it in Stripe metadata
-  const planTier = STRIPE_PRICE_TO_PLAN[priceId] ?? "pro";
 
   const checkoutSession = await getStripe().checkout.sessions.create({
     customer: customerId,
