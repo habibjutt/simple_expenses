@@ -35,10 +35,30 @@ export async function getUserProfile() {
     select: {
       onboardingCompleted: true,
       preferredCurrency: true,
+      billReminderDays: true,
       name: true,
     },
   });
   return user;
+}
+
+export async function updateBillReminderDays(days: number) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) {
+    return { error: "Unauthorized" };
+  }
+
+  const validOptions = [0, 1, 2, 3, 5, 7, 14];
+  if (!validOptions.includes(days)) {
+    return { error: "Invalid reminder days value" };
+  }
+
+  await db.user.update({
+    where: { id: session.user.id },
+    data: { billReminderDays: days },
+  });
+
+  revalidatePath("/settings");
 }
 
 export async function completeOnboarding() {

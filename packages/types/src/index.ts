@@ -40,6 +40,7 @@ export interface User {
   role: string;
   preferredCurrency: string;
   onboardingCompleted: boolean;
+  billReminderDays: number;
   subscriptionStatus: string | null;
   createdAt: string;
   updatedAt: string;
@@ -365,6 +366,7 @@ export const userSchema = z.object({
   role: z.string(),
   preferredCurrency: z.string(),
   onboardingCompleted: z.boolean(),
+  billReminderDays: z.number().default(1),
   subscriptionStatus: z.string().nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),

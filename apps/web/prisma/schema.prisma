@@ -45,6 +45,7 @@ model user {
 
   preferredCurrency    String    @default("AED")
   onboardingCompleted  Boolean   @default(false)
+  billReminderDays     Int       @default(1) // Days before invoice due date to send email reminder (0 = same day)
 
   accounts account[]
   sessions session[]
@@ -160,6 +161,7 @@ model invoice {
   isPaid                   Boolean   @default(false)
   paidAt                   DateTime?
   paidFromBankAccountId    String?
+  reminderSentAt           DateTime? // Set when the bill reminder email is sent; cleared when invoice is paid
   createdAt                DateTime  @default(now())
   updatedAt                DateTime  @updatedAt
 

@@ -236,6 +236,16 @@ export const auth = {
     });
   },
 
+  async updateBillReminderDays(
+    days: number,
+  ): Promise<{ billReminderDays: number }> {
+    return request<{ billReminderDays: number }>("/api/v1/user/preferences", {
+      method: "PATCH",
+      body: JSON.stringify({ billReminderDays: days }),
+      schema: z.object({ billReminderDays: z.number() }),
+    });
+  },
+
   async logout(): Promise<void> {
     return request<void>("/api/v1/auth/logout", { method: "POST" });
   },

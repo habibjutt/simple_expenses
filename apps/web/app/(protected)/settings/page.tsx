@@ -10,6 +10,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   User,
   KeyRound,
   Bell,
@@ -20,7 +27,7 @@ import {
 import ChangePasswordModal from "@/components/change-password-modal";
 import DeleteAccountModal from "@/components/delete-account-modal";
 import { SUPPORTED_CURRENCIES } from "@/lib/utils";
-import { updatePreferredCurrency } from "@/app/api/user-action";
+import { updatePreferredCurrency, updateBillReminderDays, getUserProfile } from "@/app/api/user-action";
 import { FormCombobox } from "@/components/ui/form-combobox";
 
 type AlertState = { type: "success" | "error"; message: string } | null;
@@ -70,6 +77,9 @@ export default function SettingsPage() {
   const [preferredCurrency, setPreferredCurrency] = useState("AED");
   const [savingCurrency, setSavingCurrency] = useState(false);
 
+  const [billReminderDays, setBillReminderDays] = useState<number>(1);
+  const [savingReminder, setSavingReminder] = useState(false);
+
   useEffect(() => {
     if (!isPending && !session) {
       router.push("/login");
@@ -86,6 +96,12 @@ export default function SettingsPage() {
     if (userRecord?.preferredCurrency) {
       setPreferredCurrency(userRecord.preferredCurrency);
     }
+    // Load billReminderDays from DB (not in session object)
+    getUserProfile().then((profile) => {
+      if (profile?.billReminderDays !== undefined) {
+        setBillReminderDays(profile.billReminderDays);
+      }
+    });
   }, [session]);
 
   const handleSaveProfile = async (e: React.FormEvent) => {
@@ -126,6 +142,26 @@ export default function SettingsPage() {
       });
     } finally {
       setSavingCurrency(false);
+    }
+  };
+
+  const handleSaveReminderDays = async () => {
+    setSavingReminder(true);
+    setAlert(null);
+    try {
+      const result = await updateBillReminderDays(billReminderDays);
+      if (result?.error) {
+        setAlert({ type: "error", message: result.error });
+      } else {
+        setAlert({ type: "success", message: "Reminder preference saved!" });
+      }
+    } catch (err) {
+      setAlert({
+        type: "error",
+        message: (err as Error).message || "Failed to save reminder setting.",
+      });
+    } finally {
+      setSavingReminder(false);
     }
   };
 
@@ -279,18 +315,42 @@ export default function SettingsPage() {
               </div>
             </div>
             <div className="px-5 py-5">
-              <div className="flex items-center justify-between p-4 rounded-xl border border-slate-100 bg-slate-50">
+              <div className="p-4 rounded-xl border border-slate-100 bg-slate-50 space-y-3">
                 <div>
                   <p className="text-sm font-medium text-slate-800">
                     Bill due reminders
                   </p>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Get notified 7 days before invoice due dates
+                    Get an email reminder before your credit card invoice due date
                   </p>
                 </div>
-                <span className="text-xs bg-emerald-100 text-emerald-700 font-medium px-2.5 py-1 rounded-full">
-                  Coming soon
-                </span>
+                <div className="flex items-center gap-3">
+                  <Select
+                    value={String(billReminderDays)}
+                    onValueChange={(v) => setBillReminderDays(Number(v))}
+                  >
+                    <SelectTrigger className="w-48 border-slate-200 bg-white text-slate-700 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0">On the due date</SelectItem>
+                      <SelectItem value="1">1 day before</SelectItem>
+                      <SelectItem value="2">2 days before</SelectItem>
+                      <SelectItem value="3">3 days before</SelectItem>
+                      <SelectItem value="5">5 days before</SelectItem>
+                      <SelectItem value="7">1 week before</SelectItem>
+                      <SelectItem value="14">2 weeks before</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    size="sm"
+                    disabled={savingReminder}
+                    onClick={handleSaveReminderDays}
+                    className="bg-[#1a9e5c] hover:bg-[#158a4f] text-white"
+                  >
+                    {savingReminder ? "Saving…" : "Save"}
+                  </Button>
+                </div>
               </div>
             </div>
           </section>

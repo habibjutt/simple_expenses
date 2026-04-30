@@ -371,6 +371,81 @@ export async function sendPaymentFailedEmail({
   }
 }
 
+// ─── Bill due reminder ────────────────────────────────────────────────────────
+
+export async function sendBillDueReminderEmail({
+  to,
+  userName,
+  cardName,
+  dueDate,
+  totalAmount,
+  currency,
+  daysUntilDue,
+}: {
+  to: string;
+  userName: string;
+  cardName: string;
+  dueDate: Date;
+  totalAmount: number;
+  currency: string;
+  daysUntilDue: number;
+}) {
+  const dueDateStr = dueDate.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  const amountStr = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(totalAmount);
+  const daysLabel =
+    daysUntilDue === 0
+      ? "today"
+      : daysUntilDue === 1
+        ? "tomorrow"
+        : `in ${daysUntilDue} days`;
+  const urgencyColor = daysUntilDue === 0 ? "#dc2626" : daysUntilDue <= 2 ? "#d97706" : "#18181b";
+
+  try {
+    const id = await sendEmail({
+      to,
+      subject: `💳 Bill payment due ${daysLabel} — ${cardName}`,
+      html: emailWrapper(`
+        <h2 style="margin-top:0;">Bill payment reminder 💳</h2>
+        <p>Hi ${userName},</p>
+        <p>Your credit card bill for <strong>${cardName}</strong> is due <strong style="color:${urgencyColor};">${daysLabel}</strong> on <strong>${dueDateStr}</strong>.</p>
+        <table style="width:100%;border-collapse:collapse;margin:20px 0;background:#f9fafb;border-radius:10px;overflow:hidden;">
+          <tr>
+            <td style="padding:14px 18px;font-size:13px;color:#71717a;border-bottom:1px solid #e4e4e7;">Card</td>
+            <td style="padding:14px 18px;font-size:13px;font-weight:600;color:#18181b;border-bottom:1px solid #e4e4e7;text-align:right;">${cardName}</td>
+          </tr>
+          <tr>
+            <td style="padding:14px 18px;font-size:13px;color:#71717a;">Amount due</td>
+            <td style="padding:14px 18px;font-size:15px;font-weight:700;color:${urgencyColor};text-align:right;">${amountStr}</td>
+          </tr>
+        </table>
+        <p style="margin: 24px 0;">
+          <a href="${appUrl}/invoices" style="background:#18181b;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:600;">
+            View invoice &amp; pay
+          </a>
+        </p>
+        <p style="color:#71717a;font-size:13px;">
+          You can adjust how many days before the due date you receive these reminders in your
+          <a href="${appUrl}/settings" style="color:#18181b;">account settings</a>.
+        </p>
+      `),
+    });
+    console.log(`[email] Bill due reminder sent to ${to} (${cardName}, due ${daysLabel}) — id: ${id}`);
+  } catch (err) {
+    console.error(`[email] Failed to send bill due reminder to ${to}:`, err);
+    throw err;
+  }
+}
+
 export async function sendSubscriptionRenewedEmail({
   to,
   name,

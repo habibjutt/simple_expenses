@@ -235,6 +235,75 @@ function CurrencyPickerModal({
 }
 
 // ---------------------------------------------------------------------------
+// Reminder Days Picker Modal
+// ---------------------------------------------------------------------------
+
+const REMINDER_OPTIONS = [
+  { value: 0, label: "On the due date" },
+  { value: 1, label: "1 day before" },
+  { value: 2, label: "2 days before" },
+  { value: 3, label: "3 days before" },
+  { value: 5, label: "5 days before" },
+  { value: 7, label: "1 week before" },
+  { value: 14, label: "2 weeks before" },
+];
+
+function ReminderDaysPickerModal({
+  visible, current, onClose, onSelect,
+}: {
+  visible: boolean;
+  current: number;
+  onClose: () => void;
+  onSelect: (days: number) => void;
+}) {
+  const [saving, setSaving] = useState<number | null>(null);
+
+  async function handleSelect(days: number) {
+    if (days === current) return onClose();
+    setSaving(days);
+    try {
+      await auth.updateBillReminderDays(days);
+      onSelect(days);
+      onClose();
+    } catch (e: unknown) {
+      Alert.alert("Error", e instanceof Error ? e.message : "Failed to update reminder setting");
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  return (
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <View style={s.modalOverlay}>
+        <View style={[s.currencyCard, shadow.md]}>
+          <View style={s.currencyHeader}>
+            <Text style={s.modalTitle}>Bill Due Reminder</Text>
+            <TouchableOpacity onPress={onClose}><Ionicons name="close" size={24} color={colors.textSub} /></TouchableOpacity>
+          </View>
+          <Text style={[s.rowSub, { marginBottom: 12 }]}>Send me an email reminder before my invoice due date</Text>
+          <ScrollView showsVerticalScrollIndicator={false}>
+            {REMINDER_OPTIONS.map((opt) => (
+              <TouchableOpacity
+                key={opt.value}
+                style={[s.currencyRow, opt.value === current && s.currencyRowActive]}
+                onPress={() => handleSelect(opt.value)}
+              >
+                <Text style={[s.currencyName, opt.value === current && { color: colors.primary, fontFamily: fonts.semibold }]}>{opt.label}</Text>
+                {saving === opt.value ? (
+                  <ActivityIndicator size="small" color={colors.primary} />
+                ) : opt.value === current ? (
+                  <Ionicons name="checkmark-circle" size={20} color={colors.primary} />
+                ) : null}
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main Settings Screen
 // ---------------------------------------------------------------------------
 
@@ -249,6 +318,7 @@ export default function SettingsScreen() {
   const [nameModal, setNameModal] = useState(false);
   const [pwModal, setPwModal] = useState(false);
   const [currencyModal, setCurrencyModal] = useState(false);
+  const [reminderModal, setReminderModal] = useState(false);
 
   const loadData = useCallback(async () => {
     try {
@@ -372,6 +442,18 @@ export default function SettingsScreen() {
           />
         </SectionCard>
 
+        {/* Notifications */}
+        <SectionCard title="NOTIFICATIONS">
+          <SettingsRow
+            icon="notifications-outline"
+            iconBg="rgba(99,102,241,0.10)"
+            iconColor="#6366f1"
+            label="Bill Due Reminder"
+            sublabel={`Email reminder: ${REMINDER_OPTIONS.find((o) => o.value === (user?.billReminderDays ?? 1))?.label ?? "1 day before"}`}
+            onPress={() => setReminderModal(true)}
+          />
+        </SectionCard>
+
         {/* Manage */}
         <SectionCard title="MANAGE">
           <SettingsRow
@@ -478,6 +560,12 @@ export default function SettingsScreen() {
         current={user?.preferredCurrency ?? "AED"}
         onClose={() => setCurrencyModal(false)}
         onSelect={(c) => setUser((prev) => prev ? { ...prev, preferredCurrency: c } : prev)}
+      />
+      <ReminderDaysPickerModal
+        visible={reminderModal}
+        current={user?.billReminderDays ?? 1}
+        onClose={() => setReminderModal(false)}
+        onSelect={(d) => setUser((prev) => prev ? { ...prev, billReminderDays: d } : prev)}
       />
     </View>
   );

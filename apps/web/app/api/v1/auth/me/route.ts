@@ -17,6 +17,7 @@ export async function GET(request: Request) {
       role: true,
       preferredCurrency: true,
       onboardingCompleted: true,
+      billReminderDays: true,
       subscriptionStatus: true,
       createdAt: true,
       updatedAt: true,
