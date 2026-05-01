@@ -10,6 +10,7 @@ import {
   createCheckoutSession,
   createPortalSession,
   getCurrentSubscription,
+  syncSubscriptionAfterCheckout,
   type PlanKey,
 } from "@/app/api/billing-action";
 import type { SubscriptionInfo } from "@/lib/subscription";
@@ -139,12 +140,17 @@ export default function BillingContent() {
 
   useEffect(() => {
     if (session) {
-      getCurrentSubscription().then((info) => {
+      const load = async () => {
+        if (successParam === "true") {
+          await syncSubscriptionAfterCheckout();
+        }
+        const info = await getCurrentSubscription();
         setSubscription(info);
         setLoading(false);
-      });
+      };
+      load();
     }
-  }, [session]);
+  }, [session, successParam]);
 
   const handleSubscribe = async (planKey: PlanKey) => {
     setCheckoutLoading(planKey);

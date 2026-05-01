@@ -6,6 +6,7 @@ import { getStripe } from "@/lib/stripe";
 import { db } from "@/lib/db";
 import { getSubscriptionInfo } from "@/lib/subscription";
 import { env } from "@/lib/env";
+import { STRIPE_PRICE_TO_PLAN, type EffectivePlan } from "@/lib/plans";
 
 /**
  * Plan keys passed from client components. Price IDs are resolved
@@ -108,4 +109,48 @@ export async function getCurrentSubscription() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) return null;
   return getSubscriptionInfo(session.user.id);
+}
+
+/**
+ * Called after Stripe checkout success to eagerly sync subscription data from
+ * Stripe into the DB. This guards against webhook delivery delays in dev/prod.
+ */
+export async function syncSubscriptionAfterCheckout() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user) return;
+
+  const user = await db.user.findUnique({
+    where: { id: session.user.id },
+    select: { stripeCustomerId: true, stripeSubscriptionId: true },
+  });
+  if (!user?.stripeCustomerId) return;
+
+  // Already synced by webhook — nothing to do
+  if (user.stripeSubscriptionId) return;
+
+  const subscriptions = await getStripe().subscriptions.list({
+    customer: user.stripeCustomerId,
+    status: "all",
+    limit: 1,
+  });
+  const sub = subscriptions.data[0];
+  if (!sub) return;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rawPeriodEnd = (sub as any).current_period_end as number | undefined;
+  const priceId = sub.items?.data?.[0]?.price?.id;
+  const planTier: EffectivePlan =
+    (priceId && STRIPE_PRICE_TO_PLAN[priceId]) ? STRIPE_PRICE_TO_PLAN[priceId] : "pro";
+
+  await db.user.update({
+    where: { id: session.user.id },
+    data: {
+      stripeSubscriptionId: sub.id,
+      subscriptionStatus: sub.status,
+      subscriptionProvider: "stripe",
+      planTier,
+      currentPeriodEnd: rawPeriodEnd ? new Date(rawPeriodEnd * 1000) : null,
+      ...(sub.trial_end ? { trialEndsAt: new Date(sub.trial_end * 1000) } : {}),
+    },
+  });
 }
