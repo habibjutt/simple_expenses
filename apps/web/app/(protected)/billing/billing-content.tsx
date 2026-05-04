@@ -90,8 +90,8 @@ const PLANS: Array<{
   {
     tier: "pro",
     name: "Fixpenses Pro",
-    monthly: { price: "AED 29", planKey: "pro-monthly" },
-    yearly: { price: "AED 249", planKey: "pro-yearly", perMonth: "AED 20.75/mo" },
+    monthly: { price: "AED 9.99", planKey: "pro-monthly" },
+    yearly: { price: "AED 99", planKey: "pro-yearly", perMonth: "AED 8.25/mo" },
     description: "Everything you need to track your finances",
     highlight: true,
     badge: "Most Popular",
@@ -106,8 +106,8 @@ const PLANS: Array<{
   {
     tier: "premium",
     name: "Fixpenses Premium",
-    monthly: { price: "AED 79", planKey: "premium-monthly" },
-    yearly: { price: "AED 679", planKey: "premium-yearly", perMonth: "AED 56.58/mo" },
+    monthly: { price: "AED 29", planKey: "premium-monthly" },
+    yearly: { price: "AED 299", planKey: "premium-yearly", perMonth: "AED 24.92/mo" },
     description: "Everything in Pro plus exports & priority support",
     highlight: false,
     features: [
