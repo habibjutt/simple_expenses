@@ -48,7 +48,7 @@ const PLANS: Record<
     {
       id: "pro",
       name: "Pro",
-      price: "AED 29",
+      price: "AED 9.99",
       priceLabel: "/ month",
       description:
         "Unlock the full power of Smart Expenses for serious savers.",
@@ -73,7 +73,7 @@ const PLANS: Record<
     {
       id: "premium",
       name: "Premium",
-      price: "AED 79",
+      price: "AED 29",
       priceLabel: "/ month",
       description:
         "For power users who need exports, advanced analytics and top support.",
@@ -118,14 +118,14 @@ const PLANS: Record<
     {
       id: "pro",
       name: "Pro",
-      price: "AED 249",
+      price: "AED 99",
       priceLabel: "/ year",
       description:
         "Unlock the full power of Smart Expenses for serious savers.",
       cta: "Start 14-day free trial",
       href: "/signup?plan=pro-yearly",
       highlight: true,
-      badge: "Save AED 99",
+      badge: "Save AED 20.88",
       planKey: "pro-yearly",
       features: [
         "Unlimited credit cards",
@@ -143,14 +143,14 @@ const PLANS: Record<
     {
       id: "premium",
       name: "Premium",
-      price: "AED 679",
+      price: "AED 299",
       priceLabel: "/ year",
       description:
         "For power users who need exports, advanced analytics and top support.",
       cta: "Get Premium",
       href: "/signup?plan=premium-yearly",
       highlight: false,
-      badge: "Save AED 269",
+      badge: "Save AED 49",
       planKey: "premium-yearly",
       features: [
         "Everything in Pro",
