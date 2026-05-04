@@ -10,7 +10,7 @@ import {
   IconClipboardList,
   type Icon,
 } from "@tabler/icons-react";
-import { CreditCard } from "lucide-react";
+import { LayoutDashboard } from "lucide-react";
 
 import { AdminNavMain } from "@/components/admin-nav-main";
 import { AdminNavUser } from "@/components/admin-nav-user";
@@ -74,25 +74,28 @@ export function AdminAppSidebar({
 }) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
-      <SidebarHeader>
+      <SidebarHeader className="border-b border-sidebar-border px-4 py-3">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
+              className="h-10 data-[slot=sidebar-menu-button]:!p-0 hover:bg-transparent active:bg-transparent"
             >
-              <Link href="/admin" className="flex items-center gap-2">
-                <div className="flex size-6 items-center justify-center rounded-full bg-gradient-to-br from-[#6c47ff] to-[#4f6ef7]">
-                  <CreditCard className="size-3.5 text-white" />
+              <Link href="/admin" className="flex items-center gap-3">
+                <div className="flex size-8 items-center justify-center rounded-lg bg-gray-900">
+                  <LayoutDashboard className="size-4 text-white" />
                 </div>
-                <span className="text-sm font-semibold">Fixpenses</span>
+                <div className="flex flex-col leading-none">
+                  <span className="text-sm font-semibold text-sidebar-foreground">Fixpenses</span>
+                  <span className="text-[11px] text-sidebar-foreground/50 font-medium tracking-wide uppercase">Admin</span>
+                </div>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="px-3 py-3">
         <AdminNavMain
           items={navItems.map((item) => ({
             ...item,
@@ -101,7 +104,7 @@ export function AdminAppSidebar({
         />
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter className="border-t border-sidebar-border px-3 py-3">
         <AdminNavUser
           user={{
             name: user?.name ?? "Admin",
