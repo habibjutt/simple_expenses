@@ -21,12 +21,16 @@ const isDev = process.env.NODE_ENV !== "production";
 const CSP = [
   "default-src 'self'",
   // 'unsafe-eval' is required in dev for webpack HMR / React Refresh.
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  // googletagmanager.com is required by @next/third-parties/google (GA4 script loader).
+  `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
+  // google-analytics.com covers GA4 img-beacon fallback.
+  "img-src 'self' data: blob: https://www.google-analytics.com",
   "font-src 'self'",
+  // GA4 sends measurement data via fetch/XHR to these endpoints.
+  // api.stripe.com is included for any future client-side Stripe calls.
   // In dev, webpack HMR uses WebSocket connections.
-  `connect-src 'self'${isDev ? " ws://localhost:* ws://127.0.0.1:*" : ""}`,
+  `connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://api.stripe.com${isDev ? " ws://localhost:* ws://127.0.0.1:*" : ""}`,
   "frame-src 'none'",
   "object-src 'none'",
   "base-uri 'self'",
