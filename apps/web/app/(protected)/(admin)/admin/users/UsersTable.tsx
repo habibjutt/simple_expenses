@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   setUserRole,
   banUser,
   unbanUser,
   adminDeleteUser,
+  adminBulkDeleteUsers,
 } from "@/app/api/admin-action";
 import {
   Shield,
@@ -14,6 +16,7 @@ import {
   MoreHorizontal,
   UserCheck,
 } from "lucide-react";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,6 +34,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type User = {
   id: string;
@@ -41,6 +45,11 @@ type User = {
   banReason: string | null;
   subscriptionStatus: string | null;
   createdAt: Date;
+  trialEndsAt: Date | null;
+  _count: {
+    bankAccounts: number;
+    creditCards: number;
+  };
 };
 
 function RoleBadge({ role }: { role: string }) {
@@ -91,10 +100,29 @@ export function UsersTable({ users }: { users: User[] }) {
   const [, startTransition] = useTransition();
   const [banTarget, setBanTarget] = useState<string | null>(null);
   const [banReason, setBanReason] = useState("");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const router = useRouter();
+
+  const allSelected = users.length > 0 && selected.size === users.length;
+  const someSelected = selected.size > 0 && !allSelected;
+
+  const toggleAll = () => {
+    setSelected(allSelected ? new Set() : new Set(users.map((u) => u.id)));
+  };
+
+  const toggleOne = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
 
   const handleSetRole = (userId: string, role: "user" | "admin") => {
     startTransition(async () => {
       await setUserRole(userId, role);
+      toast.success(`Role updated to ${role}`);
+      router.refresh();
     });
   };
 
@@ -104,12 +132,16 @@ export function UsersTable({ users }: { users: User[] }) {
       await banUser(userId, banReason);
       setBanTarget(null);
       setBanReason("");
+      toast.success("User banned");
+      router.refresh();
     });
   };
 
   const handleUnban = (userId: string) => {
     startTransition(async () => {
       await unbanUser(userId);
+      toast.success("User unbanned");
+      router.refresh();
     });
   };
 
@@ -122,6 +154,24 @@ export function UsersTable({ users }: { users: User[] }) {
       return;
     startTransition(async () => {
       await adminDeleteUser(userId);
+      toast.success("User deleted");
+      router.refresh();
+    });
+  };
+
+  const handleBulkDelete = () => {
+    const ids = Array.from(selected);
+    if (
+      !confirm(
+        `Permanently delete ${ids.length} user${ids.length !== 1 ? "s" : ""} and all their data? This cannot be undone.`,
+      )
+    )
+      return;
+    startTransition(async () => {
+      await adminBulkDeleteUsers(ids);
+      setSelected(new Set());
+      toast.success(`${ids.length} user${ids.length !== 1 ? "s" : ""} deleted`);
+      router.refresh();
     });
   };
 
@@ -165,6 +215,33 @@ export function UsersTable({ users }: { users: User[] }) {
         </div>
       )}
 
+      {/* Bulk action bar */}
+      {selected.size > 0 && (
+        <div className="flex items-center justify-between rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-2.5">
+          <span className="text-sm font-medium">
+            {selected.size} user{selected.size !== 1 ? "s" : ""} selected
+          </span>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSelected(new Set())}
+            >
+              Clear
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              className="gap-1.5"
+              onClick={handleBulkDelete}
+            >
+              <Trash2 className="size-3.5" />
+              Delete Selected
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="rounded-xl border overflow-hidden">
         {/* Mobile card list */}
         <div className="md:hidden divide-y">
@@ -175,6 +252,11 @@ export function UsersTable({ users }: { users: User[] }) {
           ) : (
             users.map((u) => (
               <div key={u.id} className="p-4 flex items-start gap-3">
+                <Checkbox
+                  checked={selected.has(u.id)}
+                  onCheckedChange={() => toggleOne(u.id)}
+                  className="mt-0.5 shrink-0"
+                />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="font-medium text-sm">{u.name || "—"}</p>
@@ -188,6 +270,29 @@ export function UsersTable({ users }: { users: User[] }) {
                     <span className="text-xs text-muted-foreground">
                       {new Date(u.createdAt).toLocaleDateString("en-US")}
                     </span>
+                    <span className="text-xs text-muted-foreground">·</span>
+                    <span className="text-xs text-muted-foreground">
+                      {u._count.bankAccounts} acct{u._count.bankAccounts !== 1 ? "s" : ""}
+                    </span>
+                    <span className="text-xs text-muted-foreground">·</span>
+                    <span className="text-xs text-muted-foreground">
+                      {u._count.creditCards} card{u._count.creditCards !== 1 ? "s" : ""}
+                    </span>
+                  </div>
+                  <div className="mt-1.5 flex items-center gap-1">
+                    <span className="text-xs text-muted-foreground">Trial:</span>
+                    {(() => {
+                      const trialEnd = u.trialEndsAt
+                        ? new Date(u.trialEndsAt)
+                        : new Date(new Date(u.createdAt).getTime() + 14 * 86_400_000);
+                      const expired = trialEnd < new Date();
+                      return (
+                        <span className={`text-xs font-medium ${expired ? "text-red-500" : "text-emerald-600"}`}>
+                          {trialEnd.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                          {expired ? " (expired)" : ""}
+                        </span>
+                      );
+                    })()}
                   </div>
                 </div>
                 <ActionMenu
@@ -207,9 +312,24 @@ export function UsersTable({ users }: { users: User[] }) {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[44px]">
+                  <Checkbox
+                    checked={allSelected}
+                    ref={(el) => {
+                      if (el) el.dataset.indeterminate = someSelected ? "true" : "false";
+                    }}
+                    data-indeterminate={someSelected}
+                    onCheckedChange={toggleAll}
+                    aria-label="Select all"
+                    className={someSelected ? "opacity-70" : ""}
+                  />
+                </TableHead>
                 <TableHead>User</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Accounts</TableHead>
+                <TableHead>Cards</TableHead>
+                <TableHead>Trial Expires</TableHead>
                 <TableHead>Joined</TableHead>
                 <TableHead className="w-[60px]" />
               </TableRow>
@@ -218,7 +338,7 @@ export function UsersTable({ users }: { users: User[] }) {
               {users.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={5}
+                    colSpan={9}
                     className="text-center text-sm text-muted-foreground py-8"
                   >
                     No users found.
@@ -226,7 +346,18 @@ export function UsersTable({ users }: { users: User[] }) {
                 </TableRow>
               ) : (
                 users.map((u) => (
-                  <TableRow key={u.id}>
+                  <TableRow
+                    key={u.id}
+                    data-state={selected.has(u.id) ? "selected" : undefined}
+                    className={selected.has(u.id) ? "bg-muted/40" : ""}
+                  >
+                    <TableCell>
+                      <Checkbox
+                        checked={selected.has(u.id)}
+                        onCheckedChange={() => toggleOne(u.id)}
+                        aria-label={`Select ${u.name ?? u.email}`}
+                      />
+                    </TableCell>
                     <TableCell>
                       <div>
                         <p className="font-medium truncate max-w-[180px]">
@@ -242,6 +373,26 @@ export function UsersTable({ users }: { users: User[] }) {
                     </TableCell>
                     <TableCell>
                       <StatusBadge user={u} />
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {u._count.bankAccounts}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {u._count.creditCards}
+                    </TableCell>
+                    <TableCell className="text-xs">
+                      {(() => {
+                        const trialEnd = u.trialEndsAt
+                          ? new Date(u.trialEndsAt)
+                          : new Date(new Date(u.createdAt).getTime() + 14 * 86_400_000);
+                        const expired = trialEnd < new Date();
+                        return (
+                          <span className={expired ? "text-red-500" : "text-emerald-600 font-medium"}>
+                            {trialEnd.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                            {expired ? " (expired)" : ""}
+                          </span>
+                        );
+                      })()}
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
                       {new Date(u.createdAt).toLocaleDateString("en-US")}

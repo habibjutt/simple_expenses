@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { SUPPORTED_CURRENCIES } from "@/lib/utils";
 import { getStripe } from "@/lib/stripe";
+import { getUserPlanLimits } from "@/lib/subscription";
 
 export async function updatePreferredCurrency(currency: string) {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -30,16 +31,21 @@ export async function getUserProfile() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user?.id) return null;
 
-  const user = await db.user.findUnique({
-    where: { id: session.user.id },
-    select: {
-      onboardingCompleted: true,
-      preferredCurrency: true,
-      billReminderDays: true,
-      name: true,
-    },
-  });
-  return user;
+  const [user, planLimits] = await Promise.all([
+    db.user.findUnique({
+      where: { id: session.user.id },
+      select: {
+        onboardingCompleted: true,
+        preferredCurrency: true,
+        billReminderDays: true,
+        name: true,
+      },
+    }),
+    getUserPlanLimits(session.user.id),
+  ]);
+
+  if (!user) return null;
+  return { ...user, planLimits };
 }
 
 export async function updateBillReminderDays(days: number) {

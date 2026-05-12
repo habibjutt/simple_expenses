@@ -66,6 +66,13 @@ export async function listAdminUsers({
         banReason: true,
         subscriptionStatus: true,
         createdAt: true,
+        trialEndsAt: true,
+        _count: {
+          select: {
+            bankAccounts: true,
+            creditCards: true,
+          },
+        },
       },
     }),
     db.user.count({ where }),
@@ -127,6 +134,22 @@ export async function adminDeleteUser(userId: string) {
     entityType: "user",
     entityId: userId,
   });
+  revalidatePath("/admin/users");
+}
+
+export async function adminBulkDeleteUsers(userIds: string[]) {
+  const session = await requireAdmin();
+  await db.user.deleteMany({ where: { id: { in: userIds } } });
+  await Promise.all(
+    userIds.map((id) =>
+      logAuditEvent({
+        userId: session.user.id,
+        action: "user.deleted",
+        entityType: "user",
+        entityId: id,
+      }),
+    ),
+  );
   revalidatePath("/admin/users");
 }
 

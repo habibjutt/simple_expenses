@@ -3,24 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { type Icon } from "@tabler/icons-react";
-import { IconChevronRight } from "@tabler/icons-react";
 
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 
 export function AdminNavMain({
   items,
@@ -39,66 +30,34 @@ export function AdminNavMain({
   const pathname = usePathname();
 
   return (
-    <SidebarGroup>
-      <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+    <SidebarGroup className="p-0">
+      <SidebarGroupLabel className="px-2 text-[11px] font-semibold uppercase tracking-wider text-sidebar-foreground/40 mb-1">
+        Navigation
+      </SidebarGroupLabel>
       <SidebarGroupContent>
-        <SidebarMenu>
+        <SidebarMenu className="gap-0.5">
           {items.map((item) => {
             const isActive = item.exact
               ? pathname === item.url
               : pathname.startsWith(item.url);
 
             return (
-              <Collapsible
-                key={item.title}
-                asChild
-                defaultOpen={isActive}
-                className="group/collapsible"
-              >
-                <SidebarMenuItem>
-                  {item.items && item.items.length > 0 ? (
-                    <>
-                      <CollapsibleTrigger asChild>
-                        <SidebarMenuButton
-                          tooltip={item.title}
-                          isActive={isActive}
-                        >
-                          {item.icon && <item.icon />}
-                          <span>{item.title}</span>
-                          <IconChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                        </SidebarMenuButton>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent>
-                        <SidebarMenuSub>
-                          {item.items.map((subItem) => (
-                            <SidebarMenuSubItem key={subItem.title}>
-                              <SidebarMenuSubButton
-                                asChild
-                                isActive={pathname === subItem.url}
-                              >
-                                <Link href={subItem.url}>
-                                  <span>{subItem.title}</span>
-                                </Link>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                          ))}
-                        </SidebarMenuSub>
-                      </CollapsibleContent>
-                    </>
-                  ) : (
-                    <SidebarMenuButton
-                      tooltip={item.title}
-                      asChild
-                      isActive={isActive}
-                    >
-                      <Link href={item.url}>
-                        {item.icon && <item.icon />}
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
+              <SidebarMenuItem key={item.title}>
+                <Link
+                  href={item.url}
+                  className={cn(
+                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors duration-150",
+                    isActive
+                      ? "bg-sidebar-foreground text-sidebar"
+                      : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                   )}
-                </SidebarMenuItem>
-              </Collapsible>
+                >
+                  {item.icon && (
+                    <item.icon className={cn("size-4 shrink-0", isActive ? "opacity-100" : "opacity-70")} />
+                  )}
+                  <span>{item.title}</span>
+                </Link>
+              </SidebarMenuItem>
             );
           })}
         </SidebarMenu>

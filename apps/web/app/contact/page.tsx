@@ -1,17 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import {
-  Mail,
-  MapPin,
-  Clock,
-  MessageCircle,
-  ArrowRight,
-  Phone,
-} from "lucide-react";
+import { Mail, MapPin, Clock, MessageCircle, Phone, ArrowRight } from "lucide-react";
 import LandingFooter from "@/components/LandingFooter";
 import LandingNav from "@/components/LandingNav";
 import { SITE_URL } from "@/lib/seo";
+import ContactForm from "@/components/ContactForm";
 
 export const metadata: Metadata = {
   title: "Contact Us",
@@ -60,122 +53,7 @@ export default function ContactPage() {
         <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 grid grid-cols-1 lg:grid-cols-5 gap-12">
           {/* Contact form */}
           <div className="lg:col-span-3">
-            <div className="bg-background border border-border rounded-2xl p-6 sm:p-8 shadow-sm">
-              <h2 className="text-xl font-bold text-foreground mb-6">
-                Send us a message
-              </h2>
-              <form
-                action="mailto:hello@simpleexpenses.ae"
-                method="GET"
-                className="space-y-5"
-              >
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label
-                      htmlFor="fname"
-                      className="text-sm font-medium text-foreground"
-                    >
-                      First name
-                    </label>
-                    <input
-                      id="fname"
-                      name="First name"
-                      type="text"
-                      placeholder="Ahmad"
-                      className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label
-                      htmlFor="lname"
-                      className="text-sm font-medium text-foreground"
-                    >
-                      Last name
-                    </label>
-                    <input
-                      id="lname"
-                      name="Last name"
-                      type="text"
-                      placeholder="Al-Mansoori"
-                      className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label
-                    htmlFor="email"
-                    className="text-sm font-medium text-foreground"
-                  >
-                    Email address
-                  </label>
-                  <input
-                    id="email"
-                    name="Email"
-                    type="email"
-                    placeholder="ahmad@example.ae"
-                    className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label
-                    htmlFor="subject"
-                    className="text-sm font-medium text-foreground"
-                  >
-                    Subject
-                  </label>
-                  <select
-                    id="subject"
-                    name="Subject"
-                    className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
-                  >
-                    <option value="">Select a topic…</option>
-                    <option value="billing">Billing &amp; Subscription</option>
-                    <option value="technical">Technical Support</option>
-                    <option value="feature">Feature Request</option>
-                    <option value="account">Account Issues</option>
-                    <option value="privacy">Privacy &amp; Data</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label
-                    htmlFor="message"
-                    className="text-sm font-medium text-foreground"
-                  >
-                    Message
-                  </label>
-                  <textarea
-                    id="message"
-                    name="Message"
-                    rows={5}
-                    placeholder="Tell us how we can help you…"
-                    className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow resize-none"
-                  />
-                </div>
-
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="w-full h-12 text-base font-semibold bg-[#1a9e5c] hover:bg-[#158a4f] text-white shadow-lg shadow-[#1a9e5c]/20"
-                >
-                  Send message <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-
-                <p className="text-xs text-center text-muted-foreground">
-                  By submitting this form you agree to our{" "}
-                  <Link
-                    href="/privacy"
-                    className="text-primary hover:underline"
-                  >
-                    Privacy Policy
-                  </Link>
-                  .
-                </p>
-              </form>
-            </div>
+            <ContactForm />
           </div>
 
           {/* Contact info */}

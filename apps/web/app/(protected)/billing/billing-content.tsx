@@ -10,8 +10,9 @@ import {
   createCheckoutSession,
   createPortalSession,
   getCurrentSubscription,
+  syncSubscriptionAfterCheckout,
+  type PlanKey,
 } from "@/app/api/billing-action";
-import { STRIPE_PRICES } from "@/lib/stripe-config";
 import type { SubscriptionInfo } from "@/lib/subscription";
 import {
   Check,
@@ -24,16 +25,10 @@ import {
   ExternalLink,
   AlertCircle,
   CheckCircle2,
+  FileDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const FEATURES = [
-  { icon: CreditCard, text: "Unlimited credit cards & bank accounts" },
-  { icon: BarChart2, text: "Advanced reports & analytics" },
-  { icon: Target, text: "Spending limits & budgets" },
-  { icon: Tags, text: "Custom categories" },
-  { icon: Zap, text: "Savings goals tracking" },
-];
+import { toast } from "sonner";
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; className: string }> = {
@@ -82,20 +77,59 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
+const PLANS: Array<{
+  tier: "pro" | "premium";
+  name: string;
+  monthly: { price: string; planKey: PlanKey };
+  yearly: { price: string; planKey: PlanKey; perMonth: string };
+  description: string;
+  highlight: boolean;
+  badge?: string;
+  features: Array<{ icon: React.ElementType; text: string }>;
+}> = [
+  {
+    tier: "pro",
+    name: "Fixpenses Pro",
+    monthly: { price: "AED 9.99", planKey: "pro-monthly" },
+    yearly: { price: "AED 99", planKey: "pro-yearly", perMonth: "AED 8.25/mo" },
+    description: "Everything you need to track your finances",
+    highlight: true,
+    badge: "Most Popular",
+    features: [
+      { icon: CreditCard, text: "Unlimited credit cards & bank accounts" },
+      { icon: BarChart2, text: "Advanced reports & analytics" },
+      { icon: Target, text: "Spending limits & budgets" },
+      { icon: Tags, text: "Custom categories" },
+      { icon: Zap, text: "Savings goals tracking" },
+    ],
+  },
+  {
+    tier: "premium",
+    name: "Fixpenses Premium",
+    monthly: { price: "AED 29", planKey: "premium-monthly" },
+    yearly: { price: "AED 299", planKey: "premium-yearly", perMonth: "AED 24.92/mo" },
+    description: "Everything in Pro plus exports & priority support",
+    highlight: false,
+    features: [
+      { icon: CreditCard, text: "Everything in Pro" },
+      { icon: FileDown, text: "CSV & PDF data export" },
+      { icon: BarChart2, text: "Advanced spending analytics" },
+      { icon: Tags, text: "Recurring transaction templates" },
+      { icon: Zap, text: "Dedicated support & 1-hour SLA" },
+    ],
+  },
+];
+
 export default function BillingContent() {
   const { data: session, isPending } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [subscription, setSubscription] = useState<SubscriptionInfo | null>(
-    null,
-  );
+  const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null);
   const [loading, setLoading] = useState(true);
-  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+  const [checkoutLoading, setCheckoutLoading] = useState<PlanKey | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
-  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">(
-    "monthly",
-  );
+  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
 
   const successParam = searchParams.get("success");
   const canceledParam = searchParams.get("canceled");
@@ -106,20 +140,26 @@ export default function BillingContent() {
 
   useEffect(() => {
     if (session) {
-      getCurrentSubscription().then((info) => {
+      const load = async () => {
+        if (successParam === "true") {
+          await syncSubscriptionAfterCheckout();
+        }
+        const info = await getCurrentSubscription();
         setSubscription(info);
         setLoading(false);
-      });
+      };
+      load();
     }
-  }, [session]);
+  }, [session, successParam]);
 
-  const handleSubscribe = async (priceId: string) => {
-    setCheckoutLoading(priceId);
+  const handleSubscribe = async (planKey: PlanKey) => {
+    setCheckoutLoading(planKey);
     try {
-      const { url } = await createCheckoutSession(priceId);
+      const { url } = await createCheckoutSession(planKey);
       if (url) window.location.href = url;
     } catch (err) {
       console.error(err);
+      toast.error("Could not start checkout. Please try again.");
     } finally {
       setCheckoutLoading(null);
     }
@@ -132,6 +172,7 @@ export default function BillingContent() {
       window.location.href = url;
     } catch (err) {
       console.error(err);
+      toast.error("Could not open billing portal. Please try again.");
     } finally {
       setPortalLoading(false);
     }
@@ -141,8 +182,7 @@ export default function BillingContent() {
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-4 py-10">
-        {/* Success / Canceled banners */}
+      <div className="max-w-4xl mx-auto px-4 py-10">
         {successParam === "true" && (
           <div className="mb-6 flex items-center gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-300">
             <CheckCircle2 className="h-5 w-5 shrink-0" />
@@ -167,7 +207,6 @@ export default function BillingContent() {
           </p>
         </div>
 
-        {/* Current Status Card */}
         {loading ? (
           <div className="rounded-2xl border bg-card p-6 mb-8 flex items-center gap-3">
             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -179,13 +218,9 @@ export default function BillingContent() {
           <div className="rounded-2xl border bg-card p-6 mb-8">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">
-                  Current plan
-                </p>
+                <p className="text-sm text-muted-foreground mb-1">Current plan</p>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg font-semibold">
-                    Fixpenses Pro
-                  </span>
+                  <span className="text-lg font-semibold">Fixpenses Pro</span>
                   <StatusBadge status={subscription.status} />
                 </div>
               </div>
@@ -210,64 +245,55 @@ export default function BillingContent() {
             {subscription.status === "trialing" && !hasStripeSubscription && (
               <div className="mt-4 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
                 <p className="text-sm text-blue-800 dark:text-blue-300">
-                  <span className="font-semibold">
-                    {subscription.daysLeftInTrial} days
-                  </span>{" "}
-                  remaining in your free trial. Subscribe now to keep access
-                  after it ends.
+                  <span className="font-semibold">{subscription.daysLeftInTrial} days</span>{" "}
+                  remaining in your free trial. Subscribe now to keep access after it ends.
                 </p>
               </div>
             )}
-            {subscription.status === "trialing" &&
-              hasStripeSubscription &&
-              subscription.trialEndsAt && (
-                <div className="mt-4 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-                  <p className="text-sm text-blue-800 dark:text-blue-300">
-                    Trial ends on{" "}
-                    <span className="font-semibold">
-                      {subscription.trialEndsAt.toLocaleDateString("en-AE", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })}
-                    </span>
-                    . You won&apos;t be charged until then.
-                  </p>
-                </div>
-              )}
-            {subscription.status === "active" &&
-              subscription.currentPeriodEnd && (
-                <p className="mt-3 text-sm text-muted-foreground">
-                  Next billing date:{" "}
-                  <span className="font-medium text-foreground">
-                    {subscription.currentPeriodEnd.toLocaleDateString("en-AE", {
+            {subscription.status === "trialing" && hasStripeSubscription && subscription.trialEndsAt && (
+              <div className="mt-4 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                <p className="text-sm text-blue-800 dark:text-blue-300">
+                  Trial ends on{" "}
+                  <span className="font-semibold">
+                    {subscription.trialEndsAt.toLocaleDateString("en-AE", {
                       day: "numeric",
                       month: "long",
                       year: "numeric",
                     })}
                   </span>
+                  . You won&apos;t be charged until then.
                 </p>
-              )}
+              </div>
+            )}
+            {subscription.status === "active" && subscription.currentPeriodEnd && (
+              <p className="mt-3 text-sm text-muted-foreground">
+                Next billing date:{" "}
+                <span className="font-medium text-foreground">
+                  {subscription.currentPeriodEnd.toLocaleDateString("en-AE", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </span>
+              </p>
+            )}
             {subscription.status === "past_due" && (
               <div className="mt-4 p-3 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
                 <p className="text-sm text-yellow-800 dark:text-yellow-300">
-                  Your last payment failed. Please update your payment method to
-                  keep access.
+                  Your last payment failed. Please update your payment method to keep access.
                 </p>
               </div>
             )}
             {subscription.status === "expired" && (
               <div className="mt-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
                 <p className="text-sm text-red-800 dark:text-red-300">
-                  Your free trial has ended. Subscribe below to regain full
-                  access.
+                  Your free trial has ended. Subscribe below to regain full access.
                 </p>
               </div>
             )}
           </div>
         ) : null}
 
-        {/* Pricing — show when not on active Stripe subscription */}
         {!hasStripeSubscription && (
           <>
             <Separator className="mb-8" />
@@ -279,7 +305,6 @@ export default function BillingContent() {
               </p>
             </div>
 
-            {/* Billing period toggle */}
             <div className="flex items-center gap-1 bg-muted rounded-full p-1 w-fit mb-8">
               <button
                 onClick={() => setBillingPeriod("monthly")}
@@ -308,70 +333,81 @@ export default function BillingContent() {
               </button>
             </div>
 
-            {/* Plan card */}
-            <div className="rounded-2xl border-2 border-[#1a9e5c] bg-card p-6 relative">
-              <div className="absolute -top-3 left-6">
-                <Badge className="bg-[#1a9e5c] text-white px-3 py-1">
-                  Most Popular
-                </Badge>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {PLANS.map((plan) => {
+                const pricing = billingPeriod === "monthly" ? plan.monthly : plan.yearly;
+                const isLoading = checkoutLoading === pricing.planKey;
+                const btnLabel =
+                  subscription?.status === "trialing" && !hasStripeSubscription
+                    ? "Subscribe with Free Trial"
+                    : "Subscribe Now";
 
-              <div className="flex items-start justify-between gap-4 mb-6">
-                <div>
-                  <h3 className="text-lg font-bold">Fixpenses Pro</h3>
-                  <p className="text-muted-foreground text-sm mt-0.5">
-                    Everything you need to track your finances
-                  </p>
-                </div>
-                <div className="text-right shrink-0">
-                  <div className="text-3xl font-bold">
-                    {billingPeriod === "monthly" ? "AED 29" : "AED 249"}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {billingPeriod === "monthly"
-                      ? "per month"
-                      : "per year (AED 20.75/mo)"}
-                  </div>
-                </div>
-              </div>
+                return (
+                  <div
+                    key={plan.tier}
+                    className={cn(
+                      "rounded-2xl border-2 bg-card p-6 relative flex flex-col",
+                      plan.highlight ? "border-[#1a9e5c]" : "border-border",
+                    )}
+                  >
+                    {plan.badge && (
+                      <div className="absolute -top-3 left-6">
+                        <Badge className="bg-[#1a9e5c] text-white px-3 py-1">
+                          {plan.badge}
+                        </Badge>
+                      </div>
+                    )}
 
-              <ul className="space-y-3 mb-6">
-                {FEATURES.map(({ icon: Icon, text }) => (
-                  <li key={text} className="flex items-center gap-3 text-sm">
-                    <div className="w-5 h-5 rounded-full bg-[#1a9e5c]/10 flex items-center justify-center shrink-0">
-                      <Check className="h-3 w-3 text-[#1a9e5c]" />
+                    <div className="flex items-start justify-between gap-4 mb-4">
+                      <div>
+                        <h3 className="text-lg font-bold">{plan.name}</h3>
+                        <p className="text-muted-foreground text-sm mt-0.5">
+                          {plan.description}
+                        </p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="text-3xl font-bold">{pricing.price}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {billingPeriod === "monthly"
+                            ? "per month"
+                            : `per year (${"perMonth" in pricing ? pricing.perMonth : ""})`}
+                        </div>
+                      </div>
                     </div>
-                    {text}
-                  </li>
-                ))}
-              </ul>
 
-              {subscription?.status === "trialing" &&
-                !hasStripeSubscription && (
-                  <p className="text-xs text-muted-foreground mb-3 text-center">
-                    Your remaining {subscription.daysLeftInTrial}-day trial
-                    carries over — you won&apos;t be charged until it ends.
-                  </p>
-                )}
+                    <ul className="space-y-3 mb-6 flex-1">
+                      {plan.features.map(({ icon: Icon, text }) => (
+                        <li key={text} className="flex items-center gap-3 text-sm">
+                          <div className="w-5 h-5 rounded-full bg-[#1a9e5c]/10 flex items-center justify-center shrink-0">
+                            <Check className="h-3 w-3 text-[#1a9e5c]" />
+                          </div>
+                          {text}
+                        </li>
+                      ))}
+                    </ul>
 
-              <Button
-                className="w-full bg-[#1a9e5c] hover:bg-[#158a4f] text-white font-semibold h-11"
-                onClick={() =>
-                  handleSubscribe(
-                    billingPeriod === "monthly"
-                      ? STRIPE_PRICES.pro.monthly
-                      : STRIPE_PRICES.pro.yearly,
-                  )
-                }
-                disabled={!!checkoutLoading}
-              >
-                {checkoutLoading && (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                )}
-                {subscription?.status === "trialing" && !hasStripeSubscription
-                  ? "Subscribe with Free Trial"
-                  : "Subscribe Now"}
-              </Button>
+                    {subscription?.status === "trialing" && !hasStripeSubscription && (
+                      <p className="text-xs text-muted-foreground mb-3 text-center">
+                        Your remaining {subscription.daysLeftInTrial}-day trial carries
+                        over — you won&apos;t be charged until it ends.
+                      </p>
+                    )}
+
+                    <Button
+                      className={cn(
+                        "w-full font-semibold h-11",
+                        plan.highlight ? "bg-[#1a9e5c] hover:bg-[#158a4f] text-white" : "",
+                      )}
+                      variant={plan.highlight ? "default" : "outline"}
+                      onClick={() => handleSubscribe(pricing.planKey)}
+                      disabled={!!checkoutLoading}
+                    >
+                      {isLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                      {btnLabel}
+                    </Button>
+                  </div>
+                );
+              })}
             </div>
 
             <p className="text-center text-xs text-muted-foreground mt-4">

@@ -5,6 +5,9 @@ import Footer from "@/components/Footer";
 import CreditCardModal from "@/components/credit-card-modal";
 import BankAccountModal from "@/components/bank-account-modal";
 import TransactionModal from "@/components/transaction-modal";
+import PlanLimitAlert, { type PlanLimitType } from "@/components/PlanLimitAlert";
+import type { GuardResult } from "@/lib/plan-guards";
+import { PLAN_LIMITS, type PlanLimits } from "@/lib/plans";
 import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -131,6 +134,11 @@ export default function Home() {
   const [preferredCurrency, setPreferredCurrency] = useState<string | null>(
     null,
   );
+  const [planLimits, setPlanLimits] = useState<PlanLimits>(PLAN_LIMITS.free);
+  const [planAlert, setPlanAlert] = useState<{
+    limitType: PlanLimitType;
+    guardResult: GuardResult;
+  } | null>(null);
 
   const fetchAll = useCallback(async () => {
     try {
@@ -148,6 +156,7 @@ export default function Home() {
       setOnboardingCompleted(profile?.onboardingCompleted ?? true);
       if (profile?.preferredCurrency)
         setPreferredCurrency(profile.preferredCurrency);
+      if (profile?.planLimits) setPlanLimits(profile.planLimits);
 
       const now = new Date();
       try {
@@ -345,14 +354,46 @@ export default function Home() {
                 Add Transaction
               </button>
               <button
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => {
+                  const limit = planLimits.creditCards;
+                  if (limit !== null && creditCards.length >= limit) {
+                    setPlanAlert({
+                      limitType: "creditCard",
+                      guardResult: {
+                        allowed: false,
+                        reason: `Your Free plan allows up to ${limit} credit card${limit === 1 ? "" : "s"}. You already have ${creditCards.length}.`,
+                        currentCount: creditCards.length,
+                        limit,
+                        requiredPlan: "pro",
+                      },
+                    });
+                    return;
+                  }
+                  setIsModalOpen(true);
+                }}
                 className="flex items-center gap-2 bg-white/15 text-white border border-white/20 px-3 sm:px-4 py-2 rounded-xl text-sm font-medium hover:bg-white/25 transition-colors cursor-pointer"
               >
                 <CreditCardIcon className="h-4 w-4 shrink-0" />
                 Add Card
               </button>
               <button
-                onClick={() => setIsBankAccountModalOpen(true)}
+                onClick={() => {
+                  const limit = planLimits.bankAccounts;
+                  if (limit !== null && bankAccounts.length >= limit) {
+                    setPlanAlert({
+                      limitType: "bankAccount",
+                      guardResult: {
+                        allowed: false,
+                        reason: `Your Free plan allows up to ${limit} bank account${limit === 1 ? "" : "s"}. You already have ${bankAccounts.length}.`,
+                        currentCount: bankAccounts.length,
+                        limit,
+                        requiredPlan: "pro",
+                      },
+                    });
+                    return;
+                  }
+                  setIsBankAccountModalOpen(true);
+                }}
                 className="flex items-center gap-2 bg-white/15 text-white border border-white/20 px-3 sm:px-4 py-2 rounded-xl text-sm font-medium hover:bg-white/25 transition-colors cursor-pointer"
               >
                 <Wallet className="h-4 w-4 shrink-0" />
@@ -1062,6 +1103,16 @@ export default function Home() {
           currency: b.currency,
         }))}
       />
+
+      {/* Plan limit alert (shown before opening create modals) */}
+      {planAlert && (
+        <PlanLimitAlert
+          open={!!planAlert}
+          onClose={() => setPlanAlert(null)}
+          limitType={planAlert.limitType}
+          guardResult={planAlert.guardResult}
+        />
+      )}
 
       {/* Delete card confirm */}
       <AlertDialog

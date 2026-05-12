@@ -55,7 +55,7 @@ export function AdminNavUser({
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg bg-gradient-to-br from-[#4f6ef7] to-[#6c47ff] text-white text-xs">
+                <AvatarFallback className="rounded-lg bg-gray-900 text-white text-xs font-semibold">
                   {user.initials ?? "A"}
                 </AvatarFallback>
               </Avatar>
@@ -78,7 +78,7 @@ export function AdminNavUser({
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg bg-gradient-to-br from-[#4f6ef7] to-[#6c47ff] text-white text-xs">
+                  <AvatarFallback className="rounded-lg bg-gray-900 text-white text-xs font-semibold">
                     {user.initials ?? "A"}
                   </AvatarFallback>
                 </Avatar>

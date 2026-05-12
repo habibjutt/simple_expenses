@@ -54,6 +54,16 @@ const nextConfig: NextConfig = {
   output: "standalone",
   // Trace from the monorepo root so shared packages (packages/*) are included.
   outputFileTracingRoot: path.join(__dirname, "../../"),
+  // In Next.js 16, Turbopack is the default bundler. Config must be top-level,
+  // NOT under `experimental.turbo` (which is deprecated and silently ignored).
+  turbopack: {
+    // The monorepo root node_modules hoists tailwindcss@3 (from NativeWind/mobile).
+    // Force Turbopack's CSS resolver to use the local tailwindcss@4 installation
+    // inside apps/web/node_modules so `@import "tailwindcss"` resolves correctly.
+    resolveAlias: {
+      tailwindcss: path.resolve(__dirname, "node_modules/tailwindcss"),
+    },
+  },
   async headers() {
     return [
       {

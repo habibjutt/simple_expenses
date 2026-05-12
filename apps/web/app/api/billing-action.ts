@@ -3,11 +3,20 @@
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { getStripe } from "@/lib/stripe";
-import { STRIPE_PRICES, ALL_VALID_PRICE_IDS } from "@/lib/stripe-config";
-import { STRIPE_PRICE_TO_PLAN } from "@/lib/plans";
 import { db } from "@/lib/db";
 import { getSubscriptionInfo } from "@/lib/subscription";
 import { env } from "@/lib/env";
+import { STRIPE_PRICE_TO_PLAN, type EffectivePlan } from "@/lib/plans";
+
+/**
+ * Plan keys passed from client components. Price IDs are resolved
+ * server-side so they never need to be exposed to the browser.
+ */
+export type PlanKey =
+  | "pro-monthly"
+  | "pro-yearly"
+  | "premium-monthly"
+  | "premium-yearly";
 
 const BASE_URL = env.BETTER_AUTH_URL;
 
@@ -34,13 +43,25 @@ async function getOrCreateStripeCustomer(userId: string) {
   return customer.id;
 }
 
-export async function createCheckoutSession(priceId: string) {
+/** Resolves a PlanKey to the configured Stripe price ID. Throws if not set. */
+function resolvePriceId(planKey: PlanKey): string {
+  const priceMap: Record<PlanKey, string | undefined> = {
+    "pro-monthly": env.STRIPE_PRO_MONTHLY_PRICE_ID,
+    "pro-yearly": env.STRIPE_PRO_YEARLY_PRICE_ID,
+    "premium-monthly": env.STRIPE_PREMIUM_MONTHLY_PRICE_ID,
+    "premium-yearly": env.STRIPE_PREMIUM_YEARLY_PRICE_ID,
+  };
+  const priceId = priceMap[planKey];
+  if (!priceId) throw new Error(`Stripe price not configured for: ${planKey}`);
+  return priceId;
+}
+
+export async function createCheckoutSession(planKey: PlanKey) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) throw new Error("Unauthorized");
 
-  if (!ALL_VALID_PRICE_IDS.has(priceId)) {
-    throw new Error("Invalid price ID");
-  }
+  const priceId = resolvePriceId(planKey);
+  const planTier = planKey.startsWith("pro") ? "pro" : "premium";
 
   const customerId = await getOrCreateStripeCustomer(session.user.id);
 
@@ -50,9 +71,6 @@ export async function createCheckoutSession(priceId: string) {
     subInfo?.status === "trialing" && !subInfo.hasStripeSubscription
       ? (subInfo.daysLeftInTrial ?? 0)
       : 0;
-
-  // Resolve the plan tier for this price and store it in Stripe metadata
-  const planTier = STRIPE_PRICE_TO_PLAN[priceId] ?? "pro";
 
   const checkoutSession = await getStripe().checkout.sessions.create({
     customer: customerId,
@@ -91,4 +109,48 @@ export async function getCurrentSubscription() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) return null;
   return getSubscriptionInfo(session.user.id);
+}
+
+/**
+ * Called after Stripe checkout success to eagerly sync subscription data from
+ * Stripe into the DB. This guards against webhook delivery delays in dev/prod.
+ */
+export async function syncSubscriptionAfterCheckout() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user) return;
+
+  const user = await db.user.findUnique({
+    where: { id: session.user.id },
+    select: { stripeCustomerId: true, stripeSubscriptionId: true },
+  });
+  if (!user?.stripeCustomerId) return;
+
+  // Already synced by webhook — nothing to do
+  if (user.stripeSubscriptionId) return;
+
+  const subscriptions = await getStripe().subscriptions.list({
+    customer: user.stripeCustomerId,
+    status: "all",
+    limit: 1,
+  });
+  const sub = subscriptions.data[0];
+  if (!sub) return;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rawPeriodEnd = (sub as any).current_period_end as number | undefined;
+  const priceId = sub.items?.data?.[0]?.price?.id;
+  const planTier: EffectivePlan =
+    (priceId && STRIPE_PRICE_TO_PLAN[priceId]) ? STRIPE_PRICE_TO_PLAN[priceId] : "pro";
+
+  await db.user.update({
+    where: { id: session.user.id },
+    data: {
+      stripeSubscriptionId: sub.id,
+      subscriptionStatus: sub.status,
+      subscriptionProvider: "stripe",
+      planTier,
+      currentPeriodEnd: rawPeriodEnd ? new Date(rawPeriodEnd * 1000) : null,
+      ...(sub.trial_end ? { trialEndsAt: new Date(sub.trial_end * 1000) } : {}),
+    },
+  });
 }

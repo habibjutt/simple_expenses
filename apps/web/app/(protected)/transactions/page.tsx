@@ -229,8 +229,6 @@ export default function TransactionsPage() {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
-  console.log("Filtered transactions:", filteredTransactions.length);
-
   // Calculate total of filtered transactions
   const filteredTotal = filteredTransactions.reduce(
     (sum, transaction) => sum + transaction.amount,

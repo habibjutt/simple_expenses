@@ -131,9 +131,37 @@ export async function checkCanAddTransaction(
 
   if (limits.transactionsPerMonth === null) return { allowed: true };
 
-  // Also check whether the user's account count is within limits first:
-  // If they're over the card/account limit they're already blocked at a higher level,
-  // but we still want the transaction count for the UI.
+  // Block transactions if the user has exceeded their account or card limits.
+  // They must delete the excess data before they can add new transactions.
+  const [cardCount, accountCount] = await Promise.all([
+    limits.creditCards !== null
+      ? db.credit_card.count({ where: { userId } })
+      : Promise.resolve(0),
+    limits.bankAccounts !== null
+      ? db.bank_account.count({ where: { userId } })
+      : Promise.resolve(0),
+  ]);
+
+  if (limits.creditCards !== null && cardCount > limits.creditCards) {
+    return {
+      allowed: false,
+      reason: `You have ${cardCount} credit card${cardCount === 1 ? "" : "s"} but the Free plan allows ${limits.creditCards}. Delete the excess card${cardCount - limits.creditCards === 1 ? "" : "s"} to continue adding transactions.`,
+      currentCount: cardCount,
+      limit: limits.creditCards,
+      requiredPlan: "pro",
+    };
+  }
+
+  if (limits.bankAccounts !== null && accountCount > limits.bankAccounts) {
+    return {
+      allowed: false,
+      reason: `You have ${accountCount} bank account${accountCount === 1 ? "" : "s"} but the Free plan allows ${limits.bankAccounts}. Delete the excess account${accountCount - limits.bankAccounts === 1 ? "" : "s"} to continue adding transactions.`,
+      currentCount: accountCount,
+      limit: limits.bankAccounts,
+      requiredPlan: "pro",
+    };
+  }
+
   const count = await countMonthlyTransactions(userId);
 
   if (count >= limits.transactionsPerMonth) {
