@@ -73,8 +73,9 @@ export async function GET(request: Request) {
       let income = 0;
       let expenses = 0;
       for (const t of txns) {
-        if (t.type === "income") income += Number(t.amount);
-        else expenses += Number(t.amount);
+        const amt = Number(t.amount);
+        if (amt < 0) income += Math.abs(amt);
+        else expenses += amt;
       }
       const net = income - expenses;
       lines.push(
@@ -125,11 +126,12 @@ export async function GET(request: Request) {
 
     for (const t of transactions) {
       const amt = Number(t.amount);
-      if (t.type === "income") {
-        totalIncome += amt;
+      if (amt < 0) {
+        const absAmt = Math.abs(amt);
+        totalIncome += absAmt;
         incomeMap.set(
           t.category || "Others",
-          (incomeMap.get(t.category || "Others") || 0) + amt,
+          (incomeMap.get(t.category || "Others") || 0) + absAmt,
         );
       } else {
         totalExpenses += amt;
@@ -203,7 +205,7 @@ export async function GET(request: Request) {
         { bankAccount: { userId: user.id } },
       ],
       date: { gte: start, lte: end },
-      NOT: { type: "income" },
+      amount: { gt: 0 },
     },
   });
 
