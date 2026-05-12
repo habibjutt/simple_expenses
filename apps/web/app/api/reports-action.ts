@@ -54,19 +54,14 @@ export async function getReportData(month: number, year: number) {
 
   for (const t of transactions) {
     const amt = Number(t.amount);
+    const cat = t.category || "Others";
     if (amt < 0) {
       const absAmt = Math.abs(amt);
       totalIncome += absAmt;
-      incomeMap.set(
-        t.category || "Others",
-        (incomeMap.get(t.category || "Others") || 0) + absAmt,
-      );
+      incomeMap.set(cat, (incomeMap.get(cat) || 0) + absAmt);
     } else {
       totalExpenses += amt;
-      expenseMap.set(
-        t.category || "Others",
-        (expenseMap.get(t.category || "Others") || 0) + amt,
-      );
+      expenseMap.set(cat, (expenseMap.get(cat) || 0) + amt);
     }
   }
 

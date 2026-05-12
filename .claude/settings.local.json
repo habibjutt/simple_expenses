@@ -13,7 +13,22 @@
       "mcp__chrome-devtools__take_screenshot",
       "mcp__chrome-devtools__wait_for",
       "mcp__chrome-devtools__list_console_messages",
-      "mcp__chrome-devtools__list_network_requests"
+      "mcp__chrome-devtools__list_network_requests",
+      "mcp__chrome-devtools__evaluate_script",
+      "mcp__chrome-devtools__press_key",
+      "Bash(gh issue *)",
+      "Bash(git checkout *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(git remote *)",
+      "Bash(gh pr *)",
+      "mcp__chrome-devtools__list_pages",
+      "Bash(npx prisma *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\my_data\\\\git_projects\\\\simple_expenses\\\\apps\\\\web\\\\app\" -Recurse -Directory)",
+      "Bash(Select-Object FullName)",
+      "Bash(npx tsx -e ' *)",
+      "Bash(node -e ' *)"
     ]
   }
 }
