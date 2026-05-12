@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { changePassword } from "@/lib/auth-client";
+import { recordPasswordChanged } from "@/app/api/user-action";
 import {
   Dialog,
   DialogContent,
@@ -16,11 +17,13 @@ import { Button } from "@/components/ui/button";
 interface ChangePasswordModalProps {
   open: boolean;
   setOpen: (open: boolean) => void;
+  onSuccess?: () => void;
 }
 
 export default function ChangePasswordModal({
   open,
   setOpen,
+  onSuccess,
 }: ChangePasswordModalProps) {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -65,7 +68,8 @@ export default function ChangePasswordModal({
           revokeOtherSessions: true,
         },
         {
-          onSuccess: () => {
+          onSuccess: async () => {
+            await recordPasswordChanged();
             setSuccess(true);
             setCurrentPassword("");
             setNewPassword("");
@@ -73,6 +77,7 @@ export default function ChangePasswordModal({
             setTimeout(() => {
               setOpen(false);
               setSuccess(false);
+              onSuccess?.();
             }, 2000);
           },
           onError: (ctx) => {
