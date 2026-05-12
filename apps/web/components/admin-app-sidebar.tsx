@@ -8,6 +8,7 @@ import {
   IconChartBar,
   IconFlag,
   IconClipboardList,
+  IconMail,
   type Icon,
 } from "@tabler/icons-react";
 import { LayoutDashboard } from "lucide-react";
@@ -32,6 +33,7 @@ const iconMap: Record<string, Icon> = {
   metrics: IconChartBar,
   flags: IconFlag,
   logs: IconClipboardList,
+  enquiries: IconMail,
 };
 
 const navItems: Array<{
@@ -51,6 +53,7 @@ const navItems: Array<{
   { title: "Metrics", url: "/admin/metrics", iconKey: "metrics" },
   { title: "Feature Flags", url: "/admin/flags", iconKey: "flags" },
   { title: "Audit Logs", url: "/admin/logs", iconKey: "logs" },
+  { title: "Enquiries", url: "/admin/enquiries", iconKey: "enquiries" },
 ];
 
 function getInitials(name: string) {
