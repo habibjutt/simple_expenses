@@ -28,6 +28,7 @@ import ChangePasswordModal from "@/components/change-password-modal";
 import DeleteAccountModal from "@/components/delete-account-modal";
 import { SUPPORTED_CURRENCIES } from "@/lib/utils";
 import { updatePreferredCurrency, updateBillReminderDays, getUserProfile } from "@/app/api/user-action";
+import { formatDistanceToNow } from "date-fns";
 import { FormCombobox } from "@/components/ui/form-combobox";
 
 type AlertState = { type: "success" | "error"; message: string } | null;
@@ -79,6 +80,7 @@ export default function SettingsPage() {
 
   const [billReminderDays, setBillReminderDays] = useState<number>(1);
   const [savingReminder, setSavingReminder] = useState(false);
+  const [passwordChangedAt, setPasswordChangedAt] = useState<Date | null>(null);
 
   useEffect(() => {
     if (!isPending && !session) {
@@ -100,6 +102,9 @@ export default function SettingsPage() {
     getUserProfile().then((profile) => {
       if (profile?.billReminderDays !== undefined) {
         setBillReminderDays(profile.billReminderDays);
+      }
+      if (profile?.passwordChangedAt) {
+        setPasswordChangedAt(new Date(profile.passwordChangedAt));
       }
     });
   }, [session]);
@@ -284,7 +289,10 @@ export default function SettingsPage() {
                 <div>
                   <p className="text-sm font-medium text-slate-800">Password</p>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Last changed: not tracked
+                    Last changed:{" "}
+                    {passwordChangedAt
+                      ? formatDistanceToNow(passwordChangedAt, { addSuffix: true })
+                      : "never"}
                   </p>
                 </div>
                 <Button
@@ -457,6 +465,7 @@ export default function SettingsPage() {
       <ChangePasswordModal
         open={showPasswordModal}
         setOpen={setShowPasswordModal}
+        onSuccess={() => setPasswordChangedAt(new Date())}
       />
       <DeleteAccountModal
         open={showDeleteModal}

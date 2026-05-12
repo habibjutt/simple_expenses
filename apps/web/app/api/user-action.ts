@@ -39,6 +39,7 @@ export async function getUserProfile() {
         preferredCurrency: true,
         billReminderDays: true,
         name: true,
+        passwordChangedAt: true,
       },
     }),
     getUserPlanLimits(session.user.id),
@@ -46,6 +47,19 @@ export async function getUserProfile() {
 
   if (!user) return null;
   return { ...user, planLimits };
+}
+
+export async function recordPasswordChanged() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user?.id) return { error: "Unauthorized" };
+
+  await db.user.update({
+    where: { id: session.user.id },
+    data: { passwordChangedAt: new Date() },
+  });
+
+  revalidatePath("/settings");
+  return { success: true };
 }
 
 export async function updateBillReminderDays(days: number) {

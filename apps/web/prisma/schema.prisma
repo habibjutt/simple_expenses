@@ -45,6 +45,7 @@ model user {
 
   preferredCurrency    String    @default("AED")
   onboardingCompleted  Boolean   @default(false)
+  passwordChangedAt    DateTime?
   billReminderDays     Int       @default(1) // Days before invoice due date to send email reminder (0 = same day)
 
   accounts account[]
