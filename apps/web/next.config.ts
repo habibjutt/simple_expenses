@@ -54,6 +54,8 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Remove the X-Powered-By: Next.js header to avoid stack fingerprinting.
+  poweredByHeader: false,
   // Bundles the server + all traced deps into .next/standalone for Docker.
   output: "standalone",
   // Trace from the monorepo root so shared packages (packages/*) are included.
