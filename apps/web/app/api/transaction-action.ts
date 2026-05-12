@@ -178,6 +178,7 @@ export async function createTransaction(
           installments,
           creditCardId,
           installmentNumber: 0, // 0 indicates this is the parent
+          type: txType,
         },
       });
 
@@ -199,6 +200,7 @@ export async function createTransaction(
               parentTransactionId: parentTransaction.id,
               installmentNumber: i,
               creditCardId,
+              type: txType,
             },
           }),
         );
@@ -226,6 +228,7 @@ export async function createTransaction(
             notes,
             installments,
             creditCardId,
+            type: txType,
             isRecurring: isRecurring ?? false,
             recurringFrequency: recurringFrequency ?? null,
             recurringEndDate: recurringEndDate
@@ -278,6 +281,7 @@ export async function createTransaction(
           notes,
           installments,
           bankAccountId,
+          type: txType,
           isRecurring: isRecurring ?? false,
           recurringFrequency: recurringFrequency ?? null,
           recurringEndDate: recurringEndDate
@@ -669,6 +673,7 @@ export async function updateTransaction(
           category,
           notes,
           installments: newInstallments,
+          type: newAmount < 0 ? "income" : "expense",
         },
       }),
       db.credit_card.update({
@@ -702,6 +707,7 @@ export async function updateTransaction(
           category,
           notes,
           installments: newInstallments,
+          type: newAmount < 0 ? "income" : "expense",
         },
       }),
       db.bank_account.update({
