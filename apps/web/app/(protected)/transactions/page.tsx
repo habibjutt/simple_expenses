@@ -393,6 +393,11 @@ export default function TransactionsPage() {
     (a, b) => new Date(b).getTime() - new Date(a).getTime(),
   );
 
+  // Exclude transfers from header totals (consistent with dashboard)
+  const nonTransferTransactions = filteredTransactions.filter(
+    (t) => t.category !== "Transfer",
+  );
+
   return (
     <div className="min-h-screen bg-[#f0f2f5]">
       <Header />
@@ -412,7 +417,7 @@ export default function TransactionsPage() {
                   <p className="text-white/60 text-xs font-medium">Expenses</p>
                   <p className="text-sm font-bold tabular-nums">
                     {formatCurrency(
-                      filteredTransactions
+                      nonTransferTransactions
                         .filter((t) => t.amount > 0)
                         .reduce((s, t) => s + t.amount, 0),
                       preferredCurrency,
@@ -425,7 +430,7 @@ export default function TransactionsPage() {
                   <p className="text-sm font-bold tabular-nums">
                     {formatCurrency(
                       Math.abs(
-                        filteredTransactions
+                        nonTransferTransactions
                           .filter((t) => t.amount < 0)
                           .reduce((s, t) => s + t.amount, 0),
                       ),
