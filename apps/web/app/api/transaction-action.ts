@@ -374,6 +374,7 @@ export async function createTransfer(
         amount,
         date: new Date(date),
         category: "Transfer",
+        type: "transfer",
         installments: 1,
         bankAccountId: fromAccountId,
       },
@@ -391,6 +392,7 @@ export async function createTransfer(
         amount: -amount, // Negative amount to increase balance
         date: new Date(date),
         category: "Transfer",
+        type: "transfer",
         installments: 1,
         bankAccountId: toAccountId,
       },

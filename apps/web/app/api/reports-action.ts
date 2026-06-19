@@ -42,6 +42,7 @@ export async function getReportData(month: number, year: number) {
     where: {
       OR: [{ creditCard: { userId } }, { bankAccount: { userId } }],
       date: { gte: start, lte: end },
+      NOT: { category: "Transfer" },
     },
     include: { creditCard: true, bankAccount: true },
   });
@@ -134,6 +135,7 @@ export async function getMonthlyTrend(year: number): Promise<MonthlyData[]> {
       where: {
         OR: [{ creditCard: { userId } }, { bankAccount: { userId } }],
         date: { gte: start, lte: end },
+        NOT: { category: "Transfer" },
       },
     });
 
@@ -168,12 +170,13 @@ export async function getBudgetVsActual(
 
   if (limits.length === 0) return [];
 
-  // Get actual spending for this month (expenses only — positive amounts)
+  // Get actual spending for this month (expenses only — positive amounts, excluding transfers)
   const transactions = await prisma.transaction.findMany({
     where: {
       OR: [{ creditCard: { userId } }, { bankAccount: { userId } }],
       date: { gte: start, lte: end },
       amount: { gt: 0 },
+      NOT: { category: "Transfer" },
     },
   });
 
