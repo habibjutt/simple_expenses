@@ -972,11 +972,15 @@ export default function Home() {
                     </Link>
                   </div>
                   <div className="p-4 space-y-3">
-                    {topCategories.map((cat, i) => {
+                    {topCategories.map((cat) => {
                       const maxAmt = topCategories[0]?.amount || 1;
                       const pct = Math.round((cat.amount / maxAmt) * 100);
                       return (
-                        <div key={i}>
+                        <Link
+                          key={cat.category}
+                          href={`/transactions?category=${encodeURIComponent(cat.category)}`}
+                          className="block rounded-lg -mx-1 px-1 py-0.5 hover:bg-slate-50 transition-colors"
+                        >
                           <div className="flex items-center justify-between mb-1">
                             <div className="flex items-center gap-1.5">
                               <div
@@ -1006,7 +1010,7 @@ export default function Home() {
                               }}
                             />
                           </div>
-                        </div>
+                        </Link>
                       );
                     })}
                   </div>

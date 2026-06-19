@@ -171,6 +171,12 @@ export default function TransactionsPage() {
     }
   };
 
+  // Seed category filter from URL query param (e.g. /transactions?category=Food)
+  useEffect(() => {
+    const cat = new URLSearchParams(window.location.search).get("category");
+    if (cat) setFilterCategory(cat);
+  }, []);
+
   useEffect(() => {
     if (session && !dataLoaded) {
       fetchTransactions();
