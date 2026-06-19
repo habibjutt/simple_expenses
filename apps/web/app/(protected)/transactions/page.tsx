@@ -123,6 +123,10 @@ export default function TransactionsPage() {
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [filterCategory, setFilterCategory] = useState("");
   const [filterName, setFilterName] = useState("");
+  const [filterAccountType, setFilterAccountType] = useState<
+    "all" | "credit_card" | "bank_account"
+  >("all");
+  const [filterAccountId, setFilterAccountId] = useState("");
   const [exportingCsv, setExportingCsv] = useState(false);
 
   useEffect(() => {
@@ -217,16 +221,31 @@ export default function TransactionsPage() {
       );
     })
     .filter((transaction) => {
-      // Apply category filter
       if (filterCategory && transaction.category !== filterCategory) {
         return false;
       }
-      // Apply name filter (case-insensitive)
       if (
         filterName &&
         !transaction.name.toLowerCase().includes(filterName.toLowerCase())
       ) {
         return false;
+      }
+      if (filterAccountType === "credit_card") {
+        if (!transaction.creditCardId) return false;
+        if (filterAccountId && transaction.creditCardId !== filterAccountId)
+          return false;
+      } else if (filterAccountType === "bank_account") {
+        if (!transaction.bankAccountId) return false;
+        if (filterAccountId && transaction.bankAccountId !== filterAccountId)
+          return false;
+      }
+      if (
+        filterAccountType === "all" &&
+        filterAccountId
+      ) {
+        const matchesCard = transaction.creditCardId === filterAccountId;
+        const matchesBank = transaction.bankAccountId === filterAccountId;
+        if (!matchesCard && !matchesBank) return false;
       }
       return true;
     })
@@ -246,13 +265,21 @@ export default function TransactionsPage() {
     new Set(transactions.map((t) => t.category)),
   ).sort();
 
-  // Check if any filters are active
-  const hasActiveFilters = filterCategory !== "" || filterName !== "";
+  const hasActiveFilters =
+    filterCategory !== "" ||
+    filterName !== "" ||
+    filterAccountType !== "all" ||
+    filterAccountId !== "";
 
-  // Clear all filters
+  const activeFilterCount =
+    (filterCategory ? 1 : 0) +
+    (filterAccountType !== "all" || filterAccountId ? 1 : 0);
+
   const clearFilters = () => {
     setFilterCategory("");
     setFilterName("");
+    setFilterAccountType("all");
+    setFilterAccountId("");
   };
 
   const handleExportCsv = async () => {
@@ -486,9 +513,9 @@ export default function TransactionsPage() {
             >
               <Filter className="h-4 w-4" />
               <span className="hidden sm:inline">Filters</span>
-              {filterCategory && (
+              {activeFilterCount > 0 && (
                 <span className="ml-1 bg-[#1a9e5c] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  1
+                  {activeFilterCount}
                 </span>
               )}
             </Button>
@@ -513,6 +540,32 @@ export default function TransactionsPage() {
                 <span>Category: {filterCategory}</span>
                 <button
                   onClick={() => setFilterCategory("")}
+                  className="hover:bg-[#1a9e5c]/20 rounded-full p-0.5"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            )}
+            {(filterAccountType !== "all" || filterAccountId) && (
+              <div className="flex items-center gap-1 bg-[#1a9e5c]/10 text-[#1a9e5c] border border-[#1a9e5c]/20 px-2 py-1 rounded-full text-xs">
+                <span>
+                  {filterAccountId
+                    ? `Account: ${
+                        creditCards.find((c) => c.id === filterAccountId)
+                          ?.name ??
+                        bankAccounts.find((a) => a.id === filterAccountId)
+                          ?.name ??
+                        "Unknown"
+                      }`
+                    : filterAccountType === "credit_card"
+                      ? "Credit Cards"
+                      : "Bank Accounts"}
+                </span>
+                <button
+                  onClick={() => {
+                    setFilterAccountType("all");
+                    setFilterAccountId("");
+                  }}
                   className="hover:bg-[#1a9e5c]/20 rounded-full p-0.5"
                 >
                   <X className="h-3 w-3" />
@@ -805,6 +858,68 @@ export default function TransactionsPage() {
                 emptyText="No categories found."
               />
             </div>
+
+            {/* Account Type Filter */}
+            <div className="space-y-2">
+              <Label>Account Type</Label>
+              <div className="flex rounded-lg border border-slate-200 overflow-hidden">
+                {(
+                  [
+                    { value: "all", label: "All" },
+                    { value: "credit_card", label: "Credit Card" },
+                    { value: "bank_account", label: "Bank Account" },
+                  ] as const
+                ).map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => {
+                      setFilterAccountType(option.value);
+                      setFilterAccountId("");
+                    }}
+                    className={`flex-1 px-3 py-2 text-sm font-medium transition-colors ${
+                      filterAccountType === option.value
+                        ? "bg-[#1a9e5c] text-white"
+                        : "bg-white text-slate-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Account Selector */}
+            {filterAccountType !== "all" && (
+              <div className="space-y-2">
+                <Label>
+                  {filterAccountType === "credit_card"
+                    ? "Credit Card"
+                    : "Bank Account"}
+                </Label>
+                <FormCombobox
+                  value={filterAccountId}
+                  onValueChange={setFilterAccountId}
+                  options={(filterAccountType === "credit_card"
+                    ? creditCards.map((c) => ({
+                        value: c.id,
+                        label: c.name,
+                      }))
+                    : bankAccounts.map((a) => ({
+                        value: a.id,
+                        label: a.name,
+                      }))
+                  )}
+                  placeholder={
+                    filterAccountType === "credit_card"
+                      ? "All credit cards"
+                      : "All bank accounts"
+                  }
+                  searchPlaceholder="Search…"
+                  emptyText="No accounts found."
+                />
+              </div>
+            )}
 
             {/* Name Filter */}
             <div className="space-y-2">
