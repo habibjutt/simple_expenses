@@ -33,7 +33,9 @@
       "Bash(xxd .gitignore)",
       "Bash(git rm *)",
       "Bash(git reset *)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Read(//c/Users/habib/.agents/skills/ui-ux-pro-max/**)",
+      "Bash(python scripts/search.py \"fintech personal finance SaaS about page trust privacy UAE\" --design-system -p \"Fixpenses\")"
     ]
   },
   "disabledMcpjsonServers": [

@@ -26,14 +26,20 @@ import LandingFooter from "@/components/LandingFooter";
 import LandingNav from "@/components/LandingNav";
 import PricingSection from "@/components/PricingSection";
 import AnimateOnScroll from "@/components/AnimateOnScroll";
-import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/seo";
+import { SITE_URL, SITE_NAME } from "@/lib/seo";
+
+const HOME_TITLE = `Personal Finance Software for UAE Residents | ${SITE_NAME}`;
+const HOME_DESCRIPTION =
+  "Manage expenses, credit cards, budgets, bills and installments with personal finance management software built for UAE residents.";
 
 export const metadata: Metadata = {
   title: {
-    absolute: `${SITE_NAME} — Personal Finance App for UAE Residents`,
+    absolute: HOME_TITLE,
   },
-  description: SITE_DESCRIPTION,
+  description: HOME_DESCRIPTION,
   keywords: [
+    "personal finance management software UAE",
+    "personal finance software UAE",
     "expense tracker UAE",
     "personal finance app UAE",
     "AED expense tracking",
@@ -49,14 +55,14 @@ export const metadata: Metadata = {
     canonical: SITE_URL,
   },
   openGraph: {
-    title: `${SITE_NAME} — Personal Finance App for UAE Residents`,
-    description: SITE_DESCRIPTION,
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
     url: SITE_URL,
     type: "website",
   },
   twitter: {
-    title: `${SITE_NAME} — Personal Finance App for UAE Residents`,
-    description: SITE_DESCRIPTION,
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
   },
 };
 
