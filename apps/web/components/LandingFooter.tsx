@@ -11,7 +11,7 @@ import {
 const FOOTER_LINKS = {
   product: [
     { href: "/#features", label: "Features" },
-    { href: "/#pricing", label: "Pricing" },
+    { href: "/pricing", label: "Pricing" },
     { href: "/#how-it-works", label: "How It Works" },
     { href: "/#faq", label: "FAQ" },
     { href: "/#testimonials", label: "Testimonials" },
@@ -22,6 +22,7 @@ const FOOTER_LINKS = {
     { href: "/dashboard", label: "Dashboard" },
   ],
   company: [
+    { href: "/about", label: "About Us" },
     { href: "/contact", label: "Contact Us" },
     { href: "/request-feature", label: "Request a Feature" },
     { href: "/privacy", label: "Privacy Policy" },

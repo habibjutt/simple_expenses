@@ -35,7 +35,15 @@
       "Bash(git reset *)",
       "Bash(npm install *)",
       "Read(//c/Users/habib/.agents/skills/ui-ux-pro-max/**)",
-      "Bash(python scripts/search.py \"fintech personal finance SaaS about page trust privacy UAE\" --design-system -p \"Fixpenses\")"
+      "Bash(python scripts/search.py \"fintech personal finance SaaS about page trust privacy UAE\" --design-system -p \"Fixpenses\")",
+      "Bash(python scripts/search.py \"about page story trust mission team credibility\" --domain landing -n 4)",
+      "Bash(npx tsc *)",
+      "Bash(npx eslint *)",
+      "Bash(python scripts/search.py \"pricing page tiers comparison table subscription SaaS\" --domain landing -n 3)",
+      "Bash(python scripts/search.py \"comparison table responsive scroll accessibility data\" --domain ux -n 6)",
+      "Bash(npm run *)",
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\('root build:', p.scripts.build\\); console.log\\('workspaces:', JSON.stringify\\(p.workspaces\\)\\);\")",
+      "Bash(node -e \"const t=require\\('./turbo.json'\\); console.log\\(JSON.stringify\\(t.tasks?.build ?? t.pipeline?.build, null, 2\\)\\);\")"
     ]
   },
   "disabledMcpjsonServers": [

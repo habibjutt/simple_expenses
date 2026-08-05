@@ -13,7 +13,7 @@ import {
 import { FEATURE_LINKS } from "@/lib/feature-links";
 
 const navLinks = [
-  { href: "/#pricing", label: "Pricing" },
+  { href: "/pricing", label: "Pricing" },
   { href: "/#testimonials", label: "Testimonials" },
   { href: "/#faq", label: "FAQ" },
   { href: "/contact", label: "Contact" },
