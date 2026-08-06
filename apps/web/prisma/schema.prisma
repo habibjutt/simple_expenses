@@ -54,6 +54,7 @@ model user {
   creditCards credit_card[]
   bankAccounts bank_account[]
   categories category[]
+  blogPosts  blog_post[]
   spendingLimits spending_limit[]
   savingsGoals   savings_goal[]
   auditLogs audit_log[]
@@ -339,4 +340,39 @@ model contact_enquiry {
 
   @@index([status])
   @@index([createdAt])
+}
+
+model blog_category {
+  id          String      @id @default(cuid())
+  name        String
+  slug        String      @unique
+  description String?
+  color       String      @default("#4f6ef7")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  posts       blog_post[]
+}
+
+model blog_post {
+  id              String         @id @default(cuid())
+  title           String
+  slug            String         @unique
+  excerpt         String
+  content         String         @db.Text
+  featuredImage   String?
+  status          String         @default("draft") // draft | published
+  publishedAt     DateTime?
+  metaTitle       String?
+  metaDescription String?
+  ogImage         String?
+  authorId        String
+  categoryId      String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  author   user           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  category blog_category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([status, publishedAt])
+  @@index([categoryId])
 }
