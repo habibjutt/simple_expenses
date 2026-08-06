@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { ArrowLeft, Calendar, User } from "lucide-react";
 import { getPublishedBlogPostBySlug } from "@/app/api/blog-action";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/LandingFooter";
@@ -66,6 +67,12 @@ export default async function BlogPostPage({
       <LandingNav />
       <main className="flex-1">
         <article className="max-w-3xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-[#1a9e5c] mb-6"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" /> Back to blog
+          </Link>
           {post.category && (
             <Link
               href={`/blog/category/${post.category.slug}`}
@@ -78,22 +85,25 @@ export default async function BlogPostPage({
               {post.category.name}
             </Link>
           )}
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground mb-4">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground text-balance mb-4">
             {post.title}
           </h1>
-          <div className="flex items-center gap-3 text-sm text-muted-foreground mb-8">
-            {post.author?.name && <span>{post.author.name}</span>}
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-sm text-muted-foreground mb-8 pb-8 border-b border-border">
+            {post.author?.name && (
+              <span className="inline-flex items-center gap-1.5">
+                <User className="h-3.5 w-3.5" strokeWidth={1.75} />
+                {post.author.name}
+              </span>
+            )}
             {post.publishedAt && (
-              <>
-                <span>&middot;</span>
-                <span>
-                  {post.publishedAt.toLocaleDateString("en-US", {
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                </span>
-              </>
+              <span className="inline-flex items-center gap-1.5">
+                <Calendar className="h-3.5 w-3.5" strokeWidth={1.75} />
+                {post.publishedAt.toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </span>
             )}
           </div>
           {post.featuredImage && (
@@ -101,7 +111,7 @@ export default async function BlogPostPage({
             <img
               src={post.featuredImage}
               alt={post.title}
-              className="w-full rounded-2xl mb-10 object-cover max-h-[420px]"
+              className="w-full rounded-2xl mb-10 object-cover max-h-[420px] shadow-sm"
             />
           )}
           {/* content is sanitized server-side in blog-action.ts before storage */}
