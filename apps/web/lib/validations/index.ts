@@ -11,3 +11,4 @@ export * from "./category";
 export * from "./spending-limit";
 export * from "./savings-goal";
 export * from "./invoice";
+export * from "./blog";
