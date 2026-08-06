@@ -1,7 +1,9 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/seo";
+import { listPublishedBlogPostsForSitemap } from "@/app/api/blog-action";
+import { listBlogCategoriesForSitemap } from "@/app/api/blog-category-action";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -101,7 +103,32 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly",
       priority: 0.3,
     },
+    {
+      url: `${SITE_URL}/blog`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
   ];
 
-  return staticRoutes;
+  const [posts, categories] = await Promise.all([
+    listPublishedBlogPostsForSitemap(),
+    listBlogCategoriesForSitemap(),
+  ]);
+
+  const postRoutes: MetadataRoute.Sitemap = posts.map((post) => ({
+    url: `${SITE_URL}/blog/${post.slug}`,
+    lastModified: post.updatedAt,
+    changeFrequency: "monthly",
+    priority: 0.6,
+  }));
+
+  const categoryRoutes: MetadataRoute.Sitemap = categories.map((category) => ({
+    url: `${SITE_URL}/blog/category/${category.slug}`,
+    lastModified: category.updatedAt,
+    changeFrequency: "weekly",
+    priority: 0.5,
+  }));
+
+  return [...staticRoutes, ...postRoutes, ...categoryRoutes];
 }
