@@ -57,7 +57,7 @@ export default defineConfig({
     // 3. All other tests — reuse the saved session so login is skipped.
     {
       name: "chromium",
-      testMatch: /ui-consistency\.spec\.ts/,
+      testMatch: [/ui-consistency\.spec\.ts/, /blog\.spec\.ts/],
       use: {
         ...devices["Desktop Chrome"],
         storageState: authFile,
