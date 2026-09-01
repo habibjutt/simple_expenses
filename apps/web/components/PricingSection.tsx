@@ -233,19 +233,21 @@ export default function PricingSection() {
       {/* Dot grid overlay */}
       <div className="absolute inset-0 se-dot-grid opacity-20 pointer-events-none" />
 
-      <div className="relative max-w-7xl mx-auto px-6 py-24">
+      <div className="relative max-w-7xl mx-auto px-6 pt-6 sm:pt-8 pb-6 sm:pb-8">
         {/* Header */}
         <div className="text-center space-y-4 mb-14">
           <div className="inline-flex items-center gap-2 bg-[#1a9e5c]/20 text-[#22d47a] px-4 py-1.5 rounded-full text-sm font-semibold border border-[#1a9e5c]/30">
             <Sparkles className="w-4 h-4" />
-            Simple, transparent pricing
+            Simple, Transparent Pricing
           </div>
           <h2 className="text-4xl font-extrabold tracking-tight text-white">
-            Plans that grow with you
+            Plans That Grow With You
           </h2>
           <p className="text-lg text-white/60 max-w-xl mx-auto">
-            Start free. Upgrade when you&apos;re ready. All prices in AED — no
-            surprises.
+            No hidden tiers, no &ldquo;contact sales&rdquo; for basic
+            features — just the best expense tracker in the UAE. Start free,
+            see the value, upgrade only if you need more. All prices in AED,
+            no surprises.
           </p>
 
           {/* Toggle */}

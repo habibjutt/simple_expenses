@@ -21,11 +21,22 @@ import {
   Clock,
   Award,
   Receipt,
+  HelpCircle,
+  Landmark,
+  LayoutDashboard,
+  ShieldCheck,
+  KeyRound,
+  Fingerprint,
+  ShieldAlert,
+  EyeOff,
+  Database,
+  Quote,
 } from "lucide-react";
 import LandingFooter from "@/components/LandingFooter";
 import LandingNav from "@/components/LandingNav";
 import PricingSection from "@/components/PricingSection";
 import AnimateOnScroll from "@/components/AnimateOnScroll";
+import PersonaTabs from "@/components/PersonaTabs";
 import { SITE_URL, SITE_NAME } from "@/lib/seo";
 
 const HOME_TITLE = `Personal Finance Software for UAE Residents | ${SITE_NAME}`;
@@ -93,7 +104,7 @@ export default function LandingPage() {
             style={{ animation: "se-orb-drift 10s ease-in-out 2s infinite" }}
           />
 
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-16 sm:pt-20 pb-16 sm:pb-24">
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-16 sm:pt-20 pb-8 sm:pb-12">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
               {/* Left: Content */}
               <div className="space-y-6 sm:space-y-8 text-center lg:text-left">
@@ -102,10 +113,13 @@ export default function LandingPage() {
                   residents
                 </div>
                 <h1 className="se-hero-title text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1]">
-                  Take control of{" "}
+                  Take Control Of{" "}
                   <span className="text-[#1a9e5c] relative">
-                    every dirham
+                    Every Dirham
                     <span className="absolute -bottom-1 left-0 right-0 h-px bg-gradient-to-r from-[#1a9e5c]/60 via-[#1a9e5c]/30 to-transparent" />
+                  </span>
+                  <span className="block text-lg sm:text-xl lg:text-2xl font-semibold text-muted-foreground tracking-normal mt-2 sm:mt-3">
+                    Track Expenses. Protect Your Privacy
                   </span>
                 </h1>
                 <p className="se-hero-desc text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-xl mx-auto lg:mx-0">
@@ -300,10 +314,144 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* ─── Problem ─────────────────────────────────────────── */}
+        <section className="relative px-4 sm:px-6 pt-6 sm:pt-8 pb-8 sm:pb-10 bg-muted/30 border-b border-border overflow-hidden">
+          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <AnimateOnScroll type="fade-right" className="space-y-5 order-2 lg:order-1">
+              <div className="inline-flex items-center gap-2 bg-muted text-muted-foreground px-4 py-1.5 rounded-full text-sm font-semibold border border-border">
+                <HelpCircle className="w-3.5 h-3.5" />
+                Sound familiar?
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground leading-tight">
+                Where Did My Money Actually Go?
+              </h2>
+              <p className="!mt-2 text-lg text-muted-foreground leading-relaxed">
+                You check your balance. It&apos;s lower than you expected.
+                Again. Between groceries, taksit installments, subscriptions,
+                and the odd Careem ride, your bank statement turns into a
+                puzzle by the end of the month.
+              </p>
+              <p className="text-base text-muted-foreground leading-relaxed">
+                Fixpenses solves that puzzle for you. Every transaction gets
+                sorted into a category the moment it happens, so instead of
+                scrolling through pages of line items, you get a clear
+                picture: what you spent, where, and how it compares to last
+                month.
+              </p>
+              <p className="text-base font-semibold text-foreground border-l-2 border-[#1a9e5c] pl-4">
+                No spreadsheets. No guesswork. Just a straight answer to the
+                question every UAE resident asks on the 25th of the month.
+              </p>
+            </AnimateOnScroll>
+
+            <AnimateOnScroll type="fade-left" className="relative order-1 lg:order-2">
+              {/* "Confusing statement" mockup */}
+              <div className="relative bg-background border border-border rounded-2xl shadow-xl p-5 max-w-sm mx-auto grayscale-[0.4] opacity-90">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    Bank statement
+                  </span>
+                  <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                </div>
+                <div className="space-y-2.5">
+                  {[
+                    "POS-4471 CARREFOUR***",
+                    "TAKSIT INSTLMT 3/6",
+                    "SUBSC-APPLE.COM/BILL",
+                    "CAREEM*TRIP-88213",
+                    "POS-9012 UNKNOWN MER",
+                    "ATM WDL FEE AED 2.10",
+                  ].map((line, i) => (
+                    <div
+                      key={line}
+                      className="flex items-center justify-between text-xs font-mono text-muted-foreground border-b border-dashed border-border pb-2 blur-[0.4px]"
+                      style={{ opacity: 1 - i * 0.08 }}
+                    >
+                      <span className="truncate pr-2">{line}</span>
+                      <span className="shrink-0">-AED {(120 + i * 47) % 300}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                  <span>What did I actually spend on?</span>
+                </div>
+              </div>
+              {/* Green "clarity" glow peeking behind */}
+              <div className="absolute -inset-6 bg-[#1a9e5c]/10 rounded-3xl blur-2xl -z-10" />
+            </AnimateOnScroll>
+          </div>
+        </section>
+
+        {/* ─── Value proposition ──────────────────────────────────── */}
+        <section className="relative px-4 sm:px-6 pt-8 sm:pt-10 pb-8 sm:pb-10 overflow-hidden">
+          {/* Subtle background accent */}
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-[#1a9e5c]/5 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative max-w-3xl mx-auto text-center">
+            <AnimateOnScroll type="fade-up" className="space-y-6">
+              <div className="inline-flex items-center gap-2 bg-[#1a9e5c]/10 text-[#1a9e5c] px-4 py-1.5 rounded-full text-sm font-semibold border border-[#1a9e5c]/20">
+                <Lock className="w-3.5 h-3.5" />
+                No Bank Login Required
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground leading-tight">
+                Track Every Dirham Without Handing Over Your Bank Login
+              </h2>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                Fixpenses gives you one clean view of your spending, budgets,
+                and savings, built specifically for how people manage money
+                in the UAE. Add your cards, set your limits, and see exactly
+                where your money goes, all inside a dashboard your partner
+                can share and no one else can touch.
+              </p>
+            </AnimateOnScroll>
+
+            <AnimateOnScroll
+              type="stagger"
+              className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-10 text-left"
+            >
+              {[
+                {
+                  icon: Shield,
+                  text: "No bank credentials ever shared — you add balances yourself",
+                },
+                {
+                  icon: Users,
+                  text: "Share with your partner. No one else can touch it",
+                },
+                {
+                  icon: Zap,
+                  text: "See your first spending snapshot in minutes",
+                },
+              ].map(({ icon: Icon, text }) => (
+                <div key={text} className="flex items-start gap-3">
+                  <div className="w-9 h-9 shrink-0 rounded-lg bg-[#1a9e5c]/10 flex items-center justify-center">
+                    <Icon className="w-4 h-4 text-[#1a9e5c]" />
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed pt-1.5">
+                    {text}
+                  </p>
+                </div>
+              ))}
+            </AnimateOnScroll>
+
+            <AnimateOnScroll type="fade-up" className="mt-6">
+              <Button
+                size="lg"
+                className="h-12 px-8 text-base text-white shadow-lg shadow-[#1a9e5c]/30 border-0 hover:opacity-90 transition-opacity"
+                asChild
+              >
+                <Link href="/signup">
+                  Start free <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </AnimateOnScroll>
+          </div>
+        </section>
+
         {/* ─── Features ────────────────────────────────────────── */}
         <section
           id="features"
-          className="relative px-4 sm:px-6 py-20 sm:py-24 overflow-hidden"
+          className="relative px-4 sm:px-6 pt-8 sm:pt-10 pb-8 sm:pb-10 overflow-hidden"
         >
           {/* Subtle background accent */}
           <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#1a9e5c]/5 rounded-full blur-3xl pointer-events-none" />
@@ -317,7 +465,7 @@ export default function LandingPage() {
                 Everything you need
               </div>
               <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
-                Your full financial picture, in one place
+                Your Full Financial Picture, In One Place
               </h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                 Purpose-built for UAE residents — from ADCB to Mashreq, from
@@ -407,10 +555,71 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* ─── Unified dashboard ──────────────────────────────────── */}
+        <section className="relative px-4 sm:px-6 pt-4 sm:pt-6 pb-8 sm:pb-10 border-t border-border overflow-hidden">
+          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <AnimateOnScroll type="fade-right" className="relative">
+              {/* Converging accounts visual */}
+              <div className="relative max-w-sm mx-auto">
+                <div className="flex flex-wrap justify-center gap-2 mb-2">
+                  {["ADCB", "Emirates NBD", "Mashreq", "FAB", "RAKBANK"].map(
+                    (bank) => (
+                      <span
+                        key={bank}
+                        className="inline-flex items-center gap-1.5 bg-background border border-border rounded-full px-3 py-1.5 text-xs font-semibold text-muted-foreground shadow-sm"
+                      >
+                        <Landmark className="w-3 h-3 text-[#1a9e5c]" />
+                        {bank}
+                      </span>
+                    ),
+                  )}
+                </div>
+                <div className="flex justify-center py-2">
+                  <div className="w-px h-8 bg-gradient-to-b from-border to-[#1a9e5c]/60" />
+                </div>
+                <div className="relative bg-background border border-[#1a9e5c]/30 rounded-2xl shadow-xl p-6 text-center">
+                  <div className="absolute inset-0 bg-[#1a9e5c]/8 rounded-2xl blur-2xl -z-10 scale-105" />
+                  <div className="w-12 h-12 mx-auto rounded-xl bg-[#1a9e5c] flex items-center justify-center shadow-lg shadow-[#1a9e5c]/30 mb-3">
+                    <LayoutDashboard className="w-6 h-6 text-white" />
+                  </div>
+                  <p className="font-bold text-foreground">
+                    Your Fixpenses Dashboard
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Every account, one screen
+                  </p>
+                </div>
+              </div>
+            </AnimateOnScroll>
+
+            <AnimateOnScroll type="fade-left" className="space-y-5">
+              <div className="inline-flex items-center gap-2 bg-[#1a9e5c]/10 text-[#1a9e5c] px-4 py-1.5 rounded-full text-sm font-semibold border border-[#1a9e5c]/20">
+                <Landmark className="w-3.5 h-3.5" />
+                Every account, one screen
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground leading-tight">
+                One Secure Dashboard For All Your Bank Accounts
+              </h2>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                Stop switching between five different banking apps to see
+                where you stand. Fixpenses pulls your accounts into one
+                dashboard, so your bank balance, your credit card due date,
+                and your savings goal all sit on the same screen.
+              </p>
+              <p className="text-base text-muted-foreground leading-relaxed">
+                You see the full picture the moment you log in, not after
+                piecing it together from five separate app notifications.
+                Your data stays encrypted and isolated to you alone, so the
+                convenience never costs you privacy.
+              </p>
+            </AnimateOnScroll>
+          </div>
+        </section>
+
         {/* ─── How it works ─────────────────────────────────────── */}
         <section
           id="how-it-works"
-          className="relative px-4 sm:px-6 py-20 sm:py-24 bg-muted/30 border-t border-border overflow-hidden"
+          className="relative px-4 sm:px-6 pt-10 sm:pt-14 pb-6 sm:pb-8 bg-muted/30 border-t border-border overflow-hidden"
         >
           {/* Background orb */}
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[#1a9e5c]/6 rounded-full blur-3xl pointer-events-none" />
@@ -424,7 +633,7 @@ export default function LandingPage() {
                 Up and running in minutes
               </div>
               <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
-                Three steps to financial clarity
+                Three Steps To Financial Clarity
               </h2>
             </AnimateOnScroll>
 
@@ -445,19 +654,19 @@ export default function LandingPage() {
                 {
                   step: "1",
                   icon: PlusCircleIcon,
-                  title: "Create your account",
+                  title: "Create Your Account",
                   desc: "Sign up in seconds with email or GitHub. No credit card needed. Your account is ready instantly.",
                 },
                 {
                   step: "2",
                   icon: CreditCard,
-                  title: "Add your cards & accounts",
+                  title: "Add Your Cards & Accounts",
                   desc: "Add your UAE credit cards and bank accounts manually. Set balances, bill dates, and limits.",
                 },
                 {
                   step: "3",
                   icon: BarChart3,
-                  title: "Start tracking",
+                  title: "Start Tracking",
                   desc: "Log transactions, view reports, and see your complete financial picture in one dashboard.",
                 },
               ].map(({ step, title, desc }) => (
@@ -498,13 +707,154 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* ─── Who it's for ────────────────────────────────────── */}
+        <section className="relative px-4 sm:px-6 pt-6 sm:pt-8 pb-6 sm:pb-8 border-t border-border overflow-hidden">
+          <div className="max-w-5xl mx-auto relative">
+            <AnimateOnScroll
+              type="fade-up"
+              className="text-center space-y-4 mb-12"
+            >
+              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-semibold border border-primary/20">
+                <Users className="w-4 h-4" />
+                Built to flex
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
+                Fixpenses For Everyone — Not Just Individuals & Families
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Fixpenses works the same way regardless of who&apos;s using
+                it — one login, one dashboard, adjusted to fit your
+                situation.
+              </p>
+            </AnimateOnScroll>
+
+            <AnimateOnScroll type="fade-up" delay={100}>
+              <PersonaTabs />
+            </AnimateOnScroll>
+          </div>
+        </section>
+
         {/* ─── Pricing ──────────────────────────────────────────── */}
         <PricingSection />
+
+        {/* ─── Security & privacy ─────────────────────────────────── */}
+        <section className="relative px-4 sm:px-6 pt-6 sm:pt-8 pb-6 sm:pb-8 overflow-hidden">
+          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#1a9e5c]/5 rounded-full blur-3xl pointer-events-none" />
+          <div className="max-w-6xl mx-auto relative">
+            <AnimateOnScroll
+              type="fade-up"
+              className="text-center space-y-4 mb-12"
+            >
+              <div className="inline-flex items-center gap-2 bg-[#1a9e5c]/10 text-[#1a9e5c] px-4 py-1.5 rounded-full text-sm font-semibold border border-[#1a9e5c]/20">
+                <ShieldCheck className="w-4 h-4" />
+                Security & Privacy
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
+                Your Data Is Protected & Private
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Money data is personal. Fixpenses is built to protect it at
+                every layer, not as an afterthought.
+              </p>
+            </AnimateOnScroll>
+
+            <AnimateOnScroll
+              type="stagger"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 auto-rows-[minmax(160px,auto)] gap-4"
+            >
+              <div className="sm:col-span-2 lg:col-span-2 bg-background border border-border rounded-2xl p-7 hover:border-[#1a9e5c]/40 hover:shadow-[0_8px_40px_rgba(26,158,92,0.12)] transition-all duration-300">
+                <div className="w-12 h-12 rounded-xl bg-[#1a9e5c]/10 flex items-center justify-center mb-4">
+                  <KeyRound className="w-6 h-6 text-[#1a9e5c]" />
+                </div>
+                <h3 className="font-bold text-lg text-foreground mb-2">
+                  AES-256 Encryption
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Your data gets encrypted with AES-256, the same standard
+                  banks and governments use to protect sensitive records.
+                  Whether it&apos;s sitting in storage or moving between
+                  your device and the server, it stays unreadable to
+                  anyone but you.
+                </p>
+              </div>
+
+              <div className="bg-background border border-border rounded-2xl p-6 hover:border-[#1a9e5c]/40 hover:shadow-[0_8px_40px_rgba(26,158,92,0.12)] transition-all duration-300">
+                <div className="w-11 h-11 rounded-xl bg-[#1a9e5c]/10 flex items-center justify-center mb-3">
+                  <Fingerprint className="w-5 h-5 text-[#1a9e5c]" />
+                </div>
+                <h3 className="font-bold text-foreground mb-1.5">
+                  Secure Password Hashing
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Your password never gets stored as plain text, anywhere,
+                  ever. It&apos;s hashed before it touches a database, so
+                  your actual password stays out of reach even in a breach
+                  elsewhere.
+                </p>
+              </div>
+
+              <div className="bg-background border border-border rounded-2xl p-6 hover:border-[#1a9e5c]/40 hover:shadow-[0_8px_40px_rgba(26,158,92,0.12)] transition-all duration-300">
+                <div className="w-11 h-11 rounded-xl bg-[#1a9e5c]/10 flex items-center justify-center mb-3">
+                  <ShieldAlert className="w-5 h-5 text-[#1a9e5c]" />
+                </div>
+                <h3 className="font-bold text-foreground mb-1.5">
+                  Brute-Force Protection
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Repeated failed login attempts get blocked automatically.
+                  Someone guessing your password gets locked out long
+                  before they get close.
+                </p>
+              </div>
+
+              <div className="bg-background border border-border rounded-2xl p-6 hover:border-[#1a9e5c]/40 hover:shadow-[0_8px_40px_rgba(26,158,92,0.12)] transition-all duration-300">
+                <div className="w-11 h-11 rounded-xl bg-[#1a9e5c]/10 flex items-center justify-center mb-3">
+                  <EyeOff className="w-5 h-5 text-[#1a9e5c]" />
+                </div>
+                <h3 className="font-bold text-foreground mb-1.5">
+                  Zero Credential Storage
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Fixpenses never asks for your online banking username or
+                  password, and never stores one. You add account details
+                  manually, on your terms.
+                </p>
+              </div>
+
+              <div className="bg-background border border-border rounded-2xl p-6 hover:border-[#1a9e5c]/40 hover:shadow-[0_8px_40px_rgba(26,158,92,0.12)] transition-all duration-300">
+                <div className="w-11 h-11 rounded-xl bg-[#1a9e5c]/10 flex items-center justify-center mb-3">
+                  <Database className="w-5 h-5 text-[#1a9e5c]" />
+                </div>
+                <h3 className="font-bold text-foreground mb-1.5">
+                  Complete Data Isolation
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Your financial data lives in its own isolated space,
+                  separate from every other user&apos;s. No shared access,
+                  no cross-account visibility.
+                </p>
+              </div>
+
+              <div className="sm:col-span-2 lg:col-span-2 bg-[#1a9e5c] rounded-2xl p-7 flex flex-col justify-center">
+                <h3 className="font-bold text-lg text-white mb-2">
+                  Why Privacy Matters
+                </h3>
+                <p className="text-sm text-white/85 leading-relaxed">
+                  Your spending habits say a lot about your life — your
+                  income, your relationships, your plans. That&apos;s
+                  exactly why Fixpenses treats privacy as the foundation,
+                  not a feature. You get full visibility into your own
+                  money, and no one else gets a window into it.
+                </p>
+              </div>
+            </AnimateOnScroll>
+          </div>
+        </section>
 
         {/* ─── Testimonials ─────────────────────────────────────── */}
         <section
           id="testimonials"
-          className="relative px-4 sm:px-6 py-20 sm:py-24 border-t border-border overflow-hidden"
+          className="relative px-4 sm:px-6 pt-6 sm:pt-8 pb-6 sm:pb-8 border-t border-border overflow-hidden"
         >
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[200px] bg-[#1a9e5c]/5 rounded-full blur-3xl pointer-events-none" />
           <div className="max-w-7xl mx-auto relative">
@@ -517,7 +867,7 @@ export default function LandingPage() {
                 Loved by UAE users
               </div>
               <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
-                What our users are saying
+                What Our Users Are Saying
               </h2>
               <p className="text-lg text-muted-foreground">
                 Real people. Real dirhams. Real results.
@@ -593,9 +943,10 @@ export default function LandingPage() {
                 ({ name, role, location, initials, color, quote, rating }) => (
                   <div
                     key={name}
-                    className="bg-background border border-border rounded-2xl p-6 space-y-4 hover:shadow-[0_8px_32px_rgba(26,158,92,0.1)] hover:border-primary/25 hover:-translate-y-0.5 transition-all duration-300 flex flex-col"
+                    className="relative bg-background border border-border rounded-2xl p-6 space-y-4 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_32px_rgba(26,158,92,0.1)] hover:border-primary/25 hover:-translate-y-0.5 transition-all duration-300 flex flex-col overflow-hidden"
                   >
-                    <div className="flex gap-1">
+                    <Quote className="absolute -top-2 -right-2 w-16 h-16 text-primary/5 rotate-12" />
+                    <div className="flex gap-1 relative">
                       {Array.from({ length: rating }).map((_, i) => (
                         <Star
                           key={i}
@@ -603,7 +954,7 @@ export default function LandingPage() {
                         />
                       ))}
                     </div>
-                    <p className="text-sm text-foreground leading-relaxed flex-1">
+                    <p className="text-sm text-foreground leading-relaxed flex-1 relative">
                       &ldquo;{quote}&rdquo;
                     </p>
                     <div className="flex items-center gap-3 pt-2 border-t border-border">
@@ -631,7 +982,7 @@ export default function LandingPage() {
         {/* ─── FAQ ──────────────────────────────────────────────── */}
         <section
           id="faq"
-          className="relative px-4 sm:px-6 py-20 sm:py-24 bg-muted/30 border-t border-border overflow-hidden"
+          className="relative px-4 sm:px-6 pt-6 sm:pt-8 pb-6 sm:pb-8 bg-muted/30 border-t border-border overflow-hidden"
         >
           <div className="absolute -bottom-20 -right-20 w-[400px] h-[400px] bg-[#1a9e5c]/6 rounded-full blur-3xl pointer-events-none" />
           <div className="max-w-3xl mx-auto relative">
@@ -643,7 +994,7 @@ export default function LandingPage() {
                 Frequently Asked Questions
               </div>
               <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
-                Got questions? We have answers.
+                Got Questions? We Have Answers.
               </h2>
             </AnimateOnScroll>
 
@@ -651,28 +1002,32 @@ export default function LandingPage() {
               <div className="divide-y divide-border rounded-2xl border border-border bg-background overflow-hidden shadow-sm">
                 {[
                   {
-                    q: "Is my financial data secure?",
-                    a: "Absolutely. All data is encrypted in transit (TLS 1.3) and at rest (AES-256). Your financial data is tied exclusively to your account and never shared with third parties, advertisers, or financial institutions. We are fully compliant with UAE PDPL data protection regulations.",
+                    q: "Do I Need To Connect My Bank Login?",
+                    a: "No. Fixpenses never asks for your online banking username or password. You add your accounts and cards manually, so your bank credentials never leave your hands.",
                   },
                   {
-                    q: "Which UAE banks are supported?",
-                    a: "Fixpenses works with all UAE banks including ADCB, FAB, Mashreq, Emirates NBD, DIB, RAKBANK, Abu Dhabi Islamic Bank, and more. Since you enter transactions manually, it works with any bank that issues credit cards or bank accounts.",
+                    q: "Is My Financial Data Secure?",
+                    a: "Yes. Your data is protected with AES-256 encryption, held in complete isolation from every other user, and never shared or sold. Security runs through every layer of the app, not just the login screen.",
                   },
                   {
-                    q: "Is there a truly free plan — no catches?",
-                    a: "Yes. Our Starter plan is permanently free with no time limits. You can track 2 credit cards, 2 bank accounts, and up to 100 transactions per month at no cost, forever. No credit card required to sign up.",
+                    q: "Which Banks Does It Support?",
+                    a: "Fixpenses works with any UAE bank account you add manually, so you're not limited to a fixed list of supported institutions. If you bank in the UAE, you can track it.",
                   },
                   {
-                    q: "Can I track taksit (installment) payments?",
-                    a: "Yes! This is a feature we built specifically for UAE users. When adding a transaction, you can mark it as an installment purchase and specify the number of months. We automatically split the amount and track each monthly payment on your credit card bills.",
+                    q: "Can I Track Taksit Payments?",
+                    a: "Yes. Add your installment plan once, and Fixpenses tracks what's due and when, so a taksit payment never catches you off guard.",
                   },
                   {
-                    q: "How do I cancel my subscription?",
-                    a: "You can cancel your subscription anytime from your account settings with one click. There are no cancellation fees. Your account reverts to the free Starter plan and all your data is preserved.",
+                    q: "How Much Does It Cost?",
+                    a: "You can start for free and track your spending, budgets, and accounts without paying anything. Paid plans exist for people who want deeper reporting or multiple linked accounts, but the core app costs nothing to use.",
                   },
                   {
-                    q: "Can I export my data?",
-                    a: "Data export (CSV and PDF) is available on the Premium plan. This lets you download all your transactions, reports, and invoice history for your own records or to share with an accountant.",
+                    q: "Is There A Truly Free Plan?",
+                    a: "Yes, and it's not a time-limited trial. The free plan covers real tracking and budgeting, not a stripped-down demo designed to expire.",
+                  },
+                  {
+                    q: "Can I Export My Data?",
+                    a: "Yes. Your data belongs to you, so you can export it whenever you want, in a format you can actually use elsewhere.",
                   },
                 ].map(({ q, a }) => (
                   <details
@@ -680,7 +1035,7 @@ export default function LandingPage() {
                     className="group px-6 py-5 cursor-pointer hover:bg-muted/30 transition-colors"
                   >
                     <summary className="flex items-center justify-between font-semibold text-foreground list-none [&::-webkit-details-marker]:hidden gap-4">
-                      <span className="text-sm sm:text-base">{q}</span>
+                      <h3 className="text-sm sm:text-base">{q}</h3>
                       <ChevronDown className="w-5 h-5 text-muted-foreground shrink-0 group-open:rotate-180 transition-transform duration-300" />
                     </summary>
                     <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
@@ -704,7 +1059,7 @@ export default function LandingPage() {
         </section>
 
         {/* ─── Final CTA ────────────────────────────────────────── */}
-        <section className="relative px-4 sm:px-6 py-20 sm:py-24 bg-[#1a9e5c] border-t border-[#158a4f] overflow-hidden">
+        <section className="relative px-4 sm:px-6 pt-6 sm:pt-8 pb-6 sm:pb-8 bg-[#1a9e5c] border-t border-[#158a4f] overflow-hidden">
           {/* Animated background orbs */}
           <div
             className="absolute -top-20 -left-20 w-[400px] h-[400px] bg-white/8 rounded-full blur-3xl pointer-events-none"
@@ -728,7 +1083,7 @@ export default function LandingPage() {
             </AnimateOnScroll>
             <AnimateOnScroll type="fade-up" delay={100}>
               <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
-                Start your financial journey today
+                Start Your Financial Journey Today
               </h2>
               <p className="text-lg text-white/80 max-w-xl mx-auto mt-4">
                 Join hundreds of UAE residents who have taken control of their
