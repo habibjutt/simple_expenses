@@ -16,7 +16,7 @@ export const FEATURE_LINKS = [
       "Log and categorize every transaction in seconds. Full history, smart filters, and installment support built-in.",
   },
   {
-    href: "/features/budgets",
+    href: "/features/budget-spending-limits",
     label: "Budgets & Spending Limits",
     icon: Target,
     description:

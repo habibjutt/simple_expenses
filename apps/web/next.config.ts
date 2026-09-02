@@ -78,6 +78,15 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: "/features/budgets",
+        destination: "/features/budget-spending-limits",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
