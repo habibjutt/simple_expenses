@@ -80,6 +80,15 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // Canonicalize on the non-www apex domain: any request to
+      // www.fixpenses.com permanently redirects to fixpenses.com,
+      // preserving the full path and query string.
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.fixpenses.com" }],
+        destination: "https://fixpenses.com/:path*",
+        permanent: true,
+      },
       {
         source: "/features/budgets",
         destination: "/features/budget-spending-limits",
