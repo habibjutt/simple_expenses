@@ -99,7 +99,12 @@
       "Bash(tasklist //FI \"PID eq 54540\")",
       "Bash(taskkill //PID 54540 //F)",
       "Bash(rm -rf .next)",
-      "Bash(SKIP_ENV_VALIDATION=1 DATABASE_URL=\"postgresql://placeholder:placeholder@localhost:5432/placeholder\" NODE_OPTIONS=\"--max-old-space-size=4096\" npx next build --webpack)"
+      "Bash(SKIP_ENV_VALIDATION=1 DATABASE_URL=\"postgresql://placeholder:placeholder@localhost:5432/placeholder\" NODE_OPTIONS=\"--max-old-space-size=4096\" npx next build --webpack)",
+      "Bash(git fetch *)",
+      "Bash(npm view *)",
+      "Bash(npm ls *)",
+      "Bash(npm --version)",
+      "Bash(npm config *)"
     ]
   },
   "disabledMcpjsonServers": [
