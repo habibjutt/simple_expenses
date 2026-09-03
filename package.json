@@ -20,9 +20,11 @@
     "lint": "turbo run lint",
     "format": "turbo run format",
     "format:check": "turbo run format:check",
-    "dev:mobile": "turbo run dev --filter=@simple-expenses/mobile"
+    "dev:mobile": "turbo run dev --filter=@simple-expenses/mobile",
+    "postinstall": "patch-package"
   },
   "devDependencies": {
+    "patch-package": "^8.0.1",
     "prettier": "^3.7.4",
     "tailwindcss": "^4",
     "turbo": "^2.5.4",
