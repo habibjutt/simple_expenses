@@ -6,7 +6,7 @@
  * Defense-in-depth: strip HTML tags before storage.
  */
 
-import { sanitize } from "isomorphic-dompurify";
+import sanitizeHtml from "sanitize-html";
 
 const HTML_TAG_RE = /<[^>]*>/g;
 
@@ -44,7 +44,10 @@ const BLOG_ALLOWED_TAGS = [
   "a",
   "img",
 ];
-const BLOG_ALLOWED_ATTR = ["href", "src", "alt", "target", "rel"];
+const BLOG_ALLOWED_ATTR = {
+  a: ["href", "target", "rel"],
+  img: ["src", "alt"],
+};
 
 /**
  * Sanitize Tiptap-generated HTML before it's stored. Rendering blog content
@@ -52,8 +55,8 @@ const BLOG_ALLOWED_ATTR = ["href", "src", "alt", "target", "rel"];
  * scripts/event handlers and restricts tags/attrs to a known allowlist.
  */
 export function sanitizeBlogHtml(html: string): string {
-  return sanitize(html, {
-    ALLOWED_TAGS: BLOG_ALLOWED_TAGS,
-    ALLOWED_ATTR: BLOG_ALLOWED_ATTR,
+  return sanitizeHtml(html, {
+    allowedTags: BLOG_ALLOWED_TAGS,
+    allowedAttributes: BLOG_ALLOWED_ATTR,
   });
 }
