@@ -40,13 +40,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     },
     {
-      url: `${SITE_URL}/features/credit-cards`,
+      url: `${SITE_URL}/features/credit-card-management`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.7,
     },
     {
-      url: `${SITE_URL}/features/bank-accounts`,
+      url: `${SITE_URL}/features/bank-account-management`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.7,
@@ -58,13 +58,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     },
     {
-      url: `${SITE_URL}/features/goals`,
+      url: `${SITE_URL}/features/financial-savings-goals`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.7,
     },
     {
-      url: `${SITE_URL}/features/reports`,
+      url: `${SITE_URL}/features/expense-reports-analytics`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.7,

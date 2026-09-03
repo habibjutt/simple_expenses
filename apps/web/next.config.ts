@@ -85,6 +85,26 @@ const nextConfig: NextConfig = {
         destination: "/features/budget-spending-limits",
         permanent: true,
       },
+      {
+        source: "/features/reports",
+        destination: "/features/expense-reports-analytics",
+        statusCode: 301,
+      },
+      {
+        source: "/features/goals",
+        destination: "/features/financial-savings-goals",
+        statusCode: 301,
+      },
+      {
+        source: "/features/credit-cards",
+        destination: "/features/credit-card-management",
+        statusCode: 301,
+      },
+      {
+        source: "/features/bank-accounts",
+        destination: "/features/bank-account-management",
+        permanent: true,
+      },
     ];
   },
 };
