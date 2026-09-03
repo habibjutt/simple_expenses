@@ -80,6 +80,7 @@ model account {
   id           String    @id @default(cuid())
   accountId    String
   providerId   String
+  issuer       String
   userId       String
   accessToken  String?
   refreshToken String?
@@ -95,6 +96,7 @@ model account {
   user user @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, providerId, accountId])
+  @@unique([issuer, accountId])
   @@index([userId])
 }
 
