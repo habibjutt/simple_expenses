@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a3521"/>
+      <stop offset="0.55" stop-color="#0f5c37"/>
+      <stop offset="1" stop-color="#1a9e5c"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.85" cy="0.15" r="0.6">
+      <stop offset="0" stop-color="#6ee7b7" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#6ee7b7" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity="0.05" stroke-width="1"/>
+    </pattern>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#021a0f" flood-opacity="0.45"/>
+    </filter>
+    <filter id="chipShadow" x="-20%" y="-40%" width="140%" height="200%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#021a0f" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <circle cx="90" cy="600" r="160" fill="#1a9e5c" opacity="0.25"/>
+
+  <!-- Left: headline -->
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <rect x="72" y="150" width="236" height="36" rx="18" fill="#ffffff" fill-opacity="0.12"/>
+    <text x="190" y="174" text-anchor="middle" font-size="15" font-weight="700" letter-spacing="2.5" fill="#a7f3d0">BUDGETING GUIDE</text>
+    <text x="72" y="262" font-size="58" font-weight="800" fill="#ffffff">Monthly budget</text>
+    <text x="72" y="330" font-size="58" font-weight="800" fill="#ffffff">in the <tspan fill="#6ee7b7">UAE</tspan></text>
+    <text x="72" y="388" font-size="22" fill="#d1fae5" fill-opacity="0.85">A step-by-step plan with a real</text>
+    <text x="72" y="418" font-size="22" fill="#d1fae5" fill-opacity="0.85">AED 15,000 example</text>
+  </g>
+
+  <!-- Right: budget card -->
+  <g filter="url(#shadow)">
+    <rect x="648" y="92" width="472" height="446" rx="28" fill="#ffffff"/>
+  </g>
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <text x="684" y="140" font-size="15" font-weight="600" fill="#6b7280">Monthly budget</text>
+    <text x="684" y="180" font-size="34" font-weight="800" fill="#0f172a">AED 15,000</text>
+    <rect x="990" y="148" width="96" height="32" rx="16" fill="#1a9e5c" fill-opacity="0.12"/>
+    <text x="1038" y="170" text-anchor="middle" font-size="14" font-weight="700" fill="#15803d">Balanced</text>
+    <line x1="684" y1="204" x2="1086" y2="204" stroke="#e5e7eb"/>
+
+    <!-- rows: label, amount, bar (43% = 330px) -->
+    <g font-size="16">
+      <text x="684" y="240" font-weight="600" fill="#111827">Rent</text>
+      <text x="1086" y="240" text-anchor="end" font-weight="700" fill="#111827">6,500</text>
+      <rect x="684" y="252" width="402" height="10" rx="5" fill="#f1f5f9"/>
+      <rect x="684" y="252" width="330" height="10" rx="5" fill="#1a9e5c"/>
+
+      <text x="684" y="298" font-weight="600" fill="#111827">Car and transport</text>
+      <text x="1086" y="298" text-anchor="end" font-weight="700" fill="#111827">2,350</text>
+      <rect x="684" y="310" width="402" height="10" rx="5" fill="#f1f5f9"/>
+      <rect x="684" y="310" width="123" height="10" rx="5" fill="#0ea5e9"/>
+
+      <text x="684" y="356" font-weight="600" fill="#111827">Groceries</text>
+      <text x="1086" y="356" text-anchor="end" font-weight="700" fill="#111827">1,325</text>
+      <rect x="684" y="368" width="402" height="10" rx="5" fill="#f1f5f9"/>
+      <rect x="684" y="368" width="69" height="10" rx="5" fill="#f59e0b"/>
+
+      <text x="684" y="414" font-weight="600" fill="#111827">Remittance home</text>
+      <text x="1086" y="414" text-anchor="end" font-weight="700" fill="#111827">1,200</text>
+      <rect x="684" y="426" width="402" height="10" rx="5" fill="#f1f5f9"/>
+      <rect x="684" y="426" width="61" height="10" rx="5" fill="#8b5cf6"/>
+
+      <text x="684" y="472" font-weight="600" fill="#111827">Emergency savings</text>
+      <text x="1086" y="472" text-anchor="end" font-weight="700" fill="#111827">1,000</text>
+      <rect x="684" y="484" width="402" height="10" rx="5" fill="#f1f5f9"/>
+      <rect x="684" y="484" width="54" height="10" rx="5" fill="#10b981"/>
+    </g>
+  </g>
+
+  <!-- Floating chip: rent cheque sinking fund -->
+  <g filter="url(#chipShadow)">
+    <rect x="500" y="504" width="300" height="84" rx="20" fill="#ffffff"/>
+  </g>
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <circle cx="544" cy="546" r="22" fill="#1a9e5c"/>
+    <path d="M534 546 l7 7 l13 -14" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="578" y="538" font-size="15" font-weight="600" fill="#6b7280">Next rent cheque</text>
+    <text x="578" y="565" font-size="20" font-weight="800" fill="#0f172a">AED 19,500 saved</text>
+  </g>
+</svg>

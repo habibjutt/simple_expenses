@@ -4,6 +4,7 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
+import { TableKit } from "@tiptap/extension-table";
 import {
   Bold,
   Italic,
@@ -14,6 +15,7 @@ import {
   Quote,
   Link as LinkIcon,
   ImageIcon,
+  Table,
   Undo,
   Redo,
 } from "lucide-react";
@@ -27,7 +29,12 @@ export default function RichTextEditor({
   onChange: (html: string) => void;
 }) {
   const editor = useEditor({
-    extensions: [StarterKit, Image, Link.configure({ openOnClick: false })],
+    extensions: [
+      StarterKit,
+      Image,
+      Link.configure({ openOnClick: false }),
+      TableKit.configure({ table: { resizable: false } }),
+    ],
     content,
     // Avoid SSR hydration mismatches — see Tiptap's Next.js install guide.
     immediatelyRender: false,
@@ -103,6 +110,17 @@ export default function RichTextEditor({
       active: editor.isActive("link"),
     },
     { icon: ImageIcon, label: "Image", action: addImage, active: false },
+    {
+      icon: Table,
+      label: "Table",
+      action: () =>
+        editor
+          .chain()
+          .focus()
+          .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+          .run(),
+      active: editor.isActive("table"),
+    },
     {
       icon: Undo,
       label: "Undo",

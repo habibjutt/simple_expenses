@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft, ArrowRight } from "lucide-react";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/LandingFooter";
-import BlogCard from "../../BlogCard";
+import BlogCard, { BlogCategoryChips } from "../../BlogCard";
+import { BlogCtaBanner, BlogPagination } from "../../BlogSections";
 import { getBlogCategoryBySlug } from "@/app/api/blog-category-action";
-import { listPublishedBlogPosts } from "@/app/api/blog-action";
+import {
+  listPublicBlogCategories,
+  listPublishedBlogPosts,
+} from "@/app/api/blog-action";
 import { SITE_URL } from "@/lib/seo";
 
 export async function generateMetadata({
@@ -40,10 +42,10 @@ export default async function BlogCategoryPage({
   const category = await getBlogCategoryBySlug(slug);
   if (!category) notFound();
 
-  const { posts, pages } = await listPublishedBlogPosts({
-    page,
-    categorySlug: slug,
-  });
+  const [{ posts, pages }, categories] = await Promise.all([
+    listPublishedBlogPosts({ page, categorySlug: slug }),
+    listPublicBlogCategories(),
+  ]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -63,9 +65,12 @@ export default async function BlogCategoryPage({
               </p>
             )}
           </div>
+          <div className="max-w-6xl mx-auto mt-10">
+            <BlogCategoryChips categories={categories} activeSlug={slug} />
+          </div>
         </section>
 
-        <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+        <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
           {posts.length === 0 ? (
             <p className="text-center text-muted-foreground">
               No posts in this category yet.
@@ -77,30 +82,14 @@ export default async function BlogCategoryPage({
               ))}
             </div>
           )}
-          {pages > 1 && (
-            <div className="flex items-center justify-center gap-3 mt-14">
-              {page > 1 && (
-                <Link
-                  href={`/blog/category/${slug}?page=${page - 1}`}
-                  className="inline-flex h-11 items-center gap-1.5 rounded-full border border-border px-4 text-sm font-medium text-foreground transition-colors hover:border-[#1a9e5c]/40 hover:text-[#1a9e5c]"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" /> Previous
-                </Link>
-              )}
-              <span className="text-sm text-muted-foreground">
-                Page {page} of {pages}
-              </span>
-              {page < pages && (
-                <Link
-                  href={`/blog/category/${slug}?page=${page + 1}`}
-                  className="inline-flex h-11 items-center gap-1.5 rounded-full border border-border px-4 text-sm font-medium text-foreground transition-colors hover:border-[#1a9e5c]/40 hover:text-[#1a9e5c]"
-                >
-                  Next <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              )}
-            </div>
-          )}
+          <BlogPagination
+            page={page}
+            pages={pages}
+            basePath={`/blog/category/${slug}`}
+          />
         </section>
+
+        <BlogCtaBanner />
       </main>
       <LandingFooter />
     </div>

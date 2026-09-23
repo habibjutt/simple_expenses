@@ -43,10 +43,20 @@ const BLOG_ALLOWED_TAGS = [
   "pre",
   "a",
   "img",
+  "table",
+  "colgroup",
+  "col",
+  "thead",
+  "tbody",
+  "tr",
+  "th",
+  "td",
 ];
 const BLOG_ALLOWED_ATTR = {
   a: ["href", "target", "rel"],
   img: ["src", "alt"],
+  th: ["colspan", "rowspan"],
+  td: ["colspan", "rowspan"],
 };
 
 /**

@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/permissions";
 import { sanitizeBlogHtml } from "@/lib/sanitize";
+import { readingMinutes } from "@/lib/blog";
 import { revalidatePath } from "next/cache";
 import { BlogPostSchema, UpdateBlogPostSchema } from "@/lib/validations/blog";
 import type { ActionResult } from "@/lib/validations";
@@ -27,6 +28,24 @@ async function generateUniqueSlug(
 
 // ─── Public ───────────────────────────────────────────────────────────────
 
+const publicCardSelect = {
+  slug: true,
+  title: true,
+  excerpt: true,
+  content: true,
+  featuredImage: true,
+  publishedAt: true,
+  category: { select: { name: true, slug: true, color: true } },
+} as const;
+
+// Content is only fetched to estimate reading time; don't ship it to cards.
+function toBlogCard<T extends { content: string }>({
+  content,
+  ...post
+}: T) {
+  return { ...post, readingMinutes: readingMinutes(content) };
+}
+
 export async function listPublishedBlogPosts({
   page = 1,
   categorySlug = "",
@@ -48,14 +67,56 @@ export async function listPublishedBlogPosts({
       skip,
       take: limit,
       orderBy: { publishedAt: "desc" },
-      include: {
-        category: { select: { name: true, slug: true, color: true } },
-      },
+      select: publicCardSelect,
     }),
     db.blog_post.count({ where }),
   ]);
 
-  return { posts, total, pages: Math.ceil(total / limit) };
+  return {
+    posts: posts.map(toBlogCard),
+    total,
+    pages: Math.ceil(total / limit),
+  };
+}
+
+/** Up to `limit` other published posts, same category first, then newest. */
+export async function listRelatedBlogPosts(
+  slug: string,
+  categoryId: string | null,
+  limit = 3,
+) {
+  const sameCategory = categoryId
+    ? await db.blog_post.findMany({
+        where: { status: "published", categoryId, NOT: { slug } },
+        orderBy: { publishedAt: "desc" },
+        take: limit,
+        select: publicCardSelect,
+      })
+    : [];
+
+  const rest =
+    sameCategory.length < limit
+      ? await db.blog_post.findMany({
+          where: {
+            status: "published",
+            slug: { notIn: [slug, ...sameCategory.map((p) => p.slug)] },
+          },
+          orderBy: { publishedAt: "desc" },
+          take: limit - sameCategory.length,
+          select: publicCardSelect,
+        })
+      : [];
+
+  return [...sameCategory, ...rest].map(toBlogCard);
+}
+
+/** Categories that have at least one published post, for the filter bar. */
+export async function listPublicBlogCategories() {
+  return db.blog_category.findMany({
+    where: { posts: { some: { status: "published" } } },
+    orderBy: { name: "asc" },
+    select: { name: true, slug: true, color: true },
+  });
 }
 
 export async function getPublishedBlogPostBySlug(slug: string) {

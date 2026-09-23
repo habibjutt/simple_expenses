@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowLeft, ArrowRight } from "lucide-react";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/LandingFooter";
-import BlogCard from "./BlogCard";
-import { listPublishedBlogPosts } from "@/app/api/blog-action";
+import BlogCard, { BlogCategoryChips, FeaturedBlogCard } from "./BlogCard";
+import { BlogCtaBanner, BlogPagination } from "./BlogSections";
+import {
+  listPublicBlogCategories,
+  listPublishedBlogPosts,
+} from "@/app/api/blog-action";
 import { SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
@@ -29,15 +31,30 @@ export default async function BlogIndexPage({
 }) {
   const params = await searchParams;
   const page = Number(params.page ?? 1);
-  const { posts, pages } = await listPublishedBlogPosts({ page });
+  const [{ posts, pages }, categories] = await Promise.all([
+    listPublishedBlogPosts({ page }),
+    listPublicBlogCategories(),
+  ]);
+
+  // The newest post gets the wide card, but only on the first page.
+  const featured = page === 1 ? posts[0] : undefined;
+  const rest = featured ? posts.slice(1) : posts;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <LandingNav />
 
       <main className="flex-1">
-        <section className="bg-gradient-to-b from-[#1a9e5c]/8 to-background px-4 sm:px-6 py-16 sm:py-24 text-center">
-          <div className="max-w-2xl mx-auto space-y-5">
+        <section className="relative overflow-hidden px-4 sm:px-6 pt-16 pb-12 sm:pt-24 sm:pb-16 text-center">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(26,158,92,0.14),transparent_60%)]"
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(127,127,127,0.07)_1px,transparent_1px),linear-gradient(to_bottom,rgba(127,127,127,0.07)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_at_top,black_30%,transparent_70%)]"
+          />
+          <div className="relative max-w-2xl mx-auto space-y-5">
             <span className="inline-block text-xs font-semibold uppercase tracking-widest text-[#1a9e5c] bg-[#1a9e5c]/10 px-3 py-1 rounded-full">
               Fixpenses Blog
             </span>
@@ -46,49 +63,44 @@ export default async function BlogIndexPage({
               <span className="text-[#1a9e5c]">UAE residents</span>
             </h1>
             <p className="text-lg text-muted-foreground text-balance">
-              Guides, product updates, and practical advice for tracking
-              every dirham.
+              Budgeting guides, saving strategies, and practical advice for
+              making every dirham count.
             </p>
+          </div>
+          <div className="relative max-w-6xl mx-auto mt-10">
+            <BlogCategoryChips categories={categories} activeSlug="" />
           </div>
         </section>
 
-        <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
+        <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-16 sm:pb-20">
           {posts.length === 0 ? (
-            <p className="text-center text-muted-foreground">
-              No posts yet — check back soon.
+            <p className="text-center text-muted-foreground py-16">
+              No posts yet. Check back soon.
             </p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {posts.map((post) => (
-                <BlogCard key={post.slug} post={post} />
-              ))}
-            </div>
+            <>
+              {featured && <FeaturedBlogCard post={featured} />}
+              {rest.length > 0 && (
+                <>
+                  {featured && (
+                    <h2 className="mt-16 mb-6 text-xl font-bold tracking-tight text-foreground">
+                      More guides
+                    </h2>
+                  )}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {rest.map((post) => (
+                      <BlogCard key={post.slug} post={post} />
+                    ))}
+                  </div>
+                </>
+              )}
+            </>
           )}
 
-          {pages > 1 && (
-            <div className="flex items-center justify-center gap-3 mt-14">
-              {page > 1 && (
-                <Link
-                  href={`/blog?page=${page - 1}`}
-                  className="inline-flex h-11 items-center gap-1.5 rounded-full border border-border px-4 text-sm font-medium text-foreground transition-colors hover:border-[#1a9e5c]/40 hover:text-[#1a9e5c]"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" /> Previous
-                </Link>
-              )}
-              <span className="text-sm text-muted-foreground">
-                Page {page} of {pages}
-              </span>
-              {page < pages && (
-                <Link
-                  href={`/blog?page=${page + 1}`}
-                  className="inline-flex h-11 items-center gap-1.5 rounded-full border border-border px-4 text-sm font-medium text-foreground transition-colors hover:border-[#1a9e5c]/40 hover:text-[#1a9e5c]"
-                >
-                  Next <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              )}
-            </div>
-          )}
+          <BlogPagination page={page} pages={pages} basePath="/blog" />
         </section>
+
+        <BlogCtaBanner />
       </main>
 
       <LandingFooter />
