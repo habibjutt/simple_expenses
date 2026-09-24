@@ -1,0 +1,57 @@
+[
+ {
+  "path": "/",
+  "ttfb": 2823,
+  "fcp": 4344,
+  "lcp": 6288,
+  "cls": 0,
+  "jsFiles": 17,
+  "jsKB": 247,
+  "totalKB": 335,
+  "domNodes": 1051
+ },
+ {
+  "path": "/features/expense-tracking",
+  "ttfb": 464,
+  "fcp": 1780,
+  "lcp": 3020,
+  "cls": 0,
+  "jsFiles": 15,
+  "jsKB": 228,
+  "totalKB": 311,
+  "domNodes": 516
+ },
+ {
+  "path": "/pricing",
+  "ttfb": 853,
+  "fcp": 2156,
+  "lcp": 2156,
+  "cls": 0,
+  "jsFiles": 17,
+  "jsKB": 245,
+  "totalKB": 323,
+  "domNodes": 722
+ },
+ {
+  "path": "/blog",
+  "ttfb": 230,
+  "fcp": 1492,
+  "lcp": 2364,
+  "cls": 0.048,
+  "jsFiles": 15,
+  "jsKB": 228,
+  "totalKB": 358,
+  "domNodes": 212
+ },
+ {
+  "path": "/blog/how-to-create-a-monthly-budget-uae",
+  "ttfb": 624,
+  "fcp": 2228,
+  "lcp": 2228,
+  "cls": 0.032,
+  "jsFiles": 15,
+  "jsKB": 229,
+  "totalKB": 367,
+  "domNodes": 451
+ }
+]

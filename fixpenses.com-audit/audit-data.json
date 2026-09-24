@@ -1,0 +1,108 @@
+{
+  "summary": {
+    "health_score": 59,
+    "business_type": "SaaS (personal finance app, UAE)",
+    "top_findings": [
+      "All pages dynamic and served with Cache-Control: private, no-store because SubscriptionBanner reads headers()/session in the root layout",
+      "No Organization, WebSite or SoftwareApplication schema; only one Article on the whole site",
+      "No og:image on 18 of 19 pages",
+      "YMYL trust gaps: legacy brand names (simpleexpenses.ae, Smart Expenses, @simpleexpenses), no named team, unverifiable stats",
+      "Brand duplicated in feature-page titles; /features/expense-tracking title is 81 characters"
+    ],
+    "quick_wins": [
+      "Add app/opengraph-image.png",
+      "Add Organization + WebSite + SoftwareApplication JSON-LD",
+      "Replace legacy brand names and emails",
+      "Drop 'Fixpenses' from page-level titles",
+      "Remove lastModified: now from sitemap static routes"
+    ]
+  },
+  "categories": [
+    {
+      "name": "Technical SEO",
+      "score": 70,
+      "what_works": ["HTTPS + HSTS preload", "Strong security headers", "308 www/http redirects", "Correct robots.txt and sitemap", "Self-referencing canonicals on all 19 URLs", "Real 404s"],
+      "findings": [
+        {"title": "Whole site dynamic and uncacheable", "severity": "High", "description": "Every page returns Cache-Control: private, no-store and X-Vercel-Cache: MISS from region iad1. Cause: SubscriptionBanner in app/layout.tsx reads headers() and the session.", "recommendation": "Move SubscriptionBanner into app/(protected)/layout.tsx so marketing pages prerender and are CDN-cached."},
+        {"title": "Sitemap lastmod always 'now'", "severity": "Medium", "description": "app/sitemap.ts sets lastModified: now for all static routes.", "recommendation": "Omit lastModified for static pages; keep updatedAt for posts."},
+        {"title": "Login page indexed and in sitemap", "severity": "Medium", "description": "/login is index,follow, has no H1, 75 words, priority 0.8.", "recommendation": "noindex /login, remove it from the sitemap, add H1s to the auth pages."},
+        {"title": "CSP blocks external images", "severity": "Low", "description": "img-src allows only self, data:, blob: and google-analytics.", "recommendation": "Host blog images in /public or allow-list the image host."},
+        {"title": "No llms.txt", "severity": "Info", "description": "Returns 404.", "recommendation": "Optional; ignored by Google."}
+      ]
+    },
+    {
+      "name": "Content Quality",
+      "score": 60,
+      "what_works": ["Feature pages 848-2,057 words with UAE specifics", "Clear About narrative", "Homepage answers real objections", "Blog post has a worked AED example"],
+      "findings": [
+        {"title": "No named people or company details (YMYL)", "severity": "High", "description": "About page has no founder or team names, bios, or legal entity details.", "recommendation": "Add a team section with names, roles and LinkedIn, plus legal entity and emirate."},
+        {"title": "Legacy brand names", "severity": "High", "description": "simpleexpenses.ae emails in 4 files, 'Smart Expenses' in PricingSection, @simpleexpenses twitter creator.", "recommendation": "Replace all with Fixpenses equivalents."},
+        {"title": "Unverifiable stats and testimonials", "severity": "Medium", "description": "'500+ UAE users' and 'AED 10M+ tracked' are hard-coded; testimonials lack attribution.", "recommendation": "Use defensible numbers and attributed testimonials; no self-serving Review schema."},
+        {"title": "Only one blog post", "severity": "Medium", "description": "No topical cluster yet.", "recommendation": "Publish 4-6 supporting budgeting posts linked to the pillar guide."}
+      ]
+    },
+    {
+      "name": "On-Page SEO",
+      "score": 65,
+      "what_works": ["Unique titles and descriptions", "One H1 per page on content pages", "Logical heading hierarchy"],
+      "findings": [
+        {"title": "Brand duplicated in titles", "severity": "Medium", "description": "4 feature pages end '... Fixpenses | Fixpenses'.", "recommendation": "Remove brand from page-level titles."},
+        {"title": "Overlong title", "severity": "Medium", "description": "/features/expense-tracking title is 81 characters.", "recommendation": "Shorten to under 60 characters."},
+        {"title": "Generic titles on money pages", "severity": "Medium", "description": "Pricing, Features, About Us, Blog.", "recommendation": "Add descriptive keywords."},
+        {"title": "Homepage H1 lacks category term", "severity": "Medium", "description": "'Take Control Of Every Dirham'.", "recommendation": "Include 'expense tracker' / 'personal finance app for the UAE'."},
+        {"title": "No og:image on 18 of 19 pages", "severity": "High", "description": "No opengraph-image file or metadata images.", "recommendation": "Add app/opengraph-image.png."}
+      ]
+    },
+    {
+      "name": "Schema / Structured Data",
+      "score": 25,
+      "what_works": ["Valid Article on the blog post with absolute image and ISO dates"],
+      "findings": [
+        {"title": "No Organization/WebSite schema", "severity": "High", "description": "No entity markup site-wide.", "recommendation": "Add to root layout with logo, sameAs, contactPoint."},
+        {"title": "No SoftwareApplication schema", "severity": "High", "description": "Pricing in AED not machine-readable.", "recommendation": "Add FinanceApplication with AED offers on home and pricing."},
+        {"title": "Article missing publisher.logo and author.url", "severity": "Low", "description": "Blog Article schema incomplete.", "recommendation": "Add logo and author page URL."},
+        {"title": "No BreadcrumbList", "severity": "Low", "description": "Feature and blog pages lack breadcrumbs.", "recommendation": "Add BreadcrumbList JSON-LD."}
+      ]
+    },
+    {
+      "name": "Performance (CWV)",
+      "score": 60,
+      "what_works": ["CLS under 0.1 on all tested pages", "Blog and pricing LCP around 2.2s on throttled mobile"],
+      "findings": [
+        {"title": "Homepage LCP poor on mobile (lab)", "severity": "High", "description": "6.3s LCP on a throttled Pixel 7; 276 KB HTML, 247 KB JS, 1,051 DOM nodes; warm TTFB 0.8-1.2s.", "recommendation": "Fix caching first, then trim client JS and RSC payload."},
+        {"title": "Feature page LCP needs improvement", "severity": "Medium", "description": "/features/expense-tracking LCP 3.0s (lab).", "recommendation": "Re-measure after static rendering."}
+      ]
+    },
+    {
+      "name": "AI Search Readiness",
+      "score": 60,
+      "what_works": ["AI crawlers allowed", "Server-rendered content", "Question-style headings"],
+      "findings": [
+        {"title": "Weak entity clarity", "severity": "Medium", "description": "Three brand names in use; no Organization schema.", "recommendation": "Unify brand; add Organization schema with sameAs."},
+        {"title": "Little citable depth", "severity": "Medium", "description": "Only one long-form guide.", "recommendation": "Build the budgeting cluster."}
+      ]
+    },
+    {
+      "name": "Images",
+      "score": 55,
+      "what_works": ["Blog image has alt text and is 56 KB"],
+      "findings": [
+        {"title": "No social preview images", "severity": "High", "description": "See On-Page.", "recommendation": "Add opengraph-image."},
+        {"title": "No modern formats", "severity": "Low", "description": "Blog image is JPEG only.", "recommendation": "Serve WebP/AVIF via next/image for local images."}
+      ]
+    }
+  ],
+  "action_plan": {
+    "phases": [
+      {"name": "Phase 1: Critical Fixes", "timeframe": "Week 1", "items": ["Move SubscriptionBanner into the protected layout", "Replace legacy brand names and emails", "Add app/opengraph-image.png", "Add Organization, WebSite, SoftwareApplication schema"]},
+      {"name": "Phase 2: High-Impact Improvements", "timeframe": "Weeks 2-3", "items": ["Fix titles (dedupe brand, shorten, rewrite generic)", "Sitemap lastmod + noindex /login", "Homepage performance pass", "Homepage H1 with category term"]},
+      {"name": "Phase 3: Content & Authority", "timeframe": "Month 2", "items": ["Named team, legal entity, author page", "Verifiable stats and attributed testimonials", "4-6 budgeting cluster posts", "BreadcrumbList schema"]},
+      {"name": "Phase 4: Monitoring & Iteration", "timeframe": "Ongoing", "items": ["Run /seo setup and connect Google APIs", "Drift baseline after Phase 1", "Monthly: indexation, impressions, CTR, mobile LCP p75"]}
+    ]
+  },
+  "artifacts": {
+    "findings_dir": "FULL-AUDIT-REPORT.md",
+    "screenshots_dir": "screenshots/",
+    "raw_data": ["onpage.json", "perf.json"]
+  }
+}
