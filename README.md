@@ -1,4 +1,4 @@
-# Fixpenses — Expense Tracking Application
+1# Fixpenses — Expense Tracking Application
 
 A full-stack expense tracking app built with **Next.js 16** (web) and **React Native + Expo** (iOS & Android), organized as a **Turborepo monorepo**.
 
