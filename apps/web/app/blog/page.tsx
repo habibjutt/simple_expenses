@@ -7,17 +7,18 @@ import {
   listPublicBlogCategories,
   listPublishedBlogPosts,
 } from "@/app/api/blog-action";
-import { SITE_URL } from "@/lib/seo";
+import { SITE_URL, DEFAULT_OG_IMAGE } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Blog",
+  title: "Blog: Budgeting & Money Tips for UAE Residents",
   description:
     "Tips, guides, and updates on personal finance, budgeting, and expense tracking for UAE residents.",
   alternates: {
     canonical: `${SITE_URL}/blog`,
   },
   openGraph: {
-    title: "Blog | Fixpenses",
+    images: [DEFAULT_OG_IMAGE],
+    title: "Blog: Budgeting & Money Tips for UAE Residents | Fixpenses",
     description:
       "Tips, guides, and updates on personal finance, budgeting, and expense tracking for UAE residents.",
     url: `${SITE_URL}/blog`,

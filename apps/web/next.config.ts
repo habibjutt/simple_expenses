@@ -24,8 +24,8 @@ const CSP = [
   // googletagmanager.com is required by @next/third-parties/google (GA4 script loader).
   `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  // google-analytics.com covers GA4 img-beacon fallback.
-  "img-src 'self' data: blob: https://www.google-analytics.com",
+  // Any https host: blog featured/inline images are admin-pasted URLs.
+  "img-src 'self' data: blob: https:",
   "font-src 'self'",
   // GA4 sends measurement data via fetch/XHR to these endpoints.
   // api.stripe.com is included for any future client-side Stripe calls.

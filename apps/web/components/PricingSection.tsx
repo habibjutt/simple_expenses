@@ -51,7 +51,7 @@ const PLANS: Record<
       price: "AED 9.99",
       priceLabel: "/ month",
       description:
-        "Unlock the full power of Smart Expenses for serious savers.",
+        "Unlock the full power of Fixpenses for serious savers.",
       cta: "Start 14-day free trial",
       href: "/signup?plan=pro",
       highlight: true,
@@ -121,7 +121,7 @@ const PLANS: Record<
       price: "AED 99",
       priceLabel: "/ year",
       description:
-        "Unlock the full power of Smart Expenses for serious savers.",
+        "Unlock the full power of Fixpenses for serious savers.",
       cta: "Start 14-day free trial",
       href: "/signup?plan=pro-yearly",
       highlight: true,

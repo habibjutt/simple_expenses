@@ -7,10 +7,12 @@ import LandingFooter from "@/components/LandingFooter";
 import PricingSection from "@/components/PricingSection";
 import { PLAN_LIMITS, type PlanTier } from "@/lib/plans";
 import { TRIAL_DAYS } from "@/lib/stripe-config";
-import { SITE_URL } from "@/lib/seo";
+import { SITE_URL, DEFAULT_OG_IMAGE } from "@/lib/seo";
+import JsonLd from "@/components/JsonLd";
+import { softwareApplicationSchema, breadcrumbSchema } from "@/lib/structured-data";
 
 export const metadata: Metadata = {
-  title: "Pricing",
+  title: "Pricing: Free & Pro Plans in AED",
   description: `Fixpenses pricing in AED — Starter free forever, Pro and Premium monthly or annual. Compare account limits, card limits and features, plus a ${TRIAL_DAYS}-day free trial with no card required.`,
   keywords: [
     "Fixpenses pricing",
@@ -23,7 +25,8 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/pricing`,
   },
   openGraph: {
-    title: "Pricing | Fixpenses",
+    images: [DEFAULT_OG_IMAGE],
+    title: "Pricing: Free & Pro Plans in AED | Fixpenses",
     description: `Starter free forever, Pro and Premium billed monthly or annually in AED. ${TRIAL_DAYS}-day free trial, no card required.`,
     url: `${SITE_URL}/pricing`,
   },
@@ -180,6 +183,7 @@ export default function PricingPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <LandingNav />
+      <JsonLd data={[softwareApplicationSchema(), breadcrumbSchema([["Pricing", "/pricing"]])]} />
 
       <main className="flex-1">
         {/* Hero */}

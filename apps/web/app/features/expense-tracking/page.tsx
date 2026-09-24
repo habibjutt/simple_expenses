@@ -30,10 +30,12 @@ import { Button } from "@/components/ui/button";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/LandingFooter";
 import AnimateOnScroll from "@/components/AnimateOnScroll";
-import { SITE_URL } from "@/lib/seo";
+import { SITE_URL, DEFAULT_OG_IMAGE } from "@/lib/seo";
+import JsonLd from "@/components/JsonLd";
+import { breadcrumbSchema } from "@/lib/structured-data";
 
 export const metadata: Metadata = {
-  title: "Expense Tracking Software for Businesses & Individuals in the UAE",
+  title: "Expense Tracking Software for the UAE",
   description:
     "Stop chasing receipts and spreadsheets. Fixpenses automates expense tracking for UAE teams with real-time visibility and instant VAT compliance.",
   keywords: [
@@ -50,8 +52,8 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/features/expense-tracking`,
   },
   openGraph: {
-    title:
-      "Expense Tracking Software for Businesses & Individuals in the UAE | Fixpenses",
+    images: [DEFAULT_OG_IMAGE],
+    title: "Expense Tracking Software for the UAE | Fixpenses",
     description:
       "Stop chasing receipts and spreadsheets. Fixpenses automates expense tracking for UAE teams with real-time visibility and instant VAT compliance.",
     url: `${SITE_URL}/features/expense-tracking`,
@@ -200,6 +202,10 @@ export default function ExpenseTrackingPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <LandingNav />
+      <JsonLd data={breadcrumbSchema([
+          ["Features", "/features"],
+          ["Expense Tracking", "/features/expense-tracking"],
+        ])} />
 
       <main className="flex-1">
         {/* ─── Hero ────────────────────────────────────────────── */}

@@ -22,10 +22,12 @@ import { Button } from "@/components/ui/button";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/LandingFooter";
 import AnimateOnScroll from "@/components/AnimateOnScroll";
-import { SITE_URL } from "@/lib/seo";
+import { SITE_URL, DEFAULT_OG_IMAGE } from "@/lib/seo";
+import JsonLd from "@/components/JsonLd";
+import { breadcrumbSchema } from "@/lib/structured-data";
 
 export const metadata: Metadata = {
-  title: "Bank Account Management Made Simple with Fixpenses",
+  title: "Bank Account Management Made Simple",
   description:
     "Track bank accounts and credit cards together, review transaction history by account, and stay in full control of your data.",
   keywords: [
@@ -41,7 +43,8 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/features/bank-account-management`,
   },
   openGraph: {
-    title: "Bank Account Management Made Simple with Fixpenses",
+    images: [DEFAULT_OG_IMAGE],
+    title: "Bank Account Management Made Simple | Fixpenses",
     description:
       "Track bank accounts and credit cards together, review transaction history by account, and stay in full control of your data.",
     url: `${SITE_URL}/features/bank-account-management`,
@@ -135,6 +138,10 @@ export default function BankAccountsPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <LandingNav />
+      <JsonLd data={breadcrumbSchema([
+          ["Features", "/features"],
+          ["Bank Account Management", "/features/bank-account-management"],
+        ])} />
 
       <main className="flex-1">
         {/* ─── Hero ────────────────────────────────────────────── */}

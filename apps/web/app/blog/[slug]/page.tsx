@@ -12,7 +12,13 @@ import BlogCard from "../BlogCard";
 import { BlogCtaBanner } from "../BlogSections";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/LandingFooter";
-import { SITE_URL, SITE_NAME } from "@/lib/seo";
+import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE } from "@/lib/seo";
+import JsonLd from "@/components/JsonLd";
+import {
+  breadcrumbSchema,
+  LOGO_URL,
+  ORGANIZATION_ID,
+} from "@/lib/structured-data";
 
 export async function generateMetadata({
   params,
@@ -36,13 +42,13 @@ export async function generateMetadata({
       description,
       url: `${SITE_URL}/blog/${post.slug}`,
       type: "article",
-      images: image ? [image] : undefined,
+      images: image ? [image] : [DEFAULT_OG_IMAGE],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: image ? [image] : undefined,
+      images: image ? [image] : [DEFAULT_OG_IMAGE],
     },
   };
 }
@@ -70,9 +76,20 @@ export default async function BlogPostPage({
     datePublished: post.publishedAt?.toISOString(),
     dateModified: post.updatedAt.toISOString(),
     author: { "@type": "Person", name: post.author?.name || SITE_NAME },
-    publisher: { "@type": "Organization", name: SITE_NAME },
+    publisher: {
+      "@type": "Organization",
+      "@id": ORGANIZATION_ID,
+      name: SITE_NAME,
+      logo: { "@type": "ImageObject", url: LOGO_URL },
+    },
     mainEntityOfPage: `${SITE_URL}/blog/${post.slug}`,
   };
+
+  const crumbs: [string, string][] = [["Blog", "/blog"]];
+  if (post.category) {
+    crumbs.push([post.category.name, `/blog/category/${post.category.slug}`]);
+  }
+  crumbs.push([post.title, `/blog/${post.slug}`]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -200,10 +217,7 @@ export default async function BlogPostPage({
         </div>
       </main>
       <LandingFooter />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd data={[jsonLd, breadcrumbSchema(crumbs)]} />
     </div>
   );
 }

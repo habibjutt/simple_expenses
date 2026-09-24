@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import SubscriptionBanner from "@/components/SubscriptionBanner";
 
 export default async function ProtectedLayout({
   children,
@@ -13,5 +14,10 @@ export default async function ProtectedLayout({
     redirect("/login");
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <SubscriptionBanner />
+      {children}
+    </>
+  );
 }

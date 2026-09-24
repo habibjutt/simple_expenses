@@ -10,6 +10,8 @@ import {
   listPublishedBlogPosts,
 } from "@/app/api/blog-action";
 import { SITE_URL } from "@/lib/seo";
+import JsonLd from "@/components/JsonLd";
+import { breadcrumbSchema } from "@/lib/structured-data";
 
 export async function generateMetadata({
   params,
@@ -21,7 +23,7 @@ export async function generateMetadata({
   if (!category) return {};
 
   return {
-    title: `${category.name} — Blog`,
+    title: `${category.name} Guides for UAE Residents`,
     description:
       category.description || `Posts about ${category.name} on the Fixpenses blog.`,
     alternates: { canonical: `${SITE_URL}/blog/category/${category.slug}` },
@@ -50,6 +52,12 @@ export default async function BlogCategoryPage({
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <LandingNav />
+      <JsonLd
+        data={breadcrumbSchema([
+          ["Blog", "/blog"],
+          [category.name, `/blog/category/${category.slug}`],
+        ])}
+      />
       <main className="flex-1">
         <section className="bg-gradient-to-b from-[#1a9e5c]/8 to-background px-4 sm:px-6 py-16 sm:py-20 text-center">
           <div className="max-w-2xl mx-auto space-y-4">

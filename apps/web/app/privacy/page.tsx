@@ -3,7 +3,7 @@ import Link from "next/link";
 import LandingFooter from "@/components/LandingFooter";
 import LandingNav from "@/components/LandingNav";
 import { Button } from "@/components/ui/button";
-import { SITE_URL } from "@/lib/seo";
+import { SITE_URL, DEFAULT_OG_IMAGE } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
@@ -19,6 +19,7 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/privacy`,
   },
   openGraph: {
+    images: [DEFAULT_OG_IMAGE],
     title: "Privacy Policy | Fixpenses",
     description: "How Fixpenses collects, uses, and protects your data.",
     url: `${SITE_URL}/privacy`,
@@ -209,10 +210,10 @@ export default function PrivacyPage() {
               <p>
                 To exercise these rights, contact us at{" "}
                 <a
-                  href="mailto:privacy@simpleexpenses.ae"
+                  href="mailto:privacy@fixpenses.com"
                   className="text-primary hover:underline"
                 >
-                  privacy@simpleexpenses.ae
+                  privacy@fixpenses.com
                 </a>
                 . We will respond within 15 business days.
               </p>
@@ -262,10 +263,10 @@ export default function PrivacyPage() {
                 <li>
                   Email:{" "}
                   <a
-                    href="mailto:privacy@simpleexpenses.ae"
+                    href="mailto:privacy@fixpenses.com"
                     className="text-primary hover:underline"
                   >
-                    privacy@simpleexpenses.ae
+                    privacy@fixpenses.com
                   </a>
                 </li>
                 <li>Address: Dubai Internet City, Dubai, UAE</li>

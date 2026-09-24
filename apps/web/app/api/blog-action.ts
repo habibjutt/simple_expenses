@@ -132,6 +132,7 @@ export async function getPublishedBlogPostBySlug(slug: string) {
 export async function listPublishedBlogPostsForSitemap() {
   return db.blog_post.findMany({
     where: { status: "published" },
+    orderBy: { updatedAt: "desc" },
     select: { slug: true, updatedAt: true },
   });
 }

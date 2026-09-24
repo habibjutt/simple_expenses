@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Lightbulb, ArrowRight, Rocket, ThumbsUp, Star } from "lucide-react";
 import LandingFooter from "@/components/LandingFooter";
 import LandingNav from "@/components/LandingNav";
-import { SITE_URL } from "@/lib/seo";
+import { SITE_URL, DEFAULT_OG_IMAGE } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Request a Feature",
@@ -19,6 +19,7 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/request-feature`,
   },
   openGraph: {
+    images: [DEFAULT_OG_IMAGE],
     title: "Request a Feature | Fixpenses",
     description:
       "Share your ideas and help shape the future of Fixpenses.",
@@ -59,7 +60,7 @@ export default function RequestFeaturePage() {
                 Submit your idea
               </h2>
               <form
-                action="mailto:hello@simpleexpenses.ae"
+                action="mailto:hello@fixpenses.com"
                 method="GET"
                 className="space-y-5"
               >

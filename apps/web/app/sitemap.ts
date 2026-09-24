@@ -6,117 +6,96 @@ import { listBlogCategoriesForSitemap } from "@/app/api/blog-category-action";
 export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
+  const [posts, categories] = await Promise.all([
+    listPublishedBlogPostsForSitemap(),
+    listBlogCategoriesForSitemap(),
+  ]);
 
+  // Static pages omit lastModified: a date that changes on every request
+  // teaches crawlers to ignore it.
   const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: SITE_URL,
-      lastModified: now,
       changeFrequency: "monthly",
       priority: 1,
     },
     {
-      url: `${SITE_URL}/login`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
       url: `${SITE_URL}/signup`,
-      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.9,
     },
     {
       url: `${SITE_URL}/features`,
-      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.9,
     },
     {
       url: `${SITE_URL}/features/expense-tracking`,
-      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.7,
     },
     {
       url: `${SITE_URL}/features/credit-card-management`,
-      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.7,
     },
     {
       url: `${SITE_URL}/features/bank-account-management`,
-      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.7,
     },
     {
       url: `${SITE_URL}/features/budget-spending-limits`,
-      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.7,
     },
     {
       url: `${SITE_URL}/features/financial-savings-goals`,
-      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.7,
     },
     {
       url: `${SITE_URL}/features/expense-reports-analytics`,
-      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.7,
     },
     {
       url: `${SITE_URL}/pricing`,
-      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.9,
     },
     {
       url: `${SITE_URL}/about`,
-      lastModified: now,
       changeFrequency: "yearly",
       priority: 0.6,
     },
     {
       url: `${SITE_URL}/contact`,
-      lastModified: now,
       changeFrequency: "yearly",
       priority: 0.5,
     },
     {
       url: `${SITE_URL}/request-feature`,
-      lastModified: now,
       changeFrequency: "yearly",
       priority: 0.4,
     },
     {
       url: `${SITE_URL}/privacy`,
-      lastModified: now,
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
       url: `${SITE_URL}/terms`,
-      lastModified: now,
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
       url: `${SITE_URL}/blog`,
-      lastModified: now,
+      lastModified: posts[0]?.updatedAt,
       changeFrequency: "weekly",
       priority: 0.8,
     },
   ];
-
-  const [posts, categories] = await Promise.all([
-    listPublishedBlogPostsForSitemap(),
-    listBlogCategoriesForSitemap(),
-  ]);
 
   const postRoutes: MetadataRoute.Sitemap = posts.map((post) => ({
     url: `${SITE_URL}/blog/${post.slug}`,

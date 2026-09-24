@@ -279,7 +279,9 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   return (
     <Card {...props}>
       <CardHeader>
-        <CardTitle>Create an account</CardTitle>
+        <CardTitle>
+          <h1>Create an account</h1>
+        </CardTitle>
         <CardDescription>
           Enter your information below to create your account
         </CardDescription>

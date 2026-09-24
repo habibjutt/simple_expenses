@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/LandingFooter";
 import { FEATURE_LINKS } from "@/lib/feature-links";
-import { SITE_URL } from "@/lib/seo";
+import { SITE_URL, DEFAULT_OG_IMAGE } from "@/lib/seo";
+import JsonLd from "@/components/JsonLd";
+import { breadcrumbSchema } from "@/lib/structured-data";
 
 export const metadata: Metadata = {
-  title: "Features",
+  title: "Features: Expense, Card & Budget Tracking",
   description:
     "Explore all the powerful features Fixpenses offers to help you track every dirham across credit cards, bank accounts, and more.",
   keywords: [
@@ -24,7 +26,8 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/features`,
   },
   openGraph: {
-    title: "Features | Fixpenses",
+    images: [DEFAULT_OG_IMAGE],
+    title: "Features: Expense, Card & Budget Tracking | Fixpenses",
     description:
       "Powerful features for UAE residents — expense tracking, credit cards, bank accounts, budgets, savings goals, and reports.",
     url: `${SITE_URL}/features`,
@@ -46,6 +49,7 @@ export default function FeaturesPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <LandingNav />
+      <JsonLd data={breadcrumbSchema([["Features", "/features"]])} />
 
       <main className="flex-1">
         {/* Hero */}

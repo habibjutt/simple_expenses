@@ -6,6 +6,7 @@ import {
   CreditCard,
   Globe,
   Landmark,
+  Linkedin,
   Lock,
   Mail,
   MapPin,
@@ -20,10 +21,16 @@ import {
 import { Button } from "@/components/ui/button";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/LandingFooter";
-import { SITE_URL } from "@/lib/seo";
+import {
+  SITE_URL,
+  DEFAULT_OG_IMAGE,
+  FOUNDER,
+  OPERATOR_NAME,
+  COMPANY_LINKEDIN,
+} from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "About Us",
+  title: "About Us: Personal Finance Built for the UAE",
   description:
     "Fixpenses is personal finance management software built for UAE residents — why we created it, who it is for, and our privacy-first approach to your financial data.",
   keywords: [
@@ -37,7 +44,8 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/about`,
   },
   openGraph: {
-    title: "About Us | Fixpenses",
+    images: [DEFAULT_OG_IMAGE],
+    title: "About Us: Personal Finance Built for the UAE | Fixpenses",
     description:
       "Why we built personal finance management software for UAE residents, and how we keep your financial data private.",
     url: `${SITE_URL}/about`,
@@ -222,6 +230,69 @@ export default function AboutPage() {
           </div>
         </section>
 
+        {/* Who's behind it */}
+        <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
+          <div className="max-w-2xl space-y-3 mb-10">
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+              Who&rsquo;s behind Fixpenses
+            </h2>
+            <p className="text-muted-foreground leading-relaxed">
+              Fixpenses is a UAE product, built by its founder and operated by{" "}
+              {OPERATOR_NAME}.
+            </p>
+          </div>
+          <div className="grid gap-5 sm:grid-cols-2 max-w-4xl">
+            <div className="flex items-center gap-5 rounded-2xl border border-border bg-background p-6">
+              <div
+                aria-hidden
+                className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[#1a9e5c] text-xl font-extrabold text-white"
+              >
+                HQ
+              </div>
+              <div className="min-w-0 space-y-1">
+                <p className="text-lg font-bold text-foreground">
+                  {FOUNDER.name}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {FOUNDER.role}, Fixpenses
+                </p>
+                <a
+                  href={FOUNDER.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 pt-1 text-sm font-semibold text-[#1a9e5c] hover:underline"
+                >
+                  <Linkedin className="h-4 w-4" /> LinkedIn profile
+                </a>
+              </div>
+            </div>
+            <div className="flex items-center gap-5 rounded-2xl border border-border bg-background p-6">
+              <div
+                aria-hidden
+                className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#1a9e5c]/10"
+              >
+                <Building2 className="h-7 w-7 text-[#1a9e5c]" />
+              </div>
+              <div className="min-w-0 space-y-1">
+                <p className="text-lg font-bold text-foreground">
+                  {OPERATOR_NAME}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Company operating Fixpenses
+                </p>
+                <a
+                  href={COMPANY_LINKEDIN}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 pt-1 text-sm font-semibold text-[#1a9e5c] hover:underline"
+                >
+                  <Linkedin className="h-4 w-4" /> Fixpenses on LinkedIn
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* How it helps */}
         <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
           <div className="max-w-2xl space-y-3 mb-10">
@@ -344,10 +415,10 @@ export default function AboutPage() {
                 <div>
                   <p className="text-sm font-semibold text-foreground">Email</p>
                   <a
-                    href="mailto:hello@simpleexpenses.ae"
+                    href="mailto:hello@fixpenses.com"
                     className="text-sm text-[#1a9e5c] hover:underline underline-offset-4"
                   >
-                    hello@simpleexpenses.ae
+                    hello@fixpenses.com
                   </a>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     We reply within 1 business day

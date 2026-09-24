@@ -1,12 +1,6 @@
 import Link from "next/link";
-import {
-  CreditCard,
-  Mail,
-  MapPin,
-  Twitter,
-  Linkedin,
-  Instagram,
-} from "lucide-react";
+import { CreditCard, Mail, MapPin, Linkedin } from "lucide-react";
+import { COMPANY_LINKEDIN, OPERATOR_NAME } from "@/lib/seo";
 
 const FOOTER_LINKS = {
   product: [
@@ -51,11 +45,11 @@ export default function LandingFooter() {
             </p>
             <div className="flex items-center gap-3">
               <a
-                href="mailto:hello@simpleexpenses.ae"
+                href="mailto:hello@fixpenses.com"
                 className="flex items-center gap-2 text-xs text-white/50 hover:text-white transition-colors"
               >
                 <Mail className="w-3.5 h-3.5" />
-                hello@simpleexpenses.ae
+                hello@fixpenses.com
               </a>
             </div>
             <div className="flex items-center gap-2 text-xs text-white/50">
@@ -65,25 +59,13 @@ export default function LandingFooter() {
             {/* Social icons */}
             <div className="flex items-center gap-3 pt-1">
               <a
-                href="#"
-                aria-label="Twitter"
-                className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center text-white/50 hover:bg-[#1a9e5c] hover:text-white transition-all"
-              >
-                <Twitter className="w-3.5 h-3.5" />
-              </a>
-              <a
-                href="#"
-                aria-label="LinkedIn"
+                href={COMPANY_LINKEDIN}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Fixpenses on LinkedIn"
                 className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center text-white/50 hover:bg-[#1a9e5c] hover:text-white transition-all"
               >
                 <Linkedin className="w-3.5 h-3.5" />
-              </a>
-              <a
-                href="#"
-                aria-label="Instagram"
-                className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center text-white/50 hover:bg-[#1a9e5c] hover:text-white transition-all"
-              >
-                <Instagram className="w-3.5 h-3.5" />
               </a>
             </div>
           </div>
@@ -149,8 +131,8 @@ export default function LandingFooter() {
         {/* Bottom bar */}
         <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-white/35">
-            © {new Date().getFullYear()} Fixpenses. All rights reserved.
-            Made with ❤️ in UAE.
+            © {new Date().getFullYear()} Fixpenses, operated by {OPERATOR_NAME}.
+            All rights reserved. Made with ❤️ in UAE.
           </p>
           <div className="flex items-center gap-6">
             <Link

@@ -1,0 +1,25 @@
+# Fixpenses
+
+> Fixpenses is a personal finance and expense tracking app for UAE residents. It tracks credit cards, bank accounts, bills, installments (taksit), budgets and savings goals in AED, without asking for online banking logins.
+
+## Product
+
+- [Features](https://fixpenses.com/features): overview of everything Fixpenses does
+- [Expense tracking](https://fixpenses.com/features/expense-tracking)
+- [Credit card management](https://fixpenses.com/features/credit-card-management)
+- [Bank account management](https://fixpenses.com/features/bank-account-management)
+- [Budgets and spending limits](https://fixpenses.com/features/budget-spending-limits)
+- [Savings goals](https://fixpenses.com/features/financial-savings-goals)
+- [Reports and analytics](https://fixpenses.com/features/expense-reports-analytics)
+- [Pricing](https://fixpenses.com/pricing): free Starter plan, Pro AED 9.99/month, Premium AED 29/month
+
+## Guides
+
+- [How to create a monthly budget in the UAE](https://fixpenses.com/blog/how-to-create-a-monthly-budget-uae)
+- [Blog](https://fixpenses.com/blog)
+
+## Company
+
+- [About](https://fixpenses.com/about): founded by Habib Abdul Qadoos, operated by Devtrone FZE LLC
+- [Contact](https://fixpenses.com/contact): hello@fixpenses.com
+- [Privacy policy](https://fixpenses.com/privacy)

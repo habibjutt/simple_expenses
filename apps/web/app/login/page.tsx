@@ -11,11 +11,12 @@ import {
   Wallet,
   CheckCircle2,
 } from "lucide-react";
-import { SITE_URL } from "@/lib/seo";
+import { SITE_URL, DEFAULT_OG_IMAGE } from "@/lib/seo";
 import { auth } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "Sign In",
+  robots: { index: false, follow: true },
   description:
     "Sign in to Fixpenses and pick up right where you left off. Track your credit cards, bank accounts, and spending across the UAE.",
   keywords: [
@@ -28,6 +29,7 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/login`,
   },
   openGraph: {
+    images: [DEFAULT_OG_IMAGE],
     title: "Sign In | Fixpenses",
     description: "Sign in and take control of your UAE finances.",
     url: `${SITE_URL}/login`,

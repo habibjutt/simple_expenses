@@ -31,10 +31,12 @@ import { Button } from "@/components/ui/button";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/LandingFooter";
 import AnimateOnScroll from "@/components/AnimateOnScroll";
-import { SITE_URL } from "@/lib/seo";
+import { SITE_URL, DEFAULT_OG_IMAGE } from "@/lib/seo";
+import JsonLd from "@/components/JsonLd";
+import { breadcrumbSchema } from "@/lib/structured-data";
 
 export const metadata: Metadata = {
-  title: "Set Spending Limits and Track Your Budget with Fixpenses",
+  title: "Set Spending Limits and Track Your Budget",
   description:
     "Set daily, monthly, and category spending limits in Fixpenses. Get alerts before you overspend and stay on budget. Set your app in just 1 minute and 3 simple steps.",
   keywords: [
@@ -51,7 +53,8 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/features/budget-spending-limits`,
   },
   openGraph: {
-    title: "Set Spending Limits and Track Your Budget with Fixpenses",
+    images: [DEFAULT_OG_IMAGE],
+    title: "Set Spending Limits and Track Your Budget | Fixpenses",
     description:
       "Set daily, monthly, and category spending limits in Fixpenses. Get alerts before you overspend and stay on budget. Set your app in just 1 minute and 3 simple steps.",
     url: `${SITE_URL}/features/budget-spending-limits`,
@@ -295,6 +298,10 @@ export default function BudgetSpendingLimitsPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <LandingNav />
+      <JsonLd data={breadcrumbSchema([
+          ["Features", "/features"],
+          ["Budgets & Spending Limits", "/features/budget-spending-limits"],
+        ])} />
 
       <main className="flex-1">
         {/* ─── Hero ────────────────────────────────────────────── */}

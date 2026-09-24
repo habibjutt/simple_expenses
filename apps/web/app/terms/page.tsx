@@ -3,7 +3,7 @@ import Link from "next/link";
 import LandingFooter from "@/components/LandingFooter";
 import LandingNav from "@/components/LandingNav";
 import { Button } from "@/components/ui/button";
-import { SITE_URL } from "@/lib/seo";
+import { SITE_URL, DEFAULT_OG_IMAGE } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
@@ -18,6 +18,7 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/terms`,
   },
   openGraph: {
+    images: [DEFAULT_OG_IMAGE],
     title: "Terms of Service | Fixpenses",
     description:
       "The rules and conditions governing your use of Fixpenses.",
@@ -270,10 +271,10 @@ export default function TermsPage() {
               <p>
                 For questions about these Terms:{" "}
                 <a
-                  href="mailto:legal@simpleexpenses.ae"
+                  href="mailto:hello@fixpenses.com"
                   className="text-primary hover:underline"
                 >
-                  legal@simpleexpenses.ae
+                  hello@fixpenses.com
                 </a>{" "}
                 · Dubai, United Arab Emirates.
               </p>

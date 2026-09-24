@@ -11,7 +11,7 @@ import {
   Globe,
   CheckCircle2,
 } from "lucide-react";
-import { SITE_URL } from "@/lib/seo";
+import { SITE_URL, DEFAULT_OG_IMAGE } from "@/lib/seo";
 import { auth } from "@/lib/auth";
 
 export const metadata: Metadata = {
@@ -29,6 +29,7 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/signup`,
   },
   openGraph: {
+    images: [DEFAULT_OG_IMAGE],
     title: "Create Your Free Account | Fixpenses",
     description:
       "Join thousands of UAE residents tracking their finances with Fixpenses. Free, private, and built for AED.",

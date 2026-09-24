@@ -18,10 +18,12 @@ import { Button } from "@/components/ui/button";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/LandingFooter";
 import AnimateOnScroll from "@/components/AnimateOnScroll";
-import { SITE_URL } from "@/lib/seo";
+import { SITE_URL, DEFAULT_OG_IMAGE } from "@/lib/seo";
+import JsonLd from "@/components/JsonLd";
+import { breadcrumbSchema } from "@/lib/structured-data";
 
 export const metadata: Metadata = {
-  title: "Track Credit Card Balances, Limits & Due Dates in Fixpenses",
+  title: "Track Credit Card Balances, Limits & Due Dates",
   description:
     "Stop checking multiple banking apps. Fixpenses track balances, due dates, and transactions for all your credit cards. Get automatic invoices, payment reminders. Get today!",
   keywords: [
@@ -38,7 +40,8 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/features/credit-card-management`,
   },
   openGraph: {
-    title: "Track Credit Card Balances, Limits & Due Dates in Fixpenses",
+    images: [DEFAULT_OG_IMAGE],
+    title: "Track Credit Card Balances, Limits & Due Dates | Fixpenses",
     description:
       "Stop checking multiple banking apps. Fixpenses track balances, due dates, and transactions for all your credit cards. Get automatic invoices, payment reminders. Get today!",
     url: `${SITE_URL}/features/credit-card-management`,
@@ -104,6 +107,10 @@ export default function CreditCardsPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <LandingNav />
+      <JsonLd data={breadcrumbSchema([
+          ["Features", "/features"],
+          ["Credit Card Management", "/features/credit-card-management"],
+        ])} />
 
       <main className="flex-1">
         {/* ─── Hero ────────────────────────────────────────────── */}

@@ -37,7 +37,9 @@ import LandingNav from "@/components/LandingNav";
 import PricingSection from "@/components/PricingSection";
 import AnimateOnScroll from "@/components/AnimateOnScroll";
 import PersonaTabs from "@/components/PersonaTabs";
-import { SITE_URL, SITE_NAME } from "@/lib/seo";
+import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE } from "@/lib/seo";
+import JsonLd from "@/components/JsonLd";
+import { softwareApplicationSchema } from "@/lib/structured-data";
 
 const HOME_TITLE = `Personal Finance Software for UAE Residents | ${SITE_NAME}`;
 const HOME_DESCRIPTION =
@@ -66,12 +68,15 @@ export const metadata: Metadata = {
     canonical: SITE_URL,
   },
   openGraph: {
+    images: [DEFAULT_OG_IMAGE],
     title: HOME_TITLE,
     description: HOME_DESCRIPTION,
     url: SITE_URL,
     type: "website",
   },
   twitter: {
+    images: [DEFAULT_OG_IMAGE],
+    card: "summary_large_image",
     title: HOME_TITLE,
     description: HOME_DESCRIPTION,
   },
@@ -82,6 +87,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-background flex flex-col">
       {/* ─── Navigation ──────────────────────────────────────── */}
       <LandingNav />
+      <JsonLd data={softwareApplicationSchema()} />
 
       <main>
         {/* ─── Hero ────────────────────────────────────────────── */}
@@ -119,7 +125,7 @@ export default function LandingPage() {
                     <span className="absolute -bottom-1 left-0 right-0 h-px bg-gradient-to-r from-[#1a9e5c]/60 via-[#1a9e5c]/30 to-transparent" />
                   </span>
                   <span className="block text-lg sm:text-xl lg:text-2xl font-semibold text-muted-foreground tracking-normal mt-2 sm:mt-3">
-                    Track Expenses. Protect Your Privacy
+                    The Expense Tracker That Protects Your Privacy
                   </span>
                 </h1>
                 <p className="se-hero-desc text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-xl mx-auto lg:mx-0">
@@ -289,14 +295,10 @@ export default function LandingPage() {
               className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center"
             >
               {[
-                { value: "500+", label: "UAE users", icon: Users },
-                {
-                  value: "AED 10M+",
-                  label: "Tracked to date",
-                  icon: TrendingUp,
-                },
-                { value: "4.9 ★", label: "Average rating", icon: Award },
-                { value: "100%", label: "Data encrypted", icon: Lock },
+                { value: "AED", label: "Native currency", icon: Wallet },
+                { value: "0", label: "Bank logins needed", icon: Lock },
+                { value: "AES-256", label: "Data encryption", icon: ShieldCheck },
+                { value: "Free", label: "Forever plan", icon: Award },
               ].map(({ value, label, icon: Icon }) => (
                 <div key={label} className="space-y-1 group">
                   <div className="flex items-center justify-center gap-2">
@@ -1086,8 +1088,8 @@ export default function LandingPage() {
                 Start Your Financial Journey Today
               </h2>
               <p className="text-lg text-white/80 max-w-xl mx-auto mt-4">
-                Join hundreds of UAE residents who have taken control of their
-                spending. Free forever — upgrade whenever you need more.
+                Take control of your spending in dirhams, without handing over
+                your bank login. Free forever — upgrade whenever you need more.
               </p>
             </AnimateOnScroll>
             <AnimateOnScroll

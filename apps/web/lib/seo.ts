@@ -19,3 +19,23 @@ export const BASE_KEYWORDS = [
   "AED expense tracking",
   "Fixpenses",
 ];
+
+/**
+ * Default social share image. Pages that set their own `openGraph`/`twitter`
+ * metadata replace the parent's, so each must list it explicitly.
+ */
+export const DEFAULT_OG_IMAGE = {
+  url: "/og-default.png",
+  width: 1200,
+  height: 630,
+  alt: "Fixpenses: expense tracker for UAE residents",
+};
+
+/** Who runs Fixpenses; shown on /about and the footer, and used in schema. */
+export const FOUNDER = {
+  name: "Habib Abdul Qadoos",
+  role: "Founder",
+  linkedin: "https://www.linkedin.com/in/habibq/",
+};
+export const OPERATOR_NAME = "Devtrone FZE LLC";
+export const COMPANY_LINKEDIN = "https://www.linkedin.com/company/fixpenses";

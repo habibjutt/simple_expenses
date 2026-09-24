@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Mail, MapPin, Clock, MessageCircle, Phone, ArrowRight } from "lucide-react";
 import LandingFooter from "@/components/LandingFooter";
 import LandingNav from "@/components/LandingNav";
-import { SITE_URL } from "@/lib/seo";
+import { SITE_URL, DEFAULT_OG_IMAGE } from "@/lib/seo";
 import ContactForm from "@/components/ContactForm";
 
 export const metadata: Metadata = {
@@ -20,6 +20,7 @@ export const metadata: Metadata = {
     canonical: `${SITE_URL}/contact`,
   },
   openGraph: {
+    images: [DEFAULT_OG_IMAGE],
     title: "Contact Us | Fixpenses",
     description: "Get in touch with the Fixpenses team.",
     url: `${SITE_URL}/contact`,
@@ -72,10 +73,10 @@ export default function ContactPage() {
                       Email
                     </p>
                     <a
-                      href="mailto:hello@simpleexpenses.ae"
+                      href="mailto:hello@fixpenses.com"
                       className="text-sm text-primary hover:underline"
                     >
-                      hello@simpleexpenses.ae
+                      hello@fixpenses.com
                     </a>
                     <p className="text-xs text-muted-foreground mt-0.5">
                       We reply within 1 business day
