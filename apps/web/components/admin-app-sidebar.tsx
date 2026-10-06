@@ -12,7 +12,6 @@ import {
   IconArticle,
   type Icon,
 } from "@tabler/icons-react";
-import { LayoutDashboard } from "lucide-react";
 
 import { AdminNavMain } from "@/components/admin-nav-main";
 import { AdminNavUser } from "@/components/admin-nav-user";
@@ -88,9 +87,7 @@ export function AdminAppSidebar({
               className="h-10 data-[slot=sidebar-menu-button]:!p-0 hover:bg-transparent active:bg-transparent"
             >
               <Link href="/admin" className="flex items-center gap-3">
-                <div className="flex size-8 items-center justify-center rounded-lg bg-gray-900">
-                  <LayoutDashboard className="size-4 text-white" />
-                </div>
+                <img src="/fixpenses-icon.svg" alt="" width={32} height={32} className="size-8" />
                 <div className="flex flex-col leading-none">
                   <span className="text-sm font-semibold text-sidebar-foreground">Fixpenses</span>
                   <span className="text-[11px] text-sidebar-foreground/50 font-medium tracking-wide uppercase">Admin</span>

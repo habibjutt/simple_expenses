@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { CreditCard, Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,13 +29,8 @@ export default function LandingNav() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 shrink-0">
-          <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
-            <CreditCard className="w-4 h-4 text-white" />
-          </div>
-          <span className="font-bold text-white text-sm sm:text-base">
-            Fixpenses
-          </span>
-        </Link>
+          <img src="/fixpenses-logo-white.svg" alt="Fixpenses" width={131} height={32} className="h-7 sm:h-8 w-auto" />
+</Link>
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-1">

@@ -69,13 +69,8 @@ const Header = () => {
               href="/dashboard"
               className="flex items-center gap-2 shrink-0 mr-3"
             >
-              <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
-                <CreditCard className="w-4 h-4 text-white" />
-              </div>
-              <span className="font-bold text-sm md:text-base text-white hidden sm:block">
-                Fixpenses
-              </span>
-            </Link>
+              <img src="/fixpenses-logo-white.svg" alt="Fixpenses" width={131} height={32} className="h-7 md:h-8 w-auto" />
+</Link>
 
             {session && (
               <nav className="hidden lg:flex items-center gap-0.5">

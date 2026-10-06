@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -5,7 +6,6 @@ import { SignupForm } from "@/components/signup-form";
 import LandingNav from "@/components/LandingNav";
 import LandingFooter from "@/components/LandingFooter";
 import {
-  CreditCard,
   TrendingUp,
   FileText,
   Globe,
@@ -65,12 +65,7 @@ export default async function Page() {
             <div className="absolute w-64 h-64 rounded-full pointer-events-none -bottom-24 -left-24 bg-white/10 blur-3xl" />
 
             <div className="relative z-10 max-w-xs space-y-8 text-white">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20">
-                  <CreditCard className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-xl font-bold">Fixpenses</span>
-              </div>
+              <Link href="/" className="inline-block"><img src="/fixpenses-logo-white.svg" alt="Fixpenses" width={131} height={32} className="h-10 w-auto" /></Link>
 
               <div>
                 <h2 className="text-3xl font-extrabold leading-tight">
@@ -114,14 +109,7 @@ export default async function Page() {
           {/* Right: form */}
           <div className="flex flex-col items-center justify-center flex-1 px-4 py-6 sm:p-8 md:p-10 bg-background">
             {/* Mobile-only brand header */}
-            <div className="flex items-center justify-center gap-2 mb-8 lg:hidden">
-              <div className="w-8 h-8 rounded-full bg-[#1a9e5c] flex items-center justify-center">
-                <CreditCard className="w-4 h-4 text-white" />
-              </div>
-              <span className="text-base font-bold text-foreground">
-                Fixpenses
-              </span>
-            </div>
+            <Link href="/" className="flex lg:hidden justify-center mb-8"><img src="/fixpenses-logo-primary.svg" alt="Fixpenses" width={131} height={32} className="h-8 w-auto" /></Link>
 
             <div className="w-full max-w-sm">
               <SignupForm />

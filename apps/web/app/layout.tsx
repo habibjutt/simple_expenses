@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -50,9 +50,16 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
   },
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/apple-touch-icon.png",
   },
+  manifest: "/site.webmanifest",
 };
+
+export const viewport: Viewport = { themeColor: "#169F60" };
 
 export default function RootLayout({
   children,

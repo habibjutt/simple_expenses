@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CreditCard, Mail, MapPin, Linkedin } from "lucide-react";
+import { Mail, MapPin, Linkedin } from "lucide-react";
 import { COMPANY_LINKEDIN, OPERATOR_NAME } from "@/lib/seo";
 
 const FOOTER_LINKS = {
@@ -33,12 +33,9 @@ export default function LandingFooter() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Brand */}
           <div className="space-y-5 sm:col-span-2 lg:col-span-1">
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#1a9e5c] flex items-center justify-center shadow-lg">
-                <CreditCard className="w-4 h-4 text-white" />
-              </div>
-              <span className="font-bold text-lg">Fixpenses</span>
-            </Link>
+            <Link href="/" className="inline-block">
+              <img src="/fixpenses-logo-white.svg" alt="Fixpenses" width={131} height={32} className="h-9 w-auto" />
+</Link>
             <p className="text-sm text-white/55 leading-relaxed max-w-xs">
               The smartest way for UAE residents to track every dirham across
               credit cards, bank accounts, and invoices.
