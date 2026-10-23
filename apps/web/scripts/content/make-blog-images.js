@@ -1,5 +1,5 @@
 // Generates 1200x630 featured images for blog posts (SVG source + JPEG).
-// Usage: node scripts/content/make-blog-images.js
+// Usage: node scripts/content/make-blog-images.js [slug ...]  (no args = all)
 const fs = require("fs");
 const path = require("path");
 const sharp = require("sharp");
@@ -90,11 +90,20 @@ const posts = {
     rows: [["AED as default currency", "Must have", null], ["Needs your bank login?", "Your call", null], ["Cards & installments", "Must have", null], ["Works across banks", "Must have", null], ["Price in AED", "Nice to have", null]],
     chip1: "Best app for you", chip2: "The one you'll keep using",
   },
+  "emergency-fund-uae": {
+    eyebrow: "BUDGETING GUIDE", line1: "Emergency fund", line2: "in the UAE",
+    sub1: "How much to save, where to keep it", sub2: "and how ILOE and gratuity fit in",
+    cardLabel: "Six-month target, family of three", cardValue: "AED 99,000", badge: "6 months",
+    rows: [["Starter fund (1 month)", "16,500", 0.17], ["First milestone (3 months)", "49,500", 0.5, "#0ea5e9"], ["Full target (6 months)", "99,000", 1, "#8b5cf6"], ["ILOE, if eligible", "up to 3 months", null], ["Gratuity", "extra, not the plan", null]],
+    chip1: "Dubai visa grace period", chip2: "60 days to decide",
+  },
 };
 
 const outDir = path.join(__dirname, "../../public/images/blog");
 (async () => {
+  const only = process.argv.slice(2);
   for (const [slug, cfg] of Object.entries(posts)) {
+    if (only.length && !only.includes(slug)) continue;
     const s = svg(cfg);
     fs.writeFileSync(path.join(__dirname, `${slug}.svg`), s);
     const info = await sharp(Buffer.from(s), { density: 144 })

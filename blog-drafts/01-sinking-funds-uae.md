@@ -26,7 +26,7 @@ If you haven't built a monthly budget yet, start with our guide on [how to creat
 
 A sinking fund is savings with a job and a date. "AED 24,000 for the January rent cheque" is a sinking fund. "AED 30,000 in case I lose my job" is an emergency fund.
 
-The difference matters because you should never raid one to pay the other. Your emergency fund is for events you can't predict: a job loss, a medical bill, an urgent flight home. Your sinking funds are for events you can predict to the day. If you pay the rent cheque out of your emergency fund, you haven't used savings, you've just discovered you didn't have a plan for rent.
+The difference matters because you should never raid one to pay the other. Your [emergency fund](/blog/emergency-fund-uae) is for events you can't predict: a job loss, a medical bill, an urgent flight home. Your sinking funds are for events you can predict to the day. If you pay the rent cheque out of your emergency fund, you haven't used savings, you've just discovered you didn't have a plan for rent.
 
 In practice, a sinking fund turns a large, lumpy cost into a small, boring monthly bill. AED 24,000 every three months becomes AED 8,000 every payday. Your budget stops having good months and disaster months.
 
