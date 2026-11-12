@@ -97,6 +97,13 @@ const posts = {
     rows: [["Starter fund (1 month)", "16,500", 0.17], ["First milestone (3 months)", "49,500", 0.5, "#0ea5e9"], ["Full target (6 months)", "99,000", 1, "#8b5cf6"], ["ILOE, if eligible", "up to 3 months", null], ["Gratuity", "extra, not the plan", null]],
     chip1: "Dubai visa grace period", chip2: "60 days to decide",
   },
+  "gratuity-calculation-uae": {
+    eyebrow: "UAE LABOUR LAW", line1: "Gratuity", line2: "calculation, UAE",
+    sub1: "Work out your end-of-service pay", sub2: "with worked AED examples",
+    cardLabel: "7 years, basic AED 12,000", cardValue: "AED 66,000", badge: "165 days",
+    rows: [["Daily wage (basic ÷ 30)", "AED 400", null], ["Years 1 to 5 (21 days each)", "105 days", 0.64], ["Years 6 to 7 (30 days each)", "60 days", 0.36, "#0ea5e9"], ["Allowances", "not included", null], ["Cap", "2 years' basic", null]],
+    chip1: "Resigned after 1 year?", chip2: "Full gratuity",
+  },
 };
 
 const outDir = path.join(__dirname, "../../public/images/blog");

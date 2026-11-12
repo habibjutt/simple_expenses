@@ -16,179 +16,179 @@ jtbd: "When I realise that losing my job in the UAE could mean losing my salary 
 sources:
   - u.ae Insurance against job loss (retrieved October 2026)
   - ILOE policy terms and conditions, iloe.ae (retrieved October 2026)
+  - Cabinet Resolution No. 97 of 2022, Article 9 (ILOE 30-day claim window)
   - GDRFA Dubai residence permit cancellation service page (retrieved October 2026)
   - Federal Decree-Law No. 33 of 2021 on employment relations (gratuity, final dues)
 ---
 
 # How to Build an Emergency Fund in the UAE
 
-*Figures checked October 2026. Rules for insurance, visas and gratuity can change, so confirm the details that apply to you.*
+In most countries losing your job will mean you lose your income. However, in the UAE you will also face a countdown. When your residence visa is cancelled, Dubai's residency department gives you [60 days](https://www.gdrfad.gov.ae/en/services/0613ab0e-5858-11ea-0320-0050569629e8) to leave. This can vary between emirates and residency types. In this time you need to find a new job, change your visa status or leave.
 
-In most countries, losing your job means losing your income. In the UAE, it can also start a countdown. Once your residence visa is cancelled, Dubai's residency department gives a [grace period of 60 days](https://www.gdrfad.gov.ae/en/services/0613ab0e-5858-11ea-0320-0050569629e8) to stay in the country, and the period can differ by emirate and residence category. In that window, you need to find a new job, change your visa status, or leave.
+In the UAE having an emergency fund is extremely important. Not only will you need to continue to pay your bills whilst you look for a new job, but also it will give you time to make a considered decision.
 
-That's why an emergency fund in the UAE matters more than the generic advice suggests. Paying the bills while you job hunt is part of it. The bigger benefit is time to make a good decision instead of a rushed one.
+This guide will tell you how big you should make your emergency fund, what insurance and gratuity cover in the UAE, where to store your money and how to start building it up from scratch. To get a better understanding of how to build a monthly budget in the UAE check out [our guide](/blog/how-to-create-a-monthly-budget-uae).
 
-This guide covers how big your emergency fund should be, what the UAE's unemployment insurance and gratuity cover, where to keep the money, and how to build it from zero while rent cheques and school fees compete for the same salary. For the bigger picture, start with our guide on [how to create a monthly budget in the UAE](/blog/how-to-create-a-monthly-budget-uae).
+## Why it is more important in the UAE
 
-## Why an emergency fund matters more in the UAE
+There are several reasons why losing your job in the UAE can be more difficult than the global articles suggest.
 
-Several things make job loss here harder than the global articles assume.
+Your visa will be tied to your job. This means if your family is on your sponsorship then their residency will also be affected.
 
-Your visa is tied to your job. If your family is on your sponsorship, their residence depends on yours too. A job loss can put the whole household's right to stay at risk, as well as its income.
+There is very little support whilst you are looking for a new job. As an expat there is no state welfare system for you. Whilst there is some support through the Unemployment Insurance Scheme (ILOE), it only pays you a proportion of your basic salary and for a limited time.
 
-There's limited support while you look for work. Expats don't have a state welfare system to fall back on. The unemployment insurance scheme (ILOE) helps, but it pays a share of your basic salary, not your full package, and only for a limited time and under conditions.
+Fixed costs will still be incurred. Your rental payment will still need to be paid and your kids school term will be paid in advance.
 
-Big fixed costs don't stop. A rent cheque that's already been handed over will still clear. School terms are paid in advance.
+Your car loan, minimum payments on your cards and installments will still need to be paid. There may also be a cost associated with terminating your tenancy early. Check your contract for any early termination fees.
 
-Car loans, credit card minimums and installment plans keep running. Breaking a tenancy early can also cost money, so check your contract for any early termination penalty.
+Costs associated with moving. If you decide to leave you will need to pay for flights, shipping or storage.
 
-Moving home costs money. If you decide to leave, you'll need flights, shipping or storage, and possibly money to clear any outstanding loans or cards before you go.
+The emergency fund in the UAE will help you pay for your essentials whilst looking for a new job and to leave in an organised way.
 
-So a UAE emergency fund has two jobs: covering essentials while you search, and paying for an orderly exit if needed.
+## What is covered by ILOE and gratuity?
 
-## What ILOE and gratuity cover, and what they don't
-
-Many people assume their unemployment insurance and end-of-service gratuity are their emergency fund. They help, but neither is a substitute.
+Many people assume that their unemployment insurance and end of service gratuity will act as their emergency fund. However this is not the case.
 
 ### Unemployment insurance (ILOE)
 
-The Involuntary Loss of Employment scheme is mandatory for most private-sector and federal government employees. According to the [UAE government portal](https://u.ae/en/information-and-services/jobs/Workplace-regulations/insurance/unemployment-insurance-scheme) and the [ILOE policy terms](https://www.iloe.ae/pdf/policy-terms-condition-english.pdf):
+Most private sector and federal government employees are required to join the Involuntary Loss of Employment scheme. From the [UAE government portal](https://u.ae/en/information-and-services/jobs/Workplace-regulations/insurance/unemployment-insurance-scheme) and [policy terms](https://www.iloe.ae/pdf/policy-terms-condition-english.pdf):
 
-- The premium is AED 5 a month if your basic salary is AED 16,000 or less, and AED 10 a month above that, plus VAT.
-- If you're eligible, it pays 60 percent of your average basic salary over the last six months.
-- Payments are capped at AED 10,000 a month for the lower band and AED 20,000 a month for the higher band.
-- Each claim pays for a maximum of three months, and payments stop if you start a new job.
-- You must have been subscribed for at least 12 continuous months before you can claim.
-- It doesn't pay out if you resigned or were dismissed for disciplinary reasons.
+- If your basic salary is AED 16,000 or below you will pay AED 5 per month. If your basic salary is above this you will pay AED 10 per month (plus VAT).
+- If you are eligible you will be paid 60% of your average basic salary for the past 6 months.
+- You cannot receive more than AED 10,000 per month (or AED 20,000 per month if on the higher bracket).
+- You can only claim for 3 months per claim and will stop receiving payments if you find a new job.
+- You will need to have been subscribed for at least 12 consecutive months.
+- If you resigned or were dismissed for disciplinary reasons you will not receive any payments.
+- You must claim within 30 days of the end of your job or 30 days from the date of any court ruling if you had a labour complaint. If you miss this window your claim could be rejected.
 
-So ILOE is useful, but notice the gaps. It's based on basic salary, which is often half or less of a UAE package once housing and transport allowances are added. It lasts three months at most. And if you've been in your job less than a year, or you resign, it won't pay at all.
+Whilst this is helpful to have there are some limitations. It is based on your basic salary which is often half or less of your overall package once you add in your housing and transport allowance. It is also only for 3 months and if you have not been in your job for a year or more, or if you resigned you will not receive anything.
 
-### End-of-service gratuity
+### End of Service Gratuity
 
-[Under the UAE labour law](https://u.ae/en/information-and-services/jobs/Sector-of-employment/employment-in-the-private-sector/end-of-service-benefits-for-employees-in-the-private-sector), most private-sector employees who complete at least one year of service receive gratuity of 21 days' basic salary for each of the first five years, and 30 days' basic salary for each year after that. Employers must pay final dues within 14 days of the contract ending. Employees in the DIFC are covered by a separate workplace savings scheme instead, and some employers elsewhere have moved staff to the government-approved voluntary savings scheme, where gratuity is invested during employment.
+Most private sector employees will receive gratuity under [UAE labour law](https://u.ae/en/information-and-services/jobs/Sector-of-employment/employment-in-the-private-sector/end-of-service-benefits-for-employees-in-the-private-sector). You will receive 21 days basic salary for the first 5 years and 30 days basic salary for each additional year. Employers must pay your final dues within 14 days of your contract coming to an end. Employees within the DIFC will have a different scheme called a workplace savings scheme. Some employers have moved employees onto the government approved voluntary savings scheme. This means that your gratuity will be invested during your employment.
 
-Gratuity can be a meaningful sum after several years. It's still not a reliable emergency fund.
+Gratuity can be a large amount after many years however it is not a reliable emergency fund.
 
-You may have worked less than a year. Final settlements are sometimes delayed or disputed. And if you've borrowed against it in your head, a loan or card balance may already be waiting to swallow it.
+You may not have been employed for a year. Final settlements can sometimes be delayed or contested. If you have a personal loan linked to your salary transfer your bank may have a claim. Many banks will ask your employer to provide a letter stating that they will pay your final settlement to the bank first. This means that your gratuity can be used to pay off your loan.
 
-| Safety net | What it pays | The catch |
+| Safety Net | Pay | Notes |
 |---|---|---|
-| ILOE | 60% of average basic salary, capped, up to 3 months | Needs 12 months' subscription; no payout if you resign; basic salary only |
-| Gratuity | 21 or 30 days' basic salary per year of service | Needs 1 year of service; based on basic only; can be delayed |
-| Your emergency fund | Whatever you've saved | Only exists if you build it |
+| ILOE | 60% of Average Basic Salary (subject to maximum). Up to 3 months. | You need to have been subscribed for 12 months. Will not pay if you resigned. Only based on basic salary. |
+| Gratuity | 21 or 30 days basic salary per year. | Need to have worked for 1 year. Only based on basic. Can be delayed. |
+| Emergency Fund | Whatever you save | Only exists if you save. |
 
-Plan as if neither arrives, and treat them as extra time if they do.
+Plan to not receive either and if you do they are extra time.
 
-## How big should your emergency fund be?
+## How much should I save?
 
-The usual rule is three to six months of essential expenses. In the UAE, most people should aim for the higher end.
+As a general rule you should aim to save 3-6 months of your essentials. In the UAE most people should aim for the higher end.
 
-Start with your essential monthly costs, not your total spending. These are the bills you'd still pay if you lost your job tomorrow:
+Start by working out your monthly essentials. This is what you would still pay if you lost your job tomorrow.
 
-- Rent, as a monthly amount
-- School fees, as a monthly amount
+- Rent (Monthly)
+- School Fees (Monthly)
 - Groceries
-- Utilities, phone and internet
-- Transport, including car loan payments and fuel
-- Health insurance for anyone your employer no longer covers
-- Minimum payments on cards, loans and installment plans
+- Utilities, Phone & Internet
+- Transport (Car Loan & Fuel)
+- Health Insurance for anyone your employer no longer covers
+- Minimum payments on Cards, Loans & Installments
 
-Leave out eating out, shopping, holidays and subscriptions you'd cancel. Then multiply.
+Don't include eating out, shopping, holidays or subscriptions you would cancel. Then multiply by the number of months you want to cover.
 
-Three months is a reasonable target if you're single, have skills in demand, have no dependants on your visa, and have no debt.
+If you are single, have in-demand skills, no dependants on your visa and no debts then 3 months is a reasonable amount to aim for.
 
-Six months makes more sense if you support a family on one income, sponsor dependants, work on commission, are self-employed, or haven't yet been subscribed to ILOE for 12 months.
+If you are supporting a family on one income, have dependants on your sponsorship, work on commission, are self employed or have not been subscribed to ILOE for 12 months then 6 months would make more sense.
 
-More than six months is worth considering if you're the sole earner with children in school, or you'd want the option of relocating your family without borrowing.
+If you are the sole earner with children in school or would like the option to relocate your family then you may want to aim for more than 6 months.
 
-## A worked example: one income, family of three
+## Example
 
-Here's how the numbers come together for a family in Dubai with one earner on a total package of AED 25,000 a month, of which AED 15,000 is basic salary. The figures are an illustration, so use your own.
+For example if you are a one income earner with a family of 3 in Dubai earning a total package of AED 25,000 per month (basic salary of AED 12,500). This is just an example so use your own numbers.
 
-| Essential cost | Monthly (AED) |
+| Essentials | Monthly Cost (AED) |
 |---|---|
-| Rent (annual rent ÷ 12) | 7,000 |
-| School fees (annual ÷ 12) | 2,500 |
-| Car loan and fuel | 2,000 |
+| Rent (Yearly divided by 12) | 7,000 |
+| School Fees (Yearly divided by 12) | 2,500 |
+| Car Loan & Fuel | 2,000 |
 | Groceries | 2,000 |
-| Minimum card and loan payments | 1,000 |
-| Utilities and internet | 900 |
-| Family health insurance | 800 |
-| Phones | 300 |
-| **Total essentials** | **16,500** |
+| Minimum Card & Loan Payments | 1,000 |
+| Utilities & Internet | 900 |
+| Family Health Insurance | 800 |
+| Phone | 300 |
+| **Total Essentials** | **16,500** |
 
-Three months of essentials is AED 49,500. Six months is AED 99,000.
+3 Months = AED 49,500. 6 Months = AED 99,000.
 
-Now look at what ILOE might add if this person is eligible: 60 percent of AED 15,000 is AED 9,000 a month, under the AED 10,000 cap, for up to three months, so about AED 27,000 in total. If they've worked four years for the same employer, gratuity would be four years × 21 days × AED 500 a day (AED 15,000 ÷ 30), which is AED 42,000.
+If they are eligible for ILOE they will receive 60% of their basic salary (AED 12,500). This means they will receive AED 7,500 per month (up to a maximum of AED 10,000). This means they will receive around AED 22,500. If they have been working for the same employer for 4 years they would receive 4 years x 21 days x (AED 12,500 divided by 30 = around AED 417 per day). This is AED 35,000.
 
-That's potentially AED 69,000 from insurance and gratuity combined. It's tempting to save less because of it. Don't. A sensible plan is to treat AED 49,500 as the first milestone and AED 99,000 as the target, and let any insurance or gratuity extend how long the fund lasts rather than replace it.
+In total they could receive AED 57,500 from insurance and gratuity. It can be tempting to save less but a sensible plan would be to use AED 49,500 as your first target and aim for AED 99,000. Any insurance or gratuity will simply increase the length of time you have.
 
-## Where to keep your emergency fund
+## Where to save
 
-An emergency fund has one job: to be there, at full value, the week you need it. That rules out a lot of places.
+An emergency fund should be money that you have ready to use in full the week you need it.
 
-Keep it in a savings account in your own name, separate from your salary account, with no debit card attached if possible. You want to be able to move the money within a day or two, but not tap it at a mall by accident.
+Save it in a savings account in your name. Don't have it in your salary account and ideally don't have a debit card linked to it. You want to be able to access it within a day or 2 but don't want to accidentally spend it in the mall.
 
-Avoid putting it in shares, crypto or anything whose value can fall just when the economy turns and jobs are being cut. Avoid fixed deposits that lock the money up or charge you to break them early. Access matters more than a slightly higher rate.
+Don't save in stocks, crypto or anything that could lose value. You don't want to be locked into a fixed deposit or pay to break the contract early. It's better to have easy access even if you are getting a slightly lower rate.
 
-If you'd move back home in a worst case, consider keeping part of the fund in an account in your home country, so you're not depending on transfers during a stressful move.
+If you would return home in a worst case scenario then maybe save some of it in an account in your home country.
 
-Track it as a single goal with a target, and keep it apart from the money you're saving for predictable costs. Rent cheques and school fees belong in [sinking funds](/blog/sinking-funds-uae-rent-cheques-school-fees), not in your emergency fund.
+Keep it as one target. Don't mix it in with your savings for predictable costs. Rent and school fees should be in your [sinking funds](/blog/sinking-funds-uae-rent-cheques-school-fees).
 
-## How to build it from zero
+## How to build from nothing
 
-Six months of expenses can look impossible when rent cheques already eat into every salary. The answer is to build it in stages.
+It can seem impossible to save 6 months of your expenses when your rental payments are taking up a chunk of your salary each month. Start small.
 
-1. Save a starter fund of one month's essentials. For the family above, that's AED 16,500. This alone stops a car repair or a medical bill from going on a credit card.
-2. Clear expensive debt next. Credit card balances at 3 percent or more a month cost more than any savings account pays, and stacked [installment plans](/blog/0-installment-plans-uae) eat into what you can save. Keep the starter fund untouched and put extra money towards card debt. Our guide to [credit card statement cycles](/blog/credit-card-statement-cycle-uae) explains how to stop paying interest for good.
-3. Build to three months. Set up a standing order for the day after payday. Even AED 1,500 a month gets the family above from one month to three in under two years, and faster with windfalls.
-4. Then build to six. Once three months is in place, keep the standing order running until you reach your full target.
+1. Start by saving 1 month of your essentials. In this example it would be AED 16,500. This will help you avoid using a credit card for any car repairs or medical costs.
+2. Next pay off any high cost debt. Credit cards with 3% or above monthly interest will cost you more than any savings account. [Installment plans](/blog/0-installment-plans-uae) will also eat into your savings. Keep your initial emergency fund untouched and try to pay off any extra to your credit card. Using our guide to [understanding your credit card statement cycle](/blog/credit-card-statement-cycle-uae) will help you stop paying interest.
+3. Build up to 3 months. Set up a standing order to pay into your emergency fund the day after you get paid. Even if you're only saving AED 1,500 per month it will take less than 2 years to build up to 3 months for this example. It will be quicker if you have any windfalls.
+4. Build up to 6 months. Once you have 3 months saved keep your standing order going until you hit your target.
 
-Windfalls speed this up a lot. Annual bonuses, a ticket allowance you don't fully use, a tax refund from home, or the money freed up when an installment plan ends can all go straight into the fund.
+Having windfalls will speed this up. If you have an annual bonus, unused ticket allowance, tax refund from home or any money freed up from installment plans then these can all go straight into your emergency fund.
 
-Fixpenses lets you set the fund up as a [savings goal](/features/financial-savings-goals) with a target amount, so you can see each month how close you are and how many months of essentials you've covered.
+Fixpenses will allow you to set your emergency fund as a [savings goal](/features/financial-savings-goals). This will show you how close you are each month and how many months of essentials you have saved.
 
-## When to use it, and when not to
+## When to use
 
-Use it for genuine emergencies: losing your job, medical costs your insurance doesn't cover, an urgent flight home for a family emergency, or a car repair you need to keep working.
+Use your emergency fund for real emergencies. If you lose your job, have any medical costs not covered by your insurance, need to fly home urgently for a family emergency or have a car repair.
 
-Don't use it for anything you could have predicted. Rent cheques, school fees, annual car registration, Eid and summer travel all have dates. They belong in sinking funds. Needing the emergency fund for a rent cheque is a sign of a gap in your budget, and a sinking fund is the fix.
+Don't use it for anything predictable. Rent, school fees, car registration per year, Eid and summer travel will all have set dates. These should be in your sinking funds. If you need to use your emergency fund for rent then this shows there is a gap in your budget. Use a sinking fund.
 
-After you use it, rebuilding comes first. Pause other savings goals and put the standing order back to work until the fund is full again.
+Once you have used it you should prioritise getting it back. Stop saving towards any other goals and get your standing order back going.
 
-## If you lose your job: the first week
+## If you lose your job
 
-Picture a common case. A marketing manager in Dubai is made redundant at the end of March. The next rent cheque is due in April, and the kids' school term starts in May. With four months of essentials saved, the week looks very different from the version where everything is on a credit card.
+Imagine you are a marketing manager in Dubai and you get made redundant at the end of March. Your next rent is due in April and your kids school term starts in May. Having 4 months of essentials saved will make the first week look completely different to if you had everything on a credit card.
 
-Whatever your situation, these are the first things to do:
+Whatever your situation you should:
 
-- Confirm your visa cancellation date and your grace period, and write the deadline down.
-- Check whether you're eligible for ILOE and submit your claim promptly.
-- Confirm your final settlement and gratuity with HR, and the date it will be paid.
-- Cut spending to essentials straight away, before you know how long the search will take.
-- Contact your bank about any loans, cards or installment plans, especially if you might leave the country.
-- Work out how many weeks your emergency fund covers, and use that number to plan your search.
+- Find out when your visa is cancelled and your grace period. Note down when your deadline is.
+- Find out if you are eligible for ILOE and submit your claim well within the 30 day window.
+- Find out when you will receive your final settlement and gratuity from HR.
+- Immediately reduce your spending to just essentials.
+- Contact your bank regarding any loans, cards or installments. Especially if you may leave the country.
+- Work out how many weeks you have saved and plan your search.
 
-## Frequently asked questions
+## FAQ
 
-### Should I invest my emergency fund to earn more?
+### Should I invest my emergency fund?
 
-No. The point of the fund is that it's available at full value when things go wrong, which is often when markets fall too. Invest money you won't need for years, once your emergency fund is full.
+No. The point of having an emergency fund is to have it available in full when something goes wrong. Often this is when the market drops. Once you have built up your emergency fund invest money you won't need for years.
 
 ### Is my gratuity my emergency fund?
 
-Not really. You need at least a year's service to receive it, it's based on basic salary only, and it can be delayed. Count it as extra time if it arrives, not as the fund itself.
+No. You need to have worked for at least a year, it is only based on your basic salary and can be delayed. If you receive it then treat it as extra time.
 
 ### Do I still need an emergency fund if I have ILOE?
 
-Yes. ILOE pays 60 percent of basic salary for up to three months per claim, only if you've been subscribed for 12 months and didn't resign. For most people that covers part of their essentials for part of the time.
+Yes. ILOE only pays 60% of your basic salary for up to 3 months per claim. You will only receive it if you have been subscribed for 12 months and did not resign. For most people this will only cover a proportion of your essentials for a proportion of the time.
 
-### How long does it take to build an emergency fund?
+### How long will it take me to build my emergency fund?
 
-It depends on your income and costs, but saving 10 to 15 percent of take-home pay usually builds three months of essentials in about two years. Bonuses speed it up.
+It will depend on your income and costs. Usually you can build 3 months of essentials by saving 10-15% of your take home pay. This will take 1-2 years. Having bonuses will speed this up.
 
-## Start with one month
+## Start with 1 month
 
-You don't need six months saved by next payday.
+You don't need to have 6 months saved by your next pay date.
 
-Work out your essential monthly costs tonight, open a separate savings account, and set a standing order for the day after your salary lands. One month of essentials is the first milestone. After that, a broken-down car or a sudden flight home stops being a crisis, and each extra month buys you time.
+Tonight work out how much you need to save per month for your essentials. Open a separate savings account and set up a standing order to pay into your emergency fund the day after you get paid. This will be your first target. Once you have 1 month saved you won't panic if your car breaks down or you need to fly home suddenly. The more months you have the more time you have.
