@@ -104,6 +104,13 @@ const posts = {
     rows: [["Daily wage (basic ÷ 30)", "AED 400", null], ["Years 1 to 5 (21 days each)", "105 days", 0.64], ["Years 6 to 7 (30 days each)", "60 days", 0.36, "#0ea5e9"], ["Allowances", "not included", null], ["Cap", "2 years' basic", null]],
     chip1: "Resigned after 1 year?", chip2: "Full gratuity",
   },
+  "rent-cheques-dubai": {
+    eyebrow: "RENTING IN DUBAI", line1: "Rent cheques:", line2: "1, 2, 4 or 12?",
+    sub1: "The real yearly cost of each", sub2: "option, worked out in AED",
+    cardLabel: "Same flat, listed at AED 100,000", cardValue: "AED 10,000 gap", badge: "Example",
+    rows: [["1 cheque (5% off)", "95,000", 0.905], ["2 cheques", "97,500", 0.929, "#0ea5e9"], ["4 cheques (listed)", "100,000", 0.952, "#f59e0b"], ["12 cheques (5% extra)", "105,000", 1, "#ef4444"]],
+    chip1: "Paying one cheque?", chip2: "Use savings, not a card",
+  },
 };
 
 const outDir = path.join(__dirname, "../../public/images/blog");
